@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ระบบเช็คดื่มนม – ครูประจำชั้น</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:#1a5276;--primary-dark:#154360;--primary-light:#2980b9;
+  --success:#27ae60;--success-light:#2ecc71;--danger:#e74c3c;--warning:#f39c12;
+  --text:#2c3e50;--text2:#7f8c8d;--border:#dee2e6;--bg:#f8f9fa;--card:#fff;
+  --font:'Sarabun',sans-serif;--shadow:0 2px 8px rgba(0,0,0,.08);--rad:10px;
+  --sw:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:54px;z-index:300;
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--primary-light));
+  display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.logo{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;color:#fff;flex:1;line-height:1.2;}
+.logo small{font-size:.68rem;font-weight:400;opacity:.8;display:block;}
+.hbtn{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;display:none;padding:4px;}
+.ubadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;
+  padding:4px 12px;color:#fff;font-size:.76rem;display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:#f39c12;flex-shrink:0;}
+.dot.ok{background:#2ecc71;}.dot.busy{animation:blink .9s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── SIDEBAR ── */
+.sidebar{position:fixed;top:54px;left:0;bottom:0;width:var(--sw);background:#1a2c3a;
+  overflow-y:auto;z-index:200;transition:transform .28s ease;}
+.sbh{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sbh .sc{font-size:.68rem;color:rgba(255,255,255,.5);}.sbh .sr{font-size:.92rem;font-weight:700;color:#fff;margin:2px 0;}
+.sbh .st{font-size:.72rem;color:rgba(255,255,255,.6);}
+.nst{font-size:.62rem;font-weight:600;color:rgba(255,255,255,.4);padding:10px 14px 3px;text-transform:uppercase;letter-spacing:.5px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:.84rem;color:rgba(255,255,255,.75);
+  border:none;background:none;width:100%;font-family:inherit;text-align:left;border-left:3px solid transparent;transition:all .15s;}
+.ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+.ni.active{background:rgba(41,128,185,.3);color:#fff;border-left-color:var(--primary-light);font-weight:600;}
+.ni .ic{font-size:.95rem;min-width:20px;text-align:center;}
+.nhr{height:1px;background:rgba(255,255,255,.1);margin:4px 10px;}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);padding-top:54px;}.cont{padding:18px;max-width:1000px;}
+.card{background:var(--card);border-radius:var(--rad);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;}
+.card-title{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pt{font-size:1.1rem;font-weight:800;margin-bottom:14px;font-family:'Kanit',sans-serif;}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
+.sc{background:var(--card);border-radius:var(--rad);box-shadow:var(--shadow);padding:14px 12px;text-align:center;border-top:3px solid #ccc;}
+.sc.g{border-top-color:var(--success-light)}.sc.b{border-top-color:var(--primary-light)}.sc.o{border-top-color:var(--warning)}.sc.r{border-top-color:var(--danger)}.sc.p{border-top-color:#8e24aa;}
+.sc .n{font-size:1.65rem;font-weight:800;font-family:'Kanit',sans-serif;line-height:1;}
+.sc .l{font-size:.68rem;color:var(--text2);margin-top:2px;}
+.sc.g .n{color:var(--success)}.sc.b .n{color:var(--primary-light)}.sc.o .n{color:var(--warning)}.sc.r .n{color:var(--danger)}.sc.p .n{color:#8e24aa;}
+
+/* ── FORM ── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.fg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}.fg4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.fgr{margin-bottom:12px;}label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:4px;display:block;}
+input,select,textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--text);transition:border .18s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(41,128,185,.1);}
+textarea{resize:vertical;min-height:65px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;font-size:.86rem;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);}
+.btn-success{background:var(--success);color:#fff;}.btn-success:hover{background:#219a52;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-warning{background:var(--warning);color:#fff;}
+.btn-secondary{background:#6c757d;color:#fff;}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text);}.btn-outline:hover{border-color:var(--primary-light);color:var(--primary);}
+.btn-sm{padding:5px 11px;font-size:.78rem;}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600;}
+.badge-green{background:#d4edda;color:#155724;}.badge-red{background:#f8d7da;color:#721c24;}.badge-blue{background:#d1ecf1;color:#0c5460;}.badge-yellow{background:#fff3cd;color:#856404;}
+
+/* ── ATTENDANCE TABLE ── */
+.att-table-wrap{overflow-x:auto;}
+.att-table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px;}
+.att-table th{background:var(--primary-dark);color:white;padding:9px 8px;text-align:center;font-weight:500;white-space:nowrap;}
+.att-table th.col-name{text-align:left;min-width:140px;}
+.att-table th.col-num{min-width:38px;}
+.att-table td{padding:7px 6px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;}
+.att-table td.col-name{text-align:left;padding-left:12px;}
+.att-table tr:hover td{background:#f8f9fa;}
+.att-table td.col-num{color:var(--text2);font-size:12px;}
+
+.att-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .1s;font-family:inherit;}
+.att-btn:hover{border-color:var(--primary-light);}
+.att-btn.present{background:var(--success-light);border-color:var(--success-light);color:white;}
+.att-btn.absent{background:var(--danger);border-color:var(--danger);color:white;}
+
+/* ── PHOTO ── */
+.photo-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg);}
+.photo-zone:hover{border-color:var(--primary-light);background:#f0f7ff;}
+.photo-zone input{display:none;}
+.photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.photo-thumb{width:80px;height:80px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.photo-thumb-wrap{position:relative;display:inline-block;}
+.photo-remove{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:var(--danger);color:white;border-radius:50%;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;}
+
+/* ── SIGNATURE ── */
+.sig-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.sig-canvas{display:block;background:white;cursor:crosshair;width:100%;height:100px;touch-action:none;}
+.sig-toolbar{display:flex;gap:6px;padding:6px 8px;background:var(--bg);border-top:1px solid var(--border);}
+.sig-area{display:grid;grid-template-columns:1fr;gap:16px;margin-top:12px;}
+.sig-box{border:1.5px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.sig-box label{font-size:13px;font-weight:600;color:var(--text2);display:block;margin-bottom:8px;}
+.sig-box .sig-canvas{border:1px solid var(--border);border-radius:6px;margin:0 auto 8px;background:#fafafa;}
+
+/* ── TABLE GENERAL ── */
+.tw{overflow-x:auto;margin-top:8px;}
+table.rt{width:100%;border-collapse:collapse;font-size:13px;}
+table.rt th{background:var(--primary-dark);color:#fff;padding:9px 12px;text-align:left;font-weight:500;border:none;}
+table.rt th.tc{text-align:center;}
+table.rt td{padding:8px 12px;border-bottom:1px solid var(--border);}
+table.rt td.tc{text-align:center;}
+table.rt tr:hover td{background:#f8f9fa;}
+.total-row td{background:#eaf2f8!important;font-weight:700;}
+
+/* ── TAB ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--border);}
+.tab-btn{padding:8px 14px;border:none;background:none;font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--primary-light);font-weight:600;border-bottom-color:var(--primary-light);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+/* ── A4 PRINT ── */
+.a4-preview{background:white;padding:15mm 12mm;font-size:11pt;line-height:1.5;font-family:var(--font);}
+.a4-preview h1{font-size:14pt;text-align:center;font-weight:700;margin-bottom:4px;}
+.a4-preview h2{font-size:12pt;text-align:center;margin-bottom:12px;}
+.a4-table{width:100%;border-collapse:collapse;font-size:9pt;}
+.a4-table th{background:var(--primary-dark);color:white;padding:5px 4px;text-align:center;border:.5pt solid #888;font-size:8pt;}
+.a4-table th.left{text-align:left;}.a4-table td{border:.5pt solid #bbb;padding:4px 3px;text-align:center;}
+.a4-table td.left{text-align:left;}.a4-table .check{color:var(--success);font-weight:700;}.a4-table .cross{color:var(--danger);font-weight:700;}
+.a4-table .total-row{background:#eaf2f8;font-weight:700;}
+.a4-sig{display:flex;justify-content:flex-end;margin-top:16px;}
+.a4-sig-box{text-align:center;width:200px;}
+.a4-sig-line{border-top:1px solid #333;margin:30px 10px 4px;font-size:10pt;}
+.a4-photos{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-14px);background:#1a2c3a;color:#fff;
+  padding:8px 20px;border-radius:50px;font-size:.83rem;opacity:0;transition:all .25s;z-index:9999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── LOADING ── */
+#ov{position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:9000;}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:rot .75s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}#ov.h{display:none;}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0d2c45,#1a5276,#2980b9);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.lbox{background:#fff;border-radius:20px;padding:36px 30px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:su .4s ease;}
+@keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.llogo{text-align:center;margin-bottom:20px;}.llogo .emo{font-size:3rem;}.llogo-img{width:84px;height:84px;border-radius:50%;object-fit:cover;box-shadow:0 2px 10px rgba(0,0,0,.15);}.llogo h1{font-family:'Kanit',sans-serif;font-size:1.1rem;color:#1a5276;font-weight:700;margin-top:8px;line-height:1.4;}.llogo p{font-size:.8rem;color:#7f8c8d;margin-top:2px;}
+.lf{margin-bottom:14px;}
+.lerr{color:var(--danger);font-size:.8rem;margin-top:6px;text-align:center;min-height:18px;}
+.lhint{font-size:.72rem;color:#7f8c8d;text-align:center;margin-top:12px;line-height:1.8;}
+.dbg{background:#fff8e1;border:1px solid #ffd54f;border-radius:8px;padding:9px 11px;margin-top:10px;font-size:.73rem;color:#5d4037;display:none;max-height:200px;overflow-y:auto;}
+.dbg.show{display:block;}
+
+/* ── INFO ROW ── */
+.info-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-row:last-child{border:none;}
+.text-muted{color:var(--text2);}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199;display:none;}.overlay.s{display:block;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  :root{--sw:0px;}
+  .sidebar{transform:translateX(-220px);width:220px;}.sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}.hbtn{display:block;}
+  .fg,.fg3,.fg4{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(2,1fr);}
+  .att-table th.col-name{min-width:120px;}
+}
+@media print{
+  .topbar,.sidebar,#ov,.np{display:none!important;}
+  .main{margin-left:0!important;}
+  .card{box-shadow:none!important;border:1px solid #ddd;}
+  body{background:#fff!important;}
+  .a4-preview{page-break-after:always;}
+}
+
+/* ── ADDED: index.html-style components (additive, does not replace existing classes) ── */
+.alert{padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:.86rem;}
+.alert-success{background:#eafaf1;border:1px solid #a9dfbf;color:var(--success);}
+.alert-warning{background:#fef9e7;border:1px solid #f9e79f;color:#7d6608;}
+.alert-danger{background:#fdedec;border:1px solid #f1948a;color:var(--danger);}
+.alert-info{background:#eaf2ff;border:1px solid #a9cce3;color:var(--primary);}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:12px;}
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:4px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--text);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(41,128,185,.1);}
+
+.photo-upload-area{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.photo-upload-area:hover{border-color:var(--primary-light);background:#f0f7ff;}
+.photo-upload-area input{display:none;}
+.photo-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px;}
+
+.calc-box{background:#eaf4ff;border:1px solid #a9cce3;border-radius:10px;padding:14px 16px;margin:12px 0;}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:.86rem;border-bottom:1px solid rgba(0,0,0,.06);}
+.calc-row:last-child{border-bottom:none;}
+.calc-row .val{font-weight:700;color:var(--primary);font-size:.92rem;}
+
+.badge-orange{background:#fdebd0;color:#784212;}
+
+.table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-top:8px;}
+.table-wrap table{width:100%;border-collapse:collapse;font-size:13px;}
+.table-wrap thead{background:var(--primary);color:#fff;}
+.table-wrap thead th{padding:9px 12px;text-align:left;font-weight:600;font-size:12px;}
+.table-wrap tbody tr{border-bottom:1px solid var(--border);}
+.table-wrap tbody tr:hover{background:#f8f9fa;}
+.table-wrap tbody td{padding:8px 12px;}
+
+/* small modal for per-student signature */
+.tmodal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center;padding:16px;}
+.tmodal-overlay.open{display:flex;}
+.tmodal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px;position:relative;}
+.tmodal-close{position:absolute;top:12px;right:12px;background:#ecf0f1;border:none;border-radius:50%;width:30px;height:30px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);}
+
+</style>
+</head>
+<body>
+<div id="net-status-banner" style="display:none;position:fixed;top:54px;left:0;right:0;z-index:150;background:#e74c3c;color:#fff;text-align:center;padding:7px 10px;font-size:12px;font-family:'Sarabun',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.2);"></div>
+<div id="ov"><div class="spin"></div><div id="ovMsg" style="font-size:.86rem;color:var(--text2)">กำลังโหลด...</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="loginScreen">
+<div class="lbox">
+  <div class="llogo"><img src="data:image/jpeg;base64,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" alt="โลโก้โรงเรียนบ้านแม่สลิดหลวงวิทยา" class="llogo-img"><h1>ระบบเช็คดื่มนม<br>ครูประจำชั้น</h1><p id="lSchool">โรงเรียนบ้านแม่สลิดหลวงวิทยา</p></div>
+  <div class="lf"><label>🔥 Firebase Database URL</label>
+    <input id="cfgUrl" type="text" placeholder="https://xxx-default-rtdb.firebaseio.com/">
+  </div>
+  <div class="lf"><label>🔑 Database Secret (ไม่บังคับ — เว้นว่างได้ถ้า Rules เป็น public)</label>
+    <input id="cfgKey" type="text" placeholder="ไม่บังคับ">
+  </div>
+  <div class="lf"><label>👩‍🏫 ห้องเรียนของคุณ</label>
+    <select id="lRoom"><option value="">-- กด "โหลดห้องเรียน" ก่อน --</option></select>
+  </div>
+  <div class="lf"><label>🔐 รหัสผ่านครูประจำชั้น</label>
+    <input id="lPass" type="password" placeholder="รหัสผ่าน (ค่าเริ่มต้น: 1234)" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-outline" onclick="loadRooms()" style="flex:1">🔄 โหลดห้องเรียน</button>
+    <button class="btn btn-primary" onclick="doLogin()" style="flex:2">🔓 เข้าสู่ระบบ</button>
+  </div>
+  <div class="lerr" id="lErr"></div>
+  <div id="idxConfigHint" style="display:none;background:#eafaf1;border:1px solid #a9dfbf;border-radius:8px;padding:8px 12px;font-size:.76rem;color:#1e8449;margin-top:8px">🔗 อ่าน Firebase URL จากระบบหลัก (index.html) แล้ว — โหลดห้องเรียนให้อัตโนมัติ</div>
+  <div id="idxSessionHint" style="display:none;background:#eaf2ff;border:1px solid #a9cce3;border-radius:8px;padding:8px 12px;font-size:.76rem;color:#154360;margin-top:6px"></div>
+  <div class="dbg" id="dbg"><span id="dbgTxt"></span></div>
+  <div class="lhint">💡 ระบบอ่าน Firebase URL จากไฟล์ index.html โดยอัตโนมัติ<br>กด "โหลดห้องเรียน" → เลือกห้องของคุณ → ใส่รหัสผ่าน → เข้าสู่ระบบ<br>ข้อมูลซิงก์กับผู้ดูแลระบบทันทีที่บันทึก</div>
+  <div style="margin-top:12px;text-align:center"><a href="index.html" style="font-size:.76rem;color:#7f8c8d;text-decoration:none">🏠 ไปหน้าผู้ดูแลระบบ (index.html)</a></div>
+</div>
+</div>
+
+<div class="overlay" id="ovlay" onclick="closeSB()"></div>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar" id="topbar" style="display:none">
+  <button class="hbtn" onclick="toggleSB()">☰</button>
+  <div class="logo">🥛 เช็คดื่มนม – ครูประจำชั้น<small id="tSch"></small></div>
+  <a href="index.html" title="ไปหน้าผู้ดูแลระบบ" style="color:rgba(255,255,255,.75);font-size:.78rem;text-decoration:none;margin-right:6px;white-space:nowrap">🏠 หน้าหลัก</a>
+  <div class="ubadge" onclick="goP('cfg')"><span class="dot busy" id="syncDot"></span><span id="tRm">ห้องเรียน</span></div>
+  <span id="pendingSyncBadge" onclick="flushPendingSaves()" title="คลิกเพื่อลองซิงก์ตอนนี้" style="display:none;align-items:center;background:#f39c12;color:#fff;font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:6px;white-space:nowrap;cursor:pointer;"></span>
+</div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar" id="sidebar" style="display:none">
+  <div class="sbh">
+    <div class="sc" id="sbSch"></div>
+    <div class="sr" id="sbRm"></div>
+    <div class="st" id="sbTc"></div>
+  </div>
+  <div class="nst">เช็คดื่มนม</div>
+  <button class="ni active" id="ni-ov" onclick="goP('ov')"><span class="ic">📊</span>ภาพรวมการดื่มนม</button>
+  <button class="ni" id="ni-chk" onclick="goP('chk')"><span class="ic">✅</span>เช็คดื่มนมรายวัน</button>
+  <button class="ni" id="ni-hist" onclick="goP('hist')"><span class="ic">📋</span>ประวัติการเช็ค</button>
+  <button class="ni" id="ni-sum" onclick="goP('sum')"><span class="ic">📈</span>สรุปรายงาน</button>
+  <button class="ni" id="ni-prt" onclick="goP('prt')"><span class="ic">🖨️</span>พิมพ์รายงาน A4</button>
+  <div class="nhr"></div>
+  <div class="nst">จ่ายนม</div>
+  <button class="ni" id="ni-abs" onclick="goP('abs')"><span class="ic">🗄️</span>นมค้างรายสัปดาห์</button>
+  <button class="ni" id="ni-ret" onclick="goP('ret')"><span class="ic">⏪</span>จ่ายนมย้อนหลัง</button>
+  <button class="ni" id="ni-vac" onclick="goP('vac')"><span class="ic">🏖️</span>จ่ายนมช่วงปิดเทอม</button>
+  <div class="nhr"></div>
+  <div class="nst">นักเรียน</div>
+  <button class="ni" id="ni-std" onclick="goP('std')"><span class="ic">👥</span>รายงานนักเรียน</button>
+  <div class="nhr"></div>
+  <div class="nst">สต็อกนม</div>
+  <button class="ni" id="ni-stk" onclick="goP('stk')"><span class="ic">📦</span>สต็อกนมคงเหลือ</button>
+  <div class="nhr"></div>
+  <button class="ni" id="ni-cfg" onclick="goP('cfg')"><span class="ic">⚙️</span>ตั้งค่า</button>
+  <button class="ni" onclick="doLogout()" style="color:#e74c3c"><span class="ic">🚪</span>ออกจากระบบ</button>
+  <a href="index.html" class="ni" style="color:rgba(255,255,255,.55);font-size:.78rem;text-decoration:none;display:flex;align-items:center;gap:8px;padding:10px 16px"><span class="ic">🏠</span>ระบบผู้ดูแล (index.html)</a>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main" id="mainWrap" style="display:none">
+<div class="cont">
+
+<!-- PAGE: ภาพรวม -->
+<div id="pg-ov" class="pg">
+  <div class="pt">📊 ภาพรวมการดื่มนม</div>
+  <div class="card" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;">
+    <div style="font-size:.85rem;opacity:.8" id="ovDate"></div>
+    <div style="font-size:.95rem;font-weight:600;margin-top:4px;" id="ovRm"></div>
+  </div>
+  <div class="stats">
+    <div class="sc g"><div class="n" id="ovDk">—</div><div class="l">ดื่มนมวันนี้</div></div>
+    <div class="sc r"><div class="n" id="ovAb">—</div><div class="l">ไม่ได้ดื่ม</div></div>
+    <div class="sc b"><div class="n" id="ovTt">—</div><div class="l">นักเรียนทั้งหมด</div></div>
+    <div class="sc o"><div class="n" id="ovPc">—</div><div class="l">อัตราวันนี้ %</div></div>
+    <div class="sc p"><div class="n" id="ovMP">—</div><div class="l">อัตราเดือนนี้ %</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📝 การเช็คล่าสุด</div>
+    <div id="ovRecent"></div>
+  </div>
+</div>
+
+<!-- PAGE: เช็ครายวัน -->
+<div id="pg-chk" class="pg" style="display:none">
+  <div class="pt">✅ เช็คดื่มนมรายวัน</div>
+  <div id="chkRoomBanner" class="alert alert-info"></div>
+  <div class="card">
+    <div class="fg">
+      <div class="fgr">
+        <label>วันที่ *</label>
+        <div style="display:flex;gap:7px">
+          <input type="date" id="chkDt" style="flex:1" onchange="loadGrid()">
+          <button class="btn btn-outline btn-sm" onclick="setToday()">วันนี้</button>
+        </div>
+      </div>
+      <div class="fgr">
+        <label>ปีการศึกษา</label>
+        <select id="chkYr"><option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option></select>
+      </div>
+      <div class="fgr">
+        <label>ภาคเรียน</label>
+        <select id="chkTm"><option value="1">ภาคเรียนที่ 1</option><option value="2">ภาคเรียนที่ 2</option></select>
+      </div>
+    </div>
+    <div id="chkStatusBanner"></div>
+  </div>
+
+  <div id="chkEmpty" class="card" style="text-align:center;padding:40px;color:var(--text2)">
+    กรุณาเลือกวันที่เพื่อเริ่มเช็คดื่มนม
+  </div>
+
+  <div id="chkGrid" style="display:none">
+    <div class="card">
+      <div class="card-title">
+        👥 รายชื่อนักเรียน <span id="chkLabel" style="color:var(--text2);font-weight:400;font-size:13px;"></span>
+        <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="markAll('present')">✓ ทั้งหมดดื่ม</button>
+          <button class="btn btn-outline btn-sm" onclick="markAll('absent')">✗ ทั้งหมดขาด</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearAll()">ล้าง</button>
+        </div>
+      </div>
+      <div class="att-table-wrap">
+        <table class="att-table">
+          <thead>
+            <tr>
+              <th class="col-num">ที่</th>
+              <th class="col-name">ชื่อ – สกุล</th>
+              <th style="min-width:70px">สถานะ</th>
+              <th style="min-width:120px">หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody id="chkTbody"></tbody>
+        </table>
+      </div>
+      <div class="text-muted" style="font-size:12px;margin-top:8px">🟢 ดื่มนม &nbsp;&nbsp; 🔴 ไม่ได้ดื่ม &nbsp;&nbsp; กดที่วงกลมเพื่อเปลี่ยนสถานะ</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📷 รูปถ่ายประจำวัน</div>
+      <div class="photo-zone" onclick="document.getElementById('photoIn').click()">
+        <input type="file" id="photoIn" multiple accept="image/*" onchange="handlePhotos(this)">
+        <div style="font-size:32px">📷</div>
+        <div style="font-size:14px;color:var(--text2);margin-top:6px">คลิกเพื่อเลือกรูปภาพ (สูงสุด 5 รูป)</div>
+      </div>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ ลงนามรับรองข้อมูล</div>
+      <div class="alert alert-info">🔒 ครูประจำชั้นห้อง <strong id="tcRoomLbl">—</strong> เป็นผู้ลงนามรับรองข้อมูลของห้องนี้เท่านั้น</div>
+      <div class="sig-area">
+        <div class="sig-box">
+          <label>✍️ ลายเซ็นครูประจำชั้น: <span id="tcNameDisp">—</span></label>
+          <canvas class="sig-canvas" id="sigCanvas" width="800" height="100"></canvas>
+          <button class="btn btn-secondary btn-sm np" onclick="clearSig()">ล้างลายเซ็น</button>
+        </div>
+      </div>
+      <input type="hidden" id="tcName">
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="loadGrid()">🔄 รีเซ็ต</button>
+      <button class="btn btn-success" onclick="saveAtt()">💾 บันทึกการเช็ค</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ประวัติ -->
+<div id="pg-hist" class="pg" style="display:none">
+  <div class="pt">📋 ประวัติการเช็คดื่มนม</div>
+  <div id="histGlobalInfo" class="alert alert-info"></div>
+  <div class="card">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px">
+      <div class="fgr" style="margin:0">
+        <label style="font-size:12px">เดือน</label>
+        <input type="month" id="histMon" onchange="renderHist()" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit">
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('histMon').value='';renderHist()">ล้างตัวกรอง</button>
+    </div>
+    <div class="alert alert-warning" style="font-size:12px">⚠️ การแก้ไข/ลบในตารางนี้ จะมีผลกับข้อมูลของห้อง <strong id="histRoomLbl"></strong> เท่านั้น และจะซิงก์ไปยังหน้า "ประวัติการเช็ค" ของผู้ดูแลระบบโดยอัตโนมัติ</div>
+    <div id="histWrap"></div>
+  </div>
+</div>
+
+<!-- PAGE: สรุป -->
+<div id="pg-sum" class="pg" style="display:none">
+  <div class="pt">📈 สรุปรายงานการดื่มนม</div>
+  <div class="card">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showTab('t-daily',this)">รายวัน</button>
+      <button class="tab-btn" onclick="showTab('t-weekly',this)">รายสัปดาห์</button>
+      <button class="tab-btn" onclick="showTab('t-monthly',this)">รายเดือน</button>
+      <button class="tab-btn" onclick="showTab('t-term',this)">ภาคเรียน</button>
+    </div>
+    <div class="tab-panel active" id="t-daily">
+      <div class="fgr" style="margin-bottom:12px"><label style="font-size:12px">เลือกวัน</label>
+        <input type="date" id="sumDay" onchange="renderSum('daily')" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;width:auto">
+      </div>
+      <div id="sDailyContent"></div>
+    </div>
+    <div class="tab-panel" id="t-weekly">
+      <div class="fgr" style="margin-bottom:12px"><label style="font-size:12px">สัปดาห์ (เลือกวันในสัปดาห์)</label>
+        <input type="date" id="sumWk" onchange="renderSum('weekly')" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;width:auto">
+      </div>
+      <div id="sWeeklyContent"></div>
+    </div>
+    <div class="tab-panel" id="t-monthly">
+      <div class="fgr" style="margin-bottom:12px"><label style="font-size:12px">เดือน</label>
+        <input type="month" id="sumMon" onchange="renderSum('monthly')" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;width:auto">
+      </div>
+      <div id="sMonthlyContent"></div>
+    </div>
+    <div class="tab-panel" id="t-term">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <div class="fgr" style="margin:0"><label style="font-size:12px">ปีการศึกษา</label>
+          <select id="sumYr" onchange="renderSum('term')" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit">
+            <option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option>
+          </select>
+        </div>
+        <div class="fgr" style="margin:0"><label style="font-size:12px">ภาคเรียน</label>
+          <select id="sumTm" onchange="renderSum('term')" style="padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit">
+            <option value="1">ภาคเรียนที่ 1</option><option value="2">ภาคเรียนที่ 2</option>
+          </select>
+        </div>
+      </div>
+      <div id="sTermContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: พิมพ์ A4 -->
+<div id="pg-prt" class="pg" style="display:none">
+  <div class="pt">🖨️ พิมพ์รายงาน A4</div>
+  <div class="card np">
+    <div class="fg">
+      <div class="fgr"><label>ประเภทรายงาน</label>
+        <select id="prType" onchange="updatePreview()"><option value="daily">รายวัน</option><option value="weekly">รายสัปดาห์</option><option value="monthly">รายเดือน</option><option value="term">ภาคเรียน</option></select>
+      </div>
+      <div class="fgr"><label>วัน/เดือน</label><input type="date" id="prDate" onchange="updatePreview()"></div>
+      <div class="fgr"><label>ปีการศึกษา</label>
+        <select id="prYr" onchange="updatePreview()"><option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option></select>
+      </div>
+      <div class="fgr"><label>ภาคเรียน</label>
+        <select id="prTm" onchange="updatePreview()"><option value="1">ภาคเรียนที่ 1</option><option value="2">ภาคเรียนที่ 2</option></select>
+      </div>
+    </div>
+    <div class="btn-group np"><button class="btn btn-primary" onclick="updatePreview()">🔍 ดูตัวอย่าง</button><button class="btn btn-warning" onclick="printA4()">🖨️ พิมพ์ A4</button></div>
+  </div>
+  <div class="card"><div id="prArea"><div style="text-align:center;padding:40px;color:var(--text2)">กดปุ่ม "ดูตัวอย่าง" เพื่อแสดงรายงาน</div></div></div>
+</div>
+
+<!-- PAGE: นมค้าง -->
+<div id="pg-abs" class="pg" style="display:none">
+  <div class="pt">🗄️ นมค้างรายสัปดาห์</div>
+  <div class="card">
+    <div class="card-title">📦 บันทึกนมค้าง — นักเรียนขาดและยังไม่ได้รับนมค้าง</div>
+    <div class="alert alert-info">📌 ระบบจะรวบรวมนักเรียนที่ขาดเรียน (absent) จากการเช็คดื่มนมรายวัน และยังไม่ได้รับนมค้างนั้น เพื่อให้นำกลับบ้านเป็นรายสัปดาห์</div>
+    <div class="form-grid">
+      <div class="form-group"><label>สัปดาห์ (เลือกวันในสัปดาห์)</label><input type="date" id="absWk" onchange="loadAbs()"></div>
+    </div>
+    <div id="absLst"><div style="text-align:center;color:var(--text2);padding:16px">เลือกสัปดาห์เพื่อดูรายชื่อ</div></div>
+  </div>
+
+  <div class="card" id="absDispenseCard" style="display:none">
+    <div class="card-title">📦 จ่ายนมค้างประจำสัปดาห์</div>
+    <div class="fgr"><label>หมายเหตุ</label><textarea id="absNt" placeholder="หมายเหตุ"></textarea></div>
+    <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin:12px 0 8px">📷 รูปถ่ายประกอบ</label>
+    <div class="photo-upload-area" onclick="document.getElementById('absPhotoIn').click()">
+      <input type="file" id="absPhotoIn" multiple accept="image/*" onchange="absHandlePhotos(this)">
+      <div style="font-size:30px;margin-bottom:6px">📷</div>
+      <div style="font-size:14px;color:var(--text2)">คลิกเพื่อเลือกรูปภาพ (สูงสุด 5 รูป)</div>
+    </div>
+    <div class="photo-preview-grid" id="absPhotoGrid"></div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="saveAbs()">💾 บันทึกการจ่ายนมค้าง</button>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-title">📋 ประวัติจ่ายนมค้าง</div><div id="absHist"></div></div>
+
+  <!-- 🆕 สรุปรายงานนมค้างรายสัปดาห์ + พิมพ์ A4 -->
+  <div class="card np">
+    <div class="card-title">📊 สรุปรายงานนมค้างรายสัปดาห์</div>
+    <div class="form-grid">
+      <div class="form-group"><label>เดือน</label><input type="month" id="absSumMon" onchange="renderAbsSum()"></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-warning" onclick="printAbsSum()">🖨️ พิมพ์ A4</button></div>
+  </div>
+  <div class="card"><div id="absSumArea"><div style="text-align:center;color:var(--text2);padding:16px">เลือกเดือนเพื่อดูสรุปรายงาน</div></div></div>
+</div>
+
+<!-- MODAL: ลายเซ็นรับนมค้าง (per student) -->
+<div class="tmodal-overlay" id="modal-abs-sig">
+  <div class="tmodal">
+    <button class="tmodal-close" onclick="closeTModal('modal-abs-sig')">✕</button>
+    <h3 style="font-family:'Kanit',sans-serif;font-size:1.1rem;color:var(--primary);margin-bottom:14px">✍️ ลายเซ็นรับนมค้าง</h3>
+    <div id="absSigInfo" class="alert alert-info" style="margin-bottom:12px"></div>
+    <div class="fgr"><label>ผู้รับ (ชื่อนักเรียนหรือผู้ปกครอง)</label><input type="text" id="absSigName" placeholder="ชื่อผู้รับ"></div>
+    <div class="sig-wrap">
+      <canvas class="sig-canvas" id="absSigCanvas" width="800" height="100"></canvas>
+      <div class="sig-toolbar"><span class="text-muted" style="font-size:13px">วาดลายเซ็น</span><button class="btn btn-secondary btn-sm" onclick="clrSig2('absSigCanvas')" style="margin-left:auto">ล้าง</button></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="confirmAbsSig()">✅ ยืนยันลายเซ็น</button>
+      <button class="btn btn-secondary" onclick="closeTModal('modal-abs-sig')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ย้อนหลัง -->
+<div id="pg-ret" class="pg" style="display:none">
+  <div class="pt">⏪ จ่ายนมย้อนหลัง</div>
+  <div class="card">
+    <div class="alert alert-warning">📌 ใช้สำหรับกรณีที่ อบต. ยังไม่ได้จ่ายนมให้โรงเรียนเมื่อเปิดเทอม แต่นักเรียนต้องได้รับนมนำกลับบ้าน ระบบจะบันทึกเป็นหนี้นมที่ต้องชดใช้ในภายหลัง (คำนวณเฉพาะวันจันทร์–ศุกร์)</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ปีการศึกษา *</label><input type="number" id="rtYr" placeholder="2569"></div>
+      <div class="form-group"><label>ภาคเรียน *</label><select id="rtTm"><option value="1">ภาคเรียนที่ 1</option><option value="2">ภาคเรียนที่ 2</option></select></div>
+      <div class="form-group"><label>วันที่จ่าย *</label><input type="date" id="rtDt"></div>
+      <div class="form-group"><label>ห้องเรียน *</label><input type="text" id="rtRoom" disabled style="background:#f0f4f8"></div>
+      <div class="form-group"><label>ช่วงวันที่ย้อนหลัง (วันเริ่มต้น)</label><input type="date" id="rtSt" onchange="calcRt()"></div>
+      <div class="form-group"><label>ช่วงวันที่ย้อนหลัง (วันสุดท้าย)</label><input type="date" id="rtEd" onchange="calcRt()"></div>
+    </div>
+    <div class="calc-box" id="rtCalc" style="display:none">
+      <div class="calc-row"><span>จำนวนนักเรียน</span><span class="val" id="rtSC">0 คน</span></div>
+      <div class="calc-row"><span>จำนวนวันย้อนหลัง (จ-ศ)</span><span class="val" id="rtDC">0 วัน</span></div>
+      <div class="calc-row"><span>รวมกล่องนมทั้งหมด</span><span class="val" id="rtBC">0 กล่อง</span></div>
+      <div class="calc-row" style="background:rgba(255,200,0,.15)"><span>⚠️ จะบันทึกเป็นหนี้นม</span><span class="val" id="rtDebt" style="color:var(--danger)">0 กล่อง</span></div>
+    </div>
+
+    <!-- รายชื่อนักเรียนพร้อมลายเซ็นผู้ปกครอง (เหมือน pg-vac) -->
+    <div id="rtStudentList" style="display:none">
+      <div class="card-title" style="margin-top:16px">✍️ ลายเซ็นผู้ปกครองรับนมย้อนหลัง</div>
+      <div id="rtSigList"></div>
+    </div>
+
+    <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin:12px 0 8px">📷 แนบรูปถ่าย (3-5 รูป)</label>
+    <div class="photo-upload-area" onclick="document.getElementById('rtPhotoIn').click()">
+      <input type="file" id="rtPhotoIn" multiple accept="image/*" onchange="rtHandlePhotos(this)">
+      <div style="font-size:30px;margin-bottom:6px">📷</div>
+      <div style="font-size:14px;color:var(--text2)">คลิกเพื่อเลือกรูปภาพ</div>
+    </div>
+    <div class="photo-preview-grid" id="rtPhotoGrid"></div>
+    <div class="fgr"><label>หมายเหตุ / เหตุผล</label><textarea id="rtNt" placeholder="เช่น อบต. ยังไม่ได้ส่งนมในช่วงต้นเทอม 1/2568..."></textarea></div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="saveRt()">💾 บันทึก</button>
+      <button class="btn btn-secondary" onclick="resetRtForm()">↩ ยกเลิก</button>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">📋 รายการย้อนหลัง</div><div id="rtHist"></div></div>
+
+  <!-- 🆕 สรุปรายงานจ่ายนมย้อนหลัง + พิมพ์ A4 -->
+  <div class="card np">
+    <div class="card-title">📊 สรุปรายงานจ่ายนมย้อนหลัง</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ปีการศึกษา</label><select id="rtSumYr" onchange="renderRtSum()"><option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option></select></div>
+      <div class="form-group"><label>ภาคเรียน</label><select id="rtSumTm" onchange="renderRtSum()"><option value="1">ภาคเรียนที่ 1</option><option value="2">ภาคเรียนที่ 2</option></select></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-warning" onclick="printRtSum()">🖨️ พิมพ์ A4</button></div>
+  </div>
+  <div class="card"><div id="rtSumArea"></div></div>
+</div>
+
+<!-- MODAL: ลายเซ็นผู้ปกครองรับนมย้อนหลัง (per student) -->
+<div class="tmodal-overlay" id="modal-ret-sig">
+  <div class="tmodal">
+    <button class="tmodal-close" onclick="closeTModal('modal-ret-sig')">✕</button>
+    <h3 style="font-family:'Kanit',sans-serif;font-size:1.1rem;color:var(--primary);margin-bottom:14px">✍️ ลายเซ็นผู้ปกครองรับนมย้อนหลัง</h3>
+    <div id="retSigInfo" class="alert alert-info" style="margin-bottom:12px"></div>
+    <div class="fgr"><label>ชื่อผู้ปกครอง/นักเรียนที่มารับ</label><input type="text" id="retSigName" placeholder="ชื่อผู้รับ"></div>
+    <div class="sig-wrap">
+      <canvas class="sig-canvas" id="retSigCanvas" width="800" height="100"></canvas>
+      <div class="sig-toolbar"><span class="text-muted" style="font-size:13px">วาดลายเซ็น</span><button class="btn btn-secondary btn-sm" onclick="clrSig2('retSigCanvas')" style="margin-left:auto">ล้าง</button></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="confirmRetSig()">✅ ยืนยันลายเซ็น</button>
+      <button class="btn btn-secondary" onclick="closeTModal('modal-ret-sig')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ปิดเทอม -->
+<div id="pg-vac" class="pg" style="display:none">
+  <div class="pt">🏖️ จ่ายนมช่วงปิดเทอม</div>
+  <div class="card">
+    <div class="alert alert-info">📌 จ่ายนม 30 วันช่วงปิดเทอม ให้ผู้ปกครองมารับและเซ็นชื่อ พร้อมถ่ายรูปประกอบ</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ปีการศึกษา *</label><input type="number" id="vcYr" placeholder="2569"></div>
+      <div class="form-group"><label>ภาคเรียน</label><select id="vcTm"><option value="1">ปิดเทอมหลัง ภาค 1</option><option value="2">ปิดเทอมหลัง ภาค 2</option></select></div>
+      <div class="form-group"><label>วันที่จ่าย *</label><input type="date" id="vcDt"></div>
+      <div class="form-group"><label>จำนวนวันปิดเทอม</label><input type="number" id="vcDs" value="30" min="1" oninput="updVac()"></div>
+    </div>
+    <div class="calc-box" id="vcCalc">
+      <div class="calc-row"><span>จำนวนนักเรียน</span><span class="val" id="vcSC">0 คน</span></div>
+      <div class="calc-row"><span>จำนวนวัน</span><span class="val" id="vcDC">30 วัน</span></div>
+      <div class="calc-row"><span>รวมกล่องนมทั้งหมด</span><span class="val" id="vcBC">0 กล่อง</span></div>
+      <div class="calc-row"><span>นมในสต็อก</span><span class="val" id="vcStock">0 กล่อง</span></div>
+    </div>
+    <div id="vcStockWarn" class="alert alert-danger" style="display:none">⚠️ นมในสต็อกไม่เพียงพอ!</div>
+
+    <!-- รายชื่อนักเรียนพร้อมลายเซ็นผู้ปกครอง -->
+    <div id="vcStudentList">
+      <div class="card-title" style="margin-top:16px">✍️ ลายเซ็นผู้ปกครองรับนม</div>
+      <div id="vcSigList"></div>
+    </div>
+
+    <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin:12px 0 8px">📷 แนบรูปถ่าย (3-5 รูป)</label>
+    <div class="photo-upload-area" onclick="document.getElementById('vcPhotoIn').click()">
+      <input type="file" id="vcPhotoIn" multiple accept="image/*" onchange="vcHandlePhotos(this)">
+      <div style="font-size:30px;margin-bottom:6px">📷</div>
+      <div style="font-size:14px;color:var(--text2)">คลิกเพื่อเลือกรูปภาพ</div>
+    </div>
+    <div class="photo-preview-grid" id="vcPhotoGrid"></div>
+
+    <div class="fgr"><label>หมายเหตุ</label><textarea id="vcNt" placeholder="หมายเหตุ"></textarea></div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="saveVac()">💾 บันทึก</button>
+      <button class="btn btn-secondary" onclick="resetVacForm()">↩ ยกเลิก</button>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">📋 รายการ</div><div id="vcHist"></div></div>
+
+  <!-- 🆕 สรุปรายงานจ่ายนมช่วงปิดเทอม + พิมพ์ A4 -->
+  <div class="card np">
+    <div class="card-title">📊 สรุปรายงานจ่ายนมช่วงปิดเทอม</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ปีการศึกษา</label><select id="vcSumYr" onchange="renderVcSum()"><option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option></select></div>
+      <div class="form-group"><label>ภาคเรียน</label><select id="vcSumTm" onchange="renderVcSum()"><option value="1">ปิดเทอมหลัง ภาค 1</option><option value="2">ปิดเทอมหลัง ภาค 2</option></select></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-warning" onclick="printVcSum()">🖨️ พิมพ์ A4</button></div>
+  </div>
+  <div class="card"><div id="vcSumArea"></div></div>
+</div>
+
+<!-- MODAL: ลายเซ็นผู้ปกครองรับนม (ปิดเทอม) -->
+<div class="tmodal-overlay" id="modal-vac-sig">
+  <div class="tmodal">
+    <button class="tmodal-close" onclick="closeTModal('modal-vac-sig')">✕</button>
+    <h3 style="font-family:'Kanit',sans-serif;font-size:1.1rem;color:var(--primary);margin-bottom:14px">✍️ ลายเซ็นผู้ปกครองรับนม</h3>
+    <div id="vacSigInfo" class="alert alert-info" style="margin-bottom:12px"></div>
+    <div class="fgr"><label>ชื่อผู้ปกครอง/นักเรียนที่มารับ</label><input type="text" id="vacSigName" placeholder="ชื่อผู้รับ"></div>
+    <div class="sig-wrap">
+      <canvas class="sig-canvas" id="vacSigCanvas" width="800" height="100"></canvas>
+      <div class="sig-toolbar"><span class="text-muted" style="font-size:13px">วาดลายเซ็น</span><button class="btn btn-secondary btn-sm" onclick="clrSig2('vacSigCanvas')" style="margin-left:auto">ล้าง</button></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="confirmVacSig()">✅ ยืนยันลายเซ็น</button>
+      <button class="btn btn-secondary" onclick="closeTModal('modal-vac-sig')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PAGE: นักเรียน -->
+<div id="pg-std" class="pg" style="display:none">
+  <div class="pt">👥 รายงานนักเรียน</div>
+  <div class="stats">
+    <div class="sc b"><div class="n" id="stTt">—</div><div class="l">ทั้งหมด</div></div>
+    <div class="sc g"><div class="n" id="stMl">—</div><div class="l">ชาย</div></div>
+    <div class="sc o"><div class="n" id="stFm">—</div><div class="l">หญิง</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">👥 รายชื่อ <span id="stRm" class="badge badge-blue"></span></div>
+    <div id="stWrap"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🖨️ พิมพ์แบบฟอร์มเช็คดื่มนม (กระดาษ) รายเดือน</div>
+    <div class="alert alert-info">📌 พิมพ์รายชื่อนักเรียนพร้อมตารางว่าง สำหรับขีดเครื่องหมายด้วยมือ (เฉพาะวันจันทร์–ศุกร์ ของเดือนที่เลือก)</div>
+    <div class="form-grid">
+      <div class="form-group"><label>เลือกเดือน</label><input type="month" id="stPrintMonth"></div>
+    </div>
+    <button class="btn btn-warning" onclick="printBlankMonthSheet()">🖨️ พิมพ์รายชื่อนักเรียน 1 เดือน</button>
+  </div>
+</div>
+
+<!-- PAGE: สต็อกนม -->
+<div id="pg-stk" class="pg" style="display:none">
+  <div class="pt">📦 สต็อกนมคงเหลือ (เฉพาะห้องของคุณ)</div>
+  <div class="stats">
+    <div class="sc b"><div class="n" id="stkRemain">—</div><div class="l">คงเหลือปัจจุบัน (กล่อง)</div></div>
+    <div class="sc r"><div class="n" id="stkUsedTotal">—</div><div class="l">ใช้ไปแล้วทั้งหมด (กล่อง)</div></div>
+    <div class="sc g"><div class="n" id="stkReceived">—</div><div class="l">รับเข้าทั้งหมด (กล่อง)</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">ℹ️ วิธีคิดสต็อกนม</div>
+    <div class="alert alert-info">
+      📌 สต็อกนมนับเป็นรายห้องเรียน — <strong>ผู้ดูแลระบบ</strong>เป็นผู้บันทึก "จ่ายนมให้ห้องเรียน" (ส่งมอบนมจากส่วนกลางมาไว้ที่ห้องของคุณ) ซึ่งคือยอด "รับเข้าทั้งหมด" ด้านบน — ทุกครั้งที่ครูกด "บันทึกการเช็ค" ในหน้าเช็คดื่มนมรายวัน ระบบจะหักสต็อกของห้องนี้เท่านั้น (milkApp/roomStock) ตามจำนวนนักเรียนที่ดื่มนม (✓) ของวันนั้น รวมกับนมค้าง/นมย้อนหลัง/นมช่วงปิดเทอมของห้องนี้ — ถ้าแก้ไขข้อมูลย้อนหลัง ระบบจะปรับสต็อกตามผลต่างให้อัตโนมัติ
+    </div>
+  </div>
+  <div class="card"><div class="card-title">📋 ประวัติการเข้า-ออกสต็อกนม (ห้องของคุณ)</div><div id="stkHist"></div></div>
+</div>
+
+<!-- PAGE: ตั้งค่า -->
+<div id="pg-cfg" class="pg" style="display:none">
+  <div class="pt">⚙️ ตั้งค่า / Firebase</div>
+  <div class="card"><div class="card-title">☁️ การเชื่อมต่อ Firebase</div>
+    <div class="fgr"><label>Firebase URL</label><input type="text" id="cfgUe"></div>
+    <div class="fgr"><label>Database Secret (ไม่บังคับ)</label><input type="text" id="cfgKe"></div>
+    <button class="btn btn-primary" onclick="saveCfg()">💾 บันทึก</button>
+  </div>
+  <div class="card"><div class="card-title">ℹ️ ข้อมูลการใช้งาน</div>
+    <div style="font-size:.86rem;color:var(--text2);line-height:2.1">
+      โรงเรียน: <b id="cfSch">—</b><br>ห้องเรียน: <b id="cfRm">—</b><br>ครู: <b id="cfTc">—</b><br>
+      Firebase: <b id="cfCn">—</b><br>นักเรียน: <b id="cfSt">—</b> คน
+    </div>
+    <div class="btn-group" style="margin-top:12px">
+      <button class="btn btn-outline btn-sm" onclick="forceReload()">🔄 โหลดข้อมูลใหม่</button>
+      <button class="btn" style="border:1.5px solid var(--danger);color:var(--danger);background:#fff" onclick="doLogout()">🚪 ออกจากระบบ</button>
+      <a href="index.html" class="btn" style="border:1.5px solid var(--primary);color:var(--primary);background:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px">🏠 ระบบผู้ดูแล</a>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">👤 ข้อมูลครูประจำชั้น (แก้ไขได้)</div>
+    <div class="alert alert-info">📌 ข้อมูลนี้ใช้ฐานข้อมูลเดียวกับระบบผู้ดูแล (index.html) — เมื่อบันทึก ชื่อครูประจำชั้นของห้องนี้จะถูกอัปเดตทันที และจะถูกใช้แสดงอัตโนมัติในหน้า "เช็คดื่มนมรายวัน"</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ห้องเรียน</label><input type="text" id="pfRoom" disabled style="background:#f0f4f8"></div>
+      <div class="form-group"><label>ชื่อ-สกุล ครูประจำชั้น *</label><input type="text" id="pfTeacher" placeholder="เช่น นางสาวกัญญารัตน์ สุวงศ์"></div>
+    </div>
+    <button class="btn btn-success" onclick="saveTeacherProfile()">💾 บันทึกข้อมูลครู</button>
+  </div>
+  <div class="card"><div class="card-title">📖 วิธีใช้งาน</div>
+    <div style="font-size:.83rem;color:var(--text2);line-height:2.1">
+      1. Firebase URL ถูกตั้งค่าให้ตรงกับระบบหลักไว้แล้ว (ใช้ฐานข้อมูลเดียวกัน) — ไม่ต้องตั้งค่าเพิ่ม<br>
+      2. กด "โหลดห้องเรียน" → เลือกห้อง → ใส่รหัสผ่าน → เข้าระบบ<br>
+      3. เช็คดื่มนมรายวัน: เลือกวันที่ → กดปุ่ม ✓/✗ แต่ละคน → บันทึก<br>
+      4. ข้อมูลซิงก์ Firebase ทันที (milkApp/mcAttendance) ผู้ดูแลระบบเห็นข้อมูลเมื่อเข้าหน้าภาพรวมการดื่มนมหรือกด "ซิงก์ข้อมูลครูล่าสุด"<br>
+      5. สามารถถ่ายรูปและเซ็นชื่อครูได้ทุกครั้งที่บันทึก
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+<script>
+/* ===== GLOBALS ===== */
+// 🆕 แก้บั๊ก "ยังชี้ไปฐานข้อมูลเก่า" — เดิมมีค่า default hardcode ไว้เป็นโปรเจกต์ Firebase เฉพาะโรงเรียนหนึ่ง
+// ทำให้ทุกอุปกรณ์ที่ไม่เคยตั้งค่าอะไรเลย (หรือค่า config หายไปด้วยเหตุผลใดก็ตาม) จะแอบไปเชื่อมกับโปรเจกต์เก่านั้น
+// อัตโนมัติโดยไม่มีใครรู้ตัว — ตอนนี้ไม่มี default ที่ hardcode ไว้อีกต่อไป ถ้ายังไม่เคยตั้งค่าเลย ช่อง Firebase
+// URL จะว่างเปล่า ต้องกด "โหลดห้องเรียน" (ซึ่งจะลองอ่านจาก index.html ในเครื่องเดียวกันก่อน) หรือกรอกเอง หรือรอ
+// รับ Redirect Marker จากผู้ดูแลระบบ (ดู checkDbRedirect())
+// 🛑 ROLLBACK (2026-07-09): ฐานข้อมูลเดียวของระบบ (production) — ต้องตรงกับ defaultSettings() ใน index.html เสมอ
+const DEFAULT_FB_URL='https://realtime-database-9fc52-default-rtdb.asia-southeast1.firebasedatabase.app/';
+let DB_URL='',DB_KEY='',S=null,STUDS=[],FD=null,TIMER=null;
+// 🆕 แคชผลลัพธ์ getApp() ล่าสุดจาก loadRooms() — ให้ doLogin()/enterApp() นำไปใช้ต่อได้ทันที
+// โดยไม่ต้องโหลดทั้งก้อน milkApp (รวมรูป/ลายเซ็นทุกห้องทุกวัน) ซ้ำอีกรอบ แก้ปัญหาเข้าระบบช้า (ดู PROJECT_MEMORY.md หัวข้อ 8.8)
+let _cachedApp=null,_cachedAppAt=0,_cachedUrl='',_cachedKey='';
+let curPhotos=[],sigCtx=null,sigDrawing=false,sigCtxMap={};
+let absSigData={},absPhotos=[],absCurrentSig=null;
+let rtPhotos=[],rtSigData={},retCurrentSig=null;
+let vcSigData={},vcPhotos=[],vacCurrentSig=null;
+const LS={g:k=>{try{return JSON.parse(localStorage.getItem('tc_'+k));}catch{return null;}},s:(k,v)=>localStorage.setItem('tc_'+k,JSON.stringify(v))};
+
+/* ===== 🆕 INDEX.HTML INTEGRATION HELPERS ===== */
+// อ่านข้อมูล db จาก milk_school_db (localStorage ของ index.html) — ใช้เป็น fallback สำหรับ Firebase config
+function idxDbLoad(){try{return JSON.parse(localStorage.getItem('milk_school_db'));}catch(e){return null;}}
+// อ่าน Firebase URL/key จาก milk_school_db โดยตรง
+function idxCfg(){
+  const d=idxDbLoad();
+  if(d?.settings?.firebaseUrl) return {url:d.settings.firebaseUrl,key:d.settings.firebaseKey||''};
+  return null;
+}
+// อ่าน session ครู (ไม่ใช่ admin) จาก sessionStorage ของ index.html (milkApp_loginSession)
+function idxSession(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem('milkApp_loginSession'));
+    if(s?.classId&&s.classId!=='__admin__') return s;
+  }catch(e){}
+  return null;
+}
+// sync Firebase config กลับไป milk_school_db เพื่อให้ index.html และ teacher.html ใช้ config เดียวกัน
+function idxSyncCfg(url,key){
+  try{
+    const d=idxDbLoad()||{settings:{}};
+    if(!d.settings) d.settings={};
+    d.settings.firebaseUrl=url;
+    if(key) d.settings.firebaseKey=key;
+    localStorage.setItem('milk_school_db',JSON.stringify(d));
+  }catch(e){console.warn('idxSyncCfg: write failed',e);}
+}
+
+/* ===== PHOTO COMPRESSION ===== */
+// 🆕 ย่อ/บีบอัดรูปก่อนเก็บ/ส่งขึ้น Firebase — ป้องกัน payload ใหญ่เกินจำเป็น (ดู PROJECT_MEMORY.md หัวข้อ 2.5)
+// ต้องใช้ค่า maxDim/quality เดียวกันกับ index.html เพื่อให้ขนาดรูปสอดคล้องกันทั้งสองฝั่ง
+const PHOTO_MAX_DIM=1000, PHOTO_QUALITY=0.7;
+function compressImageFile(file,maxDim=PHOTO_MAX_DIM,quality=PHOTO_QUALITY){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const rawDataUrl=e.target.result;
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          let {width,height}=img;
+          if(width>maxDim||height>maxDim){
+            if(width>=height){height=Math.round(height*(maxDim/width));width=maxDim;}
+            else{width=Math.round(width*(maxDim/height));height=maxDim;}
+          }
+          const canvas=document.createElement('canvas');
+          canvas.width=width;canvas.height=height;
+          const ctx=canvas.getContext('2d');
+          ctx.drawImage(img,0,0,width,height);
+          const compressed=canvas.toDataURL('image/jpeg',quality);
+          resolve(compressed.length<rawDataUrl.length?compressed:rawDataUrl);
+        }catch(err){ resolve(rawDataUrl); } // canvas ใช้ไม่ได้ → ใช้รูปต้นฉบับแทน ไม่ทำให้ฟีเจอร์พัง
+      };
+      img.onerror=()=>resolve(rawDataUrl);
+      img.src=rawDataUrl;
+    };
+    reader.onerror=()=>resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===== FIREBASE ===== */
+// Database Secret เป็นค่า "ไม่บังคับ" — ถ้า Rules ของ Firebase เป็น read/write: true (public) ก็ไม่ต้องใส่
+function fbUrl(p){const base=`${(DB_URL||'').replace(/\/+$/,'')}/${p}.json`;return DB_KEY?`${base}?auth=${DB_KEY}`:base;}
+// 🆕 ทุก request มี timeout 10 วินาที — ป้องกันหน้าจอค้างถ้าเน็ตหลุด/ตอบช้ามาก (ดู PROJECT_MEMORY.md หัวข้อ 2.5)
+// 🆕 เพิ่มนับความล้มเหลวติดต่อกัน (_netFailStreak) เพื่อแสดงแบนเนอร์แจ้งเตือนเน็ตหลุด/ไม่เสถียร (เหมือน index.html)
+// 🐛 FIX (2026-07-09): เพิ่ม cache:'no-store' เป็นค่าเริ่มต้นเสมอ — เดิม fetch() ไม่ได้สั่งปิด HTTP cache ไว้เลย
+// ทำให้บางเบราว์เซอร์/เครือข่าย (เช่น ผ่าน proxy ของโรงเรียน) แคยคำตอบ GET เก่าไว้ (เช่นตอนฐานข้อมูลว่างเปล่า
+// ตอบ null) แล้วส่งค่าที่แคชไว้กลับมาซ้ำ ๆ แม้ผู้ดูแลจะอัปโหลดข้อมูลใหม่ขึ้น Cloud สำเร็จแล้วก็ตาม — เป็นบั๊กร้ายแรง
+// สำหรับระบบซิงก์ real-time เพราะข้อมูลจะค้างได้โดยไม่มีใครรู้ตัว จึงบังคับ no-store ทุกครั้งเป็นค่าเริ่มต้น
+// (ผู้เรียกยังส่ง opts เพื่อ override ได้ถ้าจำเป็นจริงๆ แต่ปกติไม่ควรมีกรณีต้องการแคชเลยสำหรับข้อมูลที่เปลี่ยนได้)
+function fbFetchWithTimeout(url,opts={},ms=10000){
+  const controller=new AbortController();
+  const t=setTimeout(()=>controller.abort(),ms);
+  return fetch(url,{cache:'no-store',...opts,signal:controller.signal})
+    .then(res=>{ _netFailStreak=0; updateNetworkStatus(); return res; })
+    .catch(err=>{ _netFailStreak++; updateNetworkStatus(); throw err; })
+    .finally(()=>clearTimeout(t));
+}
+
+// 🆕 ตรวจจับ/แจ้งเตือนสถานะเครือข่าย — เหตุผลเดียวกับ index.html (navigator.onLine อย่างเดียวไม่พอ เสริมด้วยนับ
+// จำนวนครั้งที่ fbFetchWithTimeout ล้มเหลวติดต่อกัน) และผูกกับ syncDot ที่มีอยู่แล้วบน topbar ให้สอดคล้องกัน
+let _netFailStreak=0;
+function showNetBanner(show,msg){
+  const b=document.getElementById('net-status-banner');
+  if(!b)return;
+  if(show){ b.textContent=msg||'🔴 ไม่มีการเชื่อมต่ออินเทอร์เน็ต — ข้อมูลจะยังกรอก/แก้ไขได้ตามปกติ แต่จะยังไม่ถูกบันทึกขึ้น Cloud จนกว่าจะกลับมาออนไลน์'; b.style.display='block'; }
+  else{ b.style.display='none'; }
+  // 🐛 FIX (2026-07-09): เดิม banner ลอยทับ topbar ทั้งแท่ง (top:0, z-index สูงกว่า topbar) ทำให้ปุ่ม ☰ เปิดเมนู
+  // กดไม่ได้เลยตลอดที่ออฟไลน์อยู่ — ย้าย banner ลงมาไว้ใต้ topbar แล้ว (ดู HTML) แต่เนื้อหาหน้าหลัก (#mainWrap)
+  // ยังเริ่มที่ตำแหน่งเดิม (padding-top:54px) ซึ่งจะโดน banner บังส่วนบนสุดอยู่ดี — เลยดัน mainWrap ลงมาเพิ่ม
+  // เท่ากับความสูงจริงของ banner (วัดจาก offsetHeight เพราะข้อความยาว/สั้นไม่เท่ากัน อาจขึ้น 1 หรือ 2 บรรทัด)
+  requestAnimationFrame(()=>{
+    const mw=document.getElementById('mainWrap');
+    if(mw)mw.style.paddingTop = show ? `${54+b.offsetHeight}px` : '';
+  });
+}
+function updateNetworkStatus(){
+  if(!navigator.onLine){ showNetBanner(true); setDot('err'); return; }
+  if(_netFailStreak>=2){ showNetBanner(true,'🟠 การเชื่อมต่ออินเทอร์เน็ตไม่เสถียร — ระบบจะลองซิงก์ข้อมูลใหม่อัตโนมัติ'); setDot('err'); return; }
+  showNetBanner(false);
+}
+window.addEventListener('online', ()=>{
+  _netFailStreak=0; updateNetworkStatus();
+  toast('🌐 กลับมาออนไลน์แล้ว — กำลังซิงก์ข้อมูล');
+  if(S){loadFB();scheduleQueueRetry(0);}
+});
+window.addEventListener('offline', ()=>{ updateNetworkStatus(); toast('📴 ขาดการเชื่อมต่ออินเทอร์เน็ต'); });
+
+/* ===== 🆕 OFFLINE SAVE QUEUE (2026-07-09, ปรับปรุงรอบ 2) =====
+   ก่อนหน้านี้ถ้าบันทึกการเช็คดื่มนมตอนออฟไลน์/เน็ตมีปัญหา ระบบจะแค่ขึ้น "❌ บันทึกไม่สำเร็จ" แล้วจบ — ข้อมูล
+   ที่กรอกไม่ได้ถูกเก็บไว้ที่ไหนเลย — ตอนนี้เก็บรายการที่บันทึกไม่สำเร็จลง localStorage (คิวรอซิงก์ ซึ่งอยู่รอด
+   การ refresh/ปิดเบราว์เซอร์/แอปถูกฆ่า/เครื่องดับได้ เพราะ localStorage เขียนแบบ synchronous ทันทีทุกครั้งที่
+   queuePendingSave()/savePendingQueue() ถูกเรียก ไม่มีช่วง "รอเขียน" ที่จะหายไปถ้าปิดแอปกะทันหันระหว่างนั้น)
+   แล้วลองบันทึกซ้ำอัตโนมัติแบบ exponential backoff (5s→10s→20s→40s→60s แล้วคงที่ 60s ไม่ยิงถี่กว่านั้นตลอดไป
+   กันการถล่ม Firebase ด้วย request รัวๆ ถ้าเน็ตมีปัญหานาน) เมื่อ (1) กลับมาออนไลน์ (2) ทุก 60 วิระหว่างที่
+   startSync() ทำงานอยู่ (เผื่อกรณีเน็ตไม่เสถียรแต่ browser ไม่ยิง 'online' event) (3) ตอนเปิดแอปใหม่ถ้ามีคิวค้าง
+   จากเซสชันก่อน — เมื่อซิงก์สำเร็จจะขึ้น toast ยืนยันชัดเจนพร้อมบันทึกลง debug log (dlog) ให้ตรวจสอบย้อนหลังได้
+   ไม่กระทบ path/schema การเขียนข้อมูลใดๆ เลย ใช้ fbSet/atomicRoomStockDelta ปลายทางเดิมทุกประการ */
+const PENDING_QUEUE_KEY='tc_pending_saves_v1';
+// 🆕 กัน Queue Corruption: ถ้า JSON พังหรือมีรายการที่ขาด field จำเป็น ให้ทิ้งเฉพาะรายการนั้น ไม่ทิ้งทั้งคิว และไม่ throw ออกไปกระทบส่วนอื่น
+function loadPendingQueue(){
+  try{
+    const arr=JSON.parse(localStorage.getItem(PENDING_QUEUE_KEY));
+    if(!Array.isArray(arr))return [];
+    return arr.filter(x=>x&&x.type&&x.key&&(x.type==='attendance'?x.rec:x.type==='roomStockAdjust'?(x.roomId!==undefined&&x.diff!==undefined):false));
+  }catch(e){ return []; }
+}
+function savePendingQueue(q){ try{localStorage.setItem(PENDING_QUEUE_KEY,JSON.stringify(q));}catch(e){ dlog('⚠️ บันทึกคิวรอซิงก์ลงเครื่องไม่สำเร็จ: '+e.message); } }
+function queuePendingSave(item){
+  const q=loadPendingQueue();
+  // ถ้าห้อง+วันที่เดิมถูกบันทึกซ้ำตอนยังออฟไลน์อยู่ (แก้ไขซ้ำหลายครั้งก่อนเน็ตกลับมา) ให้แทนที่ด้วยรายการล่าสุด
+  // เสมอ (ข้อมูลใหม่กว่าถูกต้องกว่า) แทนที่จะสะสมคิวซ้ำซ้อนของ record เดียวกัน (กัน Duplicate Record ในคิว)
+  const idx=q.findIndex(x=>x.key===item.key);
+  const merged={attempts:0,nextRetryAt:0,...item}; // 🆕 metadata สำหรับ backoff (ไม่ทับ field ที่ผู้เรียกส่งมาถ้ามีอยู่แล้ว)
+  if(idx>=0)q[idx]=merged; else q.push(merged);
+  savePendingQueue(q);
+  updatePendingBadge();
+}
+function removePendingSave(key){
+  const q=loadPendingQueue().filter(x=>x.key!==key); // 🆕 ลบเฉพาะรายการที่ระบุ ไม่แตะรายการอื่นในคิว (Phase 7)
+  savePendingQueue(q);
+  updatePendingBadge();
+}
+function updatePendingBadge(){
+  const n=loadPendingQueue().length;
+  const el=document.getElementById('pendingSyncBadge');
+  if(!el)return;
+  el.style.display=n>0?'inline-flex':'none';
+  el.textContent=`⏳ รอซิงก์ ${n} รายการ`;
+}
+// 🆕 Exponential backoff: 5s → 10s → 20s → 40s → 60s แล้วคงที่ที่ 60s (ไม่ retry ถี่กว่านี้ตลอดไปถ้ายังพัง) —
+// นับ backoff จากรายการที่ "attempts" สูงสุดในคิว (รายการที่พังซ้ำมากสุดเป็นตัวกำหนดจังหวะรอบถัดไป)
+const QUEUE_BACKOFF_STEPS=[5000,10000,20000,40000,60000];
+let _queueRetryTimer=null;
+function scheduleQueueRetry(delayMs){
+  if(_queueRetryTimer){clearTimeout(_queueRetryTimer);_queueRetryTimer=null;}
+  _queueRetryTimer=setTimeout(()=>{ if(navigator.onLine)flushPendingSaves(); else _queueRetryTimer=null; },delayMs);
+}
+let _flushingQueue=false;
+let lastSyncAt=null; // 🆕 ใช้แสดง "เวลาซิงก์ล่าสุด" (Phase 9)
+async function flushPendingSaves(){
+  if(_flushingQueue)return; // กันเรียกซ้อนกันถ้า online event/timer/interval ชนกัน
+  const q=loadPendingQueue();
+  if(!q.length)return;
+  _flushingQueue=true;
+  updatePendingBadge(); // แสดงว่า "กำลัง sync" ผ่านจำนวนคิวปัจจุบัน + toast ด้านล่าง
+  dlog(`🔄 พบข้อมูลค้างซิงก์ ${q.length} รายการ กำลังลองบันทึกขึ้น Cloud อีกครั้ง...`);
+  const remaining=[];
+  let maxAttempts=0;
+  for(const item of q){ // ทำทีละรายการตามลำดับ (ไม่ใช้ Promise.all) กันชนกันตอนปรับ roomStock แบบ atomic
+    try{
+      let ok=false;
+      if(item.type==='attendance'){
+        // 🐛 FIX: เดิมจุดนี้ไม่ได้ส่ง item.baselinePresent ต่อให้ commitAttendanceSave() เลย ทำให้ตอน retry
+        // คิดว่า baseline=0 เสมอ (หักสต็อกผิดพลาดได้) — ตอนนี้ส่งค่าที่ตรึงไว้ตั้งแต่ต้นเข้าไปตรงๆ เสมอ (Phase 6)
+        ok=await commitAttendanceSave(item.rec,item.key,item.baselinePresent);
+      }else if(item.type==='roomStockAdjust'){
+        ok=await commitRoomStockAdjust(item);
+      }
+      if(ok){
+        const label=item.type==='attendance'
+          ? `เช็คดื่มนม ห้อง ${item.rec.roomName||S?.roomName||''} วันที่ ${item.rec.date}`
+          : `ปรับสต็อกห้อง ${item.roomName||''} (${item.diff>0?'+':''}${item.diff} กล่อง)`;
+        toast(`✅ บันทึกข้อมูลสำเร็จแล้ว — ${label}`);
+        dlog(`✅ ซิงก์สำเร็จ: ${label} (กรอกไว้เมื่อ ${new Date(item.queuedAt).toLocaleString('th-TH')})`);
+        lastSyncAt=new Date();
+        if(document.querySelector('.pg:not([style*="display:none"])')?.id==='pg-ov')renderOv();
+      }else{
+        // ยังไม่สำเร็จ (เน็ตยังมีปัญหาอยู่จริง) — เก็บไว้ลองใหม่รอบถัดไปพร้อมนับจำนวนครั้งไว้คำนวณ backoff
+        const attempts=(item.attempts||0)+1;
+        maxAttempts=Math.max(maxAttempts,attempts);
+        remaining.push({...item,attempts});
+      }
+    }catch(e){
+      const attempts=(item.attempts||0)+1;
+      maxAttempts=Math.max(maxAttempts,attempts);
+      remaining.push({...item,attempts});
+    }
+  }
+  savePendingQueue(remaining);
+  updatePendingBadge();
+  _flushingQueue=false;
+  if(remaining.length){
+    const delay=QUEUE_BACKOFF_STEPS[Math.min(maxAttempts-1,QUEUE_BACKOFF_STEPS.length-1)];
+    dlog(`⚠️ ยังซิงก์ไม่สำเร็จ ${remaining.length} รายการ — จะลองใหม่อัตโนมัติใน ${Math.round(delay/1000)} วิ`);
+    scheduleQueueRetry(delay);
+  }
+}
+// 🆕 (2026-07-09) รับมือกรณี "บันทึกการเช็คดื่มนมสำเร็จ แต่ปรับ roomStock ไม่สำเร็จ" (เน็ตหลุดกลางคันระหว่าง 2
+// การเขียนนี้) — เก็บเฉพาะ "ส่วนต่างสต็อกที่ค้าง" แยกเป็นคิวอีกประเภท (ไม่ต้องเขียน attendance ซ้ำ กัน baseline
+// เพี้ยนถ้าลองใหม่) แล้วลองปรับสต็อกอัตโนมัติทีหลัง — Firebase Realtime Database REST ไม่รองรับ transaction
+// แบบ atomic ข้าม 2 path ที่ใช้เงื่อนไข ETag ต่างกันได้ในคำขอเดียว (ระบบเดิมตั้งใจใช้ ETag conditional write ที่
+// roomStock เพื่อกันชนกันข้ามอุปกรณ์ — ถ้าเปลี่ยนไปใช้ multi-path atomic PATCH แทนจะต้องทิ้งการป้องกันนี้ไป ซึ่ง
+// เป็นการเปลี่ยน Stock Logic ที่ระบบสั่งห้ามไว้) จึงเลือกใช้วิธี "เขียนแล้วค้างไว้ให้ retry จนกว่าจะสำเร็จ" แทน
+// ซึ่งรับประกันว่าสุดท้ายข้อมูลจะตรงกันเสมอ (eventually consistent) แม้จะไม่ atomic แบบเข้มงวด 100% ก็ตาม
+async function commitRoomStockAdjust(item){
+  const result=await atomicRoomStockDelta(item.roomId, curStock=>curStock-item.diff);
+  if(!result)return false;
+  const{before,after}=result;
+  if(FD){if(!FD.roomStock)FD.roomStock={};FD.roomStock[item.roomId]=after;}
+  const logEntry={type:'OUT',roomId:item.roomId,roomName:item.roomName,date:FD?.mcAttendance?.[item.referenceId]?.date||'',qty:item.diff,balanceAfter:after,note:'หักสต็อกจากการเช็คดื่มนมรายวัน (ซิงก์ค้างจากออฟไลน์)',savedAt:new Date().toISOString()};
+  const logId=await fbPush('milkApp/stockLog',logEntry);
+  if(logId){if(!FD.stockLog)FD.stockLog={};FD.stockLog[logId]=logEntry;}
+  await appendLedger({roomId:item.roomId, type:'ATTENDANCE', quantity:-item.diff, stockBefore:before, stockAfter:after, referenceId:item.referenceId});
+  return true;
+}
+async function fbGet(p){try{const r=await fbFetchWithTimeout(fbUrl(p));if(!r.ok){dlog(`HTTP ${r.status} @${p}`);return null;}const t=await r.text();if(!t||t==='null')return null;return JSON.parse(t);}catch(e){dlog('Err:'+e.message);return null;}}
+async function fbSet(p,d){try{const r=await fbFetchWithTimeout(fbUrl(p),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.ok;}catch{return false;}}
+async function fbPatch(p,d){try{const r=await fbFetchWithTimeout(fbUrl(p),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.ok;}catch{return false;}}
+async function fbPush(p,d){try{const r=await fbFetchWithTimeout(fbUrl(p),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)return null;return (await r.json()).name;}catch{return null;}}
+
+/* ===== 🆕 ATOMIC ROOM STOCK UPDATE (ETag-based optimistic concurrency) =====
+   milkApp/roomStock/{roomId} คือแหล่งข้อมูลจริง (source of truth) ของสต็อกย่อยรายห้องฝั่งครู — ครูหลายคน/
+   อุปกรณ์ หรือผู้ดูแลอาจเขียนพร้อมกันได้ จึงต้องใช้ Firebase REST ETag (X-Firebase-ETag / if-match) เพื่อทำ
+   read → apply → write แบบมีเงื่อนไข (conditional write) แทนการ "อ่านแล้วเขียนตรงๆ" แบบเดิมที่มี race condition
+   (ถ้าค่าถูกแก้โดยคนอื่นระหว่างที่เรา GET ไปจนถึงตอน PUT เซิร์ฟเวอร์จะตอบ 412 Precondition Failed แล้วเราจะ
+   อ่านค่าล่าสุดมาคำนวณใหม่และลองเขียนซ้ำ — ทำซ้ำสูงสุด maxRetries ครั้ง) */
+async function fbGetWithEtag(p){
+  try{
+    const r=await fbFetchWithTimeout(fbUrl(p),{headers:{'X-Firebase-ETag':'true'}});
+    if(!r.ok)return{value:null,etag:null,ok:false};
+    const etag=r.headers.get('ETag');
+    const t=await r.text();
+    const value=(!t||t==='null')?null:JSON.parse(t);
+    return{value,etag,ok:true};
+  }catch(e){return{value:null,etag:null,ok:false};}
+}
+async function fbSetIfMatch(p,d,etag){
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(etag)headers['if-match']=etag;
+    const r=await fbFetchWithTimeout(fbUrl(p),{method:'PUT',headers,body:JSON.stringify(d)});
+    if(r.status===412)return'conflict'; // ค่าบน Cloud เปลี่ยนไปแล้วระหว่างที่เรากำลังจะเขียน — ต้องอ่านใหม่แล้วลองอีกครั้ง
+    return r.ok?'ok':'error';
+  }catch(e){return'error';}
+}
+// อัปเดตสต็อกย่อยของห้องแบบ atomic-as-possible ด้วย delta function: read(ETag) → apply → write(if-match) →
+// retry on 412. คืนค่า {before,after} ถ้าสำเร็จ, null ถ้าล้มเหลวจนครบ retries (เครือข่ายมีปัญหาจริง ไม่ใช่แค่ชน)
+async function atomicRoomStockDelta(roomId, deltaFn, maxRetries=6){
+  for(let i=0;i<maxRetries;i++){
+    const {value,etag,ok}=await fbGetWithEtag(`milkApp/roomStock/${roomId}`);
+    if(!ok)return null; // เน็ตมีปัญหาจริง ไม่ใช่แค่ชนกัน — เลิกลองทันที ไม่ใช่ retry ไปเรื่อยๆ
+    const before=value||0;
+    const after=deltaFn(before);
+    const result=await fbSetIfMatch(`milkApp/roomStock/${roomId}`,after,etag);
+    if(result==='ok')return{before,after};
+    if(result==='conflict'){await new Promise(r=>setTimeout(r,120*(i+1)));continue;} // มีคนเขียนแซง — รออีกนิดแล้วลองใหม่
+    return null; // error อื่นๆ (เครือข่าย ฯลฯ)
+  }
+  return null;
+}
+
+/* ===== 🆕 AUDIT LEDGER (milkApp/stockTransactions) =====
+   Schema: { id, timestamp, roomId, type, quantity, stockBefore, stockAfter, source, user, referenceId }
+   Types: RECEIVE | DISTRIBUTE | ATTENDANCE | PENDING | RETRO | VACATION | ROLLBACK
+   เขียนเป็น PUT ที่คีย์ {id} ของเราเอง (ไม่ใช้ fbPush/POST) เพื่อให้ id เดียวกันใช้อ้างอิง (referenceId) ได้แน่นอน
+   และเข้ากันได้กับ ledger ฝั่ง index.html ที่เขียนรูปแบบเดียวกัน (รวม ledger เป็นแหล่งเดียวกันบน Cloud) */
+function genLedgerId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+// 🆕 ป้องกัน rollback ซ้ำ (duplicate rollback) — ถ้าผู้ใช้กดลบรายการเดียวกันซ้ำเร็วๆ (เช่น แตะ 2 ครั้งติดกัน
+// ก่อนที่ UI จะ refresh) ฟังก์ชันลบจะเช็ค Set นี้ก่อนเริ่มทำงาน ถ้ามี id นี้ "กำลังลบอยู่" แล้วจะข้ามทันที
+// กันไม่ให้หักคืน(หรือหักซ้ำ) Room Stock สองรอบจากการคลิกครั้งเดียวที่เหตุการณ์ยิงซ้อนกัน
+const _inFlightDeletes=new Set();
+function lockDelete(id){if(_inFlightDeletes.has(id))return false;_inFlightDeletes.add(id);return true;}
+function unlockDelete(id){_inFlightDeletes.delete(id);}
+async function appendLedger(entry){
+  const rec={
+    id: genLedgerId(),
+    timestamp: new Date().toISOString(),
+    roomId: entry.roomId || S?.room || null,
+    type: entry.type,
+    quantity: entry.quantity,
+    stockBefore: entry.stockBefore,
+    stockAfter: entry.stockAfter,
+    source: 'teacher',
+    user: entry.user || (S?.teacher || S?.roomName || 'teacher'),
+    referenceId: entry.referenceId || null
+  };
+  try{
+    const ok=await fbSet(`milkApp/stockTransactions/${rec.id}`,rec);
+    if(ok&&FD){if(!FD.stockTransactions)FD.stockTransactions={};FD.stockTransactions[rec.id]=rec;}
+    return ok?rec.id:null;
+  }catch(e){console.error('appendLedger failed',e);return null;}
+}
+
+/* ===== DATE ===== */
+const pad=n=>String(n).padStart(2,'0');
+const todStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function thD(s){if(!s)return '';const p=s.split('-');if(p.length<3)return s;const M=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];return `${+p[2]} ${M[+p[1]]} ${+p[0]+543}`;}
+function thMY(m){const dt=new Date(m+'-01');const M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];return `${M[dt.getMonth()]} ${dt.getFullYear()+543}`;}
+function wkRng(s){const d=new Date(s),dy=d.getDay()===0?6:d.getDay()-1,mn=new Date(d);mn.setDate(d.getDate()-dy);const fr=new Date(mn);fr.setDate(mn.getDate()+4);return{s:mn.toISOString().split('T')[0],e:fr.toISOString().split('T')[0]};}
+function dBetween(s,e){const a=[],c=new Date(s),en=new Date(e);while(c<=en){if(c.getDay()&&c.getDay()<6)a.push(c.toISOString().split('T')[0]);c.setDate(c.getDate()+1);}return a;}
+const curY=()=>new Date().getFullYear()+543;
+
+/* ===== DEBUG ===== */
+function dlog(msg){const b=document.getElementById('dbg'),t=document.getElementById('dbgTxt');if(b)b.classList.add('show');if(t)t.innerHTML+=msg+'<br>';console.log('[T]',msg);}
+
+/* ===== INIT ===== */
+async function init(){
+  updateNetworkStatus(); // 🆕 เช็คสถานะเน็ตทันทีตอนเปิดแอป เผื่อเปิดมาทั้งที่ออฟไลน์อยู่แล้ว (ก่อนแม้แต่ล็อกอิน)
+  updatePendingBadge(); // 🆕 (2026-07-09) เผื่อมีรายการค้างซิงก์จากเซสชันก่อนหน้า — ตัวจริงจะลองซิงก์ใน applyFD()
+  // หลังจากข้อมูลห้องถูกโหลดจาก Cloud มาครบแล้วเท่านั้น (กันคำนวณส่วนต่างสต็อกผิดถ้า FD ยังว่างอยู่ตอนนี้)
+  try{
+    // 1. อ่าน Firebase config: tc_cfg ก่อน → ถ้าไม่มี ลองอ่าน milk_school_db (index.html)
+    let cfg=LS.g('cfg');
+    if(!cfg?.url){
+      const ic=idxCfg();
+      if(ic){cfg={...ic,source:'auto'};LS.s('cfg',cfg);}  // cache ไว้ใน tc_cfg เพื่อ session ถัดไป
+    }else if(cfg.source!=='manual'&&cfg.source!=='redirect'){
+      // 🆕 แก้บั๊ก "กรอก URL ใหม่แล้วไม่หาย": เดิมจุดนี้เช็ค idxCfg() แล้วทับ cfg ทุกครั้งที่ไม่ตรงกัน โดยไม่สน
+      // ว่าผู้ใช้เพิ่งตั้งค่าด้วยมือหรือเปล่า — ถ้าเครื่องนี้เคยเปิด index.html ค้าง milk_school_db เก่าไว้
+      // (เช่น อุปกรณ์ที่ใช้ร่วมกัน/แท็บเล็ตห้องเรียน) ค่าที่ผู้ใช้เพิ่งกรอกเองจะถูกเขียนทับกลับเป็นค่าเก่าทันที
+      // ตอนโหลดหน้าครั้งถัดไป — ตอนนี้จะ auto-sync จาก idxCfg() เฉพาะตอนที่ config ปัจจุบันยังไม่เคยถูกตั้งค่า
+      // ด้วยมือ (source !== 'manual') เท่านั้น ถ้าผู้ใช้เคยกด "โหลดห้องเรียน"/"เข้าสู่ระบบ"/"บันทึก" ในหน้า
+      // ตั้งค่าด้วยตัวเองแล้ว ระบบจะไม่แตะ URL นั้นอีกจนกว่าจะกดเปลี่ยนเอง หรือกดยืนยันตามคำเชิญ redirect (ดูด้านล่าง)
+      const ic=idxCfg();
+      if(ic?.url&&ic.url!==cfg.url){cfg={...ic,source:'auto'};LS.s('cfg',cfg);}
+    }
+    if(cfg?.url){DB_URL=cfg.url;DB_KEY=cfg.key||'';}
+    else{DB_URL=DEFAULT_FB_URL;}
+    document.getElementById('cfgUrl').value=DB_URL;
+    document.getElementById('cfgKey').value=DB_KEY;
+
+    const sess=LS.g('sess');
+    if(sess&&DB_URL){S=sess;await enterApp();}
+    else{
+      showLogin();
+      // 2. ถ้ามี URL แล้ว → โหลดห้องเรียนอัตโนมัติ (ไม่ต้องกดปุ่ม "โหลดห้องเรียน" ซ้ำ)
+      if(DB_URL){
+        const fromIdx=idxCfg();
+        if(fromIdx){
+          const hint=document.getElementById('idxConfigHint');
+          if(hint) hint.style.display='block';
+        }
+        await loadRooms();
+        // 3. ถ้า index.html มี teacher session → pre-select ห้องที่ login ไว้แล้ว
+        const is=idxSession();
+        if(is?.classId){
+          const sel=document.getElementById('lRoom');
+          if(sel){for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===is.classId){sel.selectedIndex=i;break;}}}
+          const hint2=document.getElementById('idxSessionHint');
+          if(hint2){hint2.textContent=`✅ ตรวจพบเซสชันจากระบบหลัก — เลือกห้องให้อัตโนมัติแล้ว ใส่รหัสผ่านแล้วกด "เข้าสู่ระบบ" เลย`;hint2.style.display='block';}
+        }
+      }
+    }
+  }catch(e){console.error(e);showLogin();}
+}
+function showLogin(){document.getElementById('ov').classList.add('h');document.getElementById('loginScreen').style.display='flex';}
+
+/* ===== GET milkApp NODE ===== */
+// 🆕 แก้ปัญหามือถือบางเครื่องเข้าระบบไม่ได้/ค้าง — เดิมโหลด milkApp ทั้งก้อน (รวม documentFiles/documents/receives
+// ที่เป็นไฟล์แนบ base64 ขนาดใหญ่จากฟีเจอร์ "เอกสารที่เกี่ยวข้อง" ของ index.html ซึ่ง teacher.html ไม่ได้ใช้เลย)
+// ทำให้ payload โตขึ้นเรื่อยๆ ตามจำนวน/ขนาดเอกสารที่ผู้ดูแลอัปโหลด จนมือถือที่เน็ตช้า/ไม่เสถียรโหลดไม่ไหว —
+// เปลี่ยนเป็นดึงเฉพาะ path ที่ teacher.html ใช้จริงแยกทีละ path แทน (ทุก path ยิงพร้อมกันผ่าน Promise.all,
+// fbGet() แต่ละตัวมี timeout+catch อยู่แล้วจึงไม่ throw ออกมา) ผลลัพธ์เป็น object โครงสร้างเดียวกับของเดิมทุกกระเบียด
+// จึงไม่กระทบโค้ดจุดอื่นที่เรียก getApp() เลย (loadRooms/doLogin/loadFB ใช้งานได้เหมือนเดิมทุกประการ)
+// 🆕 แยก path ที่ต้องใช้ตอน login/หน้าแรกๆ (ov/chk) ออกจาก path ที่ใช้เฉพาะบางหน้า (นมค้าง/ย้อนหลัง/ปิดเทอม/
+// สต็อก) — เดิม getApp() ดึงทั้ง 10 path พร้อมกันทุกครั้งที่ login ทำให้ payload ใหญ่โดยไม่จำเป็นถ้าครูแค่
+// จะเข้ามาเช็คดื่มนมวันนี้ (หน้าที่เปิดบ่อยที่สุด) — ตอนนี้ดึงแค่ path จำเป็น (ESSENTIAL) ตอน login ก่อน ทำให้
+// เข้าระบบเร็วขึ้น ส่วน path ที่เหลือ (EXTRA) จะถูกดึงแบบ lazy ก็ต่อเมื่อผู้ใช้เปิดหน้าที่ต้องใช้จริงเท่านั้น
+// (ดู ensureExtraDataLoaded() + จุดเรียกใน goP()) — ไม่กระทบ schema/พฤติกรรมการอ่าน-เขียนใดๆ เลย แค่เปลี่ยน
+// "จังหวะ" ที่ดึงข้อมูลแต่ละก้อนเข้ามาเท่านั้น
+// 🚀 PERF FIX (2026-07-09): เอา 'mcAttendance' ออกจาก ESSENTIAL — เดิม path นี้เก็บประวัติการเช็คดื่มนม "ทุกห้อง
+// ทุกวันตลอดปีการศึกษา" (รวมรูป/ลายเซ็นที่แนบมาด้วย) ทำให้ payload ใหญ่มากและถูกดึงมาทั้งก้อนทุกครั้งที่ login
+// รวมถึงถูกดึงซ้ำทุก 60 วินาทีจาก startSync() — ทั้งที่ทุกจุดในไฟล์นี้ที่อ่านข้อมูลนี้ (getAttendance(FD)) กรองด้วย
+// k.startsWith(S.room+'_') เสมอ คือใช้แค่ข้อมูล "ห้องตัวเอง" เท่านั้น ไม่เคยอ่านห้องอื่นเลย จึงเปลี่ยนมาดึงเฉพาะ
+// ห้องตัวเองผ่าน fetchRoomAttendance() แทน (ดูด้านล่าง) ซึ่งเบากว่าเดิมมาก (เหลือแค่ 1 ห้องจาก 83 ห้อง)
+const APP_ESSENTIAL_PATHS=['settings','rooms','roomStock','updatedAt'];
+const APP_EXTRA_PATHS=['distributes','stockTransactions','absentMilk','retroMilk','vacationMilk','stockLog'];
+// 🐛 FIX (2026-07-09 #2): เจอบั๊กจริง — getApp()/ensureExtraDataLoaded() อ่านจาก path ราก (เช่น `settings.json`)
+// แต่ index.html เขียนข้อมูลลง `milkApp/settings`, `milkApp/rooms` (ซ้อนใต้ node "milkApp" เสมอ — ดู fbPushData()/
+// fetchPath() ใน index.html และจุดอื่นๆ ในไฟล์นี้เองที่ล้วนใช้ prefix "milkApp/" เช่น milkApp/roomStock,
+// milkApp/mcAttendance) มีแค่ getApp()/ensureExtraDataLoaded() สองจุดนี้ที่หลุด prefix ไป ทำให้ครูหา
+// ห้องเรียนไม่เจอเลยไม่ว่าผู้ดูแลจะอัปโหลดข้อมูลกี่ครั้งก็ตาม เพราะอ่านคนละตำแหน่งกับที่เขียนจริง — แก้โดยเติม
+// "milkApp/" นำหน้าทุก path ตอนอ่านให้ตรงกับตำแหน่งที่เขียนจริงเสมอ (คีย์ใน app{}/FD{} ยังคงเป็นชื่อสั้นเหมือนเดิม
+// เช่น app.settings, FD.rooms — เปลี่ยนแค่ตำแหน่งที่ไปอ่านจาก Cloud เท่านั้น ไม่กระทบโค้ดจุดอื่นที่ใช้ app/FD ต่อ)
+async function getApp(){
+  const results=await Promise.all(APP_ESSENTIAL_PATHS.map(async p=>{
+    try{
+      const r=await fbFetchWithTimeout(fbUrl('milkApp/'+p));
+      if(!r.ok){ dlog(`HTTP ${r.status} @${p}`); return {ok:false,data:null}; }
+      const t=await r.text();
+      const data=(!t||t==='null')?null:JSON.parse(t);
+      return {ok:true,data};
+    }catch(e){ dlog('Err:'+e.message); return {ok:false,data:null}; }
+  }));
+  const anyOk=results.some(r=>r.ok);
+  if(!anyOk) return null; // ทุก path ล้มเหลวหมดจริง ๆ — เน็ต/URL/Rules มีปัญหาแน่นอน
+  const app={};
+  APP_ESSENTIAL_PATHS.forEach((p,i)=>{ if(results[i].data!==null && results[i].data!==undefined) app[p]=results[i].data; });
+  return app; // เชื่อมต่อสำเร็จ — คืน object เสมอ (อาจว่างเปล่า {} ถ้าฐานข้อมูลยังไม่มีข้อมูล ก็ไม่ใช่ null)
+}
+// ดึงเฉพาะ path ใน EXTRA ที่ FD ยังไม่มี (หรือยังไม่เคยลองดึงเลย) แล้ว merge เข้า FD — เรียกก่อนเปิดหน้าที่ใช้
+// path เหล่านี้เท่านั้น (นมค้าง/ย้อนหลัง/ปิดเทอม/สต็อก) เรียกซ้ำได้ปลอดภัย (ครั้งถัดไปจะข้ามเพราะมีอยู่แล้ว)
+// ยกเว้นตอน refresh ทั้งก้อนผ่าน forceReload() ที่ล้าง FD ทิ้งก่อนเรียกใหม่ทั้งหมดอยู่แล้ว
+const _fetchedExtraPaths=new Set();
+async function ensureExtraDataLoaded(paths){
+  const need=paths.filter(p=>APP_EXTRA_PATHS.includes(p) && !_fetchedExtraPaths.has(p));
+  if(!need.length)return;
+  setDot('busy');
+  const results=await Promise.all(need.map(p=>fbGet('milkApp/'+p))); // 🐛 FIX (2026-07-09 #2): เติม prefix milkApp/ เช่นเดียวกับ getApp()
+  need.forEach((p,i)=>{ _fetchedExtraPaths.add(p); if(!FD)return; if(results[i]!==null && results[i]!==undefined) FD[p]=results[i]; });
+  setDot('ok');
+}
+
+/* ===== GET CLASSES from Firebase structure ===== */
+// ระบบหลักเก็บ rooms ใน milkApp.rooms = [{id,name,teacher,students:[],count}]
+// students: [{ชื่อ, นามสกุล, เพศ, รหัส, เลขที่, ...}]
+function parseRooms(app){
+  if(!app)return[];
+  // milkApp = {...db, mcAttendance}
+  // db.rooms = [{id,name,teacher,count,students:[{ชื่อ,นามสกุล,เพศ,รหัส,เลขที่}]}]
+  const rooms=app.rooms||[];
+  const arr=Array.isArray(rooms)?rooms:Object.values(rooms);
+  return arr.map((r,ri)=>({
+    id: r.id||('room_'+ri),
+    name: r.name||('ห้อง'+(ri+1)),
+    teacher: r.teacher||'',
+    count: r.count||0,
+    students: parseStudents(r)
+  }));
+}
+function parseStudents(r){
+  const raw=r.students||[];
+  const arr=Array.isArray(raw)?raw:Object.values(raw);
+  if(!arr.length){
+    // สร้าง placeholder จาก count
+    return Array.from({length:r.count||0},(_,i)=>({id:r.id+'_s'+i,num:String(i+1),name:'นักเรียนคนที่'+(i+1),gender:''}));
+  }
+  return arr.map((s,i)=>{
+    const id=s['รหัส']||s['รหัสประจำตัว']||s.id||s.studentId||(r.id+'_s'+i);
+    const num=s['เลขที่']||s.no||s.num||String(i+1);
+    let name='';
+    if(s['ชื่อ']&&s['นามสกุล'])name=s['ชื่อ']+' '+s['นามสกุล'];
+    else if(s['ชื่อ-นามสกุล'])name=s['ชื่อ-นามสกุล'];
+    else if(s['ชื่อ'])name=s['ชื่อ'];
+    else if(s.firstName&&s.lastName)name=s.firstName+' '+s.lastName;
+    else if(s.name)name=s.name;
+    else name=JSON.stringify(s).slice(0,30);
+    const gRaw=s['เพศ']||s.gender||s.sex||'';
+    let gender='';
+    const gL=String(gRaw).toLowerCase();
+    if(gL.includes('ชาย')||gL==='m'||gL==='male')gender='ชาย';
+    else if(gL.includes('หญิง')||gL==='f'||gL==='female')gender='หญิง';
+    return {id:String(id),num:String(num),name:name.trim(),gender};
+  });
+}
+
+/* ===== ATTENDANCE DATA ===== */
+// key = {roomId}_{date} เช่น ป.1-1_2026-06-13
+// value = {clsId,date,year,term,teacher,data:{sid:'present'|'absent'},notes:{sid:txt},photos:[],signature,savedAt}
+function getAttendance(app){
+  // ระบบหลักเก็บใน milkApp.mcAttendance (หลังจาก push)
+  return app?.mcAttendance||app?.attendance||{};
+}
+function attKey(clsId,date){return clsId+'_'+date;}
+// 🚀 PERF FIX (2026-07-09): ดึงเฉพาะข้อมูลการเช็คดื่มนมของ "ห้องตัวเอง" แทนทั้งก้อนทุกห้องทุกวัน — ใช้ Firebase
+// shallow range query ผ่าน orderBy="$key" (ใช้ได้เสมอโดยไม่ต้องตั้ง .indexOn เพิ่มเองที่ Rules) กรองด้วยช่วง
+// key ตั้งแต่ "{roomId}_" ถึง "{roomId}_\uf8ff" (\uf8ff คือ unicode สูงสุดที่ Firebase รองรับ ใช้เป็นขอบบนของ
+// prefix match) เพราะ key format คือ `{roomId}_{date}` เสมอ (ดู attKey() ด้านบน) จึงตรงกับทุก record ของห้องนี้
+// พอดี ไม่ตกหล่น — ก่อนหน้านี้ path นี้ถูกดึงมาทั้งก้อน (ทุกห้อง ทุกวัน รวมรูป/ลายเซ็น) เป็นสาเหตุหลักที่ทำให้
+// login/sync ช้ามาก ทั้งที่ทุกจุดที่อ่าน getAttendance(FD) ในไฟล์นี้ใช้แค่ข้อมูลห้องตัวเองอยู่แล้วทั้งหมด
+async function fetchRoomAttendance(roomId){
+  if(!roomId)return {};
+  try{
+    const base=`${(DB_URL||'').replace(/\/+$/,'')}/milkApp/mcAttendance.json`;
+    const params=new URLSearchParams({orderBy:'"$key"',startAt:`"${roomId}_"`,endAt:`"${roomId}_\uf8ff"`});
+    if(DB_KEY)params.set('auth',DB_KEY);
+    const r=await fbFetchWithTimeout(`${base}?${params.toString()}`);
+    if(!r.ok){ dlog(`HTTP ${r.status} @mcAttendance(room)`); return {}; }
+    const t=await r.text();
+    return (!t||t==='null')?{}:JSON.parse(t);
+  }catch(e){ dlog('Err:'+e.message); return {}; }
+}
+
+/* ===== LOAD ROOMS FOR LOGIN ===== */
+async function loadRooms(){
+  const url=document.getElementById('cfgUrl').value.trim();
+  const key=document.getElementById('cfgKey').value.trim();
+  if(!url){toast('⚠️ กรุณาใส่ Firebase URL');return;}
+  DB_URL=url;DB_KEY=key;LS.s('cfg',{url,key,source:'manual'});
+  document.getElementById('dbg').classList.remove('show');
+  document.getElementById('dbgTxt').innerHTML='';
+  toast('🔄 กำลังเชื่อมต่อ...');setDot('busy');
+  const app=await getApp();
+  if(!app){toast('❌ เชื่อมต่อไม่ได้');document.getElementById('lErr').textContent='❌ เชื่อมต่อ Firebase ไม่ได้ — ตรวจสอบ URL (และ Database Secret ถ้า Rules ต้องใช้)';setDot('err');return;}
+  // 🆕 เก็บแคชไว้ให้ doLogin() ใช้ต่อ กันโหลดทั้ง DB ซ้ำตอนกดเข้าสู่ระบบ (ดู PROJECT_MEMORY.md หัวข้อ 8.8)
+  _cachedApp=app;_cachedAppAt=Date.now();_cachedUrl=url;_cachedKey=key;
+  dlog('milkApp keys: '+Object.keys(app).join(', '));
+  if(app.rooms)dlog('rooms type: '+typeof app.rooms+', count: '+(Array.isArray(app.rooms)?app.rooms.length:Object.keys(app.rooms).length));
+  if(app.rooms&&(Array.isArray(app.rooms)?app.rooms:Object.values(app.rooms)).length>0){
+    const firstRoom=Array.isArray(app.rooms)?app.rooms[0]:Object.values(app.rooms)[0];
+    dlog('first room: '+JSON.stringify({id:firstRoom.id,name:firstRoom.name,teacher:firstRoom.teacher,count:firstRoom.count}).slice(0,200));
+    if(firstRoom.students)dlog('students type: '+typeof firstRoom.students+', count: '+(Array.isArray(firstRoom.students)?firstRoom.students.length:Object.keys(firstRoom.students).length));
+  }
+  const rooms=parseRooms(app);
+  dlog('parsed rooms: '+rooms.length+' ห้อง');
+  const sel=document.getElementById('lRoom');
+  sel.innerHTML='<option value="">-- เลือกห้องเรียน --</option>';
+  const schoolName=app.settings?.school||app.settings?.schoolName||'โรงเรียนบ้านแม่สลิดหลวงวิทยา';
+  document.getElementById('lSchool').textContent=schoolName;
+  rooms.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=`${r.name}${r.teacher?' — '+r.teacher:''}`;sel.appendChild(o);});
+  setDot('ok');
+  if(rooms.length){
+    toast(`✅ โหลดสำเร็จ ${rooms.length} ห้องเรียน`);
+    document.getElementById('lErr').textContent='';
+  }else{
+    // 🆕 เชื่อมต่อ Firebase สำเร็จ (ไม่ใช่ error) แต่ยังไม่มีห้องเรียนในฐานข้อมูลนี้เลย — มักเกิดตอนเพิ่งตั้งค่า
+    // ฐานข้อมูลใหม่ที่ยังไม่เคยอัปโหลดข้อมูลจาก index.html — แจ้งให้ตรงกับสาเหตุจริง ไม่ใช่ "เชื่อมต่อไม่ได้"
+    toast('⚠️ เชื่อมต่อสำเร็จ แต่ยังไม่พบห้องเรียน');
+    document.getElementById('lErr').textContent='⚠️ เชื่อมต่อฐานข้อมูลสำเร็จ แต่ยังไม่มีห้องเรียนในระบบ — กรุณาแจ้งผู้ดูแลระบบให้ตั้งค่าห้องเรียนและอัปโหลดข้อมูลจากหน้าตั้งค่า (index.html) ก่อน';
+  }
+}
+
+/* ===== LOGIN ===== */
+async function doLogin(){
+  const url=document.getElementById('cfgUrl').value.trim();
+  const key=document.getElementById('cfgKey').value.trim();
+  const room=document.getElementById('lRoom').value;
+  const pass=document.getElementById('lPass').value;
+  const err=document.getElementById('lErr');
+  err.textContent='';
+  if(!url){err.textContent='❌ กรุณาใส่ Firebase URL';return;}
+  if(!room){err.textContent='❌ กรุณากด "โหลดห้องเรียน" และเลือกห้องเรียน';return;}
+  if(!pass){err.textContent='❌ กรุณาใส่รหัสผ่าน';return;}
+  DB_URL=url;DB_KEY=key;LS.s('cfg',{url,key,source:'manual'});
+  document.getElementById('ov').classList.remove('h');
+  document.getElementById('ovMsg').textContent='กำลังเข้าสู่ระบบ...';
+  // 🆕 เดิมจุดนี้เรียก getApp() โหลดทั้งก้อน milkApp (รวมรูป/ลายเซ็นทุกห้องทุกวัน) ซ้ำกับที่ loadRooms()
+  // โหลดไปแล้ว และ enterApp()→loadFB() ก็โหลดซ้ำอีกรอบที่ 3 — รวมเป็นโหลดข้อมูลก้อนเดียวกัน 3 ครั้งต่อการ login
+  // 1 ครั้ง ทำให้หน้าจอค้างที่ "กำลังเข้าสู่ระบบ..." นาน — ตอนนี้ใช้ข้อมูลที่แคชไว้แทนถ้ายังใหม่พอ (ดู PROJECT_MEMORY.md หัวข้อ 8.8)
+  const fresh=_cachedApp&&_cachedUrl===url&&_cachedKey===key&&(Date.now()-_cachedAppAt<120000);
+  const app=fresh?_cachedApp:await getApp();
+  if(!app){document.getElementById('ov').classList.add('h');err.textContent='❌ เชื่อมต่อ Firebase ไม่ได้';return;}
+  const st=app.settings||{};
+  const tp=st.teacherPassword||'1234',ap=st.adminPassword||'1234';
+  if(pass!==tp&&pass!==ap){document.getElementById('ov').classList.add('h');err.textContent=`❌ รหัสผ่านไม่ถูกต้อง (ค่าเริ่มต้น: 1234)`;return;}
+  const rooms=parseRooms(app);
+  const rd=rooms.find(r=>r.id===room)||{};
+  S={room,roomName:rd.name||room,teacher:rd.teacher||'ครูประจำชั้น',schoolName:st.school||st.schoolName||'โรงเรียนบ้านแม่สลิดหลวงวิทยา',isAdmin:pass===ap};
+  LS.s('sess',S);
+  await applyFD(app); // 🆕 ใช้ข้อมูลที่โหลดมาแล้วเป็น FD ทันที กัน enterApp() ต้องโหลดซ้ำอีกรอบที่ 3
+  await enterApp();
+}
+
+/* ===== ENTER APP ===== */
+async function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('sidebar').style.display='block';
+  document.getElementById('mainWrap').style.display='block';
+  setLbls();
+  document.getElementById('chkDt').value=todStr();
+  document.getElementById('prDate').value=todStr();
+  document.getElementById('absWk').value=todStr();
+  document.getElementById('rtDt').value=todStr();
+  document.getElementById('rtYr').value=curY(); // 🆕 แก้บั๊ก: ค่า default ปีการศึกษา (placeholder ≠ value)
+  document.getElementById('vcDt').value=todStr();
+  document.getElementById('vcYr').value=curY(); // 🆕 แก้บั๊ก: ค่า default ปีการศึกษา
+  document.getElementById('sumDay').value=todStr();
+  document.getElementById('sumWk').value=todStr();
+  document.getElementById('sumMon').value=todStr().slice(0,7);
+  document.getElementById('histMon').value=todStr().slice(0,7);
+  document.getElementById('absSumMon').value=todStr().slice(0,7);
+  document.getElementById('tcName').value=S.teacher;
+  // 🆕 ถ้า doLogin() เพิ่งโหลด FD มาแล้ว (ผ่าน applyFD) ไม่ต้องโหลดซ้ำอีกรอบ — แก้ปัญหาเข้าระบบช้า (ดู PROJECT_MEMORY.md หัวข้อ 8.8)
+  if(!FD)await loadFB();
+  goP('ov');
+  startSync();
+  initAllSigs();
+  document.getElementById('ov').classList.add('h');
+}
+function setLbls(){
+  document.getElementById('tSch').textContent=S.schoolName;
+  document.getElementById('tRm').textContent=S.roomName;
+  document.getElementById('sbSch').textContent=S.schoolName;
+  document.getElementById('sbRm').textContent=S.roomName;
+  document.getElementById('sbTc').textContent=S.teacher;
+}
+
+/* ===== LOAD FIREBASE ===== */
+// 🆕 แยกส่วน "นำข้อมูลที่โหลดมาแล้วไปใช้งาน" ออกเป็น applyFD() เพื่อให้ doLogin() ที่โหลดข้อมูลมาแล้ว
+// (ผ่าน getApp()/cache) นำไปใช้ตั้งค่า FD/STUDS ได้ทันที โดยไม่ต้องเรียก loadFB() ซ้ำอีกรอบ (ดู PROJECT_MEMORY.md หัวข้อ 8.8)
+async function applyFD(app){
+  FD=app;
+  FD.mcAttendance=await fetchRoomAttendance(S.room); // 🚀 PERF FIX (2026-07-09): ดึงเฉพาะห้องตัวเอง — ดู fetchRoomAttendance() ด้านบน
+  _fetchedExtraPaths.clear(); // 🆕 FD ถูกแทนที่ทั้งก้อนใหม่ (essential only) — ล้าง cache ของ extra paths ให้ดึงใหม่ตามจริง
+  const rooms=parseRooms(app);
+  const rd=rooms.find(r=>r.id===S.room);
+  STUDS=rd?rd.students:[];
+  setDot('ok');
+  checkDbRedirect(); // 🆕 ตรวจจับว่าผู้ดูแลระบบย้ายไปฐานข้อมูลใหม่หรือยัง (ดูฟังก์ชันด้านล่าง)
+  // 🆕 (2026-07-09) ตอนนี้ FD.mcAttendance มีข้อมูลจริงจาก Cloud ของห้องนี้แล้ว — ปลอดภัยที่จะลองซิงก์คิวที่ค้างไว้
+  // (ถ้ามี) เพราะการคำนวณส่วนต่างสต็อกใน commitAttendanceSave() จะอ้างอิงจาก FD ที่เป็นข้อมูลล่าสุดจริงแล้ว
+  if(navigator.onLine)flushPendingSaves();
+}
+// 🆕 ระบบตรวจจับ "ป้ายบอกทาง" (Redirect Marker) — เมื่อผู้ดูแลระบบกด "เปลี่ยนฐานข้อมูล" ใน index.html ระบบจะ
+// เขียน milkApp/settings/databaseRedirect ไว้ที่ฐานข้อมูลเดิมก่อนเลิกใช้งานมัน (ดู switchToNewDatabase() ใน
+// index.html) — schema: {enabled:true, newUrl, newKey, migratedAt, version, setBy} เครื่องนี้ (ยังต่อฐานข้อมูล
+// เดิมอยู่) จะเห็น field นี้ทุกครั้งที่ดึงข้อมูล (settings อยู่ใน essential paths อยู่แล้ว ไม่ต้องยิง request
+// เพิ่ม) แล้วถามผู้ใช้ว่าต้องการเปลี่ยนตามหรือไม่ — ถ้ายืนยัน จะบันทึก config ใหม่เป็น source:'manual' (กลายเป็น
+// การตั้งค่าหลักของเครื่องนี้ ไม่ถูกอุปกรณ์อื่นทับอีก) ล้างแคชที่เกี่ยวข้องทั้งหมด แล้ว reload ทันที ไม่ต้องกรอก
+// URL เอง — จำ "version" ที่เคยตอบไปแล้วแบบถาวร (localStorage ไม่ใช่แค่ sessionStorage) กันถามซ้ำข้ามเซสชัน
+// Database Migration v2 (Disabled)
+// Reserved for future production migration.
+// 🛑 ROLLBACK (2026-07-09): ฟีเจอร์ย้ายฐานข้อมูลถูกพักไว้ทั้งหมดชั่วคราว — ค่านี้ต้องตรงกับ ENABLE_DATABASE_MIGRATION
+// ใน index.html เสมอ โค้ด checkDbRedirect() ด้านล่างไม่ถูกลบ (เผื่อเปิดใช้งานอีกครั้งในอนาคต) แต่จะ return ทันที
+const ENABLE_DATABASE_MIGRATION = false;
+
+const DB_REDIRECT_SEEN_KEY='tc_db_redirect_seen_versions';
+function dbRedirectSeenVersions(){ try{ return JSON.parse(localStorage.getItem(DB_REDIRECT_SEEN_KEY))||[]; }catch(e){ return []; } }
+function dbRedirectMarkSeen(version){ try{ const v=dbRedirectSeenVersions(); if(!v.includes(version)){ v.push(version); localStorage.setItem(DB_REDIRECT_SEEN_KEY, JSON.stringify(v)); } }catch(e){} }
+function checkDbRedirect(){
+  if (!ENABLE_DATABASE_MIGRATION) return; // Database Migration v2 (Disabled) — see flag above
+  const r=FD?.settings?.databaseRedirect;
+  // 5.4 Fallback safety: ถ้าอ่าน marker ไม่ได้/ไม่มี/ข้อมูลไม่ครบ → ใช้ฐานข้อมูลปัจจุบันต่อไปตามปกติ ไม่บล็อกอะไรเลย
+  if(!r||r.enabled!==true||!r.newUrl||!r.version)return;
+  if(r.newUrl===DB_URL)return; // เปลี่ยนไปแล้วจริงๆ (กรณีเพิ่งกด "ย้ายทันที" แล้วยังไม่ reload เสร็จ)
+  if(dbRedirectSeenVersions().includes(r.version))return; // เคยตอบ (ยืนยันหรือปฏิเสธ) เวอร์ชันนี้ไปแล้ว ไม่ถามซ้ำอีกตลอดไป
+  const ok=confirm(`🔄 พบฐานข้อมูลใหม่\n\nผู้ดูแลระบบย้ายไปใช้ฐานข้อมูลใหม่แล้ว: ${r.newUrl}\n\nต้องการย้ายไปฐานข้อมูลใหม่หรือไม่?`);
+  dbRedirectMarkSeen(r.version); // จำไว้ทั้งกรณียืนยันและปฏิเสธ — ไม่ถามซ้ำสำหรับ version เดิมอีกไม่ว่าจะตอบอะไร
+  if(ok){
+    // ล้างแคชฝั่งครูที่เกี่ยวข้องกับฐานข้อมูลเดิมทั้งหมดก่อนย้าย (คิว retry/ห้องเรียนที่แคชไว้/session เดิม)
+    // — ไม่ลบ tc_db_redirect_seen_versions (ต้องคงไว้ข้ามการย้าย กันถามซ้ำ) และไม่ลบ preference อื่นๆ ที่ไม่เกี่ยวกับข้อมูล
+    try{ localStorage.removeItem('tc_sess'); }catch(e){}
+    FD=null; STUDS=[]; _fetchedExtraPaths.clear();
+    LS.s('cfg',{url:r.newUrl,key:r.newKey||'',source:'redirect',acceptedRedirectVersion:r.version});
+    alert('✅ ย้ายไปใช้ฐานข้อมูลใหม่แล้ว — กำลังโหลดหน้าใหม่เพื่อเชื่อมต่อและโหลดข้อมูลใหม่ทั้งหมด...');
+    location.reload();
+  }
+
+}
+async function loadFB(){
+  setDot('busy');
+  const app=await getApp();
+  if(!app){setDot('err');return;}
+  await applyFD(app);
+}
+// 🆕 ขยายช่วงเวลา poll จาก 30 วินาที → 60 วินาที เพื่อลดการดาวน์โหลดข้อมูลทั้งก้อน (รวมรูป/ลายเซ็นทุกห้อง)
+// ซ้ำ ๆ ลดการใช้ bandwidth โควตา Firebase ฟรี (ดู PROJECT_MEMORY.md หัวข้อ 2.5 ข้อ 2) ยังคงความสดของข้อมูล
+// ที่หน้า "ภาพรวม" พึ่งพาอยู่ (goP() ไม่ดึงข้อมูลใหม่เองตอนสลับหน้า ใช้ FD ที่ cache ไว้จาก loadFB() นี้เท่านั้น)
+function startSync(){if(TIMER)clearInterval(TIMER);TIMER=setInterval(async()=>{if(navigator.onLine)await flushPendingSaves();await loadFB();const pg=document.querySelector('.pg:not([style*="display:none"])');if(pg?.id==='pg-ov')renderOv();},60000);}
+
+/* ===== NAVIGATION ===== */
+function goP(name){
+  document.querySelectorAll('.pg').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.ni').forEach(m=>m.classList.remove('active'));
+  const pg=document.getElementById('pg-'+name);if(pg)pg.style.display='block';
+  const ni=document.getElementById('ni-'+name);if(ni)ni.classList.add('active');
+  closeSB();
+  const acts={
+    ov:renderOv,
+    chk:initChk,
+    hist:renderHist,
+    sum:()=>renderSum('daily'),
+    prt:initPrt,
+    // 🆕 นมค้าง/ย้อนหลัง/ปิดเทอม/สต็อก ใช้ path ที่ไม่ได้โหลดมาตอน login แล้ว (ดู APP_EXTRA_PATHS) —
+    // ดึงเฉพาะ path ที่หน้านั้นๆ ต้องใช้จริงก่อนแสดงผลเสมอ (เรียกซ้ำได้ปลอดภัย ครั้งถัดไปข้ามเพราะมีแคชแล้ว)
+    abs:()=>{absSigData={};absPhotos=[];absRenderPhotoGrid();ensureExtraDataLoaded(['absentMilk']).then(()=>loadAbs()).then(()=>{loadAbsH();renderAbsSum();});},
+    ret:()=>{const rm=document.getElementById('rtRoom');if(rm)rm.value=S.roomName;rtSigData={};rtPhotos=[];rtRenderPhotoGrid();document.getElementById('rtStudentList').style.display='none';ensureExtraDataLoaded(['retroMilk']).then(()=>loadRetH()).then(renderRtSum);},
+    vac:()=>{vcSigData={};vcPhotos=[];vcRenderPhotoGrid();ensureExtraDataLoaded(['vacationMilk']).then(()=>loadVacH()).then(renderVcSum);updVac();},
+    std:()=>{loadStd();const m=document.getElementById('stPrintMonth');if(m&&!m.value)m.value=todStr().slice(0,7);},
+    stk:()=>{ensureExtraDataLoaded(APP_EXTRA_PATHS).then(renderStk);},
+    cfg:fillCfg
+  };
+  if(acts[name])acts[name]();
+}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('ovlay').classList.toggle('s');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('ovlay').classList.remove('s');}
+
+/* ===== OVERVIEW ===== */
+function renderOv(){
+  if(!FD)return;
+  const today=todStr();
+  document.getElementById('ovDate').textContent='วันนี้ '+thD(today);
+  document.getElementById('ovRm').textContent=S.roomName+' | ครู'+S.teacher;
+  const att=getAttendance(FD);
+  const key=attKey(S.room,today);
+  const rec=att[key];
+  const vals=rec?Object.values(rec.data||{}):[]; 
+  const p=vals.filter(v=>v==='present').length,a=vals.filter(v=>v==='absent').length;
+  document.getElementById('ovDk').textContent=p;
+  document.getElementById('ovAb').textContent=a;
+  document.getElementById('ovTt').textContent=STUDS.length;
+  document.getElementById('ovPc').textContent=STUDS.length?Math.round(p/STUDS.length*100):0;
+  // month avg
+  const mon=today.slice(0,7);let mP=0,mT=0;
+  // key = "{roomId}_{YYYY-MM-DD}" กรองตามเดือน
+  let msum=0,mcnt=0;
+  Object.entries(att).forEach(([k,r])=>{
+    if(!k.startsWith(S.room+'_'))return;
+    const dt=k.slice(S.room.length+1); // ตัด roomId_ ออก
+    if(dt&&dt.startsWith(mon)){
+      const vs=Object.values(r.data||{});
+      msum+=vs.filter(v=>v==='present').length;
+      mcnt+=vs.length;
+    }
+  });
+  document.getElementById('ovMP').textContent=mcnt?Math.round(msum/mcnt*100):0;
+  // recent
+  const sorted=Object.entries(att).filter(([k])=>k.startsWith(S.room+'_')).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  const rcEl=document.getElementById('ovRecent');
+  if(!sorted.length){rcEl.innerHTML='<div class="text-muted" style="text-align:center;padding:20px">ยังไม่มีข้อมูลการเช็ค</div>';return;}
+  rcEl.innerHTML=sorted.map(([k,r])=>{
+    const dt=k.split('_').pop();
+    const vs=Object.values(r.data||{});
+    const p2=vs.filter(v=>v==='present').length,a2=vs.filter(v=>v==='absent').length;
+    return `<div class="info-row"><span class="badge badge-blue">${S.roomName}</span><span class="text-muted">${thD(dt)}</span><span class="badge badge-green">✓ ${p2}</span><span class="badge badge-red">✗ ${a2}</span></div>`;
+  }).join('');
+}
+
+/* ===== CHECK ===== */
+function setToday(){document.getElementById('chkDt').value=todStr();loadGrid();}
+function initChk(){
+  // เช็คดื่มนมรายวัน — เฉพาะห้องของครูเอง (S.room) เท่านั้น ไม่มีตัวเลือกห้องเรียน/ตัวเลือกผู้ดูแลระบบ
+  document.getElementById('chkRoomBanner').innerHTML=`🔒 ห้องเรียนของคุณ: <strong>${S.roomName}</strong> | ครูประจำชั้น: <strong>${S.teacher||'-'}</strong> — ระบบจะบันทึกข้อมูลของห้องนี้เท่านั้น`;
+  if(!document.getElementById('chkDt').value)document.getElementById('chkDt').value=todStr();
+  loadGrid();
+}
+function loadGrid(){
+  const date=document.getElementById('chkDt').value;
+  if(!date){document.getElementById('chkGrid').style.display='none';document.getElementById('chkEmpty').style.display='block';document.getElementById('chkStatusBanner').innerHTML='';return;}
+  document.getElementById('chkGrid').style.display='block';
+  document.getElementById('chkEmpty').style.display='none';
+  document.getElementById('chkLabel').textContent=`– ${S.roomName} | ${thD(date)}`;
+  const att=getAttendance(FD)||{};
+  const existing=att[attKey(S.room,date)];
+  // สถานะการเช็ค/เซ็นชื่อของวันนี้ — auto-check ว่าเช็คไปแล้วหรือยัง
+  const banner=document.getElementById('chkStatusBanner');
+  const isToday=date===todStr();
+  if(existing){
+    const t=existing.savedAt?new Date(existing.savedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'';
+    banner.className='alert alert-success';
+    banner.innerHTML=`✅ ${isToday?'วันนี้':thD(date)}บันทึกข้อมูลแล้ว${t?' เมื่อเวลา '+t+' น.':''} โดยครู ${existing.teacher||S.teacher||'-'} — สามารถแก้ไขและบันทึกซ้ำได้`;
+  }else{
+    banner.className='alert alert-warning';
+    banner.innerHTML=`⏳ ${isToday?'วันนี้':thD(date)}ยังไม่ได้บันทึกข้อมูลการเช็คดื่มนม`;
+  }
+  const tbody=document.getElementById('chkTbody');
+  tbody.innerHTML=STUDS.map((s,i)=>{
+    const status=existing?(existing.data[s.id]||''):'';
+    const note=existing&&existing.notes?existing.notes[s.id]||'':'';
+    return `<tr>
+      <td class="col-num">${s.num||i+1}</td>
+      <td class="col-name">${s.name}</td>
+      <td>
+        <button class="att-btn ${status==='present'?'present':''}" id="bp-${s.id}" onclick="toggle('${s.id}','present')" title="ดื่มนม">✓</button>
+        <button class="att-btn ${status==='absent'?'absent':''}" id="ba-${s.id}" onclick="toggle('${s.id}','absent')" title="ไม่ดื่ม" style="margin-left:4px">✗</button>
+      </td>
+      <td><input type="text" style="width:100%;border:none;background:transparent;font-size:12px;font-family:inherit" placeholder="หมายเหตุ" id="nt-${s.id}" value="${note}"></td>
+    </tr>`;
+  }).join('');
+  curPhotos=existing?.photos||[];
+  renderPhotoGrid();
+  // ชื่อครูประจำชั้น — ดึงจากบัญชีของครูโดยอัตโนมัติเสมอ (อ่านอย่างเดียว)
+  const tName=S.teacher||existing?.teacher||'';
+  document.getElementById('tcName').value=tName;
+  document.getElementById('tcNameDisp').textContent=tName||'—';
+  document.getElementById('tcRoomLbl').textContent=S.roomName||'—';
+}
+
+function toggle(sid,status){
+  const pb=document.getElementById('bp-'+sid),ab=document.getElementById('ba-'+sid);
+  if(!pb||!ab)return;
+  if(status==='present'){if(pb.classList.contains('present'))pb.classList.remove('present');else{pb.classList.add('present');ab.classList.remove('absent');}}
+  else{if(ab.classList.contains('absent'))ab.classList.remove('absent');else{ab.classList.add('absent');pb.classList.remove('present');}}
+}
+function markAll(status){STUDS.forEach(s=>{const pb=document.getElementById('bp-'+s.id),ab=document.getElementById('ba-'+s.id);if(!pb)return;pb.classList.toggle('present',status==='present');ab.classList.toggle('absent',status==='absent');});}
+function clearAll(){STUDS.forEach(s=>{document.getElementById('bp-'+s.id)?.classList.remove('present');document.getElementById('ba-'+s.id)?.classList.remove('absent');});}
+
+// 🆕 (2026-07-09) แยกตรรกะ "บันทึกจริงขึ้น Cloud + ปรับสต็อก + Ledger" ออกจาก saveAtt() มาเป็นฟังก์ชันกลาง
+// เพื่อให้ทั้งการบันทึกสดตอนออนไลน์ และการซิงก์ซ้ำจากคิวออฟไลน์ (flushPendingSaves) ใช้โค้ด "จุดเดียวกัน" เป๊ะ
+// ไม่มีทางที่ตรรกะการหักสต็อก/Ledger จะเพี้ยนไปคนละแบบระหว่าง 2 เส้นทางนี้ — ไม่มีการเปลี่ยน path/schema เลย
+// 🆕 baselinePresent (จำนวนคนที่ "ดื่ม" ของ record เดิมก่อนแก้ไขครั้งนี้) ต้องส่งเข้ามาตรงๆ เสมอ (คำนวณครั้ง
+// เดียวตอนกดบันทึกครั้งแรกใน saveAtt() แล้ว "แนบไปกับคิว" ถ้าบันทึกไม่สำเร็จ) — ห้ามคำนวณใหม่จาก FD ข้างในนี้
+// เพราะตอนออฟไลน์ FD.mcAttendance[key] จะถูกอัปเดตด้วยค่าที่ "ยังไม่ยืนยัน" (optimistic) ไปแล้วจาก saveAtt()
+// ถ้าคำนวณใหม่จาก FD ตอน retry จะเทียบ record ใหม่กับตัวมันเอง (diff กลายเป็น 0 สต็อกไม่ถูกตัด) หรือถ้ามีการ
+// แก้ไขซ้ำหลายครั้งตอนออฟไลน์ก็จะตัดสต็อกไม่ครบ — การส่ง baseline ที่ตรึงไว้ตั้งแต่ต้นมาตรงๆ กันปัญหานี้ได้แน่นอน
+async function commitAttendanceSave(rec,key,baselinePresent){
+  if(!FD)FD={}; // 🆕 กันกรณี flushPendingSaves() ทำงานก่อน login (FD ยังไม่ถูกตั้งค่า) ไม่ให้ throw
+  const ok=await fbSet(`milkApp/mcAttendance/${key}`,rec); // บันทึกลง milkApp/mcAttendance/{key} (path เดิมทุกประการ)
+  if(!ok)return false;
+  // 🆕 Phase 3: ตัดสต็อกย่อยของห้องนี้เท่านั้น (milkApp/roomStock/{roomId}) ไม่แตะสต็อกกลางอีกต่อไป
+  // เดิมหักจาก milkApp/stock (สต็อกกลางของทั้งโรงเรียน) ซ้ำซ้อนกับตอนผู้ดูแล "จ่ายนมให้ห้องเรียน" ที่ก็หัก
+  // สต็อกกลางเหมือนกัน — ตามมติที่เลือกแนวทาง B: "จ่ายนมให้ห้องเรียน" เป็นจุดหักสต็อกกลางจุดเดียว ส่วนการ
+  // เช็คดื่มนมรายวันหักจากสต็อกย่อยของห้อง (ที่ได้รับมาจากการจ่ายนมให้ห้องเรียนนั้นแล้ว)
+  const newPresent=Object.values(rec.data).filter(v=>v==='present').length;
+  const diff=newPresent-(baselinePresent||0);
+  if(diff!==0){
+    // 🆕 ใช้ atomic update (ETag conditional write + retry on conflict) แทน "อ่านแล้วเขียนตรงๆ" แบบเดิม
+    // ป้องกัน race condition ถ้าผู้ดูแล/ครูอีกอุปกรณ์เขียน roomStock พร้อมกันในช่วงเวลาเดียวกัน
+    // ไม่ปัดเป็น 0 — ถ้าห้องได้รับจัดสรรไม่พอ ค่าจะติดลบจริง เพื่อให้ผู้ดูแลเห็นยอดขาดดุลและจ่ายเพิ่มให้ทัน
+    const result=await atomicRoomStockDelta(rec.clsId, curStock => curStock - diff);
+    if(result){
+      const{before,after}=result;
+      if(FD){if(!FD.roomStock)FD.roomStock={};FD.roomStock[rec.clsId]=after;}
+      // บันทึกประวัติเบิกจ่ายสต็อก (OUT) แบบอัตโนมัติ (legacy stockLog เดิม — คงไว้เพื่อความเข้ากันได้กับหน้าจอเดิม)
+      const logEntry={type:'OUT',roomId:rec.clsId,roomName:rec.roomName||S?.roomName||'',date:rec.date,qty:diff,balanceAfter:after,note:'หักสต็อกจากการเช็คดื่มนมรายวัน',savedAt:new Date().toISOString()};
+      const logId=await fbPush('milkApp/stockLog',logEntry);
+      if(logId){if(!FD.stockLog)FD.stockLog={};FD.stockLog[logId]=logEntry;}
+      // 🆕 Audit Ledger: บันทึกทุกการหัก/คืนสต็อกจากการเช็คดื่มนมรายวัน
+      await appendLedger({roomId:rec.clsId, type:'ATTENDANCE', quantity:-diff, stockBefore:before, stockAfter:after, referenceId:key});
+    } else {
+      // 🆕 (2026-07-09 รอบ 2) เดิมจุดนี้แค่เตือนแล้วปล่อยผ่าน ทำให้สต็อกค้างผิดถาวรถ้าผู้ใช้ไม่กดแก้เอง — ตอนนี้
+      // เก็บ "ส่วนต่างสต็อกที่ค้าง" เข้าคิวเดียวกัน (คนละประเภทกับ attendance) เพื่อลองปรับสต็อกซ้ำอัตโนมัติทีหลัง
+      // โดยไม่ต้องเขียน attendance ซ้ำ (attendance บันทึกสำเร็จไปแล้วข้างบน ไม่มีความเสี่ยง baseline เพี้ยน)
+      queuePendingSave({type:'roomStockAdjust',key:`stockadj_${key}`,roomId:rec.clsId,diff,referenceId:key,roomName:rec.roomName||S?.roomName||'',queuedAt:Date.now()});
+      dlog(`⏳ ค้างปรับสต็อกห้อง ${rec.roomName||S?.roomName||''} (${diff>0?'+':''}${diff} กล่อง) รอซิงก์อัตโนมัติ`);
+      toast('⚠️ บันทึกการเช็คสำเร็จ แต่ปรับสต็อกห้องไม่สำเร็จชั่วคราว — ระบบจะลองปรับสต็อกให้อัตโนมัติเมื่อกลับมาออนไลน์');
+      scheduleQueueRetry(QUEUE_BACKOFF_STEPS[0]);
+    }
+  }
+  // อัปเดต FD local
+  if(!FD.mcAttendance)FD.mcAttendance={};
+  FD.mcAttendance[key]=rec;
+  return true;
+}
+async function saveAtt(){
+  const date=document.getElementById('chkDt').value;
+  if(!date){toast('⚠️ กรุณาเลือกวันที่');return;}
+  const year=document.getElementById('chkYr').value,term=document.getElementById('chkTm').value;
+  const teacher=document.getElementById('tcName').value;
+  const data={},notes={};
+  STUDS.forEach(s=>{
+    if(document.getElementById('bp-'+s.id)?.classList.contains('present'))data[s.id]='present';
+    else if(document.getElementById('ba-'+s.id)?.classList.contains('absent'))data[s.id]='absent';
+    const n=document.getElementById('nt-'+s.id)?.value;if(n)notes[s.id]=n;
+  });
+  const canvas=document.getElementById('sigCanvas');
+  const signature=canvas&&canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.some(d=>d!==0)?canvas.toDataURL():'';
+  const rec={clsId:S.room,roomName:S.roomName,date,year,term,teacher,data,notes,photos:[...curPhotos],signature,savedAt:new Date().toISOString()};
+  const key=attKey(S.room,date);
+  // 🆕 (2026-07-09) คำนวณ baseline (จำนวนคนดื่มของ record เดิม) "ครั้งเดียวตรงนี้" แล้วส่งต่อไปตรงๆ เสมอ — ถ้ามี
+  // รายการเดิมค้างอยู่ในคิวออฟไลน์แล้ว (แก้ไขซ้ำหลายครั้งก่อนเน็ตกลับมา) ต้องใช้ baseline "ดั้งเดิม" ของคิวเดิม
+  // ต่อไป ไม่คำนวณจาก FD ใหม่ (ซึ่งตอนนี้เป็นค่า optimistic ของการแก้ไขครั้งก่อนไปแล้ว ไม่ใช่ค่าจริงบน Cloud)
+  const existingQueued=loadPendingQueue().find(x=>x.key===key);
+  let baselinePresent;
+  if(existingQueued){
+    baselinePresent=existingQueued.baselinePresent;
+  }else{
+    const att=getAttendance(FD);
+    const oldRec=att[key];
+    baselinePresent=oldRec?Object.values(oldRec.data||{}).filter(v=>v==='present').length:0;
+  }
+  setDot('busy');
+  const ok=await commitAttendanceSave(rec,key,baselinePresent);
+  setDot(ok?'ok':'err');
+  if(ok){
+    removePendingSave(key); // 🆕 ถ้าก่อนหน้านี้เคยเข้าคิวออฟไลน์ไว้แล้วตอนนี้บันทึกสำเร็จตรงๆ ให้เอาออกจากคิว กันซิงก์ซ้ำภายหลัง
+    const ab=Object.values(data).filter(v=>v==='absent').length;
+    toast(ab>0?`✅ บันทึกสำเร็จ! มีนักเรียนขาด ${ab} คน`:'✅ บันทึกการเช็คดื่มนมเรียบร้อยแล้ว');
+    goP('ov');
+  } else {
+    // 🆕 (2026-07-09) เดิมจุดนี้แค่ขึ้น "❌ บันทึกไม่สำเร็จ" แล้วข้อมูลที่กรอกหายไปเลยถ้าครูไม่กดบันทึกซ้ำเอง —
+    // ตอนนี้เก็บลงคิวรอซิงก์ (localStorage) แทน แล้วจะลองบันทึกซ้ำอัตโนมัติทันทีที่กลับมาออนไลน์ (ดู
+    // flushPendingSaves() ด้านบน) พร้อมอัปเดตหน้าจอให้ครูเห็นข้อมูลที่กรอกไว้ทันที (เหมือนบันทึกสำเร็จ) เพื่อไม่
+    // ให้สับสนว่าข้อมูลหายไปไหน — สต็อกห้องจะยังไม่ถูกปรับจนกว่าจะซิงก์ขึ้น Cloud ได้จริงเท่านั้น
+    queuePendingSave({type:'attendance',key,rec,baselinePresent,queuedAt:existingQueued?existingQueued.queuedAt:Date.now()});
+    if(!FD.mcAttendance)FD.mcAttendance={};
+    FD.mcAttendance[key]=rec;
+    dlog(`📥 ออฟไลน์/เชื่อมต่อไม่ได้ — เก็บข้อมูลเช็คดื่มนมห้อง ${S.roomName} วันที่ ${date} ไว้ในเครื่อง รอซิงก์อัตโนมัติ`);
+    toast('📥 ยังเชื่อมต่อ Cloud ไม่ได้ — บันทึกลงเครื่องแล้ว จะซิงก์ขึ้น Cloud อัตโนมัติทันทีที่กลับมาออนไลน์');
+    scheduleQueueRetry(QUEUE_BACKOFF_STEPS[0]);
+    goP('ov');
+  }
+}
+
+/* ===== PHOTOS ===== */
+function handlePhotos(input){
+  const files=Array.from(input.files).slice(0,5-curPhotos.length);
+  files.forEach(f=>{compressImageFile(f).then(dataUrl=>{if(!dataUrl)return;curPhotos.push(dataUrl);renderPhotoGrid();});});
+  input.value='';
+}
+function renderPhotoGrid(){
+  const g=document.getElementById('photoGrid');if(!g)return;
+  g.innerHTML=curPhotos.map((p,i)=>`<div class="photo-thumb-wrap"><img src="${p}" class="photo-thumb"><button class="photo-remove" onclick="removePhoto(${i})">✕</button></div>`).join('');
+}
+function removePhoto(i){curPhotos.splice(i,1);renderPhotoGrid();}
+
+/* ===== SIGNATURE ===== */
+function initAllSigs(){
+  ['sigCanvas','sigAbs','sigRt'].forEach(id=>initSig(id));
+}
+function initSig(id){
+  const canvas=document.getElementById(id);if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.strokeStyle='#1a4a8c';ctx.lineWidth=2;ctx.lineCap='round';
+  sigCtxMap[id]={ctx,drawing:false};
+  const newC=canvas.cloneNode(true);canvas.parentNode.replaceChild(newC,canvas);
+  const c=document.getElementById(id);const ctx2=c.getContext('2d');
+  ctx2.strokeStyle='#1a4a8c';ctx2.lineWidth=2;ctx2.lineCap='round';
+  sigCtxMap[id]={ctx:ctx2,drawing:false};
+  const gp=e=>{const r=c.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:(src.clientX-r.left)*(c.width/r.width),y:(src.clientY-r.top)*(c.height/r.height)};}
+  c.addEventListener('mousedown',e=>{sigCtxMap[id].drawing=true;const p=gp(e);ctx2.beginPath();ctx2.moveTo(p.x,p.y);});
+  c.addEventListener('mousemove',e=>{if(!sigCtxMap[id].drawing)return;const p=gp(e);ctx2.lineTo(p.x,p.y);ctx2.stroke();});
+  c.addEventListener('mouseup',()=>sigCtxMap[id].drawing=false);
+  c.addEventListener('touchstart',e=>{e.preventDefault();sigCtxMap[id].drawing=true;const p=gp(e);ctx2.beginPath();ctx2.moveTo(p.x,p.y);},{passive:false});
+  c.addEventListener('touchmove',e=>{e.preventDefault();if(!sigCtxMap[id].drawing)return;const p=gp(e);ctx2.lineTo(p.x,p.y);ctx2.stroke();},{passive:false});
+  c.addEventListener('touchend',()=>sigCtxMap[id].drawing=false);
+}
+function clearSig(){const c=document.getElementById('sigCanvas');if(c){const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);}}
+function clrSig2(id){const c=document.getElementById(id);if(c){const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);}}
+function getSig(id){try{const c=document.getElementById(id);return c&&c.getContext('2d').getImageData(0,0,c.width,c.height).data.some(d=>d!==0)?c.toDataURL():'';}catch{return '';}}
+
+/* ===== HISTORY ===== */
+// 🆕 pagination สำหรับตาราง "ประวัติการเช็ค" — เดิม render ทุกแถวทีเดียว ยิ่งใช้งานนาน (สะสมหลายเดือน/ปี)
+// จำนวนแถวยิ่งเยอะขึ้นเรื่อยๆ ทำให้มือถือสเปกต่ำหน่วง/ค้างตอนเปิดหน้านี้ — ตอนนี้แสดงทีละ HIST_PAGE_SIZE แถว
+// renderHist() (เรียกจากตัวกรอง/goP) จะรีเซ็ตกลับหน้า 1 เสมอ ส่วนปุ่มก่อนหน้า/ถัดไปเรียก histGoPage() แทน
+const HIST_PAGE_SIZE=30;
+let histPage=1;
+function renderHist(){ histPage=1; renderHistPage(); }
+function histGoPage(delta){ histPage=Math.max(1,histPage+delta); renderHistPage(); }
+function renderHistPage(){
+  if(!FD)return;
+  // 🆕 Phase 3: สต็อกนับเป็นรายห้องแล้ว — แสดงสต็อกย่อยของห้องตนเอง (milkApp/roomStock) ไม่ใช่สต็อกกลางทั้งโรงเรียนอีกต่อไป
+  const updTxt=FD.updatedAt?new Date(FD.updatedAt).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}):'-';
+  const myRoomStock=(FD.roomStock||{})[S.room];
+  document.getElementById('histGlobalInfo').innerHTML=`📦 <strong>สต็อกนมคงเหลือห้อง ${S.roomName}</strong>: <strong>${myRoomStock!=null?myRoomStock:0}</strong> กล่อง | ปรับปรุงล่าสุด: ${updTxt}`;
+  document.getElementById('histRoomLbl').textContent=S.roomName;
+  const mon=document.getElementById('histMon').value;
+  const att=getAttendance(FD);
+  // key = "{roomId}_{date}" เช่น "ป.1-1_2026-06-13"
+  let recs=Object.entries(att).filter(([k])=>k.startsWith(S.room+'_')).sort((a,b)=>b[0].localeCompare(a[0]));
+  if(mon)recs=recs.filter(([k])=>{
+    const dt=k.slice(S.room.length+1);
+    return dt.startsWith(mon);
+  });
+  const wrap=document.getElementById('histWrap');
+  if(!recs.length){wrap.innerHTML='<div style="text-align:center;padding:30px" class="text-muted">ไม่มีข้อมูลการเช็ค</div>';return;}
+  const totalPages=Math.max(1,Math.ceil(recs.length/HIST_PAGE_SIZE));
+  if(histPage>totalPages)histPage=totalPages;
+  const pageRecs=recs.slice((histPage-1)*HIST_PAGE_SIZE,histPage*HIST_PAGE_SIZE);
+  wrap.innerHTML=`<div class="tw"><table class="rt">
+    <thead><tr><th>วันที่</th><th class="tc">ดื่มนม</th><th class="tc">ไม่ดื่ม</th><th class="tc">รวม</th><th class="tc">% ดื่ม</th><th>ครู</th><th class="tc">การจัดการ</th></tr></thead><tbody>
+    ${pageRecs.map(([k,r])=>{const dt=k.split('_').pop();const vs=Object.values(r.data||{});const p=vs.filter(v=>v==='present').length,a=vs.filter(v=>v==='absent').length;const tot=STUDS.length>0?STUDS.length:(p+a)||1;const pct=tot?Math.round(p/tot*100):0;
+      return `<tr><td>${thD(dt)}</td><td class="tc"><span class="badge badge-green">${p}</span></td><td class="tc"><span class="badge badge-red">${a}</span></td><td class="tc">${tot}</td><td class="tc"><b>${pct}%</b></td><td>${r.teacher||'—'}</td><td class="tc"><button class="btn btn-outline btn-sm" onclick="editHistRecord('${dt}')">✏️ แก้ไข</button> <button class="btn btn-danger btn-sm" onclick="deleteHistRecord('${k}','${dt}')">🗑️ ลบ</button></td></tr>`;
+    }).join('')}
+    </tbody></table></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;font-size:13px;">
+      <button class="btn btn-outline btn-sm" onclick="histGoPage(-1)" ${histPage<=1?'disabled':''}>◀ ก่อนหน้า</button>
+      <span class="text-muted">หน้า ${histPage} จาก ${totalPages} (รวม ${recs.length} รายการ)</span>
+      <button class="btn btn-outline btn-sm" onclick="histGoPage(1)" ${histPage>=totalPages?'disabled':''}>ถัดไป ▶</button>
+    </div>`;
+}
+
+/* ===== HISTORY: EDIT / DELETE ===== */
+function editHistRecord(date){
+  goP('chk');
+  document.getElementById('chkDt').value=date;
+  loadGrid();
+}
+async function deleteHistRecord(key,date){
+  if(!confirm(`ยืนยันลบข้อมูลการเช็คดื่มนมวันที่ ${thD(date)}? การลบนี้ไม่สามารถกู้คืนได้`))return;
+  if(!lockDelete('att_'+key)){toast('⏳ กำลังลบรายการนี้อยู่ กรุณารอสักครู่...');return;} // 🆕 กัน rollback ซ้ำจากการกดซ้อน
+  setDot('busy');
+  // เก็บจำนวนนักเรียนที่ดื่มนม (present) ของ record เดิมไว้ก่อนลบ — ใช้คืนสต็อกย่อยของห้องนี้ที่เคยถูกหักไปตอนบันทึก
+  // (สมมาตรกับ diff-logic ใน saveAtt() — เดิมจุดนี้ลบ record แต่ไม่คืนสต็อกเลย ทำให้สต็อกหายถาวรทุกครั้งที่ลบ)
+  const attBefore=getAttendance(FD);
+  const oldRec=attBefore[key];
+  const oldPresent=oldRec?Object.values(oldRec.data||{}).filter(v=>v==='present').length:0;
+  const ok=await fbSet(`milkApp/mcAttendance/${key}`,null);
+  setDot(ok?'ok':'err');
+  if(ok){
+    if(FD?.mcAttendance)delete FD.mcAttendance[key];
+    if(oldPresent>0){
+      // 🆕 atomic update เช่นเดียวกับ saveAtt() — กัน race condition ตอนคืนสต็อก
+      const result=await atomicRoomStockDelta(S.room, curStock => curStock + oldPresent);
+      if(result){
+        const{before,after}=result;
+        if(FD){if(!FD.roomStock)FD.roomStock={};FD.roomStock[S.room]=after;}
+        const logEntry={type:'IN',roomId:S.room,roomName:S.roomName,date,qty:oldPresent,balanceAfter:after,note:'คืนสต็อกจากการลบประวัติเช็คดื่มนมรายวัน',savedAt:new Date().toISOString()};
+        const logId=await fbPush('milkApp/stockLog',logEntry);
+        if(logId){if(!FD.stockLog)FD.stockLog={};FD.stockLog[logId]=logEntry;}
+        // 🆕 Audit Ledger: บันทึก ROLLBACK อ้างอิงกลับไปที่ key ของรายการเช็คดื่มนมที่ถูกลบ
+        await appendLedger({roomId:S.room, type:'ROLLBACK', quantity:oldPresent, stockBefore:before, stockAfter:after, referenceId:key});
+      } else {
+        toast('⚠️ ลบข้อมูลสำเร็จ แต่คืนสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+      }
+    }
+    toast('✅ ลบข้อมูลสำเร็จ'+(oldPresent>0?` (คืนสต็อก ${oldPresent} กล่อง)`:''));
+    renderHist();
+  }else toast('❌ ลบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');
+  unlockDelete('att_'+key);
+}
+
+/* ===== SUMMARY ===== */
+function showTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');const map={t_daily:'daily',t_weekly:'weekly',t_monthly:'monthly',t_term:'term'};renderSum(map[id.replace('-','_')]||'daily');}
+function buildSumTable(recs){
+  if(!recs.length)return '<div class="text-muted" style="text-align:center;padding:20px">ไม่มีข้อมูล</div>';
+  let tP=0,tA=0,tT=0;
+  const rows=recs.map(([k,r])=>{const dt=k.split('_').pop();const vs=Object.values(r.data||{});const p=vs.filter(v=>v==='present').length,a=vs.filter(v=>v==='absent').length;const tot=STUDS.length>0?STUDS.length:(p+a)||1;tP+=p;tA+=a;tT+=tot;return{dt,p,a,tot,teacher:r.teacher};});
+  return `<div class="tw"><table class="rt">
+    <thead><tr><th>วันที่</th><th class="tc">ดื่มนม</th><th class="tc">ไม่ดื่ม</th><th class="tc">รวม</th><th class="tc">% ดื่ม</th><th>ครู</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${thD(r.dt)}</td><td class="tc"><span class="badge badge-green">${r.p}</span></td><td class="tc"><span class="badge badge-red">${r.a}</span></td><td class="tc">${r.tot}</td><td class="tc"><b style="color:${r.tot&&r.p/r.tot>=.8?'var(--success)':r.tot&&r.p/r.tot>=.5?'var(--warning)':'var(--danger)'}">${r.tot?Math.round(r.p/r.tot*100):0}%</b></td><td>${r.teacher||'—'}</td></tr>`).join('')}
+    <tr class="total-row"><td colspan="2" style="padding:8px 12px"><b>รวมทั้งหมด</b></td><td class="tc"><span class="badge badge-green">${tP}</span></td><td class="tc"><span class="badge badge-red">${tA}</span></td><td class="tc">${tT}</td><td class="tc"><b>${tT?Math.round(tP/tT*100):0}%</b></td></tr>
+    </tbody></table></div>`;
+}
+function renderSum(type){
+  if(!FD)return;
+  const att=getAttendance(FD);
+  let recs=Object.entries(att).filter(([k])=>k.startsWith(S.room+'_'));
+  if(type==='daily'){const d=document.getElementById('sumDay').value;recs=recs.filter(([k])=>k===attKey(S.room,d)||k.endsWith('_'+d));document.getElementById('sDailyContent').innerHTML=`<h4 style="margin-bottom:12px;font-family:'Kanit',sans-serif">วันที่ ${thD(d)}</h4>`+buildSumTable(recs);}
+  else if(type==='weekly'){const d=document.getElementById('sumWk').value;const{s,e}=wkRng(d);recs=recs.filter(([k])=>{const dt=k.slice(S.room.length+1);return dt>=s&&dt<=e;});document.getElementById('sWeeklyContent').innerHTML=`<h4 style="margin-bottom:12px;font-family:'Kanit',sans-serif">สัปดาห์ ${thD(s)} – ${thD(e)}</h4>`+buildSumTable(recs);}
+  else if(type==='monthly'){const m=document.getElementById('sumMon').value;recs=recs.filter(([k])=>{const dt=k.slice(S.room.length+1);return dt.startsWith(m);});document.getElementById('sMonthlyContent').innerHTML=`<h4 style="margin-bottom:12px;font-family:'Kanit',sans-serif">เดือน${thMY(m)}</h4>`+buildSumTable(recs);}
+  else if(type==='term'){const y=document.getElementById('sumYr').value,t=document.getElementById('sumTm').value;recs=recs.filter(([,r])=>r.year===y&&r.term===t);document.getElementById('sTermContent').innerHTML=`<h4 style="margin-bottom:12px;font-family:'Kanit',sans-serif">ปีการศึกษา ${y} ภาคเรียนที่ ${t}</h4>`+buildSumTable(recs);}
+}
+
+/* ===== PRINT PREVIEW ===== */
+function initPrt(){document.getElementById('prDate').value=todStr();}
+function updatePreview(){
+  if(!FD)return;
+  const type=document.getElementById('prType').value;
+  const date=document.getElementById('prDate').value;
+  const yr=document.getElementById('prYr').value;
+  const tm=document.getElementById('prTm').value;
+  const att=getAttendance(FD);
+  let recs=Object.entries(att).filter(([k])=>k.startsWith(S.room+'_'));
+  if(type==='daily')recs=recs.filter(([k])=>k===attKey(S.room,date)||k.endsWith('_'+date));
+  else if(type==='weekly'){const{s,e}=wkRng(date);recs=recs.filter(([k])=>{const dt=k.slice(S.room.length+1);return dt>=s&&dt<=e;});}
+  else if(type==='monthly')recs=recs.filter(([k])=>{const dt=k.slice(S.room.length+1);return dt.startsWith(date.slice(0,7));});
+  else if(type==='term')recs=recs.filter(([,r])=>r.year===yr&&r.term===tm);
+  const area=document.getElementById('prArea');
+  if(!recs.length){area.innerHTML='<div style="text-align:center;padding:40px" class="text-muted">ไม่มีข้อมูล</div>';return;}
+  const tL={daily:'รายวัน',weekly:'รายสัปดาห์',monthly:'รายเดือน',term:'ภาคเรียน'}[type];
+  let periodLabel='';
+  if(type==='daily')periodLabel=thD(date);
+  else if(type==='weekly'){const{s,e}=wkRng(date);periodLabel=`${thD(s)}–${thD(e)}`;}
+  else if(type==='monthly')periodLabel='เดือน'+thMY(date.slice(0,7));
+  else periodLabel=`ปีการศึกษา ${yr} ภาคเรียนที่ ${tm}`;
+  recs.sort((a,b)=>a[0].localeCompare(b[0]));
+  const allDates=[...new Set(recs.map(([k])=>k.slice(S.room.length+1)))].sort();
+  const att2=getAttendance(FD);
+  let colTotals=allDates.map(()=>0);
+  let html=`<div class="a4-preview">
+    <h1>บันทึกการดื่มนม${tL}</h1>
+    <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+    <div style="display:flex;justify-content:space-between;font-size:10pt;margin-bottom:10px;color:#555">
+      <span>${S.schoolName}</span><span>ช่วงเวลา: ${periodLabel}</span>
+    </div>
+    <table class="a4-table"><thead><tr>
+      <th style="width:28px">ที่</th><th class="left" style="min-width:100px">ชื่อ – สกุล</th>
+      ${allDates.map(d=>`<th style="width:20px;font-size:7pt">${new Date(d).getDate()}</th>`).join('')}
+      <th style="width:28px">รวม</th><th style="width:28px">%</th>
+    </tr></thead><tbody>`;
+  STUDS.forEach((s,i)=>{
+    let present=0;
+    const cells=allDates.map((d,di)=>{const rec=att2[attKey(S.room,d)];const st=rec?.data?.[s.id];if(st==='present'){present++;colTotals[di]++;return '<td class="check">✓</td>';}if(st==='absent')return '<td class="cross">✗</td>';return '<td style="color:#ccc">–</td>';});
+    const pct=allDates.length?Math.round(present/allDates.length*100):0;
+    html+=`<tr><td>${s.num||i+1}</td><td class="left">${s.name}</td>${cells.join('')}<td style="font-weight:700">${present}</td><td>${pct}%</td></tr>`;
+  });
+  const grand=colTotals.reduce((a,b)=>a+b,0);
+  html+=`<tr class="total-row"><td colspan="2" class="left">รวม</td>${colTotals.map(n=>`<td>${n}</td>`).join('')}<td>${grand}</td><td>${STUDS.length&&allDates.length?Math.round(grand/(STUDS.length*allDates.length)*100):0}%</td></tr></tbody></table>`;
+  const photos=recs.flatMap(([,r])=>r.photos||[]).slice(0,5);
+  if(photos.length){html+=`<div style="margin-top:10px;font-size:10pt;font-weight:600">📷 รูปถ่าย (${photos.length} รูป):</div><div class="a4-photos" style="display:grid;grid-template-columns:repeat(${Math.min(photos.length,3)},1fr);gap:6px;margin:8px 0">${photos.map((p,idx)=>`<img src="${p}" style="width:100%;height:100px;object-fit:cover;border:.5pt solid #ccc;border-radius:4px" alt="รูป${idx+1}">`).join('')}</div>`;}
+  const lastRec=recs[recs.length-1][1];
+  html+=`<div class="a4-sig"><div class="a4-sig-box">
+    ${lastRec.signature?`<img src="${lastRec.signature}" style="height:40px;display:block;margin:0 auto">`:'<div style="height:40px"></div>'}
+    <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+    <div style="font-size:10pt">(${lastRec.teacher||'................................'})</div>
+  </div></div>`;
+  html+=`<div style="font-size:9pt;margin-top:6px;color:#888">หมายเหตุ: ✓ ดื่มนม &nbsp; ✗ ไม่ได้ดื่ม &nbsp; – ไม่มีข้อมูล</div></div>`;
+  area.innerHTML=html;
+}
+function printA4(){updatePreview();setTimeout(()=>{const w=window.open('','_blank');const c=document.getElementById('prArea');if(!c){window.print();return;}w.document.write(`<html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:'Sarabun',sans-serif;margin:10mm;}table{border-collapse:collapse;}.a4-table th{background:#154360;color:white;padding:5px 4px;text-align:center;border:.5pt solid #888;font-size:8pt;}.a4-table td{border:.5pt solid #bbb;padding:4px 3px;text-align:center;}.a4-table td.left{text-align:left;}.check{color:#27ae60;font-weight:700;}.cross{color:#e74c3c;font-weight:700;}.total-row{background:#eaf2f8;font-weight:700;}@media print{body{margin:8mm;}}</style></head><body>${c.innerHTML}</body></html>`);w.document.close();setTimeout(()=>w.print(),600);},700);}
+
+/* ===== A4 PRINT HELPER (ใช้ร่วมกันสำหรับสรุปรายงาน นมค้าง/ย้อนหลัง/ปิดเทอม) ===== */
+// 🆕 รวม logic เปิดหน้าต่างพิมพ์ A4 ที่ซ้ำกันในหลายฟังก์ชัน (printRetDoc/printAbsSum/printRtSum/printVacSum ฯลฯ)
+// ไว้ที่เดียว — รับ HTML ของ .a4-preview (ที่มี .a4-table/.a4-sig อยู่แล้ว) มาเปิดในแท็บใหม่แล้วสั่งพิมพ์
+function openA4Print(innerHtml){
+  const w=window.open('','_blank');
+  if(!w){toast('⚠️ เบราว์เซอร์บล็อกป๊อปอัป กรุณาอนุญาตป๊อปอัปสำหรับเว็บไซต์นี้');return;}
+  w.document.write(`<html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet"><style>
+    body{font-family:'Sarabun',sans-serif;margin:10mm;}
+    h1{font-family:'Kanit',sans-serif;font-size:14pt;text-align:center;font-weight:700;margin-bottom:4px;}
+    h2{font-family:'Kanit',sans-serif;font-size:12pt;text-align:center;margin-bottom:8px;}
+    table{border-collapse:collapse;width:100%;}
+    .a4-table th{background:#154360;color:white;padding:5px 4px;text-align:center;border:.5pt solid #888;font-size:8pt;}
+    .a4-table th.left,.a4-table td.left{text-align:left;}
+    .a4-table td{border:.5pt solid #bbb;padding:4px;text-align:center;font-size:9pt;vertical-align:middle;}
+    .total-row{background:#eaf2f8;font-weight:700;}
+    .a4-sig{display:flex;justify-content:flex-end;margin-top:18px;}
+    .a4-sig-box{text-align:center;width:200px;}
+    .a4-sig-line{border-top:1px solid #333;margin:28px 10px 4px;font-size:10pt;}
+    img{max-width:100%;height:auto;}
+    .photo-row{display:flex;flex-wrap:wrap;gap:6px;page-break-inside:avoid;}
+    .photo-row img{height:100px;width:auto;max-width:160px;object-fit:cover;border:1px solid #ccc;border-radius:3px;}
+    .sig-img{height:36px;max-width:120px;display:block;margin:0 auto;}
+    .photo-block{margin-top:12px;page-break-inside:avoid;border-top:1pt solid #ddd;padding-top:8px;}
+    .record-block{page-break-inside:avoid;}
+    @media print{body{margin:8mm;}thead{display:table-header-group;}}
+  </style></head><body>${innerHtml}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
+/* ===== TINY MODAL HELPERS ===== */
+function openTModal(id){document.getElementById(id).classList.add('open');}
+function closeTModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ===== ABSENT MILK ===== */
+// คืนค่ารายการ (sid,date) ที่นักเรียนขาดและยังไม่ได้รับนมค้าง (ยังไม่มีบันทึกใน milkApp/absentMilk)
+async function loadAbs(){
+  if(!FD)await loadFB();
+  const ds=document.getElementById('absWk').value;if(!ds)return;
+  const{s,e}=wkRng(ds),dates=dBetween(s,e);
+  const att=getAttendance(FD);
+  // รวบรวมนักเรียนที่ขาด (absent) ในสัปดาห์นี้
+  const pendingAll=[];
+  dates.forEach(d=>{
+    const key=attKey(S.room,d);
+    const rec=att[key];
+    if(!rec?.data)return;
+    STUDS.forEach(st=>{if(rec.data[st.id]==='absent')pendingAll.push({studentId:st.id,name:st.name,date:d});});
+  });
+  // ตัดรายการที่เคยจ่ายนมค้างไปแล้ว (เช็คจาก milkApp/absentMilk ของห้องนี้)
+  const dispensed=new Set();
+  const absAll=FD?.absentMilk||{};
+  Object.values(absAll).filter(v=>v.roomId===S.room).forEach(v=>{
+    Object.entries(v.students||{}).forEach(([sid,info])=>{(info.days||[]).forEach(d=>dispensed.add(sid+'_'+d));});
+  });
+  const pending=pendingAll.filter(p=>!dispensed.has(p.studentId+'_'+p.date));
+  window._absPending=pending;
+
+  const w=document.getElementById('absLst');
+  const card=document.getElementById('absDispenseCard');
+  if(!pending.length){
+    w.innerHTML=`<div class="alert alert-success">✅ ไม่มีนักเรียนที่ขาดและยังไม่ได้รับนมค้างในสัปดาห์ ${thD(s)} – ${thD(e)}</div>`;
+    if(card)card.style.display='none';
+    return;
+  }
+  let html=`<div class="alert alert-warning">⚠️ พบ <strong>${pending.length}</strong> รายการนักเรียนขาดและยังไม่ได้รับนมค้าง สัปดาห์ ${thD(s)} – ${thD(e)}</div>`;
+  html+=`<div style="margin:8px 0;font-weight:600;color:var(--primary)">🏫 ${S.roomName}</div>`;
+  html+='<div class="table-wrap"><table><thead><tr><th>#</th><th>ชื่อนักเรียน</th><th>วันที่ขาด</th><th>กล่องนม</th><th>สถานะลายเซ็น</th></tr></thead><tbody>';
+  pending.forEach((p,i)=>{
+    const sigKey=p.studentId+'_'+p.date;
+    const hasSig=absSigData[sigKey];
+    html+=`<tr>
+      <td>${i+1}</td>
+      <td>${p.name}</td>
+      <td>${thD(p.date)}</td>
+      <td>1 กล่อง</td>
+      <td>${hasSig?'<span class="badge badge-green">✅ เซ็นแล้ว</span>':`<button class="btn btn-outline btn-sm" onclick="openAbsSigModal('${p.studentId}','${p.name.replace(/'/g,'')}','${p.date}')">✍️ เซ็นรับ</button>`}</td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  w.innerHTML=html;
+  if(card)card.style.display='block';
+}
+function openAbsSigModal(studentId,studentName,date){
+  absCurrentSig={studentId,studentName,date};
+  document.getElementById('absSigInfo').innerHTML=`นักเรียน: <strong>${studentName}</strong> | วันขาด: ${thD(date)}`;
+  document.getElementById('absSigName').value=studentName;
+  initSig('absSigCanvas');
+  clrSig2('absSigCanvas');
+  openTModal('modal-abs-sig');
+}
+function confirmAbsSig(){
+  if(!absCurrentSig)return;
+  const sig=getSig('absSigCanvas');
+  const name=document.getElementById('absSigName').value||absCurrentSig.studentName;
+  absSigData[absCurrentSig.studentId+'_'+absCurrentSig.date]={sig,receiverName:name};
+  closeTModal('modal-abs-sig');
+  loadAbs();
+  toast('✅ บันทึกลายเซ็นแล้ว');
+}
+function absHandlePhotos(input){
+  const files=Array.from(input.files).slice(0,5-absPhotos.length);
+  files.forEach(f=>{compressImageFile(f).then(dataUrl=>{if(!dataUrl)return;absPhotos.push(dataUrl);absRenderPhotoGrid();});});
+  input.value='';
+}
+function absRenderPhotoGrid(){
+  const g=document.getElementById('absPhotoGrid');if(!g)return;
+  g.innerHTML=absPhotos.map((p,i)=>`<div class="photo-thumb-wrap"><img src="${p}" class="photo-thumb"><button class="photo-remove" onclick="absRemovePhoto(${i})">✕</button></div>`).join('');
+}
+function absRemovePhoto(i){absPhotos.splice(i,1);absRenderPhotoGrid();}
+async function saveAbs(){
+  const ds=document.getElementById('absWk').value;if(!ds){toast('⚠️ เลือกสัปดาห์ก่อน');return;}
+  const pending=window._absPending||[];
+  if(!pending.length){toast('ไม่มีนมค้างในสัปดาห์นี้');return;}
+  const{s,e}=wkRng(ds);
+  // รวมเป็นรายนักเรียน {studentId:{name,days:[...]}}
+  const am={};
+  pending.forEach(p=>{if(!am[p.studentId])am[p.studentId]={name:p.name,days:[]};am[p.studentId].days.push(p.date);});
+  const boxes=pending.length; // 1 รายการ (นักเรียน+วันที่ขาด) = 1 กล่อง
+  const rec={
+    weekStart:s,weekEnd:e,roomId:S.room,roomName:S.roomName,teacher:S.teacher,date:todStr(),
+    students:am,totalBoxes:boxes,
+    note:document.getElementById('absNt').value,
+    signature:'', // คงไว้เพื่อความเข้ากันได้กับโครงสร้างเดิม
+    signatures:{...absSigData}, // ลายเซ็นรายนักเรียน (เพิ่มใหม่)
+    photos:[...absPhotos], // รูปถ่ายประกอบ (เพิ่มใหม่)
+    savedAt:new Date().toISOString()
+  };
+  const id=await fbPush('milkApp/absentMilk',rec);
+  if(id){
+    if(!FD.absentMilk)FD.absentMilk={};
+    FD.absentMilk[id]=rec;
+    // 🆕 ข้อกำหนดธุรกิจ (PENDING MILK/นมค้าง): ต้องหักออกจาก Room Stock เท่านั้น ห้ามแตะ Main Stock — นมค้าง
+    // คือนมที่มีอยู่แล้วในห้อง (จากการ "จ่ายนมให้ห้องเรียน" ก่อนหน้า) ที่ถูกกันไว้ให้นักเรียนที่ขาดเรียนวันนั้นๆ
+    // (เดิมไม่ได้หักสต็อกห้องเลย ทำให้ตัวเลขสต็อกห้องไม่สมบูรณ์ — นักเรียนรับนมไปแล้วแต่ไม่ถูกหักออกจากระบบ)
+    const result=await atomicRoomStockDelta(S.room, cur => cur - boxes);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'PENDING', quantity:-boxes, stockBefore:before, stockAfter:after, referenceId:id});
+      toast('✅ บันทึกนมค้างสำเร็จ (หักสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ บันทึกรายการสำเร็จ แต่หักสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+    }
+    absSigData={};absPhotos=[];
+    document.getElementById('absNt').value='';
+    absRenderPhotoGrid();
+    loadAbs();loadAbsH();
+  }else toast('❌ บันทึกไม่สำเร็จ');
+}
+
+// 🆕 ลบรายการนมค้าง — คืน Room Stock กลับเท่ากับยอดที่เคยหักไป พร้อม ledger ROLLBACK และกัน rollback ซ้ำ
+async function deleteAbs(fid){
+  if(!FD?.absentMilk?.[fid]){toast('❌ ไม่พบข้อมูล หรือถูกลบไปแล้ว');return;}
+  if(!lockDelete('abs_'+fid)){toast('⏳ กำลังลบรายการนี้อยู่ กรุณารอสักครู่...');return;} // 🆕 กัน rollback ซ้ำจากการกดซ้อน
+  const v=FD.absentMilk[fid];
+  const boxes=v.totalBoxes||0;
+  if(!confirm(`ยืนยันลบรายการนมค้างสัปดาห์ ${thD(v.weekStart)} – ${thD(v.weekEnd)} (${boxes} กล่อง)?\n(สต็อกห้องจะถูกคืน ${boxes} กล่อง)`)){unlockDelete('abs_'+fid);return;}
+  const ok=await fbSet(`milkApp/absentMilk/${fid}`,null);
+  if(!ok){toast('❌ ลบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');unlockDelete('abs_'+fid);return;}
+  delete FD.absentMilk[fid];
+  if(boxes>0){
+    const result=await atomicRoomStockDelta(S.room, cur => cur + boxes);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'ROLLBACK', quantity:boxes, stockBefore:before, stockAfter:after, referenceId:fid});
+      toast('✅ ลบรายการสำเร็จ (คืนสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ ลบข้อมูลสำเร็จ แต่คืนสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+    }
+  } else toast('✅ ลบรายการสำเร็จ');
+  unlockDelete('abs_'+fid);
+  loadAbs();loadAbsH();
+}
+async function loadAbsH(){
+  if(!FD)return;const all=FD.absentMilk||{};
+  const ent=Object.entries(all).filter(([,v])=>v.roomId===S.room).sort((a,b)=>(b[1].savedAt||'').localeCompare(a[1].savedAt||'')).slice(0,15);
+  document.getElementById('absHist').innerHTML=ent.length?`<div class="tw"><table class="rt"><thead><tr><th>สัปดาห์</th><th class="tc">กล่อง</th><th>วันที่บันทึก</th><th>หมายเหตุ</th><th class="tc">การจัดการ</th></tr></thead><tbody>${ent.map(([fid,v])=>`<tr><td style="font-size:.78rem">${thD(v.weekStart)} – ${thD(v.weekEnd)}</td><td class="tc"><b>${v.totalBoxes||0}</b></td><td style="font-size:.78rem">${thD(v.date)}</td><td style="font-size:.75rem;color:var(--text2)">${v.note||'—'}</td><td class="tc"><button class="btn btn-danger btn-sm" onclick="deleteAbs('${fid}')">🗑</button></td></tr>`).join('')}</tbody></table></div>`:'<div style="text-align:center;color:var(--text2);padding:16px">ยังไม่มีประวัติ</div>';
+}
+
+/* ===== ABSENT MILK: 🆕 สรุปรายงานนมค้างรายสัปดาห์ + พิมพ์ A4 ===== */
+// คืนรายการ absentMilk ของห้องนี้ที่ตกอยู่ในเดือน m (YYYY-MM) — เทียบทั้ง weekStart และ weekEnd
+// เผื่อกรณีสัปดาห์คาบเกี่ยวข้ามเดือน จะถูกรวมแสดงในทั้ง 2 เดือนที่เกี่ยวข้อง
+function absSumRecs(m){
+  const all=FD?.absentMilk||{};
+  return Object.entries(all)
+    .filter(([,v])=>v.roomId===S.room&&((v.weekStart||'').slice(0,7)===m||(v.weekEnd||'').slice(0,7)===m))
+    .sort((a,b)=>(a[1].weekStart||'').localeCompare(b[1].weekStart||''));
+}
+function buildAbsSumA4(ent,m){
+  let tBox=0,rowNum=0;
+  let rows='';
+  let photoSections='';
+  ent.forEach(([,v])=>{
+    const students=v.students||{};
+    const wkLabel=`${thD(v.weekStart)} – ${thD(v.weekEnd)}`;
+    const distrDate=v.date?thD(v.date):'—';
+    Object.entries(students).forEach(([sid,info])=>{
+      (info.days||[]).forEach(date=>{
+        rowNum++;tBox++;
+        const sigKey=sid+'_'+date;
+        const hasSig=v.signatures&&v.signatures[sigKey];
+        const sigCell=hasSig?.sig
+          ?`<img class="sig-img" src="${hasSig.sig}">`
+          :(hasSig?`<span style="font-size:7.5pt">✅ ${hasSig.receiverName||'เซ็นแล้ว'}</span>`:'—');
+        rows+=`<tr>
+          <td class="tc" style="font-size:8pt">${rowNum}</td>
+          <td class="left" style="font-size:9pt">${info.name||'—'}</td>
+          <td style="font-size:8pt">${thD(date)}</td>
+          <td class="tc">1</td>
+          <td style="font-size:8pt">${distrDate}</td>
+          <td style="font-size:8pt;color:#555">${wkLabel}</td>
+          <td style="min-width:110px;height:40px">${sigCell}</td>
+        </tr>`;
+      });
+    });
+    // รวบรวมรูปถ่ายต่อสัปดาห์
+    const photos=v.photos||[];
+    if(photos.length){
+      photoSections+=`<div class="photo-block">
+        <div style="font-size:8.5pt;font-weight:600;color:#154360;margin-bottom:4px">📷 รูปถ่ายประกอบ สัปดาห์ ${wkLabel} (วันที่จ่าย ${distrDate})</div>
+        <div class="photo-row">${photos.slice(0,5).map(p=>`<img src="${p}">`).join('')}</div>
+      </div>`;
+    }
+  });
+  if(!rows)rows=`<tr><td colspan="7" style="color:#999;text-align:center">ไม่มีรายการนมค้างในเดือนนี้</td></tr>`;
+  const photoPart=photoSections?`<div style="margin-top:16px;border-top:1pt solid #ddd;padding-top:10px">${photoSections}</div>`:'';
+  return `<div class="a4-preview">
+    <h1>สรุปรายงานนมค้างรายสัปดาห์</h1>
+    <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+    <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName||''} | เดือน${thMY(m)}</div>
+    <table class="a4-table"><thead><tr>
+      <th style="width:26px">#</th>
+      <th class="left" style="min-width:90px">ชื่อนักเรียน</th>
+      <th style="width:68px">วันที่ขาด</th>
+      <th style="width:42px">กล่อง</th>
+      <th style="width:65px">วันที่จ่าย</th>
+      <th style="min-width:100px">สัปดาห์</th>
+      <th style="min-width:110px">ลายเซ็นรับ</th>
+    </tr></thead><tbody>${rows}
+    <tr class="total-row"><td class="left" colspan="3">รวมทั้งหมด (${rowNum} รายการ)</td><td>${tBox}</td><td colspan="3"></td></tr>
+    </tbody></table>
+    <div style="font-size:8.5pt;margin-top:8px;color:#888">หมายเหตุ: แต่ละแถวคือนักเรียน 1 คน 1 วันขาด (1 กล่องนม)</div>
+    ${photoPart}
+    <div class="a4-sig"><div class="a4-sig-box">
+      <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+      <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+    </div></div>
+  </div>`;
+}
+function renderAbsSum(){
+  if(!FD)return;
+  const m=document.getElementById('absSumMon').value||todStr().slice(0,7);
+  document.getElementById('absSumMon').value=m;
+  document.getElementById('absSumArea').innerHTML=buildAbsSumA4(absSumRecs(m),m);
+}
+function printAbsSum(){
+  if(!FD){toast('⚠️ ยังไม่มีข้อมูล');return;}
+  const m=document.getElementById('absSumMon').value||todStr().slice(0,7);
+  openA4Print(buildAbsSumA4(absSumRecs(m),m));
+}
+
+/* ===== RETRO ===== */
+function calcRt(){
+  const s=document.getElementById('rtSt').value,e=document.getElementById('rtEd').value;
+  if(!s||!e){document.getElementById('rtCalc').style.display='none';document.getElementById('rtStudentList').style.display='none';return;}
+  const days=dBetween(s,e).length,boxes=days*STUDS.length;
+  document.getElementById('rtSC').textContent=STUDS.length+' คน';
+  document.getElementById('rtDC').textContent=days+' วัน';
+  document.getElementById('rtBC').textContent=boxes+' กล่อง';
+  document.getElementById('rtDebt').textContent=boxes+' กล่อง';
+  document.getElementById('rtCalc').style.display='block';
+  renderRtSigList();
+}
+
+function renderRtSigList(){
+  const listEl=document.getElementById('rtSigList');
+  if(!listEl)return;
+  if(!STUDS.length){document.getElementById('rtStudentList').style.display='none';return;}
+  document.getElementById('rtStudentList').style.display='block';
+  const dy=+document.getElementById('rtEd').value&&+document.getElementById('rtSt').value
+    ?dBetween(document.getElementById('rtSt').value,document.getElementById('rtEd').value).length:0;
+  listEl.innerHTML='<div class="table-wrap"><table><thead><tr><th>#</th><th>ชื่อนักเรียน</th><th>กล่องนม</th><th>ผู้ปกครองเซ็น</th></tr></thead><tbody>'+
+    STUDS.map((s,i)=>{
+      const sig=rtSigData[s.id];
+      return `<tr>
+        <td>${s.num||i+1}</td>
+        <td>${s.name}</td>
+        <td>${dy} กล่อง</td>
+        <td>${sig?`<span class="badge badge-green">✅ ${sig.receiverName}</span>`:`<button class="btn btn-outline btn-sm" onclick="openRetSigModal('${s.id}','${s.name.replace(/'/g,'')}')">✍️ เซ็นรับ</button>`}</td>
+      </tr>`;
+    }).join('')+'</tbody></table></div>';
+}
+
+function openRetSigModal(studentId,studentName){
+  retCurrentSig={studentId,studentName};
+  document.getElementById('retSigInfo').innerHTML=`นักเรียน: <strong>${studentName}</strong>`;
+  document.getElementById('retSigName').value=studentName;
+  initSig('retSigCanvas');
+  clrSig2('retSigCanvas');
+  // ถ้าเคยเซ็นไว้แล้ว แสดงลายเซ็นเดิม
+  if(rtSigData[studentId]?.sig){
+    try{
+      const c=document.getElementById('retSigCanvas');
+      const img=new Image();
+      img.onload=()=>c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      img.src=rtSigData[studentId].sig;
+    }catch(ex){}
+  }
+  openTModal('modal-ret-sig');
+}
+
+function confirmRetSig(){
+  if(!retCurrentSig)return;
+  const sig=getSig('retSigCanvas');
+  const name=document.getElementById('retSigName').value||retCurrentSig.studentName;
+  rtSigData[retCurrentSig.studentId]={sig,receiverName:name};
+  closeTModal('modal-ret-sig');
+  renderRtSigList();
+  toast('✅ บันทึกลายเซ็นแล้ว');
+}
+
+function rtHandlePhotos(input){
+  const files=Array.from(input.files).slice(0,5-rtPhotos.length);
+  files.forEach(f=>{compressImageFile(f).then(dataUrl=>{if(!dataUrl)return;rtPhotos.push(dataUrl);rtRenderPhotoGrid();});});
+  input.value='';
+}
+function rtRenderPhotoGrid(){
+  const g=document.getElementById('rtPhotoGrid');if(!g)return;
+  g.innerHTML=rtPhotos.map((p,i)=>`<div class="photo-thumb-wrap"><img src="${p}" class="photo-thumb"><button class="photo-remove" onclick="rtRemovePhoto(${i})">✕</button></div>`).join('');
+}
+function rtRemovePhoto(i){rtPhotos.splice(i,1);rtRenderPhotoGrid();}
+function resetRtForm(){
+  document.getElementById('rtSt').value='';
+  document.getElementById('rtEd').value='';
+  document.getElementById('rtNt').value='';
+  document.getElementById('rtCalc').style.display='none';
+  rtPhotos=[];rtSigData={};
+  rtRenderPhotoGrid();
+  renderRtSigList();
+}
+async function saveRt(){
+  const yr=document.getElementById('rtYr').value,tm=document.getElementById('rtTm').value,dt=document.getElementById('rtDt').value,s=document.getElementById('rtSt').value,e=document.getElementById('rtEd').value;
+  if(!yr||!dt||!s||!e){toast('⚠️ กรอกข้อมูลให้ครบ');return;}
+  if(!STUDS.length){toast('⚠️ ยังไม่มีรายชื่อนักเรียน');return;}
+  const days=dBetween(s,e).length,boxes=days*STUDS.length;
+  if(days<1){toast('⚠️ ช่วงวันที่เลือกไม่มีวันจันทร์–ศุกร์');return;}
+  setDot('busy');
+  const rec={academicYear:yr,semester:tm,date:dt,retroStart:s,retroEnd:e,roomId:S.room,roomName:S.roomName,teacher:S.teacher,studentCount:STUDS.length,days,totalBoxes:boxes,debtBoxes:boxes,status:'debt',note:document.getElementById('rtNt').value,signature:'',signatures:{...rtSigData},photos:[...rtPhotos],savedAt:new Date().toISOString()};
+  const id=await fbPush('milkApp/retroMilk',rec);
+  setDot(id?'ok':'err');
+  if(id){
+    if(!FD.retroMilk)FD.retroMilk={};
+    FD.retroMilk[id]=rec;
+    // 🆕 ข้อกำหนดธุรกิจ (RETRO MILK): ต้องหักออกจาก Room Stock เท่านั้น ห้ามแตะ Main Stock — นักเรียนได้รับ
+    // นมกลับบ้านไปแล้วตั้งแต่วันที่บันทึก ไม่ว่า อบต. จะชดใช้คืนหรือยัง (สถานะ "หนี้นม" เป็นเรื่องบัญชีแยกต่างหาก)
+    const result=await atomicRoomStockDelta(S.room, cur => cur - boxes);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'RETRO', quantity:-boxes, stockBefore:before, stockAfter:after, referenceId:id});
+      toast('✅ บันทึกสำเร็จ (หักสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ บันทึกรายการสำเร็จ แต่หักสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาลองกด "โหลดข้อมูลใหม่" แล้วตรวจสอบสต็อก');
+    }
+    resetRtForm();
+    loadRetH();
+  }else toast('❌ บันทึกไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');
+}
+
+// 🆕 ลบรายการจ่ายนมย้อนหลัง — คืน Room Stock กลับเท่ากับยอดที่เคยหักไป พร้อม ledger ROLLBACK
+async function deleteRt(fid){
+  if(!FD?.retroMilk?.[fid]){toast('❌ ไม่พบข้อมูล หรือถูกลบไปแล้ว');return;}
+  if(!lockDelete('rt_'+fid)){toast('⏳ กำลังลบรายการนี้อยู่ กรุณารอสักครู่...');return;} // 🆕 กัน rollback ซ้ำจากการกดซ้อน
+  const v=FD.retroMilk[fid];
+  if(!confirm(`ยืนยันลบรายการจ่ายนมย้อนหลัง (${v.totalBoxes||0} กล่อง)?\n(สต็อกห้องจะถูกคืน ${v.totalBoxes||0} กล่อง)`)){unlockDelete('rt_'+fid);return;}
+  setDot('busy');
+  const ok=await fbSet(`milkApp/retroMilk/${fid}`,null);
+  setDot(ok?'ok':'err');
+  if(!ok){toast('❌ ลบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');unlockDelete('rt_'+fid);return;}
+  delete FD.retroMilk[fid]; // 🆕 ลบออกจาก FD ทันทีหลัง Cloud ยืนยันแล้ว — ป้องกันการอ้างอิงรายการที่ถูกลบไปแล้วซ้ำ
+  const boxes=v.totalBoxes||0;
+  if(boxes>0){
+    const result=await atomicRoomStockDelta(S.room, cur => cur + boxes);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'ROLLBACK', quantity:boxes, stockBefore:before, stockAfter:after, referenceId:fid});
+      toast('✅ ลบรายการสำเร็จ (คืนสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ ลบข้อมูลสำเร็จ แต่คืนสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+    }
+  } else toast('✅ ลบรายการสำเร็จ');
+  unlockDelete('rt_'+fid);
+  loadRetH();
+}
+
+async function loadRetH(){
+  if(!FD)await loadFB();
+  const all=FD.retroMilk||{};
+  const ent=Object.entries(all).filter(([,v])=>v.roomId===S.room).sort((a,b)=>(b[1].savedAt||'').localeCompare(a[1].savedAt||'')).slice(0,15);
+  if(!ent.length){document.getElementById('rtHist').innerHTML='<div style="text-align:center;color:var(--text2);padding:16px">ยังไม่มีรายการ</div>';return;}
+  document.getElementById('rtHist').innerHTML=`<div class="tw"><table class="rt">
+    <thead><tr><th>ปี/ภาค</th><th>วันที่จ่าย</th><th>ช่วงวัน (จ-ศ)</th><th class="tc">วัน</th><th class="tc">กล่อง</th><th class="tc">ลายเซ็น</th><th>สถานะ</th><th class="tc">การจัดการ</th></tr></thead>
+    <tbody>${ent.map(([fid,v])=>{
+      const sigs=v.signatures||{};
+      const sigCount=Object.values(sigs).filter(sg=>sg&&sg.sig).length;
+      const totalSt=v.studentCount||STUDS.length||0;
+      return `<tr>
+        <td>${v.academicYear||'—'}/ภาค${v.semester||'—'}</td>
+        <td style="font-size:.78rem">${thD(v.date)}</td>
+        <td style="font-size:.76rem">${thD(v.retroStart)} – ${thD(v.retroEnd)}</td>
+        <td class="tc">${v.days||0}</td>
+        <td class="tc"><b>${v.totalBoxes||0}</b></td>
+        <td class="tc"><span class="badge ${sigCount>=totalSt?'badge-green':'badge-yellow'}">${sigCount}/${totalSt}</span></td>
+        <td><span class="badge ${v.status==='paid'?'badge-green':'badge-red'}">${v.status==='paid'?'✅ ชำระแล้ว':'⏳ หนี้นม'}</span></td>
+        <td class="tc"><button class="btn btn-outline btn-sm" onclick="printRetDoc('${fid}')">🖨️ พิมพ์</button> <button class="btn btn-danger btn-sm" onclick="deleteRt('${fid}')">🗑</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+/* ===== RETRO: พิมพ์เอกสารย้อนหลัง ===== */
+function printRetDoc(fid){
+  if(!FD)return;
+  const all=FD.retroMilk||{};
+  const v=all[fid];
+  if(!v){toast('❌ ไม่พบข้อมูล');return;}
+  const sigs=v.signatures||{};
+  // สร้าง mapping studentId → sig จาก STUDS ปัจจุบัน
+  const studRows=STUDS.map((s,i)=>{
+    const sg=sigs[s.id];
+    const sigImg=sg?.sig?`<img src="${sg.sig}" style="height:32px;max-width:120px;display:block;margin:0 auto">`:'';
+    return `<tr>
+      <td style="text-align:center">${s.num||i+1}</td>
+      <td>${s.name}</td>
+      <td style="text-align:center">${v.days||0} กล่อง</td>
+      <td style="text-align:center">${sg?.receiverName||''}</td>
+      <td style="text-align:center;min-width:120px;height:44px">${sigImg}</td>
+    </tr>`;
+  }).join('');
+  const html=`<div class="a4-preview">
+    <h1>ใบรับนมย้อนหลัง</h1>
+    <h2>ห้องเรียน ${v.roomName||S.roomName} (ครู${v.teacher||S.teacher})</h2>
+    <div style="text-align:center;font-size:10pt;margin-bottom:6px;color:#555">${S.schoolName||''}</div>
+    <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">
+      ปีการศึกษา ${v.academicYear} ภาคเรียนที่ ${v.semester} &nbsp;|&nbsp;
+      ช่วงวัน (จ–ศ): ${thD(v.retroStart)} – ${thD(v.retroEnd)} (${v.days} วัน) &nbsp;|&nbsp;
+      วันที่จ่าย: ${thD(v.date)}
+    </div>
+    <table class="a4-table"><thead><tr>
+      <th style="width:30px">ที่</th>
+      <th class="left" style="min-width:130px">ชื่อ – สกุล</th>
+      <th style="width:60px">จำนวนกล่อง</th>
+      <th style="width:100px">ผู้รับมอบ</th>
+      <th style="width:130px">ลายเซ็นผู้ปกครอง</th>
+    </tr></thead><tbody>${studRows}</tbody></table>
+    <div style="margin-top:16px;font-size:9pt;color:#555">
+      รวมกล่องนมทั้งหมด: <b>${v.totalBoxes||0}</b> กล่อง &nbsp;|&nbsp;
+      สถานะ: <b>${v.status==='paid'?'ชำระแล้ว':'บันทึกเป็นหนี้นม'}</b>
+    </div>
+    ${v.note?`<div style="margin-top:6px;font-size:9pt;color:#555">หมายเหตุ: ${v.note}</div>`:''}
+    ${(v.photos||[]).length?`<div class="photo-block">
+      <div style="font-size:9pt;font-weight:600;color:#154360;margin-bottom:6px">📷 รูปถ่ายประกอบ (${Math.min((v.photos||[]).length,5)} รูป)</div>
+      <div class="photo-row">${(v.photos||[]).slice(0,5).map(p=>`<img src="${p}">`).join('')}</div>
+    </div>`:''}
+    <div class="a4-sig"><div class="a4-sig-box">
+      <div style="font-size:10pt;margin-bottom:26px">ลงชื่อ .........................................ครูประจำชั้น</div>
+      <div style="font-size:10pt">(${v.teacher||S.teacher||'................................'})</div>
+    </div></div>
+  </div>`;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet"><style>
+    body{font-family:'Sarabun',sans-serif;margin:10mm;}
+    h1{font-family:'Kanit',sans-serif;font-size:14pt;text-align:center;font-weight:700;margin-bottom:4px;}
+    h2{font-family:'Kanit',sans-serif;font-size:12pt;text-align:center;margin-bottom:6px;}
+    table{border-collapse:collapse;width:100%;}
+    .a4-table th{background:#154360;color:white;padding:5px 4px;text-align:center;border:.5pt solid #888;font-size:8.5pt;}
+    .a4-table th.left{text-align:left;}
+    .a4-table td{border:.5pt solid #bbb;padding:5px 4px;font-size:9pt;vertical-align:middle;}
+    .a4-sig{display:flex;justify-content:flex-end;margin-top:20px;}
+    .a4-sig-box{text-align:center;width:200px;}
+    img{max-width:100%;height:auto;}
+    .sig-img{height:36px;max-width:120px;display:block;margin:0 auto;}
+    .photo-block{margin-top:14px;border-top:1pt solid #ddd;padding-top:8px;page-break-inside:avoid;}
+    .photo-row{display:flex;flex-wrap:wrap;gap:8px;}
+    .photo-row img{height:110px;width:auto;max-width:180px;object-fit:cover;border:1px solid #ccc;border-radius:3px;}
+    @media print{body{margin:8mm;}thead{display:table-header-group;}}
+  </style></head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
+/* ===== RETRO: 🆕 สรุปรายงานจ่ายนมย้อนหลัง + พิมพ์ A4 ===== */
+function rtSumRecs(yr,tm){
+  const all=FD?.retroMilk||{};
+  return Object.entries(all).filter(([,v])=>v.roomId===S.room&&v.academicYear===yr&&v.semester===tm)
+    .sort((a,b)=>(a[1].date||'').localeCompare(b[1].date||''));
+}
+function buildRtSumA4(ent,yr,tm){
+  if(!ent.length){
+    return `<div class="a4-preview">
+      <h1>สรุปรายงานจ่ายนมย้อนหลัง</h1>
+      <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+      <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName||''} | ปีการศึกษา ${yr} ภาคเรียนที่ ${tm}</div>
+      <p style="text-align:center;color:#999">ไม่มีรายการจ่ายนมย้อนหลังในช่วงนี้</p>
+      <div class="a4-sig"><div class="a4-sig-box">
+        <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+        <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+      </div></div>
+    </div>`;
+  }
+  let totalBoxes=0,totalPaid=0,totalDebt=0;
+  // สร้าง mapping studentId → name จาก STUDS
+  const studMap={};STUDS.forEach(s=>{studMap[s.id]={name:s.name,num:s.num||0};});
+  const sections=ent.map(([,v],idx)=>{
+    totalBoxes+=v.totalBoxes||0;
+    if(v.status==='paid')totalPaid+=v.totalBoxes||0;else totalDebt+=v.totalBoxes||0;
+    const sigs=v.signatures||{};
+    const sigCount=Object.values(sigs).filter(sg=>sg&&sg.sig).length;
+    const studList=STUDS.length?STUDS:Object.keys(sigs).map(id=>({id,num:0,name:studMap[id]?.name||id}));
+    const studRows=studList.map((st,i)=>{
+      const sg=sigs[st.id];
+      const sigCell=sg?.sig
+        ?`<img class="sig-img" src="${sg.sig}">`
+        :(sg?.receiverName?`<span style="font-size:8pt">✅ ${sg.receiverName}</span>`:'—');
+      return `<tr>
+        <td class="tc">${st.num||i+1}</td>
+        <td class="left" style="font-size:8.5pt">${st.name}</td>
+        <td class="tc">${v.days||0}</td>
+        <td style="min-width:120px;height:44px">${sigCell}</td>
+      </tr>`;
+    }).join('');
+    const photos=v.photos||[];
+    const photoPart=photos.length?`<div class="photo-block"><div style="font-size:8pt;font-weight:600;color:#555;margin-bottom:4px">📷 รูปถ่ายประกอบ (${Math.min(photos.length,5)} รูป)</div><div class="photo-row">${photos.slice(0,5).map(p=>`<img src="${p}">`).join('')}</div></div>`:'';
+    return `<div class="record-block" style="margin-bottom:14px;${idx>0?'border-top:1pt solid #ccc;padding-top:10px':''}">
+      <div style="font-size:9.5pt;font-weight:600;margin-bottom:4px;color:#154360">
+        ครั้งที่ ${idx+1}: วันที่จ่าย ${thD(v.date)} | ช่วง (จ–ศ) ${thD(v.retroStart)} – ${thD(v.retroEnd)} | ${v.days||0} วัน | รวม ${v.totalBoxes||0} กล่อง | สถานะ: ${v.status==='paid'?'✅ ชำระแล้ว':'⏳ หนี้นม'} | เซ็น ${sigCount}/${v.studentCount||STUDS.length} คน${v.note?` | หมายเหตุ: ${v.note}`:''}
+      </div>
+      <table class="a4-table"><thead><tr>
+        <th style="width:28px">ที่</th><th class="left">ชื่อ – สกุล</th><th style="width:55px">กล่อง(วัน)</th><th style="min-width:120px">ลายเซ็นผู้ปกครอง</th>
+      </tr></thead><tbody>${studRows}</tbody></table>
+      ${photoPart}
+    </div>`;
+  }).join('');
+  return `<div class="a4-preview">
+    <h1>สรุปรายงานจ่ายนมย้อนหลัง</h1>
+    <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+    <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName||''} | ปีการศึกษา ${yr} ภาคเรียนที่ ${tm}</div>
+    <div style="font-size:9pt;margin-bottom:10px;padding:6px 10px;background:#eef4fb;border-radius:4px;border-left:3pt solid #154360">
+      รวมทั้งหมด: <b>${totalBoxes}</b> กล่อง | ชำระแล้ว: <b>${totalPaid}</b> กล่อง | ค้างชำระ: <b>${totalDebt}</b> กล่อง | จำนวนครั้งที่จ่าย: <b>${ent.length}</b> ครั้ง
+    </div>
+    ${sections}
+    <div class="a4-sig"><div class="a4-sig-box">
+      <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+      <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+    </div></div>
+  </div>`;
+}
+function renderRtSum(){
+  if(!FD)return;
+  const yr=document.getElementById('rtSumYr').value,tm=document.getElementById('rtSumTm').value;
+  document.getElementById('rtSumArea').innerHTML=buildRtSumA4(rtSumRecs(yr,tm),yr,tm);
+}
+function printRtSum(){
+  if(!FD){toast('⚠️ ยังไม่มีข้อมูล');return;}
+  const yr=document.getElementById('rtSumYr').value,tm=document.getElementById('rtSumTm').value;
+  openA4Print(buildRtSumA4(rtSumRecs(yr,tm),yr,tm));
+}
+function updVac(){
+  const dy=+document.getElementById('vcDs').value||30;
+  const total=STUDS.length*dy;
+  document.getElementById('vcSC').textContent=STUDS.length+' คน';
+  document.getElementById('vcDC').textContent=dy+' วัน';
+  document.getElementById('vcBC').textContent=total+' กล่อง';
+  const stock=(FD?.roomStock||{})[S.room]||0;
+  document.getElementById('vcStock').textContent=stock+' กล่อง';
+  document.getElementById('vcStockWarn').style.display=total>stock?'block':'none';
+  renderVcSigList();
+}
+function renderVcSigList(){
+  const listEl=document.getElementById('vcSigList');
+  if(!listEl)return;
+  if(!STUDS.length){document.getElementById('vcStudentList').style.display='none';return;}
+  document.getElementById('vcStudentList').style.display='block';
+  const dy=+document.getElementById('vcDs').value||30;
+  listEl.innerHTML='<div class="table-wrap"><table><thead><tr><th>#</th><th>ชื่อนักเรียน</th><th>กล่องนม</th><th>ผู้ปกครองเซ็น</th></tr></thead><tbody>'+
+    STUDS.map((s,i)=>{
+      const sig=vcSigData[s.id];
+      return `<tr>
+        <td>${s.num||i+1}</td>
+        <td>${s.name}</td>
+        <td>${dy} กล่อง</td>
+        <td>${sig?`<span class="badge badge-green">✅ ${sig.receiverName}</span>`:`<button class="btn btn-outline btn-sm" onclick="openVacSigModal('${s.id}','${s.name.replace(/'/g,'')}')">✍️ เซ็นรับ</button>`}</td>
+      </tr>`;
+    }).join('')+'</tbody></table></div>';
+}
+function openVacSigModal(studentId,studentName){
+  vacCurrentSig={studentId,studentName};
+  document.getElementById('vacSigInfo').innerHTML=`นักเรียน: <strong>${studentName}</strong>`;
+  document.getElementById('vacSigName').value=studentName;
+  initSig('vacSigCanvas');
+  clrSig2('vacSigCanvas');
+  openTModal('modal-vac-sig');
+}
+function confirmVacSig(){
+  if(!vacCurrentSig)return;
+  const sig=getSig('vacSigCanvas');
+  const name=document.getElementById('vacSigName').value||vacCurrentSig.studentName;
+  vcSigData[vacCurrentSig.studentId]={sig,receiverName:name};
+  closeTModal('modal-vac-sig');
+  renderVcSigList();
+  toast('✅ บันทึกลายเซ็นแล้ว');
+}
+function vcHandlePhotos(input){
+  const files=Array.from(input.files).slice(0,5-vcPhotos.length);
+  files.forEach(f=>{compressImageFile(f).then(dataUrl=>{if(!dataUrl)return;vcPhotos.push(dataUrl);vcRenderPhotoGrid();});});
+  input.value='';
+}
+function vcRenderPhotoGrid(){
+  const g=document.getElementById('vcPhotoGrid');if(!g)return;
+  g.innerHTML=vcPhotos.map((p,i)=>`<div class="photo-thumb-wrap"><img src="${p}" class="photo-thumb"><button class="photo-remove" onclick="vcRemovePhoto(${i})">✕</button></div>`).join('');
+}
+function vcRemovePhoto(i){vcPhotos.splice(i,1);vcRenderPhotoGrid();}
+function resetVacForm(){
+  document.getElementById('vcNt').value='';
+  vcSigData={};vcPhotos=[];
+  vcRenderPhotoGrid();
+  renderVcSigList();
+}
+async function saveVac(){
+  const yr=document.getElementById('vcYr').value,tm=document.getElementById('vcTm').value,dt=document.getElementById('vcDt').value,dy=+document.getElementById('vcDs').value||30;
+  if(!yr||!dt){toast('⚠️ กรอกข้อมูลให้ครบ');return;}
+  const total=dy*STUDS.length;
+  const rec={academicYear:yr,semester:tm,date:dt,days:dy,roomId:S.room,roomName:S.roomName,teacher:S.teacher,studentCount:STUDS.length,totalBoxes:total,note:document.getElementById('vcNt').value,signature:'',signatures:{...vcSigData},photos:[...vcPhotos],savedAt:new Date().toISOString()};
+  const id=await fbPush('milkApp/vacationMilk',rec);
+  if(id){
+    if(!FD.vacationMilk)FD.vacationMilk={};
+    FD.vacationMilk[id]=rec;
+    // 🆕 ข้อกำหนดธุรกิจ (VACATION MILK): ห้ามสร้างรายการ "จ่ายนมให้ห้องเรียน" (distribute) และห้ามแตะ Main
+    // Stock เด็ดขาด — หักออกจาก Room Stock เท่านั้น (นมที่จ่ายช่วงปิดเทอมคือนมที่มีอยู่แล้วในห้องจากการจ่าย
+    // นมให้ห้องเรียนก่อนหน้า ไม่ใช่การย้ายนมจากส่วนกลางครั้งใหม่)
+    const result=await atomicRoomStockDelta(S.room, cur => cur - total);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'VACATION', quantity:-total, stockBefore:before, stockAfter:after, referenceId:id});
+      toast('✅ บันทึกปิดเทอมสำเร็จ (หักสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ บันทึกรายการสำเร็จ แต่หักสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+    }
+    resetVacForm();
+    loadVacH();
+  }else toast('❌ บันทึกไม่สำเร็จ');
+}
+
+// 🆕 ลบรายการจ่ายนมปิดเทอม — คืน Room Stock กลับเท่ากับยอดที่เคยหักไป พร้อม ledger ROLLBACK
+async function deleteVac(fid){
+  if(!FD?.vacationMilk?.[fid]){toast('❌ ไม่พบข้อมูล หรือถูกลบไปแล้ว');return;}
+  if(!lockDelete('vc_'+fid)){toast('⏳ กำลังลบรายการนี้อยู่ กรุณารอสักครู่...');return;} // 🆕 กัน rollback ซ้ำจากการกดซ้อน
+  const v=FD.vacationMilk[fid];
+  if(!confirm(`ยืนยันลบรายการจ่ายนมปิดเทอม (${v.totalBoxes||0} กล่อง)?\n(สต็อกห้องจะถูกคืน ${v.totalBoxes||0} กล่อง)`)){unlockDelete('vc_'+fid);return;}
+  const ok=await fbSet(`milkApp/vacationMilk/${fid}`,null);
+  if(!ok){toast('❌ ลบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');unlockDelete('vc_'+fid);return;}
+  delete FD.vacationMilk[fid];
+  const total=v.totalBoxes||0;
+  if(total>0){
+    const result=await atomicRoomStockDelta(S.room, cur => cur + total);
+    if(result){
+      const{before,after}=result;
+      if(!FD.roomStock)FD.roomStock={};
+      FD.roomStock[S.room]=after;
+      await appendLedger({roomId:S.room, type:'ROLLBACK', quantity:total, stockBefore:before, stockAfter:after, referenceId:fid});
+      toast('✅ ลบรายการสำเร็จ (คืนสต็อกห้องแล้ว)');
+    } else {
+      toast('⚠️ ลบข้อมูลสำเร็จ แต่คืนสต็อกห้องไม่สำเร็จ (เครือข่ายมีปัญหา) — กรุณาตรวจสอบสต็อกอีกครั้ง');
+    }
+  } else toast('✅ ลบรายการสำเร็จ');
+  unlockDelete('vc_'+fid);
+  loadVacH();
+}
+async function loadVacH(){if(!FD)await loadFB();const all=FD.vacationMilk||{};const ent=Object.entries(all).filter(([,v])=>v.roomId===S.room).sort((a,b)=>(b[1].savedAt||'').localeCompare(a[1].savedAt||'')).slice(0,15);document.getElementById('vcHist').innerHTML=ent.length?`<div class="tw"><table class="rt"><thead><tr><th>ปี/ภาค</th><th>วันที่จ่าย</th><th class="tc">วัน</th><th class="tc">นักเรียน</th><th class="tc">กล่อง</th><th class="tc">รูป</th><th class="tc">การจัดการ</th></tr></thead><tbody>${ent.map(([fid,v])=>`<tr><td>${v.academicYear}/ภาค${v.semester}</td><td>${thD(v.date)}</td><td class="tc">${v.days||30}</td><td class="tc">${v.studentCount||0}</td><td class="tc"><b>${v.totalBoxes||0}</b></td><td class="tc">${(v.photos||[]).length||'-'}</td><td class="tc"><button class="btn btn-danger btn-sm" onclick="deleteVac('${fid}')">🗑</button></td></tr>`).join('')}</tbody></table></div>`:'<div style="text-align:center;color:var(--text2);padding:16px">ยังไม่มีรายการ</div>';}
+
+/* ===== VACATION: 🆕 สรุปรายงานจ่ายนมช่วงปิดเทอม + พิมพ์ A4 ===== */
+function vcSumRecs(yr,tm){
+  const all=FD?.vacationMilk||{};
+  return Object.entries(all).filter(([,v])=>v.roomId===S.room&&v.academicYear===yr&&v.semester===tm)
+    .sort((a,b)=>(a[1].date||'').localeCompare(b[1].date||''));
+}
+function buildVcSumA4(ent,yr,tm){
+  if(!ent.length){
+    return `<div class="a4-preview">
+      <h1>สรุปรายงานจ่ายนมช่วงปิดเทอม</h1>
+      <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+      <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName||''} | ปีการศึกษา ${yr} ปิดเทอมหลังภาคเรียนที่ ${tm}</div>
+      <p style="text-align:center;color:#999">ไม่มีรายการจ่ายนมช่วงปิดเทอมในช่วงนี้</p>
+      <div class="a4-sig"><div class="a4-sig-box">
+        <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+        <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+      </div></div>
+    </div>`;
+  }
+  let totalBoxes=0;
+  const studMap={};STUDS.forEach(s=>{studMap[s.id]={name:s.name,num:s.num||0};});
+  const sections=ent.map(([,v],idx)=>{
+    totalBoxes+=v.totalBoxes||0;
+    const sigs=v.signatures||{};
+    const sigCount=Object.keys(sigs).length;
+    const dy=v.days||30;
+    const studList=STUDS.length?STUDS:Object.keys(sigs).map(id=>({id,num:0,name:studMap[id]?.name||id}));
+    const studRows=studList.map((st,i)=>{
+      const sg=sigs[st.id];
+      const sigCell=sg?.sig
+        ?`<img class="sig-img" src="${sg.sig}">`
+        :(sg?.receiverName?`<span style="font-size:8pt">✅ ${sg.receiverName}</span>`:'—');
+      return `<tr>
+        <td class="tc">${st.num||i+1}</td>
+        <td class="left" style="font-size:8.5pt">${st.name}</td>
+        <td class="tc">${dy}</td>
+        <td style="min-width:120px;height:44px">${sigCell}</td>
+      </tr>`;
+    }).join('');
+    const photos=v.photos||[];
+    const photoPart=photos.length?`<div class="photo-block"><div style="font-size:8pt;font-weight:600;color:#555;margin-bottom:4px">📷 รูปถ่ายประกอบ (${Math.min(photos.length,5)} รูป)</div><div class="photo-row">${photos.slice(0,5).map(p=>`<img src="${p}">`).join('')}</div></div>`:'';
+    return `<div class="record-block" style="margin-bottom:14px;${idx>0?'border-top:1pt solid #ccc;padding-top:10px':''}">
+      <div style="font-size:9.5pt;font-weight:600;margin-bottom:4px;color:#154360">
+        ครั้งที่ ${idx+1}: วันที่จ่าย ${thD(v.date)} | ปิดเทอม ${dy} วัน | นักเรียน ${v.studentCount||STUDS.length} คน | รวม ${v.totalBoxes||0} กล่อง | เซ็น ${sigCount}/${v.studentCount||STUDS.length} คน${v.note?` | หมายเหตุ: ${v.note}`:''}
+      </div>
+      <table class="a4-table"><thead><tr>
+        <th style="width:28px">ที่</th><th class="left">ชื่อ – สกุล</th><th style="width:55px">กล่อง(วัน)</th><th style="min-width:120px">ลายเซ็นผู้ปกครอง</th>
+      </tr></thead><tbody>${studRows}</tbody></table>
+      ${photoPart}
+    </div>`;
+  }).join('');
+  return `<div class="a4-preview">
+    <h1>สรุปรายงานจ่ายนมช่วงปิดเทอม</h1>
+    <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+    <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName||''} | ปีการศึกษา ${yr} ปิดเทอมหลังภาคเรียนที่ ${tm}</div>
+    <div style="font-size:9pt;margin-bottom:10px;padding:6px 10px;background:#eef4fb;border-radius:4px;border-left:3pt solid #154360">
+      รวมทั้งหมด: <b>${totalBoxes}</b> กล่อง | จำนวนครั้งที่จ่าย: <b>${ent.length}</b> ครั้ง
+    </div>
+    ${sections}
+    <div class="a4-sig"><div class="a4-sig-box">
+      <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+      <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+    </div></div>
+  </div>`;
+}
+function renderVcSum(){
+  if(!FD)return;
+  const yr=document.getElementById('vcSumYr').value,tm=document.getElementById('vcSumTm').value;
+  document.getElementById('vcSumArea').innerHTML=buildVcSumA4(vcSumRecs(yr,tm),yr,tm);
+}
+function printVcSum(){
+  if(!FD){toast('⚠️ ยังไม่มีข้อมูล');return;}
+  const yr=document.getElementById('vcSumYr').value,tm=document.getElementById('vcSumTm').value;
+  openA4Print(buildVcSumA4(vcSumRecs(yr,tm),yr,tm));
+}
+
+/* ===== STUDENTS ===== */
+function loadStd(){const m=STUDS.filter(s=>s.gender==='ชาย').length,f=STUDS.filter(s=>s.gender==='หญิง').length;document.getElementById('stTt').textContent=STUDS.length;document.getElementById('stMl').textContent=m;document.getElementById('stFm').textContent=f;document.getElementById('stRm').textContent=S.roomName;document.getElementById('stWrap').innerHTML=STUDS.length?`<div class="tw"><table class="rt"><thead><tr><th>ที่</th><th>ชื่อ – สกุล</th><th class="tc">เพศ</th></tr></thead><tbody>${STUDS.map((s,i)=>`<tr><td>${s.num||i+1}</td><td>${s.name}</td><td class="tc">${s.gender==='ชาย'?'👦 ชาย':s.gender==='หญิง'?'👧 หญิง':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div style="text-align:center;color:var(--text2);padding:26px">ยังไม่มีรายชื่อ</div>';}
+
+/* ===== PRINT BLANK MONTHLY ATTENDANCE SHEET (สำหรับเช็คบนกระดาษ) ===== */
+function printBlankMonthSheet(){
+  const m=document.getElementById('stPrintMonth')?.value||todStr().slice(0,7);
+  if(!STUDS.length){toast('⚠️ ยังไม่มีรายชื่อนักเรียน');return;}
+  const[y,mo]=m.split('-').map(Number);
+  const last=new Date(y,mo,0).getDate();
+  const days=[];
+  for(let d=1;d<=last;d++){const dt=new Date(y,mo-1,d);const wd=dt.getDay();if(wd>=1&&wd<=5)days.push(d);}
+  const rows=STUDS.map((s,i)=>`<tr><td>${s.num||i+1}</td><td class="left">${s.name}</td>${days.map(()=>'<td>&nbsp;</td>').join('')}<td></td><td></td></tr>`).join('');
+  const html=`<div class="a4-preview">
+    <h1>แบบฟอร์มเช็คดื่มนมรายเดือน (สำหรับกรอกบนกระดาษ)</h1>
+    <h2>ห้องเรียน ${S.roomName} (ครู${S.teacher})</h2>
+    <div style="text-align:center;font-size:10pt;margin-bottom:10px;color:#555">${S.schoolName} | เดือน${thMY(m)}</div>
+    <table class="a4-table"><thead><tr>
+      <th style="width:28px">ที่</th><th class="left" style="min-width:120px">ชื่อ – สกุล</th>
+      ${days.map(d=>`<th style="width:18px;font-size:7pt">${d}</th>`).join('')}
+      <th style="width:30px">รวม</th><th style="width:30px">%</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <div style="font-size:9pt;margin-top:8px;color:#888">หมายเหตุ: ✓ = ดื่มนม &nbsp; ✗ = ไม่ได้ดื่ม &nbsp; (เฉพาะวันจันทร์–ศุกร์ของเดือนนี้)</div>
+    <div class="a4-sig"><div class="a4-sig-box">
+      <div class="a4-sig-line">ลงชื่อ .........................................ครูประจำชั้น</div>
+      <div style="font-size:10pt">(${S.teacher||'................................'})</div>
+    </div></div>
+  </div>`;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet"><style>
+    body{font-family:'Sarabun',sans-serif;margin:10mm;}
+    h1{font-family:'Kanit',sans-serif;font-size:14pt;text-align:center;font-weight:700;margin-bottom:4px;}
+    h2{font-family:'Kanit',sans-serif;font-size:12pt;text-align:center;margin-bottom:8px;}
+    table{border-collapse:collapse;width:100%;}
+    .a4-table th{background:#154360;color:white;padding:5px 3px;text-align:center;border:.5pt solid #888;font-size:8pt;}
+    .a4-table th.left{text-align:left;}
+    .a4-table td{border:.5pt solid #bbb;padding:6px 3px;text-align:center;height:18px;}
+    .a4-table td.left{text-align:left;}
+    .a4-sig{display:flex;justify-content:flex-end;margin-top:16px;}
+    .a4-sig-box{text-align:center;width:200px;}
+    .a4-sig-line{border-top:1px solid #333;margin:30px 10px 4px;font-size:10pt;}
+    @media print{body{margin:8mm;}}
+  </style></head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
+/* ===== STOCK (สต็อกนมคงเหลือ - เฉพาะห้องของคุณ: milkApp/roomStock/{roomId}) ===== */
+async function renderStk(){
+  if(!FD)await loadFB();
+  // 🆕 Phase 3: สต็อกนับเป็นรายห้องเรียน (milkApp/roomStock) แทนสต็อกกลางเดิม (milkApp/stock) — เพื่อแก้ปัญหา
+  // หักสต็อกซ้ำซ้อนกับ "จ่ายนมให้ห้องเรียน" ที่ฝั่งผู้ดูแลระบบ (ดู PROJECT_MEMORY.md หัวข้อสต็อก/Data Flow)
+  const roomStock=(FD?.roomStock||{})[S.room];
+  const stock=roomStock!=null?roomStock:0;
+  const remEl=document.getElementById('stkRemain');
+  remEl.textContent=stock;
+  remEl.style.color=stock<0?'var(--danger)':'';
+
+  // ใช้ไปแล้วทั้งหมด (ห้องนี้เท่านั้น) — เช็คดื่มนมรายวัน + นมค้างรายสัปดาห์ + จ่ายนมย้อนหลัง + จ่ายนมช่วงปิดเทอม
+  const att=getAttendance(FD);
+  let usedChk=0;
+  Object.entries(att).forEach(([k,r])=>{if(k.startsWith(S.room+'_'))usedChk+=Object.values(r.data||{}).filter(v=>v==='present').length;});
+  // 🆕 แก้บั๊ก: เดิมใช้ .length (นับ "จำนวนครั้งที่บันทึก") แทน "จำนวนกล่องจริง" — ถ้า 1 ครั้งมีหลายกล่องจะ
+  // นับผิด (เช่น บันทึกนมค้าง 5 กล่องใน 1 ครั้ง เดิมจะนับเป็น 1 ไม่ใช่ 5) ทำให้ตัวเลข "ใช้ไปแล้วทั้งหมด" ผิด
+  const usedAbs=Object.values(FD?.absentMilk||{}).filter(v=>v.roomId===S.room).reduce((a,v)=>a+(Number(v.totalBoxes)||0),0);
+  const usedRetro=Object.values(FD?.retroMilk||{}).filter(v=>v.roomId===S.room).reduce((a,v)=>a+(Number(v.totalBoxes)||0),0);
+  const usedVac=Object.values(FD?.vacationMilk||{}).filter(v=>v.roomId===S.room).reduce((a,v)=>a+(Number(v.totalBoxes)||0),0);
+  const totalUsed=usedChk+usedAbs+usedRetro+usedVac;
+  document.getElementById('stkUsedTotal').textContent=totalUsed;
+
+  // รับเข้าทั้งหมด (ห้องนี้เท่านั้น) — 🆕 แก้บั๊ก: เดิมรวมจาก FD.distributes ตรงๆ ซึ่ง sync ขึ้น Cloud แบบ
+  // manual เท่านั้น (ปุ่ม "อัปโหลดสู่ Cloud (ทั้งหมด)" ฝั่งผู้ดูแล) ถ้ายังไม่กด ค่าจะค้างเป็น 0 ทำให้ตัวเลข
+  // "รับเข้า/ใช้ไป/คงเหลือ" ไม่บวกลบกันแล้วตรงกับคงเหลือจริงเลย ดูเหมือนตัดสต็อกไม่สมบูรณ์ — ตามสูตรที่ถูกต้อง
+  // RoomStock = Distributes − Used เสมอ ⟺ Distributes = RoomStock + Used จึงคำนวณ "รับเข้า" แบบอนุมานจาก
+  // คงเหลือจริง + ใช้ไปแล้วจริง ได้เลย รับประกันว่าตัวเลขทั้ง 3 ค่าบวกลบกันตรงกันเสมอ ไม่ขึ้นกับว่า distributes
+  // จะ sync มาถึงเครื่องนี้แล้วหรือยัง
+  const totalReceived=stock+totalUsed;
+  document.getElementById('stkReceived').textContent=totalReceived;
+  const distributes=FD?.distributes||[]; // ยังคงไว้ใช้แค่กับตาราง "ประวัติ" ด้านล่าง (รายการ IN เก่าก่อนมี Ledger)
+  const distArr=(Array.isArray(distributes)?distributes:Object.values(distributes)).filter(d=>d&&d.roomId===S.room);
+
+  // 🆕 ประวัติเข้า-ออกสต็อกของห้องนี้ — สร้างจาก Audit Ledger (milkApp/stockTransactions) เป็นหลัก เพราะครอบคลุม
+  // ทุกประเภทการเคลื่อนไหว (รับเข้า/จ่ายนมให้ห้องเรียน/เช็คดื่มนม/นมค้าง/นมย้อนหลัง/นมปิดเทอม/ROLLBACK) ที่ผ่าน
+  // atomicRoomStockDelta() มาแล้วทั้งหมด — ก่อนหน้านี้ตารางนี้สร้างจากแค่ stockLog (เฉพาะเช็คดื่มนม) + distributes
+  // (รับเข้า) เท่านั้น ทำให้รายการนมค้าง/ย้อนหลัง/ปิดเทอม "หายไป" จากประวัติ ทั้งที่สต็อกถูกหักจริงไปแล้ว — ดูเหมือน
+  // ตัดสต็อกไม่สมบูรณ์/อธิบายตัวเลขไม่ได้ ทั้งที่จริงสต็อกถูกหักครบ แค่ไม่ถูกแสดงในตารางนี้
+  const ledgerAll=Object.entries(FD?.stockTransactions||{}).map(([lid,v])=>({...v,_lid:lid})).filter(v=>v.roomId===S.room);
+  const ledgerRefIds=new Set(ledgerAll.map(v=>v.referenceId).filter(Boolean));
+  const TYPE_LABEL={RECEIVE:'รับเข้า',DISTRIBUTE:'จ่ายนมให้ห้องเรียน',ATTENDANCE:'เช็คดื่มนมรายวัน',PENDING:'นมค้าง',RETRO:'นมย้อนหลัง',VACATION:'นมปิดเทอม',ROLLBACK:'ยกเลิก/คืนสต็อก'};
+  // 🆕 แก้บั๊ก: เดิมใช้ v.timestamp (เวลาที่ "กดบันทึก ledger entry") เป็นวันที่ในตาราง ทำให้ทุกแถวที่บันทึก/แก้ไข
+  // ในวันเดียวกันโชว์วันที่เดียวกันหมด (เช่น เช็คดื่มนมของวันที่ 16-17 มิ.ย. ถ้ามาแก้/sync วันนี้ จะโชว์วันนี้ทั้งคู่)
+  // ทั้งที่ "เหตุการณ์จริง" คือคนละวัน — ต้องดึงวันที่จริงจากต้นฉบับของรายการนั้นๆ ผ่าน referenceId แทน ให้ตรงกับ
+  // วันที่ที่เห็นในหน้า "ประวัติการเช็ค" ของผู้ดูแล (เช่น 17/16/4/3 มิ.ย.) ไม่ใช่วันที่บันทึก/แก้ไขล่าสุด
+  const distributesAll=FD?.distributes||[];
+  const distById=(Array.isArray(distributesAll)?distributesAll:Object.values(distributesAll));
+  function resolveLedgerDate(v){
+    const fallback=(v.timestamp||'').slice(0,10);
+    if(!v.referenceId)return fallback;
+    if(v.type==='ATTENDANCE'){
+      const parts=v.referenceId.split('_');
+      return parts[parts.length-1]||fallback; // คีย์เช็คดื่มนมรูปแบบ roomId_วันที่ — วันที่คือส่วนท้ายสุดเสมอ
+    }
+    if(v.type==='RETRO')return FD?.retroMilk?.[v.referenceId]?.date||FD?.retroMilk?.[v.referenceId]?.retroStart||fallback;
+    if(v.type==='VACATION')return FD?.vacationMilk?.[v.referenceId]?.date||fallback;
+    if(v.type==='PENDING')return FD?.absentMilk?.[v.referenceId]?.date||FD?.absentMilk?.[v.referenceId]?.weekStart||fallback;
+    if(v.type==='DISTRIBUTE'){const m=distById.find(d=>d&&d.id===v.referenceId);return m?.date||fallback;}
+    return fallback; // ROLLBACK/admin-recalc ฯลฯ — ไม่มีวันที่ "เหตุการณ์" ที่ชัดเจน ใช้วันที่บันทึกแทน
+  }
+  const ledgerEntries=ledgerAll.map(v=>({type:v.quantity>=0?'IN':'OUT',date:resolveLedgerDate(v),qty:Math.abs(v.quantity||0),balanceAfter:v.stockAfter,note:TYPE_LABEL[v.type]||v.type,savedAt:v.timestamp}));
+  // รายการเก่าก่อนมี Ledger (ยังไม่มี referenceId ตรงกับ ledger) — คงไว้เพื่อไม่ให้ประวัติเก่าหายไปจากหน้าจอ
+  const legacyIn=distArr.filter(d=>d.date&&!ledgerRefIds.has(d.id)).map(d=>({type:'IN',date:d.date,qty:Number(d.total)||0,balanceAfter:d.roomStockAfter!=null?d.roomStockAfter:null,note:'จ่ายนมให้ห้องเรียน (ก่อนมี Ledger)',savedAt:d.createdAt||d.date}));
+  const legacyOut=Object.values(FD?.stockLog||{}).filter(v=>v.roomId===S.room&&!ledgerRefIds.has(attKey(S.room,v.date))).map(v=>({type:v.type==='IN'?'IN':'OUT',date:v.date,qty:v.qty||0,balanceAfter:v.balanceAfter,note:(v.note||'เบิกจ่ายนม')+' (ก่อนมี Ledger)',savedAt:v.savedAt}));
+  const all=[...ledgerEntries,...legacyIn,...legacyOut].sort((a,b)=>(b.savedAt||'').localeCompare(a.savedAt||'')).slice(0,30);
+
+  document.getElementById('stkHist').innerHTML=all.length?`<div class="tw"><table class="rt"><thead><tr><th>วันที่</th><th class="tc">ประเภท</th><th class="tc">จำนวน</th><th class="tc">คงเหลือหลังรายการ</th><th>หมายเหตุ</th></tr></thead><tbody>${all.map(v=>{
+    const isIn=v.type==='IN';
+    return `<tr><td>${thD(v.date)}</td><td class="tc"><span class="badge ${isIn?'badge-green':'badge-red'}">${isIn?'⬇️ เข้า (IN)':'⬆️ ออก (OUT)'}</span></td><td class="tc"><b>${isIn?'+':'-'}${v.qty}</b></td><td class="tc">${v.balanceAfter!=null?v.balanceAfter:'-'}</td><td style="font-size:.78rem;color:var(--text2)">${v.note}</td></tr>`;
+  }).join('')}</tbody></table></div>`:'<div style="text-align:center;color:var(--text2);padding:16px">ยังไม่มีประวัติการเข้า-ออกสต็อก</div>';
+}
+
+/* ===== CONFIG ===== */
+function fillCfg(){document.getElementById('cfgUe').value=DB_URL;document.getElementById('cfgKe').value=DB_KEY;document.getElementById('cfSch').textContent=S?.schoolName||'—';document.getElementById('cfRm').textContent=S?.roomName||'—';document.getElementById('cfTc').textContent=S?.teacher||'—';document.getElementById('cfCn').textContent=DB_URL?'✅ เชื่อมต่อแล้ว':'❌ ยังไม่ได้ตั้งค่า';document.getElementById('cfSt').textContent=STUDS.length;document.getElementById('pfRoom').value=S?.roomName||'';document.getElementById('pfTeacher').value=S?.teacher||'';}
+function saveCfg(){
+  DB_URL=document.getElementById('cfgUe').value.trim();
+  DB_KEY=document.getElementById('cfgKe').value.trim();
+  LS.s('cfg',{url:DB_URL,key:DB_KEY,source:'manual'});
+  idxSyncCfg(DB_URL,DB_KEY); // 🆕 sync กลับไป milk_school_db เพื่อให้ index.html ใช้ config เดียวกัน
+  toast('💾 บันทึกการตั้งค่าแล้ว');
+  fillCfg();
+}
+
+/* ===== TEACHER PROFILE (ห้องเรียนของตัวเองเท่านั้น) ===== */
+// หา index ของห้องเรียนนี้ใน milkApp/rooms (array) สำหรับ PATCH เฉพาะห้องนี้
+function findRoomIndex(){
+  if(!FD)return -1;
+  const rooms=FD.rooms||[];
+  const arr=Array.isArray(rooms)?rooms:Object.values(rooms);
+  return arr.findIndex((r,ri)=>(r&&r.id?r.id:('room_'+ri))===S.room);
+}
+async function saveTeacherProfile(){
+  const name=document.getElementById('pfTeacher').value.trim();
+  if(!name){toast('⚠️ กรุณากรอกชื่อ-สกุลครูประจำชั้น');return;}
+  if(!FD)await loadFB();
+  const idx=findRoomIndex();
+  if(idx<0){toast('❌ ไม่พบห้องเรียนนี้ในระบบ');return;}
+  setDot('busy');
+  const ok=await fbPatch(`milkApp/rooms/${idx}`,{teacher:name});
+  setDot(ok?'ok':'err');
+  if(ok){
+    S.teacher=name;LS.s('sess',S);
+    if(FD.rooms){
+      const arr=Array.isArray(FD.rooms)?FD.rooms:Object.values(FD.rooms);
+      if(arr[idx])arr[idx].teacher=name;
+    }
+    setLbls();
+    fillCfg();
+    toast('✅ บันทึกข้อมูลครูประจำชั้นสำเร็จ');
+  }else toast('❌ บันทึกไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ');
+}
+async function forceReload(){toast('🔄 กำลังโหลด...');await loadFB();const pg=document.querySelector('.pg:not([style*="display:none"])');if(pg?.id==='pg-std')loadStd();else if(pg?.id==='pg-chk')loadGrid();else if(pg?.id==='pg-ov')renderOv();toast('✅ โหลดใหม่สำเร็จ — '+STUDS.length+' นักเรียน');document.getElementById('cfSt').textContent=STUDS.length;}
+
+/* ===== LOGOUT ===== */
+function doLogout(){if(!confirm('ออกจากระบบ?'))return;LS.s('sess',null);S=null;STUDS=[];FD=null;if(TIMER)clearInterval(TIMER);['topbar','sidebar','mainWrap'].forEach(id=>document.getElementById(id).style.display='none');showLogin();}
+
+/* ===== HELPERS ===== */
+function toast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+function setDot(st){const d=document.getElementById('syncDot');d.className='dot'+(st==='ok'?' ok':st==='busy'?' busy':'');}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
