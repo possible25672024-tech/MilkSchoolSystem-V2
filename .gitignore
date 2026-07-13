@@ -1,0 +1,15 @@
+node_modules/
+
+.vscode/settings.json
+
+firebase-debug.log
+
+*.zip
+
+*.bak
+
+*.tmp
+
+Thumbs.db
+
+.DS_Store
