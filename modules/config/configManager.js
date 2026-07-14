@@ -1,15 +1,11 @@
 class ConfigManager {
 
     getAppConfig() {
-
         return window.APP_CONFIG;
-
     }
 
     getFirebaseConfig() {
-
         return window.firebaseConfig;
-
     }
 
 }
