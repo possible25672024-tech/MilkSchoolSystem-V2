@@ -1,19 +1,17 @@
-/**
- * Student Repository
- */
+class StudentRepository extends BaseRepository {
 
-class StudentRepository {
+    async loadStudents(){
 
-    async getStudents() {
-        console.log("Load Students");
-        return [];
+        return await this.get("students");
+
     }
 
-    async saveStudent(data) {
-        console.log("Save Student");
-        return true;
+    async saveStudent(id,data){
+
+        await this.set("students/"+id,data);
+
     }
 
 }
 
-window.StudentRepository = new StudentRepository();
+window.StudentRepository=new StudentRepository();

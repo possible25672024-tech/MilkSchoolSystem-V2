@@ -1,19 +1,17 @@
-/**
- * Room Repository
- */
+class RoomRepository extends BaseRepository {
 
-class RoomRepository {
+    async loadRooms(){
 
-    async getRooms() {
-        console.log("Load Rooms");
-        return [];
+        return await this.get("rooms");
+
     }
 
-    async saveRoom(room) {
-        console.log("Save Room");
-        return true;
+    async saveRoom(id,data){
+
+        await this.set("rooms/"+id,data);
+
     }
 
 }
 
-window.RoomRepository = new RoomRepository();
+window.RoomRepository=new RoomRepository();

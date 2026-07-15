@@ -1,19 +1,17 @@
-/**
- * Teacher Repository
- */
+class TeacherRepository extends BaseRepository {
 
-class TeacherRepository {
+    async loadTeachers(){
 
-    async getTeachers() {
-        console.log("Load Teachers");
-        return [];
+        return await this.get("teachers");
+
     }
 
-    async saveTeacher(data) {
-        console.log("Save Teacher");
-        return true;
+    async saveTeacher(id,data){
+
+        await this.set("teachers/"+id,data);
+
     }
 
 }
 
-window.TeacherRepository = new TeacherRepository();
+window.TeacherRepository=new TeacherRepository();

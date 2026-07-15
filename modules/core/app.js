@@ -2,6 +2,8 @@ async start(){
 
     console.log("MilkSchoolSystem V2 Started");
 
-    await window.LoginManager.login();
+    const rooms = await window.RoomRepository.loadRooms();
+
+    console.log(rooms);
 
 }

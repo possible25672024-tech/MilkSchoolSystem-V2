@@ -1,20 +1,17 @@
-/**
- * Stock Repository
- * จัดการข้อมูลสต็อกทั้งหมด
- */
+class StockRepository extends BaseRepository {
 
-class StockRepository {
+    async loadMainStock(){
 
-    async getStock() {
-        console.log("Load Stock");
-        return [];
+        return await this.get("stock");
+
     }
 
-    async saveStock(stockData) {
-        console.log("Save Stock");
-        return true;
+    async saveMainStock(data){
+
+        await this.set("stock",data);
+
     }
 
 }
 
-window.StockRepository = new StockRepository();
+window.StockRepository=new StockRepository();
