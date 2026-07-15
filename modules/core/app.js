@@ -1,9 +1,7 @@
-class MilkSchoolApplication {
+async start(){
 
-    async start() {
-        console.log("MilkSchoolSystem V2 Started");
-    }
+    console.log("MilkSchoolSystem V2 Started");
+
+    await window.LoginManager.login();
 
 }
-
-window.App = new MilkSchoolApplication();
