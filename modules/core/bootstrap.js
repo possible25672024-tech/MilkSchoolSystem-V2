@@ -30,5 +30,10 @@ window.Bootstrap = new Bootstrap();
 window.addEventListener("DOMContentLoaded", () => {
 
     window.Bootstrap.start();
+    window.addEventListener("DOMContentLoaded",()=>{
+
+    window.Bootstrap.start();
+
+});
 
 });

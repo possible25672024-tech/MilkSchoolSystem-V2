@@ -1,16 +1,63 @@
-<<script src="config/app-config.js"></script>
+<!DOCTYPE html>
 
-<script src="instance/school.js"></script>
+<html lang="th">
 
-<script src="instance/firebase.js"></script>
+<head>
 
-<script src="instance/theme.js"></script>
+<meta charset="utf-8">
+
+<title>MilkSchoolSystem V2</title>
+
+</head>
+
+<body>
+
+<h2>MilkSchoolSystem V2 Login</h2>
+
+<input
+id="username"
+placeholder="Username">
+
+<br><br>
+
+<input
+id="password"
+type="password"
+placeholder="Password">
+
+<br><br>
+
+<button
+onclick="LoginManager.login()">
+
+Login
+
+</button>
+
+<!-- CONFIG -->
+
+<script src="config/app-config.js"></script>
+
+<script src="config/firebase-config.js"></script>
+
+<!-- REPOSITORY -->
+
+<script src="modules/repositories/loginRepository.js"></script>
+
+<!-- SERVICE -->
+
+<script src="modules/services/loginService.js"></script>
+
 <script src="modules/login/authService.js"></script>
 
 <script src="modules/login/loginManager.js"></script>
 
-<script src="modules/config/configManager.js"></script>
+<!-- CORE -->
 
 <script src="modules/core/app.js"></script>
 
 <script src="modules/core/bootstrap.js"></script>
+
+</body>
+
+</html>

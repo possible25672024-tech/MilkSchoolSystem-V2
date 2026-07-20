@@ -8,10 +8,15 @@ class LoginManager {
 
     async login(username,password){
 
-        console.log("Login...");
+    return await window.LoginService.login(
 
-    }
+        username,
 
+        password
+
+    );
+
+}
     logout(){
 
         console.log("Logout");

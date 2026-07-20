@@ -1,9 +1,12 @@
-async start(){
+class MilkSchoolApplication{
 
-    console.log("MilkSchoolSystem V2 Started");
+    async start(){
 
-    const rooms = await window.RoomRepository.loadRooms();
+        console.log("MilkSchoolSystem V2 Started");
 
-    console.log(rooms);
+    }
 
 }
+
+window.App =
+new MilkSchoolApplication();
