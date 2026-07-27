@@ -24,14 +24,14 @@ Status values:
 | Main Stock receive | `index.html` | Stock modules | PARTIAL | end-to-end operational UI test | V2 operational UI not integrated |
 | Classroom distribution | `index.html` | Stock modules | PARTIAL | Main Stock decrease + Room Stock increase | V2 operational UI not integrated |
 | Attendance save | `teacher.html` | Attendance modules | PARTIAL | create/edit/delete + Room Stock delta | operational form remains legacy |
-| Attendance ETag Room Stock update | legacy `atomicRoomStockDelta` | FirebaseService + AttendanceService | PARTIAL | deterministic conflict test + real Firebase conflict validation | implementation added; local regression and real multi-writer evidence pending |
-| Attendance partial-save recovery | legacy `roomStockAdjust` queue | AttendanceManager + SyncService | PARTIAL | attendance-first failure fixture + queue conversion test | implementation added; local regression pending |
-| Attendance audit write recovery | legacy best-effort stockLog/ledger | AttendanceService audit retry | BLOCKED | persistent audit-recovery decision | retries are bounded but no persistent audit-only queue exists after Room Stock succeeds |
+| Attendance ETag Room Stock update | legacy `atomicRoomStockDelta` | FirebaseService + AttendanceService | PARTIAL | deterministic conflict test + real Firebase conflict validation | implementation and local deterministic test added; real multi-writer evidence pending |
+| Attendance partial-save recovery | legacy `roomStockAdjust` queue | AttendanceManager + SyncService | PARTIAL | attendance-first failure fixture + queue conversion test | implementation and deterministic test added; browser/device evidence pending |
+| Attendance audit write recovery | legacy best-effort stockLog/ledger | QueueStorage + AttendanceManager + SyncService | PARTIAL | audit failure fixture + persistent replay | audit-only queue and test added; local regression and production evidence pending |
 | Pending milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
 | Retroactive milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
 | Vacation milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
 | Offline queue persistence | `teacher.html` | QueueStorage | PASS | restart fixture | production device evidence pending |
-| Legacy/V2 queue format compatibility | legacy `rec`/`diff` | QueueStorage normalization | PARTIAL | representative legacy fixtures + replay | fixture coverage exists; local Sprint 4.0 execution pending |
+| Legacy/V2 queue format compatibility | legacy `rec`/`diff` | QueueStorage normalization | PARTIAL | representative legacy fixtures + replay | fixture coverage exists; actual operational fixture pending |
 | Offline retry | `teacher.html` | Sync modules | PARTIAL | reconnect and failure-retention test | physical device validation pending |
 | Simultaneous Room Stock writes | legacy ETag path | modular ETag compare-and-retry | PARTIAL | conflict retry + real Firebase multi-writer test | code and deterministic test added; production evidence pending |
 | Classroom report | `index.html` | Report modules | PARTIAL | formula comparison | browser-local adapter incomplete |
