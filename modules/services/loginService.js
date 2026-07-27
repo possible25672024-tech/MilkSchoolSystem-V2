@@ -1,7 +1,10 @@
 class LoginService {
-    constructor(repository = window.LoginRepository) {
+    constructor(repository = window.LoginRepository, options = {}) {
         this.repository = repository;
         this.defaultPassword = "1234";
+        this.clock = options.clock || (() => Date.now());
+        this.cacheTtlMs = Number(options.cacheTtlMs) || 300000;
+        this.loginOptionsCache = null;
     }
 
     ensureRepository() {
@@ -31,13 +34,43 @@ class LoginService {
             }));
     }
 
-    async loadLoginOptions() {
-        const context = await this.ensureRepository().loadLoginContext();
-
+    cloneLoginOptions(options = {}) {
         return {
+            settings: { ...(options.settings || {}) },
+            rooms: (options.rooms || []).map(room => ({ ...room }))
+        };
+    }
+
+    isLoginOptionsCacheValid() {
+        if (!this.loginOptionsCache) {
+            return false;
+        }
+
+        return this.clock() - this.loginOptionsCache.loadedAt < this.cacheTtlMs;
+    }
+
+    clearLoginOptionsCache() {
+        this.loginOptionsCache = null;
+    }
+
+    async loadLoginOptions(options = {}) {
+        const forceReload = options === true || options?.forceReload === true;
+        if (!forceReload && this.isLoginOptionsCacheValid()) {
+            return this.cloneLoginOptions(this.loginOptionsCache.value);
+        }
+
+        const context = await this.ensureRepository().loadLoginContext();
+        const value = {
             settings: context.settings || {},
             rooms: this.normalizeRooms(context.rooms)
         };
+
+        this.loginOptionsCache = {
+            loadedAt: this.clock(),
+            value: this.cloneLoginOptions(value)
+        };
+
+        return this.cloneLoginOptions(value);
     }
 
     buildSession({ selection, room, settings, role, adminOverride = false }) {
