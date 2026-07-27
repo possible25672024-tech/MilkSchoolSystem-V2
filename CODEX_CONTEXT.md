@@ -1,8 +1,8 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.6
-Last Updated: 2026-07-27
+Version: 2.7
+Last Updated: 2026-07-28
 
 ---
 
@@ -18,11 +18,15 @@ develop
 
 Project Status
 
-Legacy
+Legacy operational system
 
 ↓
 
-Modular V2 Migration
+Modular V2 migration completed through performance optimization
+
+↓
+
+Cutover readiness and compatibility phase
 
 Backend
 
@@ -48,8 +52,6 @@ Sprint 3.4.2 — Recovery Foundation
 
 ✓ Static and browser validation
 
-Merged into `develop` at `648fa6d`.
-
 Sprint 3.4.3 — Stock Module Migration
 
 ✓ StockRepository, StockService, and StockManager
@@ -58,23 +60,17 @@ Sprint 3.4.3 — Stock Module Migration
 
 ✓ Receive, distribute, rollback, rebuild, validation, and ledger rules
 
-✓ Static, business-rule, and browser tests
-
-Merged into `develop` at `f56e430`.
-
 Sprint 3.4.4 — Report Module Migration
 
-✓ Read-only ReportRepository
+✓ Read-only report boundary
 
 ✓ Classroom, grade-level, and school aggregation
 
-✓ Thai grade normalization and sorting
+✓ Thai grade normalization
 
-✓ Print and Excel export models
+✓ Print and Excel models
 
-✓ Architecture, aggregation, and browser tests
-
-Known gap: browser-local pending, retroactive, and vacation collections still require an adapter before V2 replaces the operational report.
+Known gap: browser-local pending, retroactive, and vacation collections still require an adapter before operational replacement.
 
 Sprint 3.5 — Room Module Migration
 
@@ -90,17 +86,15 @@ Known gaps: XLSX parsing remains legacy, and complete room writes lack multi-adm
 
 Sprint 3.6 — Teacher Module Migration
 
-✓ Authenticated-room-only teacher boundary
+✓ Authenticated-room-only Teacher boundary
 
-✓ One-room `mcAttendance` query
+✓ Teacher session and cross-room protection
 
-✓ Teacher session, dashboard, and Room Stock-only command preparation
-
-✓ Admin and cross-room access rejection
+✓ Dashboard and Room Stock-only command preparation
 
 Sprint 3.7 — Attendance Module Migration
 
-✓ AttendanceRepository, AttendanceService, and AttendanceManager
+✓ Attendance Repository, Service, and Manager
 
 ✓ Key format `{roomId}_{YYYY-MM-DD}`
 
@@ -108,57 +102,82 @@ Sprint 3.7 — Attendance Module Migration
 
 ✓ Main Stock isolation
 
-✓ Full regression and browser validation
-
 Sprint 3.8 — Offline Queue and Sync Migration
 
-✓ QueueStorage using compatible `tc_pending_saves_v1`
+✓ Compatible `tc_pending_saves_v1` persistence
 
 ✓ Legacy `rec` and `diff` alias normalization
 
 ✓ Corrupt-entry filtering
 
-✓ Duplicate queued edit replacement with original baseline preservation
+✓ Original baseline preservation
 
 ✓ Attendance and Room Stock adjustment replay
 
-✓ Authenticated-room-only sequential replay
+✓ Sequential retry with bounded backoff
 
-✓ Individual success removal and failure retention
+✓ Startup, reconnect, retry, and periodic flush
 
-✓ Bounded 5s → 10s → 20s → 40s → 60s retry backoff
+Sprint 3.9 — Performance and Payload Optimization
 
-✓ Startup, reconnect, retry, and periodic online flush
+✓ Identical in-flight Firebase GET deduplication
 
-✓ Overlapping flush prevention
+✓ GET preflight removal
 
-✓ Login, Stock, Report, Room, Teacher, Attendance, Sync, browser, Logout, console, and clean-tree validation
+✓ Login context cache and immediate credential reuse
 
-Known gaps: operational queue UI remains in `teacher.html`; V2 does not yet provide legacy ETag compare-and-retry Room Stock protection; production cutover requires legacy/V2 queue compatibility validation.
+✓ Authenticated Teacher `roomSnapshot`
+
+✓ Default Teacher core refresh reduced to four Firebase reads
+
+✓ Today's attendance `/data` child only in normal refresh
+
+✓ Deferred collections behind explicit `refreshFull()`
+
+✓ Queue upsert serialization reduction
+
+✓ Legacy and V2 queue compatibility fixtures
+
+✓ Full automated regression suite
+
+✓ Desktop Network measurement on actual 83-room data
+
+Observed desktop result:
+
+- before final Teacher core optimization: approximately 20.5 MB across 5 requests
+- after final Teacher core optimization: approximately 1.6 KB across 4 requests
+- no rooms request, room-history attendance request, GET preflight, or HTTP error
+
+Deferred gate:
+
+- responsive mobile and physical iPad validation remain required before production cutover
 
 ---
 
 Current Sprint
 
-Sprint 3.9 — Performance and Payload Optimization
+Sprint 4.0 — Cutover Readiness and Compatibility
 
-Target areas
+Goals
 
-- Firebase request-count and payload audit
-- Teacher login payload reduction verification
-- room-scoped attendance read verification
-- lazy-loading and cache invalidation audit
-- mobile and iPad performance validation
-- repeatable performance checks
-- legacy and V2 queue compatibility fixtures
-- performance documentation without invented benchmark numbers
+- create a legacy-to-V2 functional parity matrix
+- verify desktop, responsive mobile, and physical iPad behavior
+- validate queues written by legacy `teacher.html` against V2 normalization and replay
+- resolve or formally gate ETag Room Stock concurrency
+- decide the Report browser-local adapter implementation
+- decide and plan XLSX parser migration
+- map operational forms, media, signatures, print, queue badge, and offline banner into V2
+- define backup, rollback, deployment, and production cutover checklists
+- do not remove legacy files until every cutover gate passes
 
-Target files may include
+Target documentation
 
-- performance-focused tests under `tests/`
-- performance utilities under `modules/performance/` only when justified
-- `docs/SPRINT_3_9_PLAN.md`
-- `docs/PERFORMANCE_AUDIT_REPORT.md`
+- `docs/SPRINT_4_0_PLAN.md`
+- `docs/CUTOVER_PARITY_MATRIX.md`
+- `docs/CUTOVER_READINESS_REPORT.md`
+- `docs/PRODUCTION_ROLLBACK_PLAN.md`
+
+Runtime code changes are allowed only when they close a measured compatibility or safety gap and include regression tests.
 
 ---
 
@@ -167,7 +186,7 @@ Protected Legacy Files
 - `index.html`
 - `teacher.html`
 
-Do not modify these files during Sprint 3.x migration unless explicitly approved.
+These files remain available and unchanged until explicit cutover approval. Do not delete, rename, or replace them during readiness work.
 
 ---
 
@@ -180,12 +199,13 @@ Never Break
 - Repeated queued edits keep the latest record without replacing the original baseline.
 - Attendance keys remain compatible.
 - Reports remain read-only.
-- Firebase schema and paths remain compatible.
+- Firebase schema and paths remain compatible unless a separately approved migration includes rollback.
 - Room IDs remain stable after creation.
 - Admin and Teacher login remain operational.
-- Teacher attendance reads remain scoped to the authenticated room.
+- Teacher normal refresh uses only the authenticated room and today's attendance summary.
 - Queue entries survive refresh and browser restart.
 - Rebuild calculations use transaction history.
+- Legacy files remain deployable until cutover is complete.
 
 ---
 
@@ -209,7 +229,7 @@ Calculation.
 
 Workflow.
 
-Retry and performance policy.
+Retry and compatibility policy.
 
 Business rules.
 
@@ -223,7 +243,7 @@ Browser events.
 
 Retry timing.
 
-Queue and performance status events.
+Queue and status events.
 
 Periodic orchestration.
 
@@ -234,16 +254,18 @@ Never access Firebase directly.
 Required Workflow
 
 1. Read `AGENTS.md`.
-2. Read `REPOSITORY_RULES.md`.
-3. Read `SPRINT_STATUS.md`.
-4. Read `MODULE_MAP.md`.
-5. Read only related source files.
-6. Compare before editing.
-7. Implement on a feature branch.
-8. Run static and business-rule tests.
-9. Run browser and device smoke tests.
-10. Update `SPRINT_STATUS.md`, `docs/PROJECT_MEMORY.md`, `CHANGELOG.md`, and `MODULE_MAP.md`.
-11. Merge into `develop` only after all gates pass.
+2. Read `CODEX_CONTEXT.md`.
+3. Read `REPOSITORY_RULES.md`.
+4. Read `SPRINT_STATUS.md`.
+5. Read `MODULE_MAP.md`.
+6. Read the current cutover plan and parity matrix.
+7. Compare legacy and V2 behavior before editing.
+8. Implement only on a feature branch.
+9. Add regression and compatibility tests for every runtime change.
+10. Run browser, responsive, physical-device, data-compatibility, and clean-tree gates.
+11. Update project memory, changelog, module map, status, parity matrix, and rollback plan.
+12. Merge into `develop` only after the Sprint gate passes.
+13. Merge or deploy to `main` only with explicit production-cutover approval.
 
 ---
 
