@@ -1,20 +1,12 @@
 /**
- * Firebase Configuration
- * Replace with your Firebase project information.
+ * MilkSchoolSystem V2
+ * Firebase Realtime Database runtime configuration.
+ *
+ * Keep credentials and school-specific values outside application modules.
+ * databaseURL may be overridden at runtime through ConfigManager.
  */
-
-window.firebaseConfig = {
-
-    apiKey: "",
-
-    authDomain: "",
-
-    projectId: "",
-
-    storageBucket: "",
-
-    messagingSenderId: "",
-
-    appId: ""
-
-};
+window.firebaseConfig = Object.freeze({
+    databaseURL: "",
+    authToken: "",
+    requestTimeoutMs: 15000
+});
