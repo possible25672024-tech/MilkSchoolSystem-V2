@@ -57,28 +57,12 @@ class TeacherRepository extends BaseRepository {
         return this.get(this.path("updatedAt"));
     }
 
-    async loadTeacherSnapshot(roomId) {
-        const [
-            settings,
-            rooms,
-            roomStock,
-            distributes,
-            attendance,
-            absentMilk,
-            retroMilk,
-            vacationMilk,
-            stockTransactions,
-            updatedAt
-        ] = await Promise.all([
+    async loadTeacherCoreSnapshot(roomId) {
+        const [settings, rooms, roomStock, attendance, updatedAt] = await Promise.all([
             this.loadSettings(),
             this.loadRooms(),
             this.loadRoomStock(roomId),
-            this.loadDistributions(),
             this.loadAttendanceForRoom(roomId),
-            this.loadAbsentMilk(),
-            this.loadRetroMilk(),
-            this.loadVacationMilk(),
-            this.loadStockTransactions(),
             this.loadUpdatedAt()
         ]);
 
@@ -86,13 +70,51 @@ class TeacherRepository extends BaseRepository {
             settings: settings || {},
             rooms: rooms || [],
             roomStock,
-            distributes: distributes || [],
             attendance: attendance || {},
+            updatedAt: updatedAt || {},
+            extrasLoaded: false
+        };
+    }
+
+    async loadTeacherExtraSnapshot() {
+        const [distributes, absentMilk, retroMilk, vacationMilk, stockTransactions] = await Promise.all([
+            this.loadDistributions(),
+            this.loadAbsentMilk(),
+            this.loadRetroMilk(),
+            this.loadVacationMilk(),
+            this.loadStockTransactions()
+        ]);
+
+        return {
+            distributes: distributes || [],
             absentMilk: absentMilk || {},
             retroMilk: retroMilk || {},
             vacationMilk: vacationMilk || {},
             stockTransactions: stockTransactions || [],
-            updatedAt: updatedAt || {}
+            extrasLoaded: true
+        };
+    }
+
+    async loadTeacherSnapshot(roomId, options = {}) {
+        const includeExtras = options?.includeExtras !== false;
+        const core = await this.loadTeacherCoreSnapshot(roomId);
+
+        if (!includeExtras) {
+            return {
+                ...core,
+                distributes: [],
+                absentMilk: {},
+                retroMilk: {},
+                vacationMilk: {},
+                stockTransactions: []
+            };
+        }
+
+        const extras = await this.loadTeacherExtraSnapshot();
+        return {
+            ...core,
+            ...extras,
+            extrasLoaded: true
         };
     }
 }
