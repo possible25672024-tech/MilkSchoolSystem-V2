@@ -91,6 +91,36 @@ class QueueStorage {
             };
         }
 
+        if (type === "attendanceAudit") {
+            const ledger = entry.ledger && typeof entry.ledger === "object"
+                ? { ...entry.ledger }
+                : null;
+            const stockLog = entry.stockLog && typeof entry.stockLog === "object"
+                ? { ...entry.stockLog }
+                : null;
+            const roomId = String(
+                entry.roomId || ledger?.roomId || stockLog?.roomId || ""
+            ).trim();
+
+            if (!roomId || (!ledger?.id && !stockLog?.id)) {
+                return null;
+            }
+
+            return {
+                type,
+                key,
+                roomId,
+                ledger,
+                stockLog,
+                referenceId: String(
+                    entry.referenceId || ledger?.referenceId || ""
+                ).trim(),
+                queuedAt,
+                attempts,
+                nextRetryAt: this.timestamp(entry.nextRetryAt, 0)
+            };
+        }
+
         return null;
     }
 
@@ -168,7 +198,9 @@ class QueueStorage {
     snapshot() {
         return this.load().map(entry => ({
             ...entry,
-            record: entry.record ? { ...entry.record } : undefined
+            record: entry.record ? { ...entry.record } : undefined,
+            ledger: entry.ledger ? { ...entry.ledger } : undefined,
+            stockLog: entry.stockLog ? { ...entry.stockLog } : undefined
         }));
     }
 
