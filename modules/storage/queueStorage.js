@@ -137,8 +137,8 @@ class QueueStorage {
             queue.push(normalized);
         }
 
-        this.save(queue);
-        return this.get(normalized.key);
+        const saved = this.save(queue);
+        return saved.find(item => item.key === normalized.key) || null;
     }
 
     get(key) {
