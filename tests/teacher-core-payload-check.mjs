@@ -8,9 +8,45 @@ const currentFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(currentFile), "..");
 const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf8");
 
+const loginServiceCode = read("modules/services/loginService.js");
 const baseRepositoryCode = read("modules/repositories/baseRepository.js");
 const repositoryCode = read("modules/repositories/teacherRepository.js");
 const managerCode = read("modules/teacher/teacherManager.js");
+
+const loginContext = {
+    window: { LoginRepository: null },
+    Date,
+    String,
+    Number,
+    Object,
+    Array,
+    Error,
+    console
+};
+vm.runInNewContext(loginServiceCode, loginContext);
+const LoginService = loginContext.window.LoginService.constructor;
+const loginService = new LoginService({
+    async loadLoginContext() {
+        return {
+            settings: {
+                school: "โรงเรียนทดสอบ",
+                teacherPassword: "1234"
+            },
+            rooms: [
+                {
+                    id: "r1",
+                    name: "อ.3-1",
+                    teacher: "ครูหนึ่ง",
+                    students: [{ id: "s1", name: "นักเรียนหนึ่ง" }]
+                }
+            ]
+        };
+    }
+});
+const loginResult = await loginService.login("r1", "1234");
+assert.equal(loginResult.ok, true, "Teacher login fixture must succeed");
+assert.equal(loginResult.session.roomSnapshot.id, "r1", "Teacher session must carry the authenticated room snapshot");
+assert.equal(loginResult.session.roomSnapshot.students.length, 1, "Teacher room snapshot must preserve students");
 
 const calls = [];
 const firebase = {
@@ -48,21 +84,26 @@ vm.runInNewContext(baseRepositoryCode, repositoryContext);
 vm.runInNewContext(repositoryCode, repositoryContext);
 const TeacherRepository = repositoryContext.window.TeacherRepository.constructor;
 const repository = new TeacherRepository(firebase);
+const roomSnapshot = {
+    id: "r1",
+    name: "อ.3-1",
+    teacher: "ครูหนึ่ง",
+    students: [{ id: "s1", name: "นักเรียนหนึ่ง" }]
+};
 
 const snapshot = await repository.loadTeacherSnapshot("r1", {
     includeExtras: false,
-    attendanceDate: "2026-07-27"
+    attendanceDate: "2026-07-27",
+    roomSnapshot
 });
 
-assert.equal(calls.length, 5, "Date-scoped Teacher core refresh must remain five requests");
-
-const roomCall = calls.find(call => call.path.endsWith("/rooms"));
-assert.ok(roomCall, "Teacher core refresh must load the authenticated room");
-assert.deepEqual(
-    roomCall.query,
-    { orderBy: "id", equalTo: "r1" },
-    "Teacher core refresh must query one room instead of downloading the full rooms payload"
+assert.equal(calls.length, 4, "Session-backed Teacher core refresh must use four Firebase requests");
+assert.equal(
+    calls.some(call => call.path.endsWith("/rooms")),
+    false,
+    "Session-backed Teacher core refresh must not download or query the rooms collection"
 );
+assert.equal(snapshot.roomSource, "session", "Teacher core snapshot must report the session room source");
 
 const attendanceCall = calls.find(call => call.path.includes("/mcAttendance/"));
 assert.ok(attendanceCall, "Teacher core refresh must load an attendance summary");
@@ -98,7 +139,8 @@ const managerContext = {
                         extrasLoaded: options.includeExtras,
                         attendanceScope: options.attendanceDate
                             ? { mode: "date-summary", date: options.attendanceDate }
-                            : { mode: "room-history", date: null }
+                            : { mode: "room-history", date: null },
+                        roomSource: options.roomSnapshot ? "session" : "firebase-fallback"
                     },
                     dashboard: { roomId: session.roomId }
                 };
@@ -107,7 +149,12 @@ const managerContext = {
             prepareRollbackCommand: () => ({ mainStockDelta: 0 })
         },
         AuthService: {
-            getSession: () => ({ roomId: "r1", classId: "r1", role: "teacher" })
+            getSession: () => ({
+                roomId: "r1",
+                classId: "r1",
+                role: "teacher",
+                roomSnapshot
+            })
         },
         addEventListener: () => {},
         dispatchEvent: () => {}
@@ -141,7 +188,9 @@ assert.equal(
     "2026-07-27",
     "Normal refresh must default to today's attendance summary"
 );
+assert.equal(managerOptions[0].roomSnapshot.id, "r1", "Normal refresh must reuse the authenticated room snapshot");
 assert.equal(managerOptions[1].includeExtras, true, "Full refresh must request deferred data");
+assert.equal(managerOptions[1].roomSnapshot.id, "r1", "Full refresh must preserve the authenticated room snapshot");
 assert.equal(
     Object.hasOwn(managerOptions[1], "attendanceDate"),
     false,
