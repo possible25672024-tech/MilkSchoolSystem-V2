@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.7-attendance
+feature/sprint-3.8-offline-sync
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 3.7 — Attendance Module Migration
+Sprint 3.8 — Offline Queue and Sync Migration
 
 Status
 
-100% — implementation, architecture checks, attendance stock-difference tests, regression tests, Admin and Teacher browser smoke tests, Logout, console validation, and working-tree validation passed
+10% — Sprint plan, queue entry contracts, baseline-preservation rules, retry policy, room-scope safety, and merge gates initialized; legacy sync workflow inspection and implementation pending
 
 ---
 
@@ -42,131 +42,103 @@ Completed Foundation
 
 ✓ Sprint 3.6 Teacher Module merged into `develop`
 
-✓ Login, Firebase, Stock, Report, Room, and Teacher rules protected
+✓ Sprint 3.7 Attendance Module merged into `develop` after Login, Stock, Report, Room, Teacher, Attendance, Browser, Logout, Console, and clean-tree gates passed
+
+✓ Login, Firebase, Stock, Report, Room, Teacher, and Attendance rules protected
 
 ---
 
-Sprint 3.7 Completed
+Sprint 3.8 Initialized
 
 ✓ Branch created from latest `develop`
 
-✓ Sprint plan created: `docs/SPRINT_3_7_PLAN.md`
+✓ Sprint plan created: `docs/SPRINT_3_8_PLAN.md`
 
-✓ Legacy attendance save, edit, Room Stock difference, ledger, deletion, rollback, media, signature, and offline queue workflows inspected
+✓ Attendance and Room Stock adjustment queue entry contracts recorded
 
-✓ `AttendanceRepository` added
+✓ Persistent queue survival requirement recorded
 
-✓ Attendance key format preserved as `{roomId}_{YYYY-MM-DD}`
+✓ Corrupt-entry filtering requirement recorded
 
-✓ Room attendance reads use the `{roomId}_` through `{roomId}_\uf8ff` Firebase key-prefix query
+✓ Duplicate attendance replacement rule recorded
 
-✓ Attendance record and Room Stock mutation-state reads implemented
+✓ Original `baselinePresent` preservation rule recorded
 
-✓ Firebase multi-location attendance mutation boundary implemented under `milkApp`
+✓ Authenticated-room-only replay rule recorded
 
-✓ `AttendanceService` added
+✓ Sequential replay requirement recorded
 
-✓ Teacher session and authenticated-room validation reused from `TeacherService`
+✓ Exponential backoff schedule recorded
 
-✓ Admin and cross-room attendance operations rejected
+✓ Reconnect and periodic flush requirements recorded
 
-✓ Legacy-compatible attendance record fields preserved
+✓ Main Stock isolation requirement recorded
 
-✓ New attendance consumes Room Stock by the present count
-
-✓ Attendance edits adjust Room Stock by the present-count difference only
-
-✓ Attendance deletion restores the deleted record's present count
-
-✓ Compatible `ATTENDANCE` and `ROLLBACK` ledger records implemented
-
-✓ Compatible `stockLog` records implemented
-
-✓ Negative Room Stock remains visible and is not clamped
-
-✓ Every attendance result reports `mainStockDelta: 0`
-
-✓ No attendance update contains the Main Stock `stock` path
-
-✓ `AttendanceManager` load, save, delete, cache, and event boundary implemented
-
-✓ Attendance modules loaded by `index-v2.html` in dependency order
-
-✓ Automated test file added: `tests/attendance-module-check.mjs`
-
-✓ Attendance migration gap documentation added
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ `node tests/room-module-check.mjs` passed
-
-✓ `node tests/teacher-module-check.mjs` passed
-
-✓ `node tests/attendance-module-check.mjs` passed
-
-✓ Admin Login browser smoke test passed
-
-✓ Teacher Login browser smoke test passed
-
-✓ Logout browser smoke test passed
-
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
-
-✓ Working tree confirmed clean
-
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Repository/Storage → Service → Manager responsibilities defined
 
 ---
 
-Merge Gate
+Pending
 
-PASSED
+□ Inspect legacy queue storage, replacement, retry, reconnect, periodic flush, Room Stock adjustment, and badge workflows
 
-The branch may be fast-forward merged into `develop`.
+□ Create `QueueStorage`
+
+□ Create `SyncService`
+
+□ Create `SyncManager`
+
+□ Add Sync module dependency wiring to `index-v2.html`
+
+□ Add `tests/sync-module-check.mjs`
+
+□ Add `docs/SYNC_MIGRATION_GAP_REPORT.md`
+
+□ Run Login regression tests
+
+□ Run Stock regression tests
+
+□ Run Report regression tests
+
+□ Run Room regression tests
+
+□ Run Teacher regression tests
+
+□ Run Attendance regression tests
+
+□ Run Sync tests
+
+□ Run Browser smoke test
+
+□ Confirm working tree clean
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
 Known Migration Gaps
 
-The operational attendance form, media capture, signatures, printing, ETag Room Stock write, and persistent offline queue remain in `teacher.html` during this extraction.
+The operational attendance form, media capture, signatures, printing, ETag Room Stock protection, and current offline queue remain in `teacher.html` while the modular sync boundary is extracted.
 
-The modular multi-location PATCH is atomic for its included paths, but it does not yet include the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
-
-Persistent offline queue, retry, reconnect flush, baseline preservation, queued-edit replacement, and conflict handling move to Sprint 3.8.
+The modular Attendance multi-location PATCH does not yet include the legacy ETag compare-and-retry Room Stock protection for simultaneous writers.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
 ---
 
-Next Sprint
-
-Sprint 3.8 — Offline Queue and Sync Migration
-
-Target modules:
-
-- `modules/storage/queueStorage.js`
-- `modules/services/syncService.js`
-- `modules/sync/syncManager.js`
-- `tests/sync-module-check.mjs`
-- `docs/SYNC_MIGRATION_GAP_REPORT.md`
-
----
-
 Protected Business Rules
 
-- Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
-- Only the authenticated room may be read or written.
-- New attendance reduces Room Stock by the number of present students.
-- Attendance edits adjust Room Stock by the present-count difference only.
-- Attendance deletion restores the previously consumed Room Stock.
-- Offline retries must preserve the original attendance baseline.
-- Repeated queued edits for the same room and date must keep only the latest record while preserving the original baseline.
+- Queue entries survive refresh and browser restart.
+- Corrupt entries are filtered individually without deleting valid entries.
+- Repeated queued attendance edits keep the latest record while preserving the original baseline.
+- Attendance replay uses AttendanceService Room Stock difference rules.
+- Room Stock adjustment retry does not rewrite attendance unnecessarily.
+- Queue replay is sequential.
+- Only the authenticated room may be replayed.
+- Failed entries remain queued.
+- Successful entries are removed individually.
+- Retry timing uses bounded exponential backoff.
 - Main Stock must remain unchanged.
-- Ledger records remain compatible.
+- Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
 - Negative Room Stock is not silently clamped.
-- Existing Room IDs and Room Stock links remain stable.
 - Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
