@@ -8,6 +8,7 @@ class SyncService {
         this.queueStorage = queueStorage;
         this.attendanceService = attendanceService;
         this.teacherService = teacherService;
+        this.attendanceRepository = options.attendanceRepository || window.AttendanceRepository;
         this.clock = options.clock || (() => Date.now());
         this.backoffSteps = options.backoffSteps || [5000, 10000, 20000, 40000, 60000];
     }
@@ -34,6 +35,18 @@ class SyncService {
         }
 
         return this.attendanceService;
+    }
+
+    ensureAttendanceRepository() {
+        if (!this.attendanceRepository) {
+            this.attendanceRepository = window.AttendanceRepository;
+        }
+
+        if (!this.attendanceRepository?.appendAttendanceAudit) {
+            throw new Error("AttendanceRepository is not available for audit recovery.");
+        }
+
+        return this.attendanceRepository;
     }
 
     ensureTeacherService() {
@@ -109,6 +122,44 @@ class SyncService {
         });
     }
 
+    queueAttendanceAudit(session, input = {}) {
+        const ledger = input.ledger && typeof input.ledger === "object"
+            ? { ...input.ledger }
+            : null;
+        const stockLog = input.stockLog && typeof input.stockLog === "object"
+            ? { ...input.stockLog }
+            : null;
+        const roomId = String(
+            input.roomId || ledger?.roomId || stockLog?.roomId || ""
+        ).trim();
+        this.assertRoomAccess(session, roomId);
+
+        if (!ledger?.id && !stockLog?.id) {
+            throw new Error("A valid attendance audit payload is required.");
+        }
+
+        const referenceId = String(
+            input.referenceId || ledger?.referenceId || ""
+        ).trim();
+        const auditId = String(ledger?.id || stockLog?.id || referenceId).trim();
+        const key = String(input.key || `audit_${auditId}`).trim();
+        if (!key) {
+            throw new Error("An audit queue key is required.");
+        }
+
+        return this.ensureQueueStorage().upsert({
+            type: "attendanceAudit",
+            key,
+            roomId,
+            ledger,
+            stockLog,
+            referenceId,
+            queuedAt: this.timestamp(input.queuedAt),
+            attempts: this.nonNegativeInteger(input.attempts),
+            nextRetryAt: this.timestamp(input.nextRetryAt, 0)
+        });
+    }
+
     async replayEntry(session, entry) {
         this.assertRoomAccess(session, entry.roomId);
         const attendanceService = this.ensureAttendanceService();
@@ -129,6 +180,21 @@ class SyncService {
                 roomName: entry.roomName,
                 date: entry.date
             });
+        }
+
+        if (entry.type === "attendanceAudit") {
+            await this.ensureAttendanceRepository().appendAttendanceAudit(
+                entry.ledger,
+                entry.stockLog
+            );
+            return {
+                roomId: entry.roomId,
+                referenceId: entry.referenceId,
+                ledger: entry.ledger,
+                stockLog: entry.stockLog,
+                audit: { ok: true, attempts: 1, error: null },
+                mainStockDelta: 0
+            };
         }
 
         throw new Error(`Unsupported queue entry type: ${entry.type}`);
@@ -156,6 +222,38 @@ class SyncService {
         return converted;
     }
 
+    convertResultToAuditEntry(session, entry, value, attempts) {
+        const storage = this.ensureQueueStorage();
+        const ledger = value?.ledger || null;
+        const stockLog = value?.stockLog || null;
+        const roomId = String(
+            value?.roomId || ledger?.roomId || stockLog?.roomId || entry.roomId || ""
+        ).trim();
+        const referenceId = String(
+            value?.referenceId || ledger?.referenceId || entry.referenceId || entry.key || ""
+        ).trim();
+        const auditId = String(ledger?.id || stockLog?.id || referenceId).trim();
+        const converted = {
+            type: "attendanceAudit",
+            key: `audit_${auditId}`,
+            roomId,
+            ledger,
+            stockLog,
+            referenceId,
+            queuedAt: entry.queuedAt,
+            attempts,
+            nextRetryAt: this.clock() + this.backoffForAttempts(attempts)
+        };
+        const next = storage.snapshot().filter(item => item.key !== entry.key);
+        next.push(converted);
+        storage.replace(next);
+        return converted;
+    }
+
+    hasPendingAudit(value) {
+        return value?.audit?.ok === false && Boolean(value?.ledger?.id || value?.stockLog?.id);
+    }
+
     async flush(session) {
         this.ensureTeacherService().assertRoomAccess(session);
         const storage = this.ensureQueueStorage();
@@ -166,6 +264,30 @@ class SyncService {
         for (const entry of entries) {
             try {
                 const value = await this.replayEntry(session, entry);
+
+                if (this.hasPendingAudit(value)) {
+                    const attempts = this.nonNegativeInteger(entry.attempts) + 1;
+                    maxFailedAttempts = Math.max(maxFailedAttempts, attempts);
+                    const converted = this.convertResultToAuditEntry(
+                        session,
+                        entry,
+                        value,
+                        attempts
+                    );
+                    results.push({
+                        key: entry.key,
+                        type: entry.type,
+                        status: "deferred",
+                        attempts,
+                        convertedTo: converted,
+                        error: value.audit.error || {
+                            code: "ATTENDANCE_AUDIT_WRITE_FAILED",
+                            message: "Attendance audit write failed."
+                        }
+                    });
+                    continue;
+                }
+
                 storage.remove(entry.key);
                 results.push({
                     key: entry.key,
