@@ -36,9 +36,10 @@ class RoomService {
                 : [];
 
         const requestedCount = input.count !== undefined ? Number(input.count) : Number(existing.count);
-        const count = hasStudents
+        const hasValidRequestedCount = Number.isInteger(requestedCount) && requestedCount >= 0;
+        const count = hasStudents && students.length > 0
             ? students.length
-            : Number.isInteger(requestedCount) && requestedCount >= 0
+            : hasValidRequestedCount
                 ? requestedCount
                 : students.length;
 
