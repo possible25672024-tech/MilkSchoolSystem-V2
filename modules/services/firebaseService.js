@@ -8,8 +8,10 @@ class FirebaseService {
     initialize(config = window.ConfigManager?.getFirebaseConfig?.() || {}) {
         this.databaseURL = String(
             config.databaseURL || window.ConfigManager?.getDatabaseURL?.() || ""
-        ).replace(/\/+$/, "");
-        this.authToken = String(config.authToken || "");
+        ).trim().replace(/\/+$/, "");
+        this.authToken = String(
+            config.authToken || window.ConfigManager?.getAuthToken?.() || ""
+        ).trim();
         this.requestTimeoutMs = Number(config.requestTimeoutMs) || 15000;
 
         if (!this.databaseURL) {
@@ -17,6 +19,10 @@ class FirebaseService {
         }
 
         return this;
+    }
+
+    isConfigured() {
+        return Boolean(this.databaseURL || window.ConfigManager?.getDatabaseURL?.());
     }
 
     buildURL(path = "") {
@@ -38,6 +44,7 @@ class FirebaseService {
 
         try {
             const response = await fetch(this.buildURL(path), {
+                cache: "no-store",
                 ...options,
                 headers: {
                     "Content-Type": "application/json",
@@ -55,7 +62,14 @@ class FirebaseService {
                 return null;
             }
 
-            return await response.json();
+            const text = await response.text();
+            return text ? JSON.parse(text) : null;
+        } catch (error) {
+            if (error?.name === "AbortError") {
+                throw new Error(`Firebase request timed out after ${this.requestTimeoutMs} ms.`);
+            }
+
+            throw error;
         } finally {
             clearTimeout(timeoutId);
         }
