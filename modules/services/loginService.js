@@ -19,6 +19,21 @@ class LoginService {
         return this.repository;
     }
 
+    cloneRoom(room = {}) {
+        const students = Array.isArray(room.students)
+            ? room.students.map(student => ({ ...(student || {}) }))
+            : room.students && typeof room.students === "object"
+                ? Object.fromEntries(
+                    Object.entries(room.students).map(([key, student]) => [key, { ...(student || {}) }])
+                )
+                : room.students;
+
+        return {
+            ...room,
+            students
+        };
+    }
+
     normalizeRooms(rawRooms) {
         const entries = Array.isArray(rawRooms)
             ? rawRooms.map((room, index) => [room?.id || String(index), room])
@@ -37,7 +52,7 @@ class LoginService {
     cloneLoginOptions(options = {}) {
         return {
             settings: { ...(options.settings || {}) },
-            rooms: (options.rooms || []).map(room => ({ ...room }))
+            rooms: (options.rooms || []).map(room => this.cloneRoom(room))
         };
     }
 
@@ -103,6 +118,7 @@ class LoginService {
             role: "teacher",
             isAdmin: false,
             adminOverride,
+            roomSnapshot: this.cloneRoom(room),
             authenticatedAt: new Date().toISOString()
         };
     }
