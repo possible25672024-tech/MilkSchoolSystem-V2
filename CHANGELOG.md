@@ -2,6 +2,45 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-27 — Sprint 3.6 Teacher Module
+
+### Added
+
+- `modules/services/teacherService.js`
+- `modules/teacher/teacherManager.js`
+- `tests/teacher-module-check.mjs`
+- `docs/SPRINT_3_6_PLAN.md`
+- `docs/TEACHER_MIGRATION_GAP_REPORT.md`
+
+### Changed
+
+- Expanded `modules/repositories/teacherRepository.js` into a room-scoped, read-only teacher Firebase boundary.
+- Added JSON-encoded Realtime Database query-parameter support to `FirebaseService`.
+- Added scoped query reads to `BaseRepository`.
+- Added authenticated-room-only Room Stock, attendance, distributions, pending, retroactive, vacation, ledger, and update reads.
+- Added the `mcAttendance` `{roomId}_` prefix query to avoid downloading all-school attendance.
+- Added Teacher session validation, Admin-session rejection, and cross-room access rejection.
+- Added teacher dashboard calculations and Room Stock-only command preparation.
+- Loaded Teacher modules in dependency order from `index-v2.html`.
+
+### Validation
+
+- Login foundation checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module checks passed.
+- Teacher module architecture and workflow checks passed.
+- Teacher browser smoke test passed.
+- Browser console clean.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Known Gaps
+
+- Operational forms, media capture, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`.
+- Attendance write migration is scheduled for Sprint 3.7.
+- Persistent offline queue and retry behavior remain unchanged until Sprint 3.8.
+
 ## 2026-07-27 — Sprint 3.5 Room Module
 
 ### Added
