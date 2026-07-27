@@ -19,19 +19,13 @@ UI
 
 → Service
 
-→ Repository
+→ Repository / Storage Adapter
 
-→ FirebaseService
-
-→ Firebase Realtime Database
+→ FirebaseService or persistent browser storage
 
 ## Module Status
 
 ### Authentication — Completed
-
-Legacy source:
-
-- `index.html`
 
 V2 modules:
 
@@ -42,11 +36,6 @@ V2 modules:
 
 ### Firebase Foundation — Completed
 
-Legacy sources:
-
-- `index.html`
-- `teacher.html`
-
 V2 modules:
 
 - `modules/services/firebaseService.js`
@@ -55,11 +44,6 @@ V2 modules:
 
 ### Stock — Completed
 
-Legacy sources:
-
-- `index.html`
-- teacher stock workflows in `teacher.html`
-
 V2 modules:
 
 - `modules/stock/stockManager.js`
@@ -67,10 +51,6 @@ V2 modules:
 - `modules/repositories/stockRepository.js`
 
 ### Report — Completed, Adapter Gap Recorded
-
-Legacy source:
-
-- `index.html`
 
 V2 modules:
 
@@ -84,10 +64,6 @@ Remaining gap:
 
 ### Room — Completed, Parser and Concurrency Gaps Recorded
 
-Legacy source:
-
-- `index.html`
-
 V2 modules:
 
 - `modules/room/roomManager.js`
@@ -100,10 +76,6 @@ Remaining gaps:
 - multi-admin optimistic concurrency for complete room collection writes
 
 ### Teacher — Completed, Operational UI Gaps Recorded
-
-Legacy source:
-
-- `teacher.html`
 
 V2 modules:
 
@@ -119,14 +91,9 @@ Completed boundary:
 
 Remaining gaps:
 
-- forms, media, signatures, and print views
-- offline queue moves to Sprint 3.8
+- forms, media, signatures, and print views remain in `teacher.html`
 
-### Attendance — Completed, ETag and Offline Gaps Recorded
-
-Legacy source:
-
-- `teacher.html`
+### Attendance — Completed, ETag Gap Recorded
 
 V2 modules:
 
@@ -144,48 +111,57 @@ Completed boundary:
 - safe deletion rollback
 - no Main Stock change
 - Firebase multi-location mutation boundary
+- Room Stock-only adjustment replay entry point
 
-Remaining gaps:
+Remaining gap:
 
 - legacy ETag compare-and-retry Room Stock protection
-- persistent offline queue and retry orchestration
-- attendance form, media, signatures, and print UI remain in `teacher.html`
 
-### Sync and Offline Queue — Current Sprint 3.8
+### Sync and Offline Queue — Completed, Cutover Gap Recorded
 
-Legacy source:
-
-- `teacher.html`
-
-Target modules:
+V2 modules:
 
 - `modules/storage/queueStorage.js`
 - `modules/services/syncService.js`
 - `modules/sync/syncManager.js`
 
-Required boundary:
+Completed boundary:
 
-- persistent queue survives refresh and restart
-- corrupt entries are filtered individually
-- duplicate attendance keys replace the queued record with the latest data
-- original `baselinePresent` remains stable across repeated offline edits
-- attendance and Room Stock adjustment entries remain separate
-- sequential replay avoids overlapping Room Stock mutations
+- compatible `tc_pending_saves_v1` persistence
+- legacy `rec` and `diff` alias normalization
+- corrupt-entry filtering
+- duplicate queued attendance replacement
+- original baseline and queue timestamp preservation
+- separate Room Stock adjustment replay
+- sequential replay
 - bounded exponential backoff
-- reconnect and periodic flush
-- successful entries removed individually
-- failed entries retained for retry
+- startup, reconnect, retry, and periodic flush
+- successful-entry individual removal
+- failed-entry retention
 - authenticated-room-only replay
+- overlapping flush prevention
+- queue and sync lifecycle events
 - no Main Stock change
 
-### Performance — Planned Sprint 3.9
+Remaining gaps:
+
+- production compatibility validation for queues created by legacy `teacher.html`
+- operational queue badge and offline banner remain in `teacher.html`
+- ETag compare-and-retry Room Stock protection remains legacy-only
+
+### Performance — Current Sprint 3.9
 
 Targets:
 
-- scoped reads
-- payload reduction
-- query and caching audit
-- browser and mobile performance validation
+- Firebase request-count audit
+- payload-size audit
+- scoped-read verification
+- lazy-loading and cache invalidation audit
+- unnecessary read reduction
+- desktop, mobile, and iPad validation
+- repeatable performance checks
+- legacy and V2 queue compatibility fixtures
+- documented results without invented benchmark values
 
 ### Legacy Removal — Planned Sprint 4
 
@@ -233,8 +209,8 @@ Rebuild
 - Sprint 3.5 — Room — Completed
 - Sprint 3.6 — Teacher — Completed
 - Sprint 3.7 — Attendance — Completed
-- Sprint 3.8 — Offline Queue — Current
-- Sprint 3.9 — Performance — Planned
+- Sprint 3.8 — Offline Queue — Completed
+- Sprint 3.9 — Performance — Current
 - Sprint 4 — Legacy Removal — Planned
 
 ## AI Instructions
