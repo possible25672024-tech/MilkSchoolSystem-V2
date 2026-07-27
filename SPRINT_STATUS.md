@@ -26,7 +26,7 @@ Sprint 3.7 — Attendance Module Migration
 
 Status
 
-70% — Repository, Service, Manager, room-scoped reads, stock-difference rules, atomic multi-location boundary, automated tests, dependency wiring, and migration documentation implemented; local validation pending
+100% — implementation, architecture checks, attendance stock-difference tests, regression tests, Admin and Teacher browser smoke tests, Logout, console validation, and working-tree validation passed
 
 ---
 
@@ -60,7 +60,7 @@ Sprint 3.7 Completed
 
 ✓ Room attendance reads use the `{roomId}_` through `{roomId}_\uf8ff` Firebase key-prefix query
 
-✓ Attendance record and Room Stock mutation state reads implemented
+✓ Attendance record and Room Stock mutation-state reads implemented
 
 ✓ Firebase multi-location attendance mutation boundary implemented under `milkApp`
 
@@ -96,39 +96,37 @@ Sprint 3.7 Completed
 
 ✓ Attendance migration gap documentation added
 
+✓ `node tests/login-foundation-check.mjs` passed
+
+✓ `node tests/stock-module-check.mjs` passed
+
+✓ `node tests/report-module-check.mjs` passed
+
+✓ `node tests/room-module-check.mjs` passed
+
+✓ `node tests/teacher-module-check.mjs` passed
+
+✓ `node tests/attendance-module-check.mjs` passed
+
+✓ Admin Login browser smoke test passed
+
+✓ Teacher Login browser smoke test passed
+
+✓ Logout browser smoke test passed
+
+✓ Browser console contains only `MilkSchoolSystem V2 Started`
+
+✓ Working tree confirmed clean
+
 ✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending Before Merge
+Merge Gate
 
-□ Pull `feature/sprint-3.7-attendance` to the local workspace
+PASSED
 
-□ Run `node tests/login-foundation-check.mjs`
-
-□ Run `node tests/stock-module-check.mjs`
-
-□ Run `node tests/report-module-check.mjs`
-
-□ Run `node tests/room-module-check.mjs`
-
-□ Run `node tests/teacher-module-check.mjs`
-
-□ Run `node tests/attendance-module-check.mjs`
-
-□ Open `index-v2.html` through Live Server
-
-□ Confirm Admin and Teacher login remain operational
-
-□ Confirm Logout remains operational
-
-□ Confirm Browser Console contains no attendance-module error
-
-□ Confirm working tree is clean
-
-□ Update Project Memory, Changelog, AI Context, and Module Map after validation
-
-□ Merge into `develop` only after all gates pass
+The branch may be fast-forward merged into `develop`.
 
 ---
 
@@ -138,9 +136,23 @@ The operational attendance form, media capture, signatures, printing, ETag Room 
 
 The modular multi-location PATCH is atomic for its included paths, but it does not yet include the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
 
-Persistent offline queue, retry, reconnect flush, baseline preservation, queued-edit replacement, and conflict handling remain scheduled for Sprint 3.8.
+Persistent offline queue, retry, reconnect flush, baseline preservation, queued-edit replacement, and conflict handling move to Sprint 3.8.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
+
+---
+
+Next Sprint
+
+Sprint 3.8 — Offline Queue and Sync Migration
+
+Target modules:
+
+- `modules/storage/queueStorage.js`
+- `modules/services/syncService.js`
+- `modules/sync/syncManager.js`
+- `tests/sync-module-check.mjs`
+- `docs/SYNC_MIGRATION_GAP_REPORT.md`
 
 ---
 
@@ -151,9 +163,10 @@ Protected Business Rules
 - New attendance reduces Room Stock by the number of present students.
 - Attendance edits adjust Room Stock by the present-count difference only.
 - Attendance deletion restores the previously consumed Room Stock.
+- Offline retries must preserve the original attendance baseline.
+- Repeated queued edits for the same room and date must keep only the latest record while preserving the original baseline.
 - Main Stock must remain unchanged.
 - Ledger records remain compatible.
 - Negative Room Stock is not silently clamped.
 - Existing Room IDs and Room Stock links remain stable.
-- Offline queue behavior remains unchanged until Sprint 3.8.
 - Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
