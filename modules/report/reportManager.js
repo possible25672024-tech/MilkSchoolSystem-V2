@@ -22,10 +22,17 @@ class ReportManager {
         this.view = this.ensureService().normalizeView(view);
 
         if (this.currentReport) {
-            this.currentReport = this.service.buildReport(
-                this.currentReport.sourceSnapshot || {},
-                this.view
-            );
+            const rows = this.view === "grade"
+                ? this.currentReport.gradeSummary
+                : this.view === "school"
+                    ? [this.currentReport.schoolTotal]
+                    : this.currentReport.roomSummary;
+
+            this.currentReport = {
+                ...this.currentReport,
+                view: this.view,
+                rows
+            };
         }
 
         this.emit("milkapp:report-view-change", {
