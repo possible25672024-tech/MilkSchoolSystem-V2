@@ -26,7 +26,7 @@ Sprint 3.5 — Room Module Migration
 
 Status
 
-70% — Repository, Service, Manager, dependency wiring, automated tests, and migration documentation implemented; local validation pending
+100% — implementation, architecture checks, room workflow tests, regression tests, browser smoke test, and working-tree validation passed
 
 ---
 
@@ -36,7 +36,7 @@ Completed Foundation
 
 ✓ Sprint 3.4.3 Stock Module merged into `develop` at `f56e430`
 
-✓ Sprint 3.4.4 Report Module merged into `develop` after all automated and browser gates passed
+✓ Sprint 3.4.4 Report Module merged into `develop`
 
 ✓ Login, Firebase, Stock, and read-only Report rules protected
 
@@ -66,13 +66,13 @@ Sprint 3.5 Completed
 
 ✓ Duplicate room ID and room name validation implemented
 
-✓ Imported student field preservation implemented
+✓ Imported student fields are preserved
 
 ✓ Duplicate-student detection implemented
 
 ✓ Student import preview and confirmation boundary implemented
 
-✓ Existing grade and teacher metadata preserved when import data omits those fields
+✓ Existing grade and teacher metadata are preserved when import data omits those fields
 
 ✓ Room deletion dependency report implemented
 
@@ -88,33 +88,29 @@ Sprint 3.5 Completed
 
 ✓ Room migration gap documentation added
 
+✓ `node tests/login-foundation-check.mjs` passed
+
+✓ `node tests/stock-module-check.mjs` passed
+
+✓ `node tests/report-module-check.mjs` passed
+
+✓ `node tests/room-module-check.mjs` passed
+
+✓ Admin browser smoke test passed
+
+✓ Browser console contains only `MilkSchoolSystem V2 Started`
+
+✓ Working tree confirmed clean
+
 ✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending Before Merge
+Merge Gate
 
-□ Pull `feature/sprint-3.5-room` to the local workspace
+PASSED
 
-□ Run `node tests/login-foundation-check.mjs`
-
-□ Run `node tests/stock-module-check.mjs`
-
-□ Run `node tests/report-module-check.mjs`
-
-□ Run `node tests/room-module-check.mjs`
-
-□ Open `index-v2.html` through Live Server
-
-□ Confirm Admin and Teacher login remain operational
-
-□ Confirm Browser Console contains no room-module error
-
-□ Confirm working tree is clean
-
-□ Update Project Memory, Changelog, AI Context, and Module Map after validation
-
-□ Merge into `develop` only after all gates pass
+The branch may be fast-forward merged into `develop`.
 
 ---
 
@@ -125,6 +121,20 @@ The Smart Excel binary parser remains in the legacy file. The modular Room servi
 The compatible Room workflow writes the complete `milkApp/rooms` collection and does not yet include multi-admin optimistic concurrency control.
 
 The known Report local-data adapter gap remains until browser-local pending, retroactive, and vacation records are connected to the modular report.
+
+---
+
+Next Sprint
+
+Sprint 3.6 — Teacher Module Migration
+
+Target modules:
+
+- `modules/repositories/teacherRepository.js`
+- `modules/services/teacherService.js`
+- `modules/teacher/teacherManager.js`
+- teacher session and room-scoped loading boundaries
+- teacher tests and migration documentation
 
 ---
 
