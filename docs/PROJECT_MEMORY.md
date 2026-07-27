@@ -2,9 +2,9 @@
 
 ## Project Memory
 
-Version: 2.4
+Version: 2.5
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 ## Project Goal
 
@@ -128,7 +128,7 @@ Merged into `develop` at `648fa6d`.
 - compatible ledger records
 - stock static and business-rule tests
 
-Merged into `develop` at `f56e430` after all validation gates passed.
+Merged into `develop` at `f56e430`.
 
 ### Sprint 3.4.4 Report Module
 
@@ -142,7 +142,7 @@ Merged into `develop` at `f56e430` after all validation gates passed.
 
 Known gap:
 
-The operational legacy report also uses browser-local pending, retroactive, and vacation collections. A Storage/Sync adapter is still required before V2 replaces the operational report.
+The operational legacy report also uses browser-local pending, retroactive, and vacation collections. An adapter is still required before V2 replaces the operational report.
 
 ### Sprint 3.5 Room Module
 
@@ -165,101 +165,104 @@ Known gaps:
 
 - room-scoped Teacher Repository, Service, and Manager boundaries
 - Firebase query-parameter support
-- `mcAttendance` key-prefix query for one room only
-- authenticated-room-only teacher data
+- authenticated-room-only Teacher data
 - Admin-session and cross-room rejection
 - room and student normalization
-- teacher dashboard totals
+- Teacher dashboard totals
 - Room Stock-only command preparation
 - Teacher architecture and workflow tests
 
 ### Sprint 3.7 Attendance Module
 
-- `modules/repositories/attendanceRepository.js`
-- `modules/services/attendanceService.js`
-- `modules/attendance/attendanceManager.js`
-- room-scoped attendance reads using `{roomId}_` key-prefix queries
+- Attendance Repository, Service, and Manager boundaries
 - legacy-compatible attendance key `{roomId}_{YYYY-MM-DD}`
-- present and absent status validation
+- present and absent validation
 - attendance create and edit workflows
 - Room Stock adjustment by present-count difference
 - attendance deletion and Room Stock rollback
-- compatible `ATTENDANCE` and `ROLLBACK` ledger records
-- compatible `stockLog` records
+- compatible ledger and stockLog records
 - Firebase multi-location mutation boundary
 - Attendance architecture and business-rule tests
 
 ### Sprint 3.8 Offline Queue and Sync Module
 
-- `modules/storage/queueStorage.js`
-- `modules/services/syncService.js`
-- `modules/sync/syncManager.js`
-- persistent `tc_pending_saves_v1` queue compatibility
+- QueueStorage, SyncService, and SyncManager
+- persistent `tc_pending_saves_v1` compatibility
 - legacy `rec` and `diff` alias normalization
-- individual corrupt-entry filtering
+- corrupt-entry filtering
 - duplicate attendance replacement with original baseline preservation
-- original queue timestamp preservation
-- failed-entry retry metadata
 - Room Stock adjustment replay without rewriting attendance
-- authenticated-room-only replay
-- sequential replay
-- successful-entry individual removal
-- failed-entry retention and attempt increment
+- authenticated-room-only sequential replay
+- successful-entry removal and failed-entry retention
 - bounded 5s, 10s, 20s, 40s, and 60s backoff
 - startup, reconnect, retry, and periodic flush orchestration
 - overlapping flush prevention
-- sync lifecycle and queue-count events
-- Sync architecture and workflow tests
-
-Validation completed:
-
-- Login foundation tests passed
-- Stock tests passed
-- Report tests passed
-- Room tests passed
-- Teacher tests passed
-- Attendance tests passed
-- Sync tests passed
-- Admin browser smoke test passed
-- Teacher browser smoke test passed
-- Logout passed
-- Browser console clean
-- Working tree clean
-- Legacy files unchanged
+- sync lifecycle events
 
 Known gaps:
 
 - Operational queue badge, offline banner, media, signatures, and print UI remain in `teacher.html`.
-- Production cutover still requires compatibility validation between legacy-written queues and V2 normalization.
 - Modular Attendance and Sync still lack legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
 
-## Next Sprint
+### Sprint 3.9 Performance and Payload Optimization
 
-Sprint 3.9 — Performance and Payload Optimization
+- identical in-flight Firebase GET deduplication
+- GET preflight removal by omitting JSON Content-Type on body-less reads
+- five-minute cloned Login context cache
+- immediate Login reuse of settings and rooms
+- Teacher session `roomSnapshot`
+- Teacher core refresh reuse of authenticated room data
+- default Teacher attendance read reduced to `mcAttendance/{roomId}_{today}/data`
+- deferred Teacher collections excluded from normal refresh
+- explicit `refreshFull()` retained for history and deferred data
+- QueueStorage upsert read reduction
+- legacy and V2 queue compatibility fixtures
+- Firebase header, performance, and Teacher core payload tests
+
+Desktop browser measurement on the actual 83-room dataset:
+
+- before final core optimization: approximately 20.5 MB across 5 requests
+- after final core optimization: approximately 1.6 KB across 4 requests
+- no rooms request
+- no room-history attendance request
+- no GET preflight
+- no HTTP error
+
+All regression, performance, browser, Login, Logout, console, and clean-tree gates passed.
+
+Device note:
+
+Responsive mobile and physical iPad validation were not demonstrated during Sprint 3.9 and remain required before production cutover.
+
+## Current Phase
+
+Sprint 4.0 — Cutover Readiness and Compatibility
 
 Planned boundaries:
 
-- measure and document login request count and payload size
-- verify all attendance reads are scoped to one room
-- audit lazy loading and cache invalidation
-- reduce unnecessary Firebase reads without changing schema
-- validate desktop, mobile, and iPad behavior
-- add repeatable performance checks without inventing unsupported timings
-- validate legacy and V2 queue compatibility using representative fixtures
+- legacy-to-V2 parity matrix
+- physical iPad and responsive mobile validation
+- queue compatibility against legacy-produced data
+- ETag Room Stock concurrency design and implementation gate
+- Report browser-local adapter readiness
+- XLSX import parser migration decision
+- operational Teacher UI integration plan
+- rollback, backup, deployment, and production cutover checklist
 
 Protected requirements:
 
 - Main Stock and Room Stock rules remain unchanged
 - Firebase paths remain compatible
-- Admin and Teacher login remain operational
+- Admin and Teacher Login remain operational
 - queue entries and original baselines remain persistent
-- legacy `index.html` and `teacher.html` remain read-only during Sprint 3.x extraction
+- attendance keys remain compatible
+- legacy files remain available until explicit cutover approval
 
 ## Development Rules
 
 - Never commit directly to `main`.
 - Use `develop` for integration.
 - Use `feature/*` branches for Sprint work.
-- Do not modify `index.html` or `teacher.html` during Sprint 3.x migration unless explicitly approved.
-- Do not change verified business logic while extracting modules.
-- Run all available regression, module, browser, and clean-tree checks before merging.
+- Do not remove or rewrite legacy files before parity, rollback, device, and data-compatibility gates pass.
+- Do not change verified business logic while integrating the modular system.
+- Run all available regression, module, browser, device, data-compatibility, and clean-tree checks before production cutover.
