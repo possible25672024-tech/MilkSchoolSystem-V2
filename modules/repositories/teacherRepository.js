@@ -16,18 +16,6 @@ class TeacherRepository extends BaseRepository {
         return this.get(this.path("rooms"));
     }
 
-    loadRoomById(roomId) {
-        const normalizedRoomId = String(roomId || "").trim();
-        if (!normalizedRoomId) {
-            return Promise.resolve({});
-        }
-
-        return this.get(this.path("rooms"), {
-            orderBy: "id",
-            equalTo: normalizedRoomId
-        });
-    }
-
     loadRoomStock(roomId) {
         return this.get(this.path(`roomStock/${String(roomId || "")}`));
     }
@@ -98,10 +86,16 @@ class TeacherRepository extends BaseRepository {
         const attendancePromise = attendanceDate
             ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
             : this.loadAttendanceForRoom(roomId);
+        const roomSnapshot = options?.roomSnapshot && typeof options.roomSnapshot === "object"
+            ? options.roomSnapshot
+            : null;
+        const roomsPromise = roomSnapshot
+            ? Promise.resolve([roomSnapshot])
+            : this.loadRooms();
 
         const [settings, rooms, roomStock, attendance, updatedAt] = await Promise.all([
             this.loadSettings(),
-            this.loadRoomById(roomId),
+            roomsPromise,
             this.loadRoomStock(roomId),
             attendancePromise,
             this.loadUpdatedAt()
@@ -116,6 +110,7 @@ class TeacherRepository extends BaseRepository {
             attendanceScope: attendanceDate
                 ? { mode: "date-summary", date: attendanceDate }
                 : { mode: "room-history", date: null },
+            roomSource: roomSnapshot ? "session" : "firebase-fallback",
             extrasLoaded: false
         };
     }
