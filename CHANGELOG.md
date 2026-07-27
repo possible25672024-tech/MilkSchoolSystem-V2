@@ -2,6 +2,45 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-27 — Sprint 3.5 Room Module
+
+### Added
+
+- `modules/services/roomService.js`
+- `modules/room/roomManager.js`
+- `tests/room-module-check.mjs`
+- `docs/SPRINT_3_5_PLAN.md`
+- `docs/ROOM_MIGRATION_GAP_REPORT.md`
+
+### Changed
+
+- Expanded `modules/repositories/roomRepository.js` into the room Firebase boundary.
+- Added room reads, complete room collection writes, and dependency reads for deletion safety.
+- Added array- and object-shaped room normalization.
+- Added manual room creation and metadata update workflows.
+- Made existing Room IDs immutable during edits.
+- Preserved Room Stock during edits and repeated imports.
+- Added duplicate room ID, duplicate room name, and duplicate student validation.
+- Added student import preparation while preserving imported fields and existing metadata.
+- Added deletion dependency reports and blocking for operational references.
+- Loaded Room modules in dependency order from `index-v2.html`.
+
+### Validation
+
+- Login foundation static checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module architecture and workflow checks passed.
+- Admin browser smoke test passed.
+- Browser console clean.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Known Gaps
+
+- XLSX binary parsing remains in the legacy file; RoomService accepts already parsed sheet data.
+- Complete `milkApp/rooms` writes do not yet include multi-admin optimistic concurrency control.
+
 ## 2026-07-27 — Sprint 3.4.4 Report Module
 
 ### Added
