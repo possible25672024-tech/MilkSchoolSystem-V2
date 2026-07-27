@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.9-performance
+feature/sprint-4.0-cutover-readiness
 
 ---
 
@@ -22,19 +22,19 @@ V2
 
 Current Sprint
 
-Sprint 3.9 — Performance and Payload Optimization
+Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-100% — request and payload optimizations, compatibility fixtures, automated regression tests, desktop browser measurement, Admin/Teacher login, Logout, Network validation, console validation, and clean-tree validation passed
+10% — cutover plan, initial parity matrix, protected legacy rollback rule, device gates, data compatibility gates, concurrency gate, and production approval boundaries initialized
 
 ---
 
 Completed Foundation
 
-✓ Sprint 3.4.2 Recovery merged into `develop` at `648fa6d`
+✓ Sprint 3.4.2 Recovery merged into `develop`
 
-✓ Sprint 3.4.3 Stock Module merged into `develop` at `f56e430`
+✓ Sprint 3.4.3 Stock Module merged into `develop`
 
 ✓ Sprint 3.4.4 Report Module merged into `develop`
 
@@ -46,188 +46,107 @@ Completed Foundation
 
 ✓ Sprint 3.8 Offline Queue and Sync Module merged into `develop`
 
-✓ Login, Firebase, Stock, Report, Room, Teacher, Attendance, and Sync rules protected
+✓ Sprint 3.9 Performance and Payload Optimization merged into `develop`
+
+✓ Desktop Teacher core refresh measured at approximately 1.6 KB across 4 requests on the recorded 83-room dataset
+
+✓ Login, Firebase, Stock, Report, Room, Teacher, Attendance, Sync, and Performance regression gates passed
 
 ---
 
-Sprint 3.9 Completed
+Sprint 4.0 Initialized
 
-✓ Sprint plan created: `docs/SPRINT_3_9_PLAN.md`
+✓ Branch created from latest `develop`
 
-✓ No-invented-benchmark rule followed
+✓ Sprint plan created: `docs/SPRINT_4_0_PLAN.md`
 
-✓ Identical in-flight Firebase GET deduplication implemented
+✓ Initial parity matrix created: `docs/CUTOVER_PARITY_MATRIX.md`
 
-✓ Completed GETs are removed from the in-flight map
+✓ Legacy `index.html` and `teacher.html` retained as rollback paths
 
-✓ Body-less Firebase GETs no longer send `Content-Type: application/json`
+✓ Production deployment separated from `develop` integration
 
-✓ Unnecessary GET CORS preflight requests removed
+✓ Physical iPad and responsive mobile validation gates recorded
 
-✓ Login settings and rooms normalized context cache implemented
+✓ Legacy/V2 queue compatibility gate recorded
 
-✓ Immediate credential validation reuses the loaded login context
+✓ ETag Room Stock concurrency gate recorded
 
-✓ Manual room reload bypasses the Login cache
+✓ Report local-data adapter decision recorded
 
-✓ Login cache returns cloned data
+✓ XLSX parser migration decision recorded
 
-✓ Authenticated Teacher session carries the selected room snapshot
+✓ Operational Teacher UI parity areas recorded
 
-✓ Teacher core refresh reuses the session room snapshot
-
-✓ Teacher core refresh no longer downloads or queries the complete rooms collection
-
-✓ Default Teacher refresh reads only today's attendance `/data` child
-
-✓ Explicit `refreshFull()` retains room-history and deferred-data behavior
-
-✓ Teacher deferred collections remain excluded from normal refresh
-
-✓ Queue upsert persistent-storage reads reduced from two to one
-
-✓ Legacy `rec` and `diff` queue fixtures added
-
-✓ V2 `record` and `difference` queue fixtures added
-
-✓ Mixed valid and corrupt queue fixture added
-
-✓ Repeated queued edit baseline and timestamp preservation verified
-
-✓ `tests/performance-module-check.mjs` added
-
-✓ `tests/firebase-request-header-check.mjs` added
-
-✓ `tests/teacher-core-payload-check.mjs` added
-
-✓ Performance audit report added and updated with actual browser measurements
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ `node tests/room-module-check.mjs` passed
-
-✓ `node tests/teacher-module-check.mjs` passed
-
-✓ `node tests/attendance-module-check.mjs` passed
-
-✓ `node tests/sync-module-check.mjs` passed
-
-✓ `node tests/firebase-request-header-check.mjs` passed
-
-✓ `node tests/performance-module-check.mjs` passed
-
-✓ `node tests/teacher-core-payload-check.mjs` passed
-
-✓ Admin login passed
-
-✓ Teacher login passed
-
-✓ Logout passed
-
-✓ Browser console clean after test-generated errors were cleared
-
-✓ Working tree clean
-
-✓ Legacy `index.html` and `teacher.html` unchanged
+✓ Backup and rollback planning required before cutover
 
 ---
 
-Measured Desktop Result
+Current Blockers to Production Cutover
 
-Environment:
-
-- Chrome desktop on Windows
-- Live Server at `127.0.0.1:5500`
-- actual school dataset with 83 rooms
-- DevTools Network filtered to Fetch/XHR
-
-Before final Teacher core optimization:
-
-- 5 requests
-- approximately 20.5 MB transferred
-- room-scoped attendance history request approximately 19,924 KB
-- complete rooms request approximately 589 KB
-
-After final Teacher core optimization:
-
-- 4 requests
-- approximately 1.6 KB transferred
-- `settings.json`: approximately 0.6 KB
-- `roomStock/{roomId}.json`: approximately 0.3 KB
-- `mcAttendance/{roomId}_{date}/data.json`: approximately 0.3 KB
-- `updatedAt.json`: approximately 0.3 KB
-- observed individual request times: approximately 134–144 ms
-- no rooms request
-- no room-history attendance request
-- no deferred Teacher collection request
-- no GET preflight
-- no HTTP error
-
-These are observed browser results for the recorded environment, not universal production benchmarks.
+- physical iPad evidence not yet recorded
+- responsive mobile evidence not yet recorded
+- V2 ETag compare-and-retry Room Stock protection unresolved
+- operational Teacher forms, photos, signatures, printing, queue badge, and offline banner not integrated
+- Report browser-local adapter unresolved
+- XLSX binary parser remains legacy
+- complete-room multi-admin concurrency unresolved
+- production backup and rollback rehearsal not documented
 
 ---
 
-Merge Gate
+Pending Sprint 4.0 Work
 
-PASSED
+□ Inspect every parity-matrix row against legacy and V2 implementations
 
-The branch may be fast-forward merged into `develop`.
+□ Add legacy-produced queue fixtures from representative data
+
+□ Run queue normalization and replay compatibility tests
+
+□ Design and test ETag Room Stock concurrency behavior or retain explicit production block
+
+□ Decide and implement or defer Report local-data adapter
+
+□ Decide and implement or defer XLSX parser migration
+
+□ Create operational Teacher UI integration plan
+
+□ Create `docs/CUTOVER_READINESS_REPORT.md`
+
+□ Create `docs/PRODUCTION_ROLLBACK_PLAN.md`
+
+□ Run responsive mobile validation
+
+□ Run physical iPad validation when available
+
+□ Run full automated regression suite after every runtime change
+
+□ Confirm browser console clean
+
+□ Confirm working tree clean
+
+□ Merge Sprint 4.0 into `develop` only after its readiness gate passes
+
+□ Deploy or merge to `main` only after explicit production approval
 
 ---
 
-Deferred Device Gate
+Cutover Rule
 
-Responsive mobile and physical iPad validation were not demonstrated in this Sprint closeout. They remain required before production cutover and move to Sprint 4.0 Cutover Readiness.
-
----
-
-Known Migration Gaps
-
-The operational attendance form, media capture, signatures, printing, queue badge, and offline banner remain in `teacher.html`.
-
-The modular Attendance and Sync multi-location PATCH still lacks the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
-
-Production cutover still requires compatibility validation between queues written by legacy `teacher.html` and queues normalized by V2.
-
-Teacher sessions created before Sprint 3.9 do not contain `roomSnapshot`; the repository safely falls back to a complete rooms read until the user logs out and logs in again.
-
-Deferred Teacher collections remain full-path reads when explicitly requested.
-
-The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
-
----
-
-Next Sprint
-
-Sprint 4.0 — Cutover Readiness and Compatibility
-
-Target areas:
-
-- legacy-to-V2 functional parity matrix
-- physical iPad and responsive mobile validation
-- legacy/V2 queue compatibility tests
-- ETag Room Stock concurrency design and implementation gate
-- Report local-data adapter readiness
-- XLSX import parser migration decision
-- operational forms, media, signatures, printing, queue badge, and offline banner integration plan
-- rollback and production cutover checklist
+Legacy removal and production cutover are BLOCKED while any safety-critical parity row remains BLOCKED.
 
 ---
 
 Protected Business Rules
 
-- Performance work must not change Firebase schema.
-- Performance work must not change Main Stock or Room Stock calculations.
-- Teacher normal refresh reads only the authenticated room and today's attendance summary.
-- Full history loads only through explicit full-refresh paths.
-- Queue entries survive refresh and browser restart.
-- Repeated queued edits preserve the original baseline.
-- Main Stock must remain unchanged by Teacher, Attendance, and Sync operations.
-- Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
+- Main Stock decreases only on classroom distribution.
+- Classroom distribution increases Room Stock.
+- Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations change Room Stock only.
+- Attendance edits change Room Stock by the difference only.
+- Attendance deletion restores previously consumed Room Stock.
+- Offline retries preserve the original baseline.
 - Reports remain read-only.
+- Firebase paths and attendance keys remain compatible unless an approved migration includes rollback.
+- Room IDs remain stable.
 - Negative Room Stock is not silently clamped.
-- Legacy `index.html` and `teacher.html` remain protected until cutover gates pass.
+- Legacy files remain available until explicit cutover approval.
