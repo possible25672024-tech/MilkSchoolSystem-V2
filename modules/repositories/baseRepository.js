@@ -1,43 +1,39 @@
 class BaseRepository {
-
-    getDB() {
-
-        return firebase.database();
-
+    constructor(firebaseService = window.FirebaseService) {
+        this.firebaseService = firebaseService;
     }
 
-    ref(path) {
+    ensureService() {
+        if (!this.firebaseService) {
+            this.firebaseService = window.FirebaseService;
+        }
 
-        return this.getDB().ref(path);
+        if (!this.firebaseService) {
+            throw new Error("FirebaseService is not available.");
+        }
 
+        return this.firebaseService;
     }
 
-    async get(path) {
-
-        const snapshot = await this.ref(path).once("value");
-
-        return snapshot.val();
-
+    get(path) {
+        return this.ensureService().get(path);
     }
 
-    async set(path,data){
-
-        await this.ref(path).set(data);
-
+    set(path, data) {
+        return this.ensureService().set(path, data);
     }
 
-    async update(path,data){
-
-        await this.ref(path).update(data);
-
+    update(path, data) {
+        return this.ensureService().update(path, data);
     }
 
-    async remove(path){
-
-        await this.ref(path).remove();
-
+    remove(path) {
+        return this.ensureService().remove(path);
     }
 
+    push(path, data) {
+        return this.ensureService().push(path, data);
+    }
 }
 
 window.BaseRepository = BaseRepository;
