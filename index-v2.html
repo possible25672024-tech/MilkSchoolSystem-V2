@@ -1,63 +1,164 @@
 <!DOCTYPE html>
-
 <html lang="th">
-
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MilkSchoolSystem V2</title>
+    <style>
+        :root {
+            font-family: "Sarabun", system-ui, sans-serif;
+            color: #1f2937;
+            background: #eef3f8;
+        }
 
-<meta charset="utf-8">
+        * {
+            box-sizing: border-box;
+        }
 
-<title>MilkSchoolSystem V2</title>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
 
+        main {
+            width: min(460px, 100%);
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 18px 50px rgba(15, 46, 68, 0.14);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            color: #1a5276;
+            font-size: 1.55rem;
+        }
+
+        .subtitle,
+        .status {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        label {
+            display: block;
+            margin: 18px 0 6px;
+            font-weight: 600;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            min-height: 44px;
+            border-radius: 9px;
+            font: inherit;
+        }
+
+        select,
+        input {
+            border: 1px solid #cbd5e1;
+            padding: 9px 12px;
+            background: #ffffff;
+        }
+
+        button {
+            margin-top: 20px;
+            border: 0;
+            padding: 10px 16px;
+            color: #ffffff;
+            background: #1a5276;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .secondary {
+            background: #475569;
+        }
+
+        .error {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .status {
+            min-height: 22px;
+            margin-top: 12px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+
+    <script defer src="config/app-config.js"></script>
+    <script defer src="config/firebase-config.js"></script>
+    <script defer src="modules/config/configManager.js"></script>
+
+    <script defer src="modules/services/firebaseService.js"></script>
+    <script defer src="modules/repositories/baseRepository.js"></script>
+    <script defer src="modules/services/storageService.js"></script>
+
+    <script defer src="modules/repositories/loginRepository.js"></script>
+    <script defer src="modules/services/loginService.js"></script>
+    <script defer src="modules/login/authService.js"></script>
+    <script defer src="modules/login/loginManager.js"></script>
+
+    <script defer src="modules/core/app.js"></script>
+    <script defer src="modules/core/bootstrap.js"></script>
 </head>
-
 <body>
+    <main>
+        <p id="bootstrap-error" class="error" hidden></p>
 
-<h2>MilkSchoolSystem V2 Login</h2>
+        <section id="login-panel" class="panel">
+            <h1>MilkSchoolSystem V2</h1>
+            <p class="subtitle">เข้าสู่ระบบผู้ดูแลหรือครูประจำชั้น</p>
 
-<input
-id="username"
-placeholder="Username">
+            <form id="login-form" novalidate>
+                <label for="login-class-select">ห้องเรียน / บทบาท</label>
+                <select id="login-class-select" required>
+                    <option value="">-- เลือกห้องเรียน / บทบาท --</option>
+                    <option value="__admin__">👑 ผู้ดูแลระบบ</option>
+                </select>
 
-<br><br>
+                <label for="login-password">รหัสผ่าน</label>
+                <input
+                    id="login-password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="กรอกรหัสผ่าน"
+                    required
+                >
 
-<input
-id="password"
-type="password"
-placeholder="Password">
+                <button id="login-submit" type="submit">เข้าสู่ระบบ</button>
+                <button id="reload-login-options" class="secondary" type="button">โหลดห้องเรียนใหม่</button>
 
-<br><br>
+                <p id="login-status" class="status" aria-live="polite"></p>
+                <p id="login-error" class="error" role="alert" hidden></p>
+            </form>
+        </section>
 
-<button
-onclick="LoginManager.login()">
-
-Login
-
-</button>
-
-<!-- CONFIG -->
-
-<script src="config/app-config.js"></script>
-
-<script src="config/firebase-config.js"></script>
-
-<!-- REPOSITORY -->
-
-<script src="modules/repositories/loginRepository.js"></script>
-
-<!-- SERVICE -->
-
-<script src="modules/services/loginService.js"></script>
-
-<script src="modules/login/authService.js"></script>
-
-<script src="modules/login/loginManager.js"></script>
-
-<!-- CORE -->
-
-<script src="modules/core/app.js"></script>
-
-<script src="modules/core/bootstrap.js"></script>
-
+        <section id="app-panel" class="panel" hidden>
+            <h1>เข้าสู่ระบบสำเร็จ</h1>
+            <p id="current-user"></p>
+            <p class="subtitle">Sprint 3.4.2 Foundation พร้อมสำหรับเชื่อมโมดูลถัดไป</p>
+            <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+        </section>
+    </main>
 </body>
-
 </html>
