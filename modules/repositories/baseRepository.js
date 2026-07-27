@@ -15,8 +15,8 @@ class BaseRepository {
         return this.firebaseService;
     }
 
-    get(path) {
-        return this.ensureService().get(path);
+    get(path, query = {}) {
+        return this.ensureService().get(path, query);
     }
 
     set(path, data) {
