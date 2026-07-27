@@ -165,7 +165,9 @@ assert.equal(schoolReport.rows.length, 1, "School view must expose one total row
 const roomExport = service.buildExportModel(roomReport);
 assert.equal(roomExport.sheetName, "รายงานการจ่ายนม", "Excel sheet name must remain compatible");
 assert.equal(roomExport.rows.length, 4, "Room export must contain four rows");
-assert.equal(roomExport.rows[0]["ห้องเรียน"], "อ2-8แม่โขะ", "Room export must retain the room name");
+const exportedRoomNames = new Set(roomExport.rows.map(row => row["ห้องเรียน"]));
+assert.equal(exportedRoomNames.size, 4, "Room export must retain every configured room exactly once");
+assert.ok(exportedRoomNames.has("อ2-8แม่โขะ"), "Room export must retain the original room name regardless of locale sort order");
 
 const repositorySnapshot = structuredClone(snapshot);
 const generatedService = new ReportService({
