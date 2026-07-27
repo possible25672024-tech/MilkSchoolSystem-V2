@@ -2,322 +2,226 @@
 
 # Module Migration Map
 
----
+Last updated: 2026-07-27
 
-Legacy Files
+## Protected Legacy Files
 
-index.html
+- `index.html`
+- `teacher.html`
 
-teacher.html
+These files remain operational during Sprint 3.x extraction and are not modified unless explicitly approved.
 
-↓
-
-Migration
-
-↓
-
-Modules
-
----
-
-Authentication
-
-index.html
-
-↓
-
-modules/login/
-
-loginManager.js
-
-authService.js
-
-loginService.js
-
-loginRepository.js
-
----
-
-Firebase
-
-index.html
-
-teacher.html
-
-↓
-
-modules/core/
-
-firebase.js
-
-↓
-
-modules/services/
-
-firebaseService.js
-
-↓
-
-modules/repositories/
-
-baseRepository.js
-
----
-
-Stock
-
-index.html
-
-↓
-
-modules/stock/
-
-stockManager.js
-
-stockService.js
-
-stockRepository.js
-
----
-
-Teacher
-
-teacher.html
-
-↓
-
-modules/teacher/
-
-teacherManager.js
-
-teacherService.js
-
-teacherRepository.js
-
----
-
-Room
-
-index.html
-
-↓
-
-modules/room/
-
-roomManager.js
-
-roomService.js
-
-roomRepository.js
-
----
-
-Report
-
-index.html
-
-↓
-
-modules/report/
-
-reportManager.js
-
-reportService.js
-
-reportRepository.js
-
----
-
-Attendance
-
-teacher.html
-
-↓
-
-modules/attendance/
-
-attendanceManager.js
-
-attendanceService.js
-
-attendanceRepository.js
-
----
-
-Sync
-
-teacher.html
-
-↓
-
-modules/sync/
-
-syncManager.js
-
-syncService.js
-
----
-
-Utilities
-
-modules/utils/
-
-dateUtils.js
-
-numberUtils.js
-
-storageUtils.js
-
-validationUtils.js
-
----
-
-Configuration
-
-config/
-
-app.config.js
-
-firebase.config.js
-
-theme.config.js
-
-school.config.js
-
----
-
-Target Architecture
+## Target Architecture
 
 UI
 
-↓
+→ Manager
 
-Manager
+→ Service
 
-↓
+→ Repository
 
-Service
+→ FirebaseService
 
-↓
+→ Firebase Realtime Database
 
-Repository
+## Module Status
 
-↓
+### Authentication — Completed
 
-Firebase
+Legacy source:
 
-↓
+- `index.html`
 
-Realtime Database
+V2 modules:
 
----
+- `modules/login/loginManager.js`
+- `modules/login/authService.js`
+- `modules/services/loginService.js`
+- `modules/repositories/loginRepository.js`
 
-Business Rules
+### Firebase Foundation — Completed
+
+Legacy sources:
+
+- `index.html`
+- `teacher.html`
+
+V2 modules:
+
+- `modules/services/firebaseService.js`
+- `modules/repositories/baseRepository.js`
+- `modules/config/configManager.js`
+
+### Stock — Completed
+
+Legacy source:
+
+- `index.html`
+- teacher stock workflows in `teacher.html`
+
+V2 modules:
+
+- `modules/stock/stockManager.js`
+- `modules/services/stockService.js`
+- `modules/repositories/stockRepository.js`
+
+### Report — Completed, Adapter Gap Recorded
+
+Legacy source:
+
+- `index.html`
+
+V2 modules:
+
+- `modules/report/reportManager.js`
+- `modules/services/reportService.js`
+- `modules/repositories/reportRepository.js`
+
+Remaining gap:
+
+- browser-local pending, retroactive, and vacation adapter
+
+### Room — Completed, Parser and Concurrency Gaps Recorded
+
+Legacy source:
+
+- `index.html`
+
+V2 modules:
+
+- `modules/room/roomManager.js`
+- `modules/services/roomService.js`
+- `modules/repositories/roomRepository.js`
+
+Remaining gaps:
+
+- XLSX binary parser
+- multi-admin optimistic concurrency for complete room collection writes
+
+### Teacher — Completed, Operational Write Gaps Recorded
+
+Legacy source:
+
+- `teacher.html`
+
+V2 modules:
+
+- `modules/teacher/teacherManager.js`
+- `modules/services/teacherService.js`
+- `modules/repositories/teacherRepository.js`
+
+Completed boundary:
+
+- authenticated-room-only reads
+- room-scoped attendance query
+- Teacher dashboard and Room Stock-only command preparation
+
+Remaining gaps:
+
+- forms, media, signatures, and print views
+- attendance writes and atomic Room Stock writes move to Sprint 3.7
+- offline queue moves to Sprint 3.8
+
+### Attendance — Current Sprint 3.7
+
+Legacy source:
+
+- `teacher.html`
+
+Target modules:
+
+- `modules/attendance/attendanceManager.js`
+- `modules/services/attendanceService.js`
+- `modules/repositories/attendanceRepository.js`
+
+Required boundary:
+
+- key format `{roomId}_{YYYY-MM-DD}`
+- authenticated-room-only read and write
+- present/absent validation
+- Room Stock difference adjustment on edits
+- compatible ledger writes
+- safe deletion rollback
+- no Main Stock change
+
+### Sync and Offline Queue — Planned Sprint 3.8
+
+Legacy source:
+
+- `teacher.html`
+
+Target modules:
+
+- `modules/sync/syncManager.js`
+- `modules/services/syncService.js`
+- storage and queue adapter modules
+
+### Performance — Planned Sprint 3.9
+
+Targets:
+
+- scoped reads
+- payload reduction
+- query and caching audit
+- browser and mobile performance validation
+
+### Legacy Removal — Planned Sprint 4
+
+Only after all modular workflows replace the operational legacy behavior and migration gates pass.
+
+## Business Rules
 
 Main Stock
 
-↓
+→ decreases only on classroom distribution
 
-Distribute
+Classroom distribution
 
-↓
+→ increases Room Stock
 
-Room Stock
+Teacher and Attendance operations
 
-↓
+→ reduce Room Stock only
 
-Teacher
+Attendance edit
 
-↓
+→ adjusts Room Stock by the difference between previous and new present totals
 
-Attendance
+Rollback
 
-Drink
+→ restores the stock layer changed by the original operation
 
-Pending
+Reports
 
-Retroactive
+→ read-only
 
-Vacation
+Rebuild
 
----
+→ transaction history is the source of truth
 
-Migration Order
+## Migration Order
 
-Sprint 3.4.2
+- Sprint 3.4.2 — Firebase, Login, Repository Foundation — Completed
+- Sprint 3.4.3 — Stock — Completed
+- Sprint 3.4.4 — Report — Completed
+- Sprint 3.5 — Room — Completed
+- Sprint 3.6 — Teacher — Completed
+- Sprint 3.7 — Attendance — Current
+- Sprint 3.8 — Offline Queue — Planned
+- Sprint 3.9 — Performance — Planned
+- Sprint 4 — Legacy Removal — Planned
 
-Firebase
-
-Login
-
-Repository
-
-↓
-
-Sprint 3.4.3
-
-Stock
-
-↓
-
-Sprint 3.4.4
-
-Report
-
-↓
-
-Sprint 3.5
-
-Room
-
-↓
-
-Sprint 3.6
-
-Teacher
-
-↓
-
-Sprint 3.7
-
-Attendance
-
-↓
-
-Sprint 3.8
-
-Offline Queue
-
-↓
-
-Sprint 3.9
-
-Performance
-
-↓
-
-Sprint 4
-
-Legacy Removal
-
----
-
-AI Instructions
+## AI Instructions
 
 Always read:
 
-AGENTS.md
+- `AGENTS.md`
+- `CODEX_CONTEXT.md`
+- `REPOSITORY_RULES.md`
+- `SPRINT_STATUS.md`
+- `MODULE_MAP.md`
 
-CODEX_CONTEXT.md
+before editing source code.
 
-REPOSITORY_RULES.md
-
-SPRINT_STATUS.md
-
-MODULE_MAP.md
-
-before editing any source code.
-
-Never modify business logic during migration.
-
-Refactor only.
+Preserve verified business logic during migration.
