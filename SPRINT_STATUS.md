@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-10% — cutover plan, initial parity matrix, protected legacy rollback rule, device gates, data compatibility gates, concurrency gate, and production approval boundaries initialized
+55% — ETag conditional request primitives, protected Room Stock retry, attendance-first partial-save recovery, attendance-to-stock queue conversion, deterministic concurrency tests, and parity documentation implemented; local regression, real Firebase conflict validation, device gates, audit recovery, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -50,60 +50,89 @@ Completed Foundation
 
 ✓ Desktop Teacher core refresh measured at approximately 1.6 KB across 4 requests on the recorded 83-room dataset
 
-✓ Login, Firebase, Stock, Report, Room, Teacher, Attendance, Sync, and Performance regression gates passed
+✓ Login, Firebase, Stock, Report, Room, Teacher, Attendance, Sync, and Performance regression gates passed before Sprint 4.0
 
 ---
 
-Sprint 4.0 Initialized
-
-✓ Branch created from latest `develop`
+Sprint 4.0 Implemented
 
 ✓ Sprint plan created: `docs/SPRINT_4_0_PLAN.md`
 
-✓ Initial parity matrix created: `docs/CUTOVER_PARITY_MATRIX.md`
+✓ Initial parity matrix created and expanded: `docs/CUTOVER_PARITY_MATRIX.md`
 
 ✓ Legacy `index.html` and `teacher.html` retained as rollback paths
 
 ✓ Production deployment separated from `develop` integration
 
-✓ Physical iPad and responsive mobile validation gates recorded
+✓ FirebaseService ETag read primitive added using `X-Firebase-ETag: true`
 
-✓ Legacy/V2 queue compatibility gate recorded
+✓ FirebaseService conditional write primitive added using `If-Match`
 
-✓ ETag Room Stock concurrency gate recorded
+✓ HTTP 412 conflicts exposed as retryable results instead of generic failures
 
-✓ Report local-data adapter decision recorded
+✓ AttendanceRepository versioned Room Stock read boundary added
 
-✓ XLSX parser migration decision recorded
+✓ AttendanceRepository conditional Room Stock write boundary added
 
-✓ Operational Teacher UI parity areas recorded
+✓ AttendanceService ETag compare-and-retry implemented with six-attempt default
 
-✓ Backup and rollback planning required before cutover
+✓ Conflict retry recalculates against the newest Room Stock value
+
+✓ Negative Room Stock remains visible and is not silently clamped
+
+✓ Attendance save preserves the operational legacy order: attendance first, protected Room Stock second
+
+✓ Room Stock failure after attendance save produces `ROOM_STOCK_ADJUSTMENT_REQUIRED`
+
+✓ AttendanceManager converts partial saves and deletes into persistent Room Stock adjustment queue entries
+
+✓ SyncService converts partially saved attendance queue entries into stock-only retries
+
+✓ Sequential replay and original attendance baseline rules remain protected
+
+✓ Main Stock remains unchanged in every Attendance and Sync result
+
+✓ Attendance audit writes retry without repeating the successful Room Stock change
+
+✓ Existing Attendance module test updated for ETag-protected flow
+
+✓ New deterministic cutover test added: `tests/cutover-concurrency-check.mjs`
+
+✓ Parity matrix now separates concurrency, partial-save recovery, and audit-recovery status
 
 ---
 
-Current Blockers to Production Cutover
+Pending Local Validation
 
-- physical iPad evidence not yet recorded
-- responsive mobile evidence not yet recorded
-- V2 ETag compare-and-retry Room Stock protection unresolved
-- operational Teacher forms, photos, signatures, printing, queue badge, and offline banner not integrated
-- Report browser-local adapter unresolved
-- XLSX binary parser remains legacy
-- complete-room multi-admin concurrency unresolved
-- production backup and rollback rehearsal not documented
+□ Pull the latest `feature/sprint-4.0-cutover-readiness`
+
+□ Run all previous regression tests
+
+□ Run `node tests/cutover-concurrency-check.mjs`
+
+□ Confirm Attendance and Sync tests remain compatible
+
+□ Confirm browser Admin and Teacher login
+
+□ Confirm Logout
+
+□ Confirm browser console clean
+
+□ Confirm working tree clean
 
 ---
 
-Pending Sprint 4.0 Work
+Pending Cutover Work
 
-□ Inspect every parity-matrix row against legacy and V2 implementations
+□ Run a real Firebase multi-writer Room Stock conflict test
 
-□ Add legacy-produced queue fixtures from representative data
+□ Decide persistent audit-only recovery after Room Stock succeeds but ledger/log writes fail
 
-□ Run queue normalization and replay compatibility tests
+□ Inspect every remaining parity-matrix row against legacy and V2 implementations
 
-□ Design and test ETag Room Stock concurrency behavior or retain explicit production block
+□ Add representative legacy-produced queue fixtures from actual operational data
+
+□ Run queue normalization and replay compatibility tests with those fixtures
 
 □ Decide and implement or defer Report local-data adapter
 
@@ -119,15 +148,24 @@ Pending Sprint 4.0 Work
 
 □ Run physical iPad validation when available
 
-□ Run full automated regression suite after every runtime change
-
-□ Confirm browser console clean
-
-□ Confirm working tree clean
+□ Rehearse Firebase backup and isolated restore
 
 □ Merge Sprint 4.0 into `develop` only after its readiness gate passes
 
 □ Deploy or merge to `main` only after explicit production approval
+
+---
+
+Current Blockers to Production Cutover
+
+- physical iPad evidence not yet recorded
+- responsive mobile evidence not yet recorded
+- persistent audit-only recovery after successful Room Stock update is unresolved
+- operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
+- Report browser-local adapter is unresolved
+- XLSX binary parser remains legacy
+- complete-room multi-admin concurrency is unresolved
+- production backup and rollback rehearsal is not documented
 
 ---
 
@@ -144,7 +182,8 @@ Protected Business Rules
 - Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations change Room Stock only.
 - Attendance edits change Room Stock by the difference only.
 - Attendance deletion restores previously consumed Room Stock.
-- Offline retries preserve the original baseline.
+- ETag conflicts must read the latest Room Stock and recalculate before retry.
+- Offline retries preserve the original attendance baseline.
 - Reports remain read-only.
 - Firebase paths and attendance keys remain compatible unless an approved migration includes rollback.
 - Room IDs remain stable.
