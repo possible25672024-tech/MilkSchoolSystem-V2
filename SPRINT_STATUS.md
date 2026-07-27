@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.6-teacher
+feature/sprint-3.7-attendance
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 3.6 — Teacher Module Migration
+Sprint 3.7 — Attendance Module Migration
 
 Status
 
-100% — implementation, room-scoped query support, architecture checks, teacher workflow tests, regression tests, browser smoke test, and clean-tree validation passed
+10% — Sprint plan, atomic write boundary, stock-difference rules, and safety requirements initialized; legacy attendance workflow inspection and implementation pending
 
 ---
 
@@ -40,121 +40,94 @@ Completed Foundation
 
 ✓ Sprint 3.5 Room Module merged into `develop`
 
-✓ Login, Firebase, Stock, Report, and Room rules protected
+✓ Sprint 3.6 Teacher Module merged into `develop` after Login, Stock, Report, Room, Teacher, Browser, and clean-tree gates passed
+
+✓ Login, Firebase, Stock, Report, Room, and Teacher rules protected
 
 ---
 
-Sprint 3.6 Completed
+Sprint 3.7 Initialized
 
 ✓ Branch created from latest `develop`
 
-✓ Sprint plan created: `docs/SPRINT_3_6_PLAN.md`
+✓ Sprint plan created: `docs/SPRINT_3_7_PLAN.md`
 
-✓ Legacy teacher session, room loading, Room Stock, distribution, attendance, pending, retroactive, vacation, and rollback workflows inspected
+✓ Compatible attendance key format recorded
 
-✓ `FirebaseService` supports JSON-encoded Realtime Database query parameters
+✓ Authenticated-room-only read and write rule recorded
 
-✓ `BaseRepository` supports scoped read queries
+✓ New attendance Room Stock consumption rule recorded
 
-✓ `TeacherRepository` expanded into a read-only teacher Firebase boundary
+✓ Attendance edit difference rule recorded
 
-✓ Room Stock reads are scoped to the authenticated room path
+✓ Attendance deletion rollback rule recorded
 
-✓ Attendance reads use the `{roomId}_` through `{roomId}_\uf8ff` key-prefix query
+✓ Main Stock isolation requirement recorded
 
-✓ Teacher settings, rooms, distributions, pending, retroactive, vacation, ledger, and update reads implemented
+✓ Multi-location Firebase update boundary recorded
 
-✓ `TeacherService` added
+✓ Offline queue deferral to Sprint 3.8 recorded
 
-✓ Teacher session validation implemented
-
-✓ Admin sessions rejected by the Teacher service
-
-✓ Cross-room teacher access rejected
-
-✓ Room and student normalization implemented
-
-✓ Every teacher collection filtered to the authenticated room
-
-✓ Teacher dashboard calculations implemented
-
-✓ ATTENDANCE, PENDING, RETRO, and VACATION command preparation reduces only Room Stock
-
-✓ Teacher rollback command preparation restores only Room Stock
-
-✓ Every prepared Teacher command has `mainStockDelta: 0`
-
-✓ `TeacherManager` session, refresh, dashboard, command, event, and clear boundary implemented
-
-✓ Teacher modules loaded by `index-v2.html` in dependency order
-
-✓ Automated test file added: `tests/teacher-module-check.mjs`
-
-✓ Teacher migration gap documentation added
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ `node tests/room-module-check.mjs` passed
-
-✓ `node tests/teacher-module-check.mjs` passed
-
-✓ Teacher browser smoke test passed
-
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
-
-✓ Working tree confirmed clean
-
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Repository → Service → Manager responsibilities defined
 
 ---
 
-Merge Gate
+Pending
 
-PASSED
+□ Inspect legacy attendance save, edit, difference, Room Stock, ledger, deletion, rollback, media, and signature workflows
 
-The branch may be fast-forward merged into `develop`.
+□ Create `AttendanceRepository`
+
+□ Create `AttendanceService`
+
+□ Create `AttendanceManager`
+
+□ Add Attendance module dependency wiring to `index-v2.html`
+
+□ Add `tests/attendance-module-check.mjs`
+
+□ Add `docs/ATTENDANCE_MIGRATION_GAP_REPORT.md`
+
+□ Run Login regression tests
+
+□ Run Stock regression tests
+
+□ Run Report regression tests
+
+□ Run Room regression tests
+
+□ Run Teacher regression tests
+
+□ Run Attendance tests
+
+□ Run Browser smoke test
+
+□ Confirm working tree clean
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
 Known Migration Gaps
 
-The operational teacher forms, media capture, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`.
+The operational attendance form, media capture, signatures, printing, and offline queue remain in `teacher.html` during this extraction.
 
-Attendance write migration is scheduled for Sprint 3.7.
-
-The persistent offline queue and retry behavior remain untouched until Sprint 3.8.
-
-Only `mcAttendance` uses a Firebase room-prefix query in this Sprint. Smaller teacher collections are read and filtered in the Service to avoid requiring production `.indexOn` rule changes.
+Persistent offline queue, retry, reconnect flush, and queued-edit conflict handling remain scheduled for Sprint 3.8.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
 ---
 
-Next Sprint
-
-Sprint 3.7 — Attendance Module Migration
-
-Target modules:
-
-- `modules/repositories/attendanceRepository.js`
-- `modules/services/attendanceService.js`
-- `modules/attendance/attendanceManager.js`
-- attendance save and rollback tests
-- attendance migration documentation
-
----
-
 Protected Business Rules
 
-- A teacher may access only the authenticated room.
-- Teacher login must not download all-school attendance data.
-- Teacher operations must not change Main Stock.
-- Attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
-- Existing Room IDs and Room Stock links must remain stable.
+- Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
+- Only the authenticated room may be read or written.
+- New attendance reduces Room Stock by the number of present students.
+- Attendance edits adjust Room Stock by the present-count difference only.
+- Attendance deletion restores the previously consumed Room Stock.
+- Main Stock must remain unchanged.
+- Ledger records remain compatible.
+- Existing Room IDs and Room Stock links remain stable.
 - Reports are read-only.
 - Rebuild calculations use transaction history as the source of truth.
 - UI modules never call Firebase directly.
