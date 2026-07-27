@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.8-offline-sync
+feature/sprint-3.9-performance
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 3.8 — Offline Queue and Sync Migration
+Sprint 3.9 — Performance and Payload Optimization
 
 Status
 
-100% — QueueStorage, SyncService, SyncManager, Room Stock adjustment replay, regression tests, browser smoke tests, logout validation, console validation, and clean-tree validation passed
+10% — Sprint plan, measurement rules, request and payload audit targets, queue compatibility fixtures, browser validation matrix, and merge gates initialized; implementation and measurements pending
 
 ---
 
@@ -44,150 +44,105 @@ Completed Foundation
 
 ✓ Sprint 3.7 Attendance Module merged into `develop`
 
-✓ Login, Firebase, Stock, Report, Room, Teacher, and Attendance rules protected
+✓ Sprint 3.8 Offline Queue and Sync Module merged into `develop` after Login, Stock, Report, Room, Teacher, Attendance, Sync, Browser, Logout, Console, and clean-tree gates passed
+
+✓ Login, Firebase, Stock, Report, Room, Teacher, Attendance, and Sync rules protected
 
 ---
 
-Sprint 3.8 Completed
+Sprint 3.9 Initialized
 
 ✓ Branch created from latest `develop`
 
-✓ Sprint plan created: `docs/SPRINT_3_8_PLAN.md`
+✓ Sprint plan created: `docs/SPRINT_3_9_PLAN.md`
 
-✓ Legacy queue storage, replacement, baseline preservation, retry, reconnect, periodic flush, Room Stock adjustment, and badge workflows inspected
+✓ No-invented-benchmark rule recorded
 
-✓ `QueueStorage` added with compatible `tc_pending_saves_v1` key
+✓ Firebase request-count and payload audit targets recorded
 
-✓ Legacy `rec` and `diff` aliases accepted during queue normalization
+✓ Authenticated-room-only attendance verification recorded
 
-✓ Missing and malformed queue storage recovers safely
+✓ Lazy-loading and cache audit targets recorded
 
-✓ Invalid queue entries are filtered individually
+✓ Duplicate request audit target recorded
 
-✓ Attendance queue entries persist across browser restarts
+✓ Desktop, mobile, and iPad validation matrix recorded
 
-✓ Duplicate attendance edits replace the latest record
+✓ Legacy and V2 queue compatibility fixtures recorded
 
-✓ Original unsynced `baselinePresent` is preserved
-
-✓ Original queue timestamp is preserved
-
-✓ Newer queued edits reset retry attempts
-
-✓ Room Stock adjustment queue entries implemented
-
-✓ Individual queue removal implemented
-
-✓ `AttendanceService.adjustRoomStock` added for Room Stock-only replay without rewriting attendance
-
-✓ `SyncService` added
-
-✓ Teacher session and authenticated-room replay checks implemented
-
-✓ Attendance replay delegates to `AttendanceService.saveAttendance`
-
-✓ Room Stock adjustment replay delegates to `AttendanceService.adjustRoomStock`
-
-✓ Queue replay is sequential
-
-✓ Successful entries are removed individually
-
-✓ Failed entries remain queued and increment attempts
-
-✓ Retry timestamps and bounded 5s → 10s → 20s → 40s → 60s backoff implemented
-
-✓ Every Sync result reports `mainStockDelta: 0`
-
-✓ `SyncManager` added
-
-✓ Startup, reconnect, retry, and periodic online flush boundaries implemented
-
-✓ Overlapping flush prevention implemented
-
-✓ Queue-count and sync lifecycle events implemented
-
-✓ Sync modules loaded by `index-v2.html` in dependency order
-
-✓ Automated test file added: `tests/sync-module-check.mjs`
-
-✓ Sync migration and ETag concurrency gap documentation added
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ `node tests/room-module-check.mjs` passed
-
-✓ `node tests/teacher-module-check.mjs` passed
-
-✓ `node tests/attendance-module-check.mjs` passed
-
-✓ `node tests/sync-module-check.mjs` passed
-
-✓ Admin browser smoke test passed
-
-✓ Teacher browser smoke test passed
-
-✓ Logout passed
-
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
-
-✓ Working tree confirmed clean
-
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Protected legacy files confirmed
 
 ---
 
-Merge Gate
+Pending
 
-PASSED
+□ Inspect FirebaseService request, query, timeout, and cache behavior
 
-The branch may be fast-forward merged into `develop`.
+□ Inspect login and Teacher request sequences
+
+□ Verify no all-school `mcAttendance` read occurs in Teacher flow
+
+□ Inspect lazy-loading boundaries and repeated refresh behavior
+
+□ Add `tests/performance-module-check.mjs`
+
+□ Add `docs/PERFORMANCE_AUDIT_REPORT.md`
+
+□ Add runtime performance utilities only when justified by measured need
+
+□ Add legacy and V2 queue compatibility fixtures
+
+□ Run Login regression tests
+
+□ Run Stock regression tests
+
+□ Run Report regression tests
+
+□ Run Room regression tests
+
+□ Run Teacher regression tests
+
+□ Run Attendance regression tests
+
+□ Run Sync regression tests
+
+□ Run Performance tests
+
+□ Run desktop browser smoke test
+
+□ Run mobile or responsive viewport validation
+
+□ Run iPad-class validation when available
+
+□ Inspect Network requests for Teacher login
+
+□ Confirm working tree clean
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
 Known Migration Gaps
 
-The operational attendance form, media capture, signatures, printing, queue badge, and offline banner remain in `teacher.html` while the modular sync boundary is extracted.
+The operational attendance form, media capture, signatures, printing, queue badge, and offline banner remain in `teacher.html`.
 
-The modular Attendance and Sync multi-location PATCH is atomic for its included paths, but it does not yet include the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
+The modular Attendance and Sync multi-location PATCH still lacks the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
 
-Production cutover still requires compatibility testing between queues written by legacy `teacher.html` and queues normalized by V2.
+Production cutover still requires compatibility validation between queues written by legacy `teacher.html` and queues normalized by V2.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
 ---
 
-Next Sprint
-
-Sprint 3.9 — Performance and Payload Optimization
-
-Target areas:
-
-- room-scoped Firebase reads
-- payload and request-count audit
-- cache and lazy-loading boundaries
-- mobile and iPad validation
-- browser performance instrumentation
-- compatibility tests for modular and legacy queue data
-
----
-
 Protected Business Rules
 
+- Performance work must not change Firebase schema.
+- Performance work must not change Main Stock or Room Stock calculations.
+- Teacher attendance reads remain scoped to the authenticated room.
 - Queue entries survive refresh and browser restart.
-- Corrupt entries are filtered individually without deleting valid entries.
-- Repeated queued attendance edits keep the latest record while preserving the original baseline.
-- Attendance replay uses AttendanceService Room Stock difference rules.
-- Room Stock adjustment retry does not rewrite attendance unnecessarily.
-- Queue replay is sequential.
-- Only the authenticated room may be replayed.
-- Failed entries remain queued.
-- Successful entries are removed individually.
-- Retry timing uses bounded exponential backoff.
-- Main Stock must remain unchanged.
+- Repeated queued edits preserve the original baseline.
+- Main Stock must remain unchanged by Teacher, Attendance, and Sync operations.
 - Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
+- Reports remain read-only.
 - Negative Room Stock is not silently clamped.
 - Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
