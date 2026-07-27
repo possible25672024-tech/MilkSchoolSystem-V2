@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.3
+Version: 2.4
 Last Updated: 2026-07-27
 
 ---
@@ -52,11 +52,7 @@ Merged into `develop` at `648fa6d`.
 
 Sprint 3.4.3 — Stock Module Migration
 
-✓ StockRepository
-
-✓ StockService
-
-✓ StockManager
+✓ StockRepository, StockService, and StockManager
 
 ✓ Receive and classroom distribution workflows
 
@@ -106,11 +102,35 @@ Sprint 3.5 — Room Module Migration
 
 Known gaps: XLSX binary parsing remains in the legacy file, and complete room collection writes do not yet include multi-admin optimistic concurrency control.
 
+Sprint 3.6 — Teacher Module Migration
+
+✓ TeacherRepository room-scoped read boundary
+
+✓ TeacherService session validation and authenticated-room-only normalization
+
+✓ TeacherManager session, refresh, dashboard, command, and event boundary
+
+✓ Firebase key-prefix query support
+
+✓ `mcAttendance` loaded for one room only
+
+✓ Admin-session and cross-room access rejection
+
+✓ Teacher dashboard calculations
+
+✓ Room Stock-only consume and rollback command preparation
+
+✓ Every Teacher command has `mainStockDelta: 0`
+
+✓ Login, Stock, Report, Room, Teacher, browser, and clean-tree validation
+
+Known gaps: operational forms, media, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`; offline queue work remains deferred to Sprint 3.8.
+
 ---
 
 Current Sprint
 
-Sprint 3.6 — Teacher Module Migration
+Sprint 3.7 — Attendance Module Migration
 
 Target structure
 
@@ -118,15 +138,15 @@ UI
 
 ↓
 
-TeacherManager
+AttendanceManager
 
 ↓
 
-TeacherService
+AttendanceService
 
 ↓
 
-TeacherRepository
+AttendanceRepository
 
 ↓
 
@@ -138,20 +158,25 @@ Realtime Database
 
 Target files
 
-- `modules/repositories/teacherRepository.js`
-- `modules/services/teacherService.js`
-- `modules/teacher/teacherManager.js`
-- teacher tests
-- teacher migration documentation
+- `modules/repositories/attendanceRepository.js`
+- `modules/services/attendanceService.js`
+- `modules/attendance/attendanceManager.js`
+- attendance tests
+- attendance migration documentation
 
-Required teacher workflows
+Required attendance workflows
 
-- resolve the active teacher session and room
-- load room-scoped room, stock, attendance, pending, retroactive, and vacation data
-- avoid loading all-school attendance at login
-- expose room stock and distribution history safely
-- prepare teacher commands without direct Firebase access
-- preserve current teacher.html behavior during extraction
+- load one room and one attendance date
+- preserve key format `{roomId}_{YYYY-MM-DD}`
+- validate student attendance values
+- calculate present and absent totals
+- save a new attendance record
+- edit an existing attendance record
+- calculate Room Stock delta from the difference between previous and new present totals
+- append compatible stock ledger records
+- rollback attendance deletion safely
+- reject cross-room reads and writes
+- keep Main Stock unchanged
 
 ---
 
@@ -167,14 +192,14 @@ Do not modify these files during Sprint 3.x migration unless explicitly approved
 Never Break
 
 - Main Stock decreases only when distributing to classrooms.
-- Teacher operations reduce only Room Stock.
+- Teacher and attendance operations reduce only Room Stock.
+- Attendance edits change Room Stock by the difference only.
+- Attendance keys remain compatible.
 - Reports remain read-only.
 - Firebase schema and paths remain compatible.
 - Room IDs remain stable after creation.
-- Room deletion must not orphan stock or operational history.
-- Admin login remains operational.
-- Teacher login remains operational.
-- Teacher data loads must be scoped to the authenticated room where possible.
+- Admin and Teacher login remain operational.
+- Teacher data loads remain scoped to the authenticated room.
 - Offline and sync behavior remains untouched until Sprint 3.8.
 - Rebuild calculations use transaction history.
 
@@ -214,8 +239,6 @@ Events.
 
 Forms.
 
-Filters.
-
 Navigation.
 
 Never access Firebase directly.
@@ -233,7 +256,7 @@ Required Workflow
 7. Implement on a feature branch.
 8. Run static and business-rule tests.
 9. Run browser smoke tests.
-10. Update `SPRINT_STATUS.md`, `docs/PROJECT_MEMORY.md`, and `CHANGELOG.md`.
+10. Update `SPRINT_STATUS.md`, `docs/PROJECT_MEMORY.md`, `CHANGELOG.md`, and `MODULE_MAP.md`.
 11. Merge into `develop` only after all gates pass.
 
 ---
