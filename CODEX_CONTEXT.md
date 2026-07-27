@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.2
+Version: 2.3
 Last Updated: 2026-07-27
 
 ---
@@ -58,57 +58,59 @@ Sprint 3.4.3 — Stock Module Migration
 
 ✓ StockManager
 
-✓ Receive workflow
-
-✓ Classroom distribution workflow
+✓ Receive and classroom distribution workflows
 
 ✓ Main Stock and Room Stock separation
 
 ✓ Attendance, Pending, Retroactive, and Vacation Room Stock rules
 
-✓ Rollback support
+✓ Rollback, rebuild, validation, and ledger compatibility
 
-✓ Rebuild and validation calculations
-
-✓ Shared stock ledger compatibility
-
-✓ Static and business-rule tests
-
-✓ Browser smoke test
-
-✓ Legacy files unchanged
+✓ Static, business-rule, and browser tests
 
 Merged into `develop` at `f56e430`.
 
 Sprint 3.4.4 — Report Module Migration
 
-✓ ReportRepository read-only boundary
+✓ Read-only ReportRepository
 
-✓ ReportService classroom, grade, and school aggregation
-
-✓ ReportManager view, refresh, print, and export boundary
+✓ Classroom, grade-level, and school aggregation
 
 ✓ Thai grade normalization and sorting
 
-✓ Distribution and consumption totals
+✓ Print and Excel export models
 
-✓ Remaining and percentage-used calculations
+✓ Cached report view switching
 
-✓ Cached view switching
-
-✓ Architecture and aggregation tests
-
-✓ Browser smoke test
-
-✓ Legacy files unchanged
+✓ Architecture, aggregation, and browser tests
 
 Known gap: browser-local pending, retroactive, and vacation collections require a Storage/Sync adapter before V2 becomes the operational report.
+
+Sprint 3.5 — Room Module Migration
+
+✓ RoomRepository Firebase boundary
+
+✓ RoomService normalization, validation, import preparation, and deletion safety
+
+✓ RoomManager command boundary
+
+✓ Immutable Room IDs during edits
+
+✓ Room Stock preservation during edits and repeated imports
+
+✓ Duplicate room and duplicate student detection
+
+✓ Deletion blocking for Room Stock and operational references
+
+✓ Login, Stock, Report, Room, browser, and clean-tree validation
+
+Known gaps: XLSX binary parsing remains in the legacy file, and complete room collection writes do not yet include multi-admin optimistic concurrency control.
 
 ---
 
 Current Sprint
 
-Sprint 3.5 — Room Module Migration
+Sprint 3.6 — Teacher Module Migration
 
 Target structure
 
@@ -116,15 +118,15 @@ UI
 
 ↓
 
-RoomManager
+TeacherManager
 
 ↓
 
-RoomService
+TeacherService
 
 ↓
 
-RoomRepository
+TeacherRepository
 
 ↓
 
@@ -136,21 +138,20 @@ Realtime Database
 
 Target files
 
-- `modules/repositories/roomRepository.js`
-- `modules/services/roomService.js`
-- `modules/room/roomManager.js`
-- room tests
-- room migration documentation
+- `modules/repositories/teacherRepository.js`
+- `modules/services/teacherService.js`
+- `modules/teacher/teacherManager.js`
+- teacher tests
+- teacher migration documentation
 
-Required room workflows
+Required teacher workflows
 
-- load and normalize rooms
-- create room
-- update room metadata
-- update teacher assignment
-- prepare student import data
-- validate room deletion safety
-- preserve Room Stock and transaction references
+- resolve the active teacher session and room
+- load room-scoped room, stock, attendance, pending, retroactive, and vacation data
+- avoid loading all-school attendance at login
+- expose room stock and distribution history safely
+- prepare teacher commands without direct Firebase access
+- preserve current teacher.html behavior during extraction
 
 ---
 
@@ -170,10 +171,11 @@ Never Break
 - Reports remain read-only.
 - Firebase schema and paths remain compatible.
 - Room IDs remain stable after creation.
-- Room deletion must not orphan stock, attendance, distribution, pending, retroactive, vacation, or ledger records.
+- Room deletion must not orphan stock or operational history.
 - Admin login remains operational.
 - Teacher login remains operational.
-- Offline and sync behavior remains untouched until its scheduled Sprint.
+- Teacher data loads must be scoped to the authenticated room where possible.
+- Offline and sync behavior remains untouched until Sprint 3.8.
 - Rebuild calculations use transaction history.
 
 ---
