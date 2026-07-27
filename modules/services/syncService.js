@@ -134,6 +134,28 @@ class SyncService {
         throw new Error(`Unsupported queue entry type: ${entry.type}`);
     }
 
+    convertAttendanceToStockAdjustment(session, entry, error, attempts) {
+        const details = error?.details || {};
+        const storage = this.ensureQueueStorage();
+        const referenceId = String(details.referenceId || entry.key || "").trim();
+        const converted = {
+            type: "roomStockAdjust",
+            key: `stockadj_${referenceId}`,
+            roomId: details.roomId || entry.roomId,
+            difference: details.difference,
+            referenceId,
+            roomName: details.roomName || entry.record?.roomName || session?.roomName || "",
+            date: details.date || entry.record?.date || "",
+            queuedAt: entry.queuedAt,
+            attempts,
+            nextRetryAt: this.clock() + this.backoffForAttempts(attempts)
+        };
+        const next = storage.snapshot().filter(item => item.key !== entry.key);
+        next.push(converted);
+        storage.replace(next);
+        return converted;
+    }
+
     async flush(session) {
         this.ensureTeacherService().assertRoomAccess(session);
         const storage = this.ensureQueueStorage();
@@ -155,6 +177,32 @@ class SyncService {
                 const attempts = this.nonNegativeInteger(entry.attempts) + 1;
                 const retryDelay = this.backoffForAttempts(attempts);
                 maxFailedAttempts = Math.max(maxFailedAttempts, attempts);
+
+                if (
+                    entry.type === "attendance" &&
+                    error?.code === "ROOM_STOCK_ADJUSTMENT_REQUIRED" &&
+                    error?.details?.attendanceSaved === true
+                ) {
+                    const converted = this.convertAttendanceToStockAdjustment(
+                        session,
+                        entry,
+                        error,
+                        attempts
+                    );
+                    results.push({
+                        key: entry.key,
+                        type: entry.type,
+                        status: "deferred",
+                        attempts,
+                        convertedTo: converted,
+                        error: {
+                            code: error.code,
+                            message: error.message
+                        }
+                    });
+                    continue;
+                }
+
                 this.updateFailedEntry({
                     ...entry,
                     attempts,
@@ -174,15 +222,18 @@ class SyncService {
         }
 
         const failed = results.filter(result => result.status === "failed");
+        const deferred = results.filter(result => result.status === "deferred");
         const succeeded = results.filter(result => result.status === "success");
+        const pending = failed.length + deferred.length;
 
         return {
             processed: results.length,
             succeeded: succeeded.length,
-            failed: failed.length,
+            failed: pending,
+            deferred: deferred.length,
             remaining: storage.count(),
             results,
-            nextRetryDelay: failed.length ? this.backoffForAttempts(maxFailedAttempts) : 0,
+            nextRetryDelay: pending ? this.backoffForAttempts(maxFailedAttempts) : 0,
             mainStockDelta: 0
         };
     }
