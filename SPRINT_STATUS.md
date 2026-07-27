@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-55% — ETag conditional request primitives, protected Room Stock retry, attendance-first partial-save recovery, attendance-to-stock queue conversion, deterministic concurrency tests, and parity documentation implemented; local regression, real Firebase conflict validation, device gates, audit recovery, UI parity, backup, and rollback gates remain pending
+70% — ETag conditional requests, protected Room Stock retry, attendance-first partial-save recovery, stock-only retry conversion, persistent audit-only recovery, deterministic cutover tests, and parity documentation implemented; local regression, real Firebase conflict validation, device gates, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -58,7 +58,7 @@ Sprint 4.0 Implemented
 
 ✓ Sprint plan created: `docs/SPRINT_4_0_PLAN.md`
 
-✓ Initial parity matrix created and expanded: `docs/CUTOVER_PARITY_MATRIX.md`
+✓ Parity matrix created and expanded: `docs/CUTOVER_PARITY_MATRIX.md`
 
 ✓ Legacy `index.html` and `teacher.html` retained as rollback paths
 
@@ -88,17 +88,25 @@ Sprint 4.0 Implemented
 
 ✓ SyncService converts partially saved attendance queue entries into stock-only retries
 
+✓ QueueStorage supports persistent `attendanceAudit` recovery entries
+
+✓ AttendanceManager queues stable ledger and stockLog IDs when audit writes fail after Room Stock succeeds
+
+✓ SyncService replays audit-only entries without repeating Attendance or Room Stock changes
+
+✓ Room Stock adjustment replay converts to audit-only recovery if stock succeeds but audit fails
+
 ✓ Sequential replay and original attendance baseline rules remain protected
 
 ✓ Main Stock remains unchanged in every Attendance and Sync result
 
-✓ Attendance audit writes retry without repeating the successful Room Stock change
-
 ✓ Existing Attendance module test updated for ETag-protected flow
 
-✓ New deterministic cutover test added: `tests/cutover-concurrency-check.mjs`
+✓ Deterministic ETag test added: `tests/cutover-concurrency-check.mjs`
 
-✓ Parity matrix now separates concurrency, partial-save recovery, and audit-recovery status
+✓ Persistent audit recovery test added: `tests/audit-recovery-check.mjs`
+
+✓ Parity matrix separates concurrency, partial-save recovery, and audit-only recovery status
 
 ---
 
@@ -109,6 +117,8 @@ Pending Local Validation
 □ Run all previous regression tests
 
 □ Run `node tests/cutover-concurrency-check.mjs`
+
+□ Run `node tests/audit-recovery-check.mjs`
 
 □ Confirm Attendance and Sync tests remain compatible
 
@@ -125,8 +135,6 @@ Pending Local Validation
 Pending Cutover Work
 
 □ Run a real Firebase multi-writer Room Stock conflict test
-
-□ Decide persistent audit-only recovery after Room Stock succeeds but ledger/log writes fail
 
 □ Inspect every remaining parity-matrix row against legacy and V2 implementations
 
@@ -160,7 +168,6 @@ Current Blockers to Production Cutover
 
 - physical iPad evidence not yet recorded
 - responsive mobile evidence not yet recorded
-- persistent audit-only recovery after successful Room Stock update is unresolved
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
 - Report browser-local adapter is unresolved
 - XLSX binary parser remains legacy
@@ -184,6 +191,7 @@ Protected Business Rules
 - Attendance deletion restores previously consumed Room Stock.
 - ETag conflicts must read the latest Room Stock and recalculate before retry.
 - Offline retries preserve the original attendance baseline.
+- Audit-only retries must never repeat a successful Room Stock change.
 - Reports remain read-only.
 - Firebase paths and attendance keys remain compatible unless an approved migration includes rollback.
 - Room IDs remain stable.
