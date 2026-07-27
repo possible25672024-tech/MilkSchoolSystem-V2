@@ -43,9 +43,39 @@ class AttendanceRepository extends BaseRepository {
         });
     }
 
+    saveAttendanceRecord(roomId, date, record) {
+        const key = this.attendanceKey(roomId, date);
+        return this.firebaseService.set(this.path(`mcAttendance/${key}`), record);
+    }
+
+    deleteAttendanceRecord(roomId, date) {
+        const key = this.attendanceKey(roomId, date);
+        return this.firebaseService.remove(this.path(`mcAttendance/${key}`));
+    }
+
     loadRoomStock(roomId) {
         const normalizedRoomId = this.requireRoomId(roomId);
         return this.get(this.path(`roomStock/${normalizedRoomId}`));
+    }
+
+    loadRoomStockVersioned(roomId) {
+        const normalizedRoomId = this.requireRoomId(roomId);
+        if (!this.firebaseService?.getWithEtag) {
+            throw new Error("Firebase ETag reads are not available.");
+        }
+        return this.firebaseService.getWithEtag(this.path(`roomStock/${normalizedRoomId}`));
+    }
+
+    setRoomStockIfMatch(roomId, value, etag) {
+        const normalizedRoomId = this.requireRoomId(roomId);
+        if (!this.firebaseService?.setIfMatch) {
+            throw new Error("Firebase conditional writes are not available.");
+        }
+        return this.firebaseService.setIfMatch(
+            this.path(`roomStock/${normalizedRoomId}`),
+            value,
+            etag
+        );
     }
 
     async loadMutationState(roomId, date) {
@@ -58,6 +88,23 @@ class AttendanceRepository extends BaseRepository {
             attendance: attendance || null,
             roomStock: roomStock ?? 0
         };
+    }
+
+    appendAttendanceAudit(ledger, stockLog) {
+        const updates = {};
+
+        if (ledger?.id) {
+            updates[`stockTransactions/${ledger.id}`] = ledger;
+        }
+        if (stockLog?.id) {
+            updates[`stockLog/${stockLog.id}`] = stockLog;
+        }
+
+        if (!Object.keys(updates).length) {
+            return Promise.resolve(null);
+        }
+
+        return this.update(this.path(), updates);
     }
 
     applyAttendanceMutation(updates) {
