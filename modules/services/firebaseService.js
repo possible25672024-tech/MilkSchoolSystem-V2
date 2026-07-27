@@ -25,25 +25,48 @@ class FirebaseService {
         return Boolean(this.databaseURL || window.ConfigManager?.getDatabaseURL?.());
     }
 
-    buildURL(path = "") {
+    encodeQueryValue(value) {
+        if (typeof value === "string") {
+            return JSON.stringify(value);
+        }
+
+        if (typeof value === "number" || typeof value === "boolean") {
+            return JSON.stringify(value);
+        }
+
+        return JSON.stringify(value);
+    }
+
+    buildURL(path = "", query = {}) {
         if (!this.databaseURL) {
             this.initialize();
         }
 
         const cleanPath = String(path).replace(/^\/+|\/+$/g, "");
-        const authQuery = this.authToken
-            ? `?auth=${encodeURIComponent(this.authToken)}`
-            : "";
+        const params = new URLSearchParams();
 
-        return `${this.databaseURL}/${cleanPath}.json${authQuery}`;
+        Object.entries(query || {}).forEach(([key, value]) => {
+            if (value === undefined || value === null || value === "") {
+                return;
+            }
+
+            params.set(key, this.encodeQueryValue(value));
+        });
+
+        if (this.authToken) {
+            params.set("auth", this.authToken);
+        }
+
+        const queryString = params.toString();
+        return `${this.databaseURL}/${cleanPath}.json${queryString ? `?${queryString}` : ""}`;
     }
 
-    async request(path, options = {}) {
+    async request(path, options = {}, query = {}) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
 
         try {
-            const response = await fetch(this.buildURL(path), {
+            const response = await fetch(this.buildURL(path, query), {
                 cache: "no-store",
                 ...options,
                 headers: {
@@ -75,8 +98,8 @@ class FirebaseService {
         }
     }
 
-    get(path) {
-        return this.request(path, { method: "GET" });
+    get(path, query = {}) {
+        return this.request(path, { method: "GET" }, query);
     }
 
     set(path, data) {
