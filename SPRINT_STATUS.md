@@ -26,7 +26,7 @@ Sprint 3.6 — Teacher Module Migration
 
 Status
 
-10% — Sprint plan and safety boundaries initialized; legacy teacher workflow inspection and implementation pending
+70% — Repository, Service, Manager, room-scoped query support, dependency wiring, automated tests, and migration documentation implemented; local validation pending
 
 ---
 
@@ -38,61 +38,89 @@ Completed Foundation
 
 ✓ Sprint 3.4.4 Report Module merged into `develop`
 
-✓ Sprint 3.5 Room Module merged into `develop` after Login, Stock, Report, Room, Browser, and clean-tree gates passed
+✓ Sprint 3.5 Room Module merged into `develop`
 
 ✓ Login, Firebase, Stock, Report, and Room rules protected
 
 ---
 
-Sprint 3.6 Initialized
+Sprint 3.6 Completed
 
 ✓ Branch created from latest `develop`
 
 ✓ Sprint plan created: `docs/SPRINT_3_6_PLAN.md`
 
-✓ Protected legacy files identified
+✓ Legacy teacher session, room loading, Room Stock, distribution, attendance, pending, retroactive, vacation, and rollback workflows inspected
 
-✓ Authenticated room-only access requirement recorded
+✓ `FirebaseService` supports JSON-encoded Realtime Database query parameters
 
-✓ Room-scoped attendance loading requirement recorded
+✓ `BaseRepository` supports scoped read queries
 
-✓ Main Stock isolation requirement recorded
+✓ `TeacherRepository` expanded into a read-only teacher Firebase boundary
 
-✓ Offline queue deferral to Sprint 3.8 recorded
+✓ Room Stock reads are scoped to the authenticated room path
 
-✓ Repository → Service → Manager boundaries defined
+✓ Attendance reads use the `{roomId}_` through `{roomId}_\uf8ff` key-prefix query
+
+✓ Teacher settings, rooms, distributions, pending, retroactive, vacation, ledger, and update reads implemented
+
+✓ `TeacherService` added
+
+✓ Teacher session validation implemented
+
+✓ Admin sessions rejected by the Teacher service
+
+✓ Cross-room teacher access rejected
+
+✓ Room and student normalization implemented
+
+✓ Every teacher collection filtered to the authenticated room
+
+✓ Teacher dashboard calculations implemented
+
+✓ ATTENDANCE, PENDING, RETRO, and VACATION command preparation reduces only Room Stock
+
+✓ Teacher rollback command preparation restores only Room Stock
+
+✓ Every prepared Teacher command has `mainStockDelta: 0`
+
+✓ `TeacherManager` session, refresh, dashboard, command, event, and clear boundary implemented
+
+✓ Teacher modules loaded by `index-v2.html` in dependency order
+
+✓ Automated test file added: `tests/teacher-module-check.mjs`
+
+✓ Teacher migration gap documentation added
+
+✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending
+Pending Before Merge
 
-□ Inspect legacy teacher session, room loading, Room Stock, distributions, attendance, pending, retroactive, and vacation workflows
+□ Pull `feature/sprint-3.6-teacher` to the local workspace
 
-□ Create `TeacherRepository`
+□ Run `node tests/login-foundation-check.mjs`
 
-□ Create `TeacherService`
+□ Run `node tests/stock-module-check.mjs`
 
-□ Create `TeacherManager`
+□ Run `node tests/report-module-check.mjs`
 
-□ Add Teacher module dependency wiring to `index-v2.html`
+□ Run `node tests/room-module-check.mjs`
 
-□ Add `tests/teacher-module-check.mjs`
+□ Run `node tests/teacher-module-check.mjs`
 
-□ Add `docs/TEACHER_MIGRATION_GAP_REPORT.md`
+□ Open `index-v2.html` through Live Server
 
-□ Run Login regression tests
+□ Confirm Admin and Teacher login remain operational
 
-□ Run Stock regression tests
+□ Confirm Logout remains operational
 
-□ Run Report regression tests
+□ Confirm Browser Console contains no teacher-module error
 
-□ Run Room regression tests
+□ Confirm working tree is clean
 
-□ Run Teacher tests
-
-□ Run Browser smoke test
-
-□ Confirm working tree clean
+□ Update Project Memory, Changelog, AI Context, and Module Map after validation
 
 □ Merge into `develop` only after all gates pass
 
@@ -100,11 +128,15 @@ Pending
 
 Known Migration Gaps
 
-The Smart Excel binary parser remains in the legacy file. The modular Room service accepts parsed sheet data but does not yet replace XLSX parsing.
+The operational teacher forms, media capture, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`.
 
-The compatible Room workflow writes the complete `milkApp/rooms` collection and does not yet include multi-admin optimistic concurrency control.
+Attendance write migration is scheduled for Sprint 3.7.
 
-The legacy Report local-data adapter gap remains until browser-local pending, retroactive, and vacation records are connected to the modular report.
+The persistent offline queue and retry behavior remain untouched until Sprint 3.8.
+
+Only `mcAttendance` uses a Firebase room-prefix query in this Sprint. Smaller teacher collections are read and filtered in the Service to avoid requiring production `.indexOn` rule changes.
+
+The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
 ---
 
