@@ -97,9 +97,9 @@ class TeacherRepository extends BaseRepository {
 
     async loadTeacherSnapshot(roomId, options = {}) {
         const includeExtras = options?.includeExtras !== false;
-        const core = await this.loadTeacherCoreSnapshot(roomId);
 
         if (!includeExtras) {
+            const core = await this.loadTeacherCoreSnapshot(roomId);
             return {
                 ...core,
                 distributes: [],
@@ -110,7 +110,11 @@ class TeacherRepository extends BaseRepository {
             };
         }
 
-        const extras = await this.loadTeacherExtraSnapshot();
+        const [core, extras] = await Promise.all([
+            this.loadTeacherCoreSnapshot(roomId),
+            this.loadTeacherExtraSnapshot()
+        ]);
+
         return {
             ...core,
             ...extras,
