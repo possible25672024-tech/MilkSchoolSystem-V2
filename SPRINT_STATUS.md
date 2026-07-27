@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.5-room
+feature/sprint-3.6-teacher
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 3.5 — Room Module Migration
+Sprint 3.6 — Teacher Module Migration
 
 Status
 
-100% — implementation, architecture checks, room workflow tests, regression tests, browser smoke test, and working-tree validation passed
+10% — Sprint plan and safety boundaries initialized; legacy teacher workflow inspection and implementation pending
 
 ---
 
@@ -38,79 +38,63 @@ Completed Foundation
 
 ✓ Sprint 3.4.4 Report Module merged into `develop`
 
-✓ Login, Firebase, Stock, and read-only Report rules protected
+✓ Sprint 3.5 Room Module merged into `develop` after Login, Stock, Report, Room, Browser, and clean-tree gates passed
+
+✓ Login, Firebase, Stock, Report, and Room rules protected
 
 ---
 
-Sprint 3.5 Completed
+Sprint 3.6 Initialized
 
 ✓ Branch created from latest `develop`
 
-✓ Sprint plan created: `docs/SPRINT_3_5_PLAN.md`
+✓ Sprint plan created: `docs/SPRINT_3_6_PLAN.md`
 
-✓ Legacy manual-room, student-import, room-report, and deletion workflows inspected
+✓ Protected legacy files identified
 
-✓ `RoomRepository` expanded with `milkApp/rooms` storage operations
+✓ Authenticated room-only access requirement recorded
 
-✓ Room dependency reads implemented for Room Stock, distributions, attendance, pending, retroactive, vacation, and ledger data
+✓ Room-scoped attendance loading requirement recorded
 
-✓ `RoomService` added
+✓ Main Stock isolation requirement recorded
 
-✓ Array- and object-shaped room normalization implemented
+✓ Offline queue deferral to Sprint 3.8 recorded
 
-✓ Manual room creation preserves entered student count without inventing student records
-
-✓ Existing room IDs are immutable during edits
-
-✓ Room Stock is preserved during edits and repeated student imports
-
-✓ Duplicate room ID and room name validation implemented
-
-✓ Imported student fields are preserved
-
-✓ Duplicate-student detection implemented
-
-✓ Student import preview and confirmation boundary implemented
-
-✓ Existing grade and teacher metadata are preserved when import data omits those fields
-
-✓ Room deletion dependency report implemented
-
-✓ Room deletion blocked when operational references exist
-
-✓ Zero-valued Room Stock records block deletion until explicitly migrated or archived
-
-✓ `RoomManager` create, update, import, refresh, and delete command boundary implemented
-
-✓ Room modules loaded by `index-v2.html` in dependency order
-
-✓ Automated test file added: `tests/room-module-check.mjs`
-
-✓ Room migration gap documentation added
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ `node tests/room-module-check.mjs` passed
-
-✓ Admin browser smoke test passed
-
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
-
-✓ Working tree confirmed clean
-
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Repository → Service → Manager boundaries defined
 
 ---
 
-Merge Gate
+Pending
 
-PASSED
+□ Inspect legacy teacher session, room loading, Room Stock, distributions, attendance, pending, retroactive, and vacation workflows
 
-The branch may be fast-forward merged into `develop`.
+□ Create `TeacherRepository`
+
+□ Create `TeacherService`
+
+□ Create `TeacherManager`
+
+□ Add Teacher module dependency wiring to `index-v2.html`
+
+□ Add `tests/teacher-module-check.mjs`
+
+□ Add `docs/TEACHER_MIGRATION_GAP_REPORT.md`
+
+□ Run Login regression tests
+
+□ Run Stock regression tests
+
+□ Run Report regression tests
+
+□ Run Room regression tests
+
+□ Run Teacher tests
+
+□ Run Browser smoke test
+
+□ Confirm working tree clean
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
@@ -120,33 +104,19 @@ The Smart Excel binary parser remains in the legacy file. The modular Room servi
 
 The compatible Room workflow writes the complete `milkApp/rooms` collection and does not yet include multi-admin optimistic concurrency control.
 
-The known Report local-data adapter gap remains until browser-local pending, retroactive, and vacation records are connected to the modular report.
-
----
-
-Next Sprint
-
-Sprint 3.6 — Teacher Module Migration
-
-Target modules:
-
-- `modules/repositories/teacherRepository.js`
-- `modules/services/teacherService.js`
-- `modules/teacher/teacherManager.js`
-- teacher session and room-scoped loading boundaries
-- teacher tests and migration documentation
+The legacy Report local-data adapter gap remains until browser-local pending, retroactive, and vacation records are connected to the modular report.
 
 ---
 
 Protected Business Rules
 
-- Existing room IDs must remain stable during edits and repeated imports.
-- Room deletion must not orphan Room Stock or operational history.
-- Room operations must not change Main Stock.
-- Room edits and imports must not silently reset Room Stock.
+- A teacher may access only the authenticated room.
+- Teacher login must not download all-school attendance data.
+- Teacher operations must not change Main Stock.
+- Attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
+- Existing Room IDs and Room Stock links must remain stable.
 - Reports are read-only.
-- Main Stock decreases only when distributing milk to classrooms.
-- Teacher attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
 - Rebuild calculations use transaction history as the source of truth.
 - UI modules never call Firebase directly.
+- Offline queue behavior remains unchanged until Sprint 3.8.
 - Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
