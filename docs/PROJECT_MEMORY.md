@@ -2,7 +2,7 @@
 
 ## Project Memory
 
-Version: 2.1
+Version: 2.2
 
 Last updated: 2026-07-27
 
@@ -100,6 +100,7 @@ Under `milkApp`:
 - `retroMilk`
 - `vacationMilk`
 - `stockTransactions`
+- `updatedAt`
 
 ## Completed Migration Work
 
@@ -117,52 +118,65 @@ Merged into `develop` at `648fa6d`.
 
 ### Sprint 3.4.3 Stock Module
 
-- `modules/repositories/stockRepository.js`
-- `modules/services/stockService.js`
-- `modules/stock/stockManager.js`
+- `StockRepository`, `StockService`, and `StockManager`
 - receive and classroom distribution workflows
 - Room Stock consumption and rollback workflows
 - rebuild and validation calculations
 - compatible ledger records
 - stock static and business-rule tests
-- migration gap report
 
-Merged into `develop` at `f56e430` after Login, Stock, Admin, Teacher, Logout, Browser, and clean-tree validation passed.
+Merged into `develop` at `f56e430` after all validation gates passed.
 
 ### Sprint 3.4.4 Report Module
 
-- `modules/repositories/reportRepository.js`
-- `modules/services/reportService.js`
-- `modules/report/reportManager.js`
-- read-only report snapshot boundary
+- read-only report repository boundary
 - classroom, grade-level, and whole-school aggregation
 - Thai grade normalization and natural sorting
 - distribution and Room Stock consumption totals
 - print and Excel export models
-- cached view switching without additional Firebase reads
+- cached view switching
 - report architecture and aggregation tests
-- migration gap report
 
-Merged into `develop` after Login, Stock, Report, Admin, Browser, and clean-tree validation passed.
+Merged into `develop` after all validation gates passed.
 
 Known gap:
 
-The operational legacy report also uses browser-local pending, retroactive, and vacation collections. V2 supports injecting these collections, but the Storage/Sync adapter must be connected before V2 replaces the operational report.
+The operational legacy report also uses browser-local pending, retroactive, and vacation collections. A Storage/Sync adapter is still required before V2 replaces the operational report.
 
 ### Sprint 3.5 Room Module
 
-- `modules/repositories/roomRepository.js`
-- `modules/services/roomService.js`
-- `modules/room/roomManager.js`
-- room normalization for array and object Firebase shapes
+- room repository, service, and manager boundaries
+- array and object room normalization
 - manual room creation and metadata editing
 - immutable Room IDs during edits
 - Room Stock preservation during edits and repeated imports
-- duplicate room and duplicate student validation
-- student import preparation and confirmation boundary
-- deletion dependency reports
-- deletion blocking for Room Stock, distributions, attendance, pending, retroactive, vacation, and ledger references
-- Room architecture and workflow tests
+- duplicate room and student validation
+- student import preparation
+- deletion dependency reports and safety blocking
+- room architecture and workflow tests
+
+Known gaps:
+
+- XLSX binary parsing remains in the legacy file.
+- Complete `milkApp/rooms` writes do not yet include multi-admin optimistic concurrency control.
+
+### Sprint 3.6 Teacher Module
+
+- `modules/repositories/teacherRepository.js`
+- `modules/services/teacherService.js`
+- `modules/teacher/teacherManager.js`
+- Firebase query-parameter support in `FirebaseService`
+- scoped read support in `BaseRepository`
+- authenticated-room-only teacher data boundary
+- `mcAttendance` key-prefix query for one room only
+- teacher session validation and Admin-session rejection
+- cross-room access rejection
+- room and student normalization
+- room-scoped distribution, attendance, pending, retroactive, vacation, ledger, and Room Stock normalization
+- teacher dashboard totals
+- teacher command preparation with `mainStockDelta: 0`
+- Room Stock-only consume and rollback boundaries
+- Teacher architecture and workflow tests
 - migration gap report
 
 Validation completed:
@@ -171,33 +185,37 @@ Validation completed:
 - Stock module tests passed
 - Report module tests passed
 - Room module tests passed
-- Admin browser smoke test passed
+- Teacher module tests passed
+- Teacher browser smoke test passed
 - Browser console clean
 - Working tree clean
 - Legacy files unchanged
 
 Known gaps:
 
-- XLSX binary parsing remains in the legacy file; RoomService accepts already parsed sheet data.
-- Complete `milkApp/rooms` writes do not yet include multi-admin optimistic concurrency control.
+- Operational teacher forms, media capture, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`.
+- Attendance writes move in Sprint 3.7.
+- Persistent offline queue and retry remain unchanged until Sprint 3.8.
 
 ## Next Sprint
 
-Sprint 3.6 — Teacher Module Migration
+Sprint 3.7 — Attendance Module Migration
 
 Planned boundaries:
 
-- TeacherRepository: room-scoped teacher data reads only
-- TeacherService: teacher session validation, room-scoped normalization, and teacher workflows
-- TeacherManager: teacher navigation and command orchestration
+- AttendanceRepository: room-scoped attendance reads and atomic save boundaries
+- AttendanceService: validation, attendance difference calculation, Room Stock delta calculation, and rollback workflow
+- AttendanceManager: attendance commands and event orchestration
 
 Protected requirements:
 
-- only the logged-in teacher room may be loaded for room-scoped operational data
-- teacher workflows must reduce only Room Stock
-- Main Stock must remain untouched
-- existing `teacher.html` remains read-only during extraction
+- attendance keys remain `{roomId}_{YYYY-MM-DD}`
+- only the authenticated room may be read or written
+- editing an existing day adjusts Room Stock by the difference only
+- Main Stock remains unchanged
+- ledger entries remain compatible
 - offline queue behavior remains unchanged until Sprint 3.8
+- legacy `teacher.html` remains read-only during extraction
 
 ## Development Rules
 
