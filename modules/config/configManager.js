@@ -8,6 +8,27 @@ class ConfigManager {
         return this.getRuntimeConfig();
     }
 
+    setFirebaseRuntimeConfig(config = {}, persist = false) {
+        this.runtime = {
+            ...this.runtime,
+            firebase: {
+                ...(this.runtime.firebase || {}),
+                ...config
+            }
+        };
+
+        if (persist) {
+            if (config.databaseURL !== undefined) {
+                localStorage.setItem("firebaseUrl", String(config.databaseURL || ""));
+            }
+            if (config.authToken !== undefined) {
+                localStorage.setItem("firebaseKey", String(config.authToken || ""));
+            }
+        }
+
+        return this.getFirebaseConfig();
+    }
+
     getRuntimeConfig() {
         return { ...this.runtime };
     }
@@ -16,14 +37,60 @@ class ConfigManager {
         return { ...(window.APP_CONFIG || {}), ...(this.runtime.app || {}) };
     }
 
+    getLegacyDatabaseConfig() {
+        try {
+            const raw = localStorage.getItem("milk_school_db");
+            if (!raw) {
+                return {};
+            }
+
+            const parsed = JSON.parse(raw);
+            const settings = parsed?.settings || {};
+
+            return {
+                databaseURL: settings.firebaseUrl || "",
+                authToken: settings.firebaseKey || ""
+            };
+        } catch (error) {
+            console.warn("ConfigManager: legacy database configuration is invalid.", error);
+            return {};
+        }
+    }
+
     getFirebaseConfig() {
-        return { ...(window.firebaseConfig || {}), ...(this.runtime.firebase || {}) };
+        const fileConfig = window.firebaseConfig || {};
+        const runtimeConfig = this.runtime.firebase || {};
+        const legacyConfig = this.getLegacyDatabaseConfig();
+
+        const databaseURL = [
+            runtimeConfig.databaseURL,
+            fileConfig.databaseURL,
+            localStorage.getItem("firebaseUrl"),
+            legacyConfig.databaseURL
+        ].find(value => String(value || "").trim()) || "";
+
+        const authToken = [
+            runtimeConfig.authToken,
+            fileConfig.authToken,
+            localStorage.getItem("firebaseKey"),
+            legacyConfig.authToken
+        ].find(value => String(value || "").trim()) || "";
+
+        return {
+            ...fileConfig,
+            ...legacyConfig,
+            ...runtimeConfig,
+            databaseURL: String(databaseURL).trim().replace(/\/+$/, ""),
+            authToken: String(authToken).trim()
+        };
     }
 
     getDatabaseURL() {
-        const runtimeUrl = this.getFirebaseConfig().databaseURL;
-        const savedUrl = localStorage.getItem("firebaseUrl");
-        return String(runtimeUrl || savedUrl || "").replace(/\/+$/, "");
+        return this.getFirebaseConfig().databaseURL;
+    }
+
+    getAuthToken() {
+        return this.getFirebaseConfig().authToken;
     }
 }
 
