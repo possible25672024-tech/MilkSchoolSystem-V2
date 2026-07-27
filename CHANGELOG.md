@@ -2,6 +2,70 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-28 — Sprint 3.9 Performance and Payload Optimization
+
+### Added
+
+- `tests/performance-module-check.mjs`
+- `tests/firebase-request-header-check.mjs`
+- `tests/teacher-core-payload-check.mjs`
+- `docs/SPRINT_3_9_PLAN.md`
+- `docs/PERFORMANCE_AUDIT_REPORT.md`
+
+### Changed
+
+- Added identical in-flight Firebase GET deduplication without persistent response caching.
+- Removed automatic `Content-Type: application/json` from body-less Firebase GET requests to avoid unnecessary CORS preflights.
+- Preserved JSON Content-Type for write requests.
+- Added a five-minute cloned Login context cache.
+- Reused already-loaded settings and rooms during immediate credential validation.
+- Added the authenticated Teacher room snapshot to the session.
+- Reused session room data during Teacher core refresh.
+- Reduced default Teacher attendance loading to `mcAttendance/{roomId}_{date}/data` for today.
+- Kept room-history and deferred Teacher data behind explicit `refreshFull()`.
+- Excluded distributions, pending, retroactive, vacation, and stock transactions from normal Teacher refresh.
+- Reduced QueueStorage upsert persistent reads from two to one.
+- Added legacy/V2 queue compatibility and corrupt-record fixtures.
+- Updated the V2 Sprint status message.
+
+### Measured Desktop Result
+
+Environment: Chrome desktop on Windows, Live Server, actual 83-room dataset.
+
+- Before final Teacher core optimization: approximately 20.5 MB across 5 requests.
+- After final Teacher core optimization: approximately 1.6 KB across 4 requests.
+- Final core refresh included settings, one Room Stock value, today's attendance `/data`, and updatedAt.
+- No rooms request, room-history attendance request, deferred collection request, GET preflight, or HTTP error was present.
+
+These results describe the captured environment and are not universal production benchmarks.
+
+### Validation
+
+- Login foundation checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module checks passed.
+- Teacher module checks passed.
+- Attendance module checks passed.
+- Sync module checks passed.
+- Firebase request-header checks passed.
+- Performance module checks passed.
+- Teacher core payload checks passed.
+- Admin Login passed.
+- Teacher Login passed.
+- Logout passed.
+- Browser Network validation passed.
+- Browser console clean after test-generated errors were cleared.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Deferred Cutover Gates
+
+- Responsive mobile and physical iPad validation remain required.
+- Legacy ETag compare-and-retry Room Stock protection remains unresolved in V2.
+- Legacy/V2 production queue compatibility still requires cutover testing.
+- Report local adapters, XLSX parsing, and complete-room multi-admin concurrency remain unresolved.
+
 ## 2026-07-27 — Sprint 3.8 Offline Queue and Sync Module
 
 ### Added
