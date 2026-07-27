@@ -3,6 +3,7 @@ class FirebaseService {
         this.databaseURL = "";
         this.authToken = "";
         this.requestTimeoutMs = 15000;
+        this.inflightGets = new Map();
     }
 
     initialize(config = window.ConfigManager?.getFirebaseConfig?.() || {}) {
@@ -13,6 +14,7 @@ class FirebaseService {
             config.authToken || window.ConfigManager?.getAuthToken?.() || ""
         ).trim();
         this.requestTimeoutMs = Number(config.requestTimeoutMs) || 15000;
+        this.inflightGets.clear();
 
         if (!this.databaseURL) {
             throw new Error("Firebase Realtime Database URL is not configured.");
@@ -99,7 +101,21 @@ class FirebaseService {
     }
 
     get(path, query = {}) {
-        return this.request(path, { method: "GET" }, query);
+        const requestKey = this.buildURL(path, query);
+        const existing = this.inflightGets.get(requestKey);
+        if (existing) {
+            return existing;
+        }
+
+        const request = this.request(path, { method: "GET" }, query)
+            .finally(() => {
+                if (this.inflightGets.get(requestKey) === request) {
+                    this.inflightGets.delete(requestKey);
+                }
+            });
+
+        this.inflightGets.set(requestKey, request);
+        return request;
     }
 
     set(path, data) {
