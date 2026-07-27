@@ -2,14 +2,14 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 ## Protected Legacy Files
 
 - `index.html`
 - `teacher.html`
 
-These files remain operational during Sprint 3.x extraction and are not modified unless explicitly approved.
+These files remain operational and deployable until explicit cutover approval. Do not delete, rename, or replace them during readiness work.
 
 ## Target Architecture
 
@@ -34,6 +34,13 @@ V2 modules:
 - `modules/services/loginService.js`
 - `modules/repositories/loginRepository.js`
 
+Completed boundary:
+
+- Admin and Teacher login
+- session compatibility
+- cached settings and rooms context
+- authenticated Teacher room snapshot
+
 ### Firebase Foundation — Completed
 
 V2 modules:
@@ -41,6 +48,14 @@ V2 modules:
 - `modules/services/firebaseService.js`
 - `modules/repositories/baseRepository.js`
 - `modules/config/configManager.js`
+
+Completed boundary:
+
+- Realtime Database REST access
+- query parameters
+- identical in-flight GET deduplication
+- no persistent stale response cache
+- no automatic JSON Content-Type on body-less GET
 
 ### Stock — Completed
 
@@ -85,13 +100,17 @@ V2 modules:
 
 Completed boundary:
 
-- authenticated-room-only reads
-- room-scoped attendance query
+- authenticated-room-only access
+- Teacher session room snapshot reuse
+- default today's attendance `/data` read
+- explicit room-history and deferred-data refresh
 - Teacher dashboard and Room Stock-only command preparation
+- desktop payload optimization
 
 Remaining gaps:
 
-- forms, media, signatures, and print views remain in `teacher.html`
+- forms, media, signatures, print views, queue badge, and offline banner remain in `teacher.html`
+- responsive mobile and physical iPad validation remain cutover gates
 
 ### Attendance — Completed, ETag Gap Recorded
 
@@ -149,23 +168,47 @@ Remaining gaps:
 - operational queue badge and offline banner remain in `teacher.html`
 - ETag compare-and-retry Room Stock protection remains legacy-only
 
-### Performance — Current Sprint 3.9
+### Performance — Completed
+
+Completed boundary:
+
+- in-flight GET deduplication
+- GET preflight removal
+- Login context reuse
+- session-backed Teacher room data
+- default four-request Teacher core refresh
+- today's attendance `/data` child only
+- deferred history loading
+- QueueStorage serialization reduction
+- deterministic performance tests
+- actual desktop Network measurement
+
+Measured desktop result on the actual 83-room dataset:
+
+- before final optimization: approximately 20.5 MB across 5 requests
+- after final optimization: approximately 1.6 KB across 4 requests
+
+Remaining gate:
+
+- responsive mobile and physical iPad validation before production cutover
+
+### Cutover Readiness — Current Sprint 4.0
 
 Targets:
 
-- Firebase request-count audit
-- payload-size audit
-- scoped-read verification
-- lazy-loading and cache invalidation audit
-- unnecessary read reduction
-- desktop, mobile, and iPad validation
-- repeatable performance checks
-- legacy and V2 queue compatibility fixtures
-- documented results without invented benchmark values
+- legacy-to-V2 parity matrix
+- mobile and physical iPad validation
+- legacy/V2 queue compatibility
+- ETag Room Stock concurrency resolution or formal deployment block
+- Report local-data adapter decision
+- XLSX parser migration decision
+- operational Teacher UI integration plan
+- backup, rollback, deployment, and cutover checklists
+- no legacy removal until every gate passes
 
-### Legacy Removal — Planned Sprint 4
+### Legacy Removal — Blocked
 
-Only after all modular workflows replace the operational legacy behavior and migration gates pass.
+Legacy removal is not authorized during Sprint 4.0. It becomes eligible only after parity, device, concurrency, data compatibility, rollback, and explicit production approval gates pass.
 
 ## Business Rules
 
@@ -210,8 +253,9 @@ Rebuild
 - Sprint 3.6 — Teacher — Completed
 - Sprint 3.7 — Attendance — Completed
 - Sprint 3.8 — Offline Queue — Completed
-- Sprint 3.9 — Performance — Current
-- Sprint 4 — Legacy Removal — Planned
+- Sprint 3.9 — Performance — Completed
+- Sprint 4.0 — Cutover Readiness — Current
+- Legacy Removal — Blocked pending cutover approval
 
 ## AI Instructions
 
@@ -225,4 +269,4 @@ Always read:
 
 before editing source code.
 
-Preserve verified business logic during migration.
+Preserve verified business logic and legacy rollback capability during cutover readiness.
