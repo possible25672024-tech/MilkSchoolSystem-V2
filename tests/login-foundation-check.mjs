@@ -37,8 +37,9 @@ for (let indexPosition = 0; indexPosition < dependencyOrder.length - 1; indexPos
 assert.equal((bootstrap.match(/DOMContentLoaded/g) || []).length, 1, "Bootstrap must bind DOMContentLoaded once");
 assert.ok(!/async\s+login[\s\S]*?return\s+true\s*;/.test(loginService), "LoginService must not contain a fake successful login");
 assert.ok(!/async\s+login[\s\S]*?return\s+true\s*;/.test(authService), "AuthService must not contain a fake successful login");
-assert.ok(repository.includes("milkApp/settings"), "LoginRepository must read milkApp/settings");
-assert.ok(repository.includes("milkApp/rooms"), "LoginRepository must read milkApp/rooms");
+assert.ok(repository.includes('this.path("settings")'), "LoginRepository must read milkApp/settings through its app root");
+assert.ok(repository.includes('this.path("rooms")'), "LoginRepository must read milkApp/rooms through its app root");
+assert.ok(repository.includes('this.appRoot = "milkApp"'), "LoginRepository must preserve the milkApp root");
 assert.ok(loginService.includes("adminPassword"), "Admin password rule must be present");
 assert.ok(loginService.includes("teacherPassword"), "Teacher password rule must be present");
 assert.ok(authService.includes("milkApp_loginSession"), "Legacy-compatible session key must be preserved");
