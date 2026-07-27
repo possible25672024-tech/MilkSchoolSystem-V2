@@ -26,7 +26,7 @@ Sprint 3.5 — Room Module Migration
 
 Status
 
-10% — Sprint plan and safety boundaries initialized; legacy room workflow inspection and implementation pending
+70% — Repository, Service, Manager, dependency wiring, automated tests, and migration documentation implemented; local validation pending
 
 ---
 
@@ -42,66 +42,98 @@ Completed Foundation
 
 ---
 
-Sprint 3.5 Initialized
+Sprint 3.5 Completed
 
 ✓ Branch created from latest `develop`
 
 ✓ Sprint plan created: `docs/SPRINT_3_5_PLAN.md`
 
-✓ Protected legacy files identified
+✓ Legacy manual-room, student-import, room-report, and deletion workflows inspected
 
-✓ Room ID stability requirement recorded
+✓ `RoomRepository` expanded with `milkApp/rooms` storage operations
 
-✓ Room Stock preservation requirement recorded
+✓ Room dependency reads implemented for Room Stock, distributions, attendance, pending, retroactive, vacation, and ledger data
 
-✓ Deletion dependency checks defined
+✓ `RoomService` added
 
-✓ Target Repository → Service → Manager boundaries defined
+✓ Array- and object-shaped room normalization implemented
+
+✓ Manual room creation preserves entered student count without inventing student records
+
+✓ Existing room IDs are immutable during edits
+
+✓ Room Stock is preserved during edits and repeated student imports
+
+✓ Duplicate room ID and room name validation implemented
+
+✓ Imported student field preservation implemented
+
+✓ Duplicate-student detection implemented
+
+✓ Student import preview and confirmation boundary implemented
+
+✓ Existing grade and teacher metadata preserved when import data omits those fields
+
+✓ Room deletion dependency report implemented
+
+✓ Room deletion blocked when operational references exist
+
+✓ Zero-valued Room Stock records block deletion until explicitly migrated or archived
+
+✓ `RoomManager` create, update, import, refresh, and delete command boundary implemented
+
+✓ Room modules loaded by `index-v2.html` in dependency order
+
+✓ Automated test file added: `tests/room-module-check.mjs`
+
+✓ Room migration gap documentation added
+
+✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending
+Pending Before Merge
 
-□ Inspect legacy room creation, editing, import, and deletion workflows
+□ Pull `feature/sprint-3.5-room` to the local workspace
 
-□ Expand `RoomRepository` with `milkApp/rooms` paths and dependency reads
+□ Run `node tests/login-foundation-check.mjs`
 
-□ Create `RoomService`
+□ Run `node tests/stock-module-check.mjs`
 
-□ Create `RoomManager`
+□ Run `node tests/report-module-check.mjs`
 
-□ Add room module dependency wiring to `index-v2.html`
+□ Run `node tests/room-module-check.mjs`
 
-□ Add `tests/room-module-check.mjs`
+□ Open `index-v2.html` through Live Server
 
-□ Add `docs/ROOM_MIGRATION_GAP_REPORT.md`
+□ Confirm Admin and Teacher login remain operational
 
-□ Run Login regression tests
+□ Confirm Browser Console contains no room-module error
 
-□ Run Stock regression tests
+□ Confirm working tree is clean
 
-□ Run Report regression tests
-
-□ Run Room tests
-
-□ Run Browser smoke test
-
-□ Confirm working tree clean
+□ Update Project Memory, Changelog, AI Context, and Module Map after validation
 
 □ Merge into `develop` only after all gates pass
 
 ---
 
-Known Report Migration Gap
+Known Migration Gaps
 
-The legacy report also combines browser-local stored-milk, backdated-milk, and vacation-milk collections. The modular service supports injection of these collections, but the storage/sync adapter must be completed before the V2 report replaces the operational legacy report.
+The Smart Excel binary parser remains in the legacy file. The modular Room service accepts parsed sheet data but does not yet replace XLSX parsing.
+
+The compatible Room workflow writes the complete `milkApp/rooms` collection and does not yet include multi-admin optimistic concurrency control.
+
+The known Report local-data adapter gap remains until browser-local pending, retroactive, and vacation records are connected to the modular report.
 
 ---
 
 Protected Business Rules
 
-- Existing room IDs must remain stable during edits.
+- Existing room IDs must remain stable during edits and repeated imports.
 - Room deletion must not orphan Room Stock or operational history.
+- Room operations must not change Main Stock.
+- Room edits and imports must not silently reset Room Stock.
 - Reports are read-only.
 - Main Stock decreases only when distributing milk to classrooms.
 - Teacher attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
