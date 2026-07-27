@@ -4,13 +4,13 @@
 
 Last Update
 
-2026-07-20
+2026-07-27
 
 ---
 
 Current Branch
 
-develop
+feature/recovery-sprint-3.4.2
 
 ---
 
@@ -22,95 +22,97 @@ V2
 
 Current Sprint
 
-Sprint 3.4.2
+Sprint 3.4.2 Recovery — Runtime Config, Firebase REST and Login Foundation
 
 Status
 
-95%
+90% — implementation and static validation complete; local browser smoke test pending
 
 ---
 
 Completed
 
-✓ Repository Analysis
+✓ Recovery branch created from develop
 
-✓ Architecture Review
+✓ Runtime Firebase configuration restored
 
-✓ Firebase Extraction
+✓ Legacy `milk_school_db.settings.firebaseUrl/firebaseKey` compatibility restored
 
-✓ Repository Pattern
+✓ Firebase Realtime Database REST service restored
 
-✓ Login Modules
+✓ GET / PUT / PATCH / POST / DELETE support
 
-✓ Firebase Service
+✓ Request timeout and `cache: no-store`
 
-✓ Login Service
+✓ BaseRepository routed through FirebaseService
 
-✓ Login Repository
+✓ LoginRepository reads `milkApp/settings` and `milkApp/rooms`
 
-✓ Bootstrap
+✓ Admin and teacher password rules restored
 
-✓ App
+✓ Default legacy password fallback remains `1234`
 
-✓ index-v2
+✓ Session key compatibility restored: `milkApp_loginSession`
 
-✓ Smoke Test
+✓ Login form connected to Repository → Service → AuthService → Manager
 
-✓ Firebase Test
+✓ Bootstrap starts only once
 
-✓ Session Test
+✓ index-v2 dependency order corrected
+
+✓ Static validation script added: `tests/login-foundation-check.mjs`
+
+✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending
+Pending Before Merge
 
-□ Commit Firebase Layer
+□ Pull latest recovery branch to the local workspace
 
-□ Commit Login Layer
+□ Run `node tests/login-foundation-check.mjs`
 
-□ Push develop
+□ Open `index-v2.html` through Live Server
 
-□ Pull Request
+□ Confirm classroom list loads from Firebase
+
+□ Test incorrect admin password
+
+□ Test correct admin password
+
+□ Test incorrect teacher password
+
+□ Test correct teacher password for one classroom
+
+□ Confirm logout clears `sessionStorage.milkApp_loginSession`
+
+□ Merge recovery branch into develop after successful smoke test
 
 ---
 
 Next Sprint
 
-Sprint 3.4.3
+Sprint 3.4.3 — Stock Module
 
-Stock Module
+Do not begin Stock Module until the recovery branch is validated and merged into develop.
 
 ---
 
 Future
 
-Sprint 3.4.4
+Sprint 3.4.4 — Report Module
 
-Report Module
+Sprint 3.5 — Room Module
 
-Sprint 3.5
+Sprint 3.6 — Teacher Module
 
-Room Module
+Sprint 3.7 — Attendance Module
 
-Sprint 3.6
+Sprint 3.8 — Offline Queue
 
-Teacher Module
+Sprint 3.9 — Performance
 
-Sprint 3.7
-
-Attendance Module
-
-Sprint 3.8
-
-Offline Queue
-
-Sprint 3.9
-
-Performance
-
-Sprint 4
-
-Legacy Replacement
+Sprint 4 — Legacy Replacement
 
 ---
 
@@ -120,17 +122,17 @@ Architecture
 
 ██████████ 100%
 
-Firebase
+Firebase Foundation
 
-█████████░ 95%
+█████████░ 90%
 
-Login
+Login Foundation
 
-█████████░ 95%
+█████████░ 90%
 
-Repository
+Repository Foundation
 
-█████████░ 95%
+██████████ 100%
 
 Stock
 
@@ -154,14 +156,10 @@ Offline
 
 Testing
 
-███░░░░░░░ 30%
+████░░░░░░ 40%
 
 ---
 
 Notes
 
-Never restart Sprint 3.4.2.
-
-Continue from latest develop branch.
-
-Only finish remaining work.
+The previously reported Sprint 3.4.2 commits were not present in Git objects, reflog or GitHub history. The foundation was rebuilt on a separate recovery branch without changing legacy files or business data paths.
