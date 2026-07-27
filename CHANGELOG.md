@@ -2,6 +2,54 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-27 — Sprint 3.8 Offline Queue and Sync Module
+
+### Added
+
+- `modules/storage/queueStorage.js`
+- `modules/services/syncService.js`
+- `modules/sync/syncManager.js`
+- `tests/sync-module-check.mjs`
+- `docs/SPRINT_3_8_PLAN.md`
+- `docs/SYNC_MIGRATION_GAP_REPORT.md`
+
+### Changed
+
+- Added persistent queue compatibility through `tc_pending_saves_v1`.
+- Added legacy queue alias normalization for `rec` and `diff`.
+- Added individual corrupt-entry filtering without discarding valid entries.
+- Added duplicate attendance replacement while preserving the first unsynced `baselinePresent` and original queue timestamp.
+- Added Room Stock adjustment replay without rewriting attendance records.
+- Added authenticated-room-only and sequential replay.
+- Added individual success removal, failure retention, attempt counting, and retry timestamps.
+- Added bounded exponential backoff at 5, 10, 20, 40, and 60 seconds.
+- Added startup, reconnect, retry-timer, and periodic online flush orchestration.
+- Added overlapping-flush protection and sync lifecycle events.
+- Added `AttendanceService.adjustRoomStock` for Room Stock-only offline adjustment replay.
+- Loaded Queue, Sync Service, and Sync Manager modules in dependency order from `index-v2.html`.
+
+### Validation
+
+- Login foundation checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module checks passed.
+- Teacher module checks passed.
+- Attendance module checks passed.
+- Sync module architecture and workflow checks passed.
+- Admin browser smoke test passed.
+- Teacher browser smoke test passed.
+- Logout passed.
+- Browser console clean.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Known Gaps
+
+- Operational queue badge, offline banner, media capture, signatures, and printing remain in `teacher.html`.
+- Modular Attendance and Sync do not yet provide the legacy ETag compare-and-retry Room Stock protection for simultaneous writers.
+- Production cutover still requires compatibility validation between legacy-written queues and V2 normalization.
+
 ## 2026-07-27 — Sprint 3.7 Attendance Module
 
 ### Added
@@ -15,7 +63,7 @@ All notable modular migration changes are recorded here.
 
 ### Changed
 
-- Added room-scoped attendance reads using the `{roomId}_` through `{roomId}_\uf8ff` Firebase key-prefix query.
+- Added room-scoped attendance reads using the `{roomId}_` through `{roomId}_` Firebase key-prefix query.
 - Preserved attendance keys as `{roomId}_{YYYY-MM-DD}`.
 - Added authenticated-room-only attendance read, save, edit, and delete boundaries.
 - Added present and absent validation while preserving legacy attendance record fields.
