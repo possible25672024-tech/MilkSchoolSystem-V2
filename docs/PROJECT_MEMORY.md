@@ -2,13 +2,13 @@
 
 ## Project Memory
 
-Version: 2.3
+Version: 2.4
 
 Last updated: 2026-07-27
 
 ## Project Goal
 
-Migrate the existing school-specific MilkSchoolSystem into a configurable platform while preserving the verified legacy behavior.
+Migrate the existing school-specific MilkSchoolSystem into a configurable platform while preserving verified legacy behavior.
 
 ## Source of Truth
 
@@ -19,7 +19,7 @@ Current backend:
 - Firebase Realtime Database
 - REST access through `FirebaseService`
 
-Legacy files remain operational during migration:
+Protected operational legacy files:
 
 - `index.html`
 - `teacher.html`
@@ -36,17 +36,15 @@ UI
 
 → Service
 
-→ Repository
+→ Repository / Storage Adapter
 
-→ FirebaseService
+→ FirebaseService or persistent browser storage
 
-→ Firebase Realtime Database
+Repositories and storage adapters contain persistence paths and serialization only.
 
-Repositories contain database paths and queries only.
+Services contain validation, calculation, workflow, retry, and business rules.
 
-Services contain validation, calculation, workflow, and business rules.
-
-Managers contain UI-safe commands and events only.
+Managers contain UI-safe commands, browser lifecycle orchestration, and events only.
 
 ## Stock Business Rules
 
@@ -58,7 +56,7 @@ Main Stock changes only through:
 - DISTRIBUTE: decreases Main Stock
 - rollback of those same Main Stock operations
 
-Main Stock must not be reduced by teacher operations.
+Main Stock must not be reduced by teacher, attendance, or sync operations.
 
 ### Room Stock
 
@@ -71,7 +69,11 @@ The following operations reduce Room Stock only:
 - RETRO
 - VACATION
 
-Rollback restores the same stock layer that the original operation changed.
+Attendance edits adjust Room Stock by the difference between the previous and new present totals.
+
+Attendance deletion restores the previously consumed Room Stock.
+
+Rollback restores the same stock layer changed by the original operation.
 
 ### Rebuild and Validation
 
@@ -138,8 +140,6 @@ Merged into `develop` at `f56e430` after all validation gates passed.
 - cached view switching
 - report architecture and aggregation tests
 
-Merged into `develop` after all validation gates passed.
-
 Known gap:
 
 The operational legacy report also uses browser-local pending, retroactive, and vacation collections. A Storage/Sync adapter is still required before V2 replaces the operational report.
@@ -173,14 +173,6 @@ Known gaps:
 - Room Stock-only command preparation
 - Teacher architecture and workflow tests
 
-Validation completed:
-
-- Login, Stock, Report, Room, and Teacher tests passed
-- Teacher browser smoke test passed
-- Browser console clean
-- Working tree clean
-- Legacy files unchanged
-
 ### Sprint 3.7 Attendance Module
 
 - `modules/repositories/attendanceRepository.js`
@@ -196,50 +188,72 @@ Validation completed:
 - compatible `stockLog` records
 - Firebase multi-location mutation boundary
 - Attendance architecture and business-rule tests
-- migration gap report
+
+### Sprint 3.8 Offline Queue and Sync Module
+
+- `modules/storage/queueStorage.js`
+- `modules/services/syncService.js`
+- `modules/sync/syncManager.js`
+- persistent `tc_pending_saves_v1` queue compatibility
+- legacy `rec` and `diff` alias normalization
+- individual corrupt-entry filtering
+- duplicate attendance replacement with original baseline preservation
+- original queue timestamp preservation
+- failed-entry retry metadata
+- Room Stock adjustment replay without rewriting attendance
+- authenticated-room-only replay
+- sequential replay
+- successful-entry individual removal
+- failed-entry retention and attempt increment
+- bounded 5s, 10s, 20s, 40s, and 60s backoff
+- startup, reconnect, retry, and periodic flush orchestration
+- overlapping flush prevention
+- sync lifecycle and queue-count events
+- Sync architecture and workflow tests
 
 Validation completed:
 
 - Login foundation tests passed
-- Stock module tests passed
-- Report module tests passed
-- Room module tests passed
-- Teacher module tests passed
-- Attendance module tests passed
-- Admin Login browser smoke test passed
-- Teacher Login browser smoke test passed
-- Logout browser smoke test passed
+- Stock tests passed
+- Report tests passed
+- Room tests passed
+- Teacher tests passed
+- Attendance tests passed
+- Sync tests passed
+- Admin browser smoke test passed
+- Teacher browser smoke test passed
+- Logout passed
 - Browser console clean
 - Working tree clean
 - Legacy files unchanged
 
 Known gaps:
 
-- The operational form, media capture, signatures, and print views remain in `teacher.html`.
-- The modular multi-location PATCH does not yet include the legacy ETag compare-and-retry Room Stock protection.
-- Persistent offline queue, retry, reconnect flush, baseline preservation, and queued-edit conflict handling move to Sprint 3.8.
+- Operational queue badge, offline banner, media, signatures, and print UI remain in `teacher.html`.
+- Production cutover still requires compatibility validation between legacy-written queues and V2 normalization.
+- Modular Attendance and Sync still lack legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
 
 ## Next Sprint
 
-Sprint 3.8 — Offline Queue and Sync Migration
+Sprint 3.9 — Performance and Payload Optimization
 
 Planned boundaries:
 
-- QueueStorage: persistent queue serialization, corruption filtering, and replacement rules
-- SyncService: retry scheduling, exponential backoff, attendance replay, Room Stock adjustment replay, and conflict-safe result handling
-- SyncManager: online/offline events, reconnect flush, periodic flush, queue badge state, and sync events
+- measure and document login request count and payload size
+- verify all attendance reads are scoped to one room
+- audit lazy loading and cache invalidation
+- reduce unnecessary Firebase reads without changing schema
+- validate desktop, mobile, and iPad behavior
+- add repeatable performance checks without inventing unsupported timings
+- validate legacy and V2 queue compatibility using representative fixtures
 
 Protected requirements:
 
-- offline saves survive refresh, browser restart, and device restart
-- repeated edits for the same attendance key replace the queued record but preserve the original baseline
-- attendance replay uses the same AttendanceService business rules
-- Room Stock adjustment retries never rewrite attendance records unnecessarily
-- retries never touch Main Stock
-- only the authenticated room may be replayed
-- queue corruption drops only invalid entries, not the entire queue
-- retry frequency is bounded by exponential backoff
-- existing `teacher.html` remains read-only during extraction
+- Main Stock and Room Stock rules remain unchanged
+- Firebase paths remain compatible
+- Admin and Teacher login remain operational
+- queue entries and original baselines remain persistent
+- legacy `index.html` and `teacher.html` remain read-only during Sprint 3.x extraction
 
 ## Development Rules
 
