@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.4.3-stock
+feature/sprint-3.4.4-report
 
 ---
 
@@ -22,109 +22,109 @@ V2
 
 Current Sprint
 
-Sprint 3.4.3 — Stock Module Migration
+Sprint 3.4.4 — Report Module Migration
 
 Status
 
-100% — implementation, static tests, business-rule tests, browser smoke test, and manual login checks passed
+70% — Repository, Service, Manager, dependency wiring, automated tests, and migration documentation implemented; local validation pending
 
 ---
 
-Sprint 3.4.2 Recovery
+Completed Foundation
 
-✓ Runtime Firebase configuration restored
+✓ Sprint 3.4.2 Recovery merged into `develop` at `648fa6d`
 
-✓ Firebase Realtime Database REST foundation restored
+✓ Sprint 3.4.3 Stock Module merged into `develop` at `f56e430`
 
-✓ Admin and Teacher login restored
-
-✓ Browser login tests passed
-
-✓ Logout and session tests passed
-
-✓ Recovery branch fast-forward merged into `develop` at `648fa6d`
+✓ Login, Firebase, and two-layer Stock rules protected
 
 ---
 
-Sprint 3.4.3 Completed
+Sprint 3.4.4 Completed
 
 ✓ Branch created from latest `develop`
 
 ✓ Sprint plan created
 
-✓ `StockRepository` owns all stock Firebase paths
+✓ Legacy report calculations inspected without modifying legacy files
 
-✓ Main Stock and Room Stock repository methods
+✓ `ReportRepository` implemented as a read-only data boundary
 
-✓ Complete stock snapshot loading
+✓ `ReportRepository` composes settings and the shared stock snapshot
 
-✓ Firebase multi-location update boundary
+✓ `ReportService` normalizes rooms and transaction collections
 
-✓ `StockService` implements two-layer stock business rules
+✓ Thai grade parser supports dotted and non-dotted room names
 
-✓ Receive calculation: crates × per-crate + extra
+✓ Explicit `room.level` takes priority over room-name parsing
 
-✓ Classroom distribution: Main Stock decreases and Room Stock increases
+✓ Natural grade sorting implemented
 
-✓ Teacher operations restricted to Room Stock only
+✓ Per-classroom report aggregation implemented
 
-✓ Attendance, Pending, Retroactive, and Vacation consumption types
+✓ Grade-level report aggregation implemented
 
-✓ Room Stock rollback support
+✓ Whole-school report aggregation implemented
 
-✓ Main Stock rebuild from receives minus classroom distributions
+✓ Distributed, attendance, pending, retroactive, vacation, and remaining totals implemented
 
-✓ Room Stock rebuild from distributions minus Room Stock consumption
+✓ Percentage-used calculation preserved
 
-✓ Stock validation calculations
+✓ Optional legacy local-data adapters supported
 
-✓ Compatible `stockTransactions` ledger records
+✓ Excel export models implemented
 
-✓ `StockManager` UI-safe command boundary
+✓ Print models implemented
 
-✓ Stock modules loaded by `index-v2.html` in dependency order
+✓ `ReportManager` view and refresh command boundary implemented
 
-✓ Static and business-rule test file: `tests/stock-module-check.mjs`
+✓ Cached room/grade/school view switching without additional Firebase reads
 
-✓ Stock migration gap report added
+✓ Report modules loaded by `index-v2.html` in dependency order
 
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
+✓ Automated test file added: `tests/report-module-check.mjs`
 
-✓ Admin and Teacher login remain operational
+✓ Report migration gap documentation added
 
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ Working tree confirmed clean
+✓ Report operations remain read-only
 
 ✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Merge Gate
+Pending Before Merge
 
-PASSED
+□ Pull `feature/sprint-3.4.4-report` to the local workspace
 
-The branch may be fast-forward merged into `develop`.
+□ Run `node tests/login-foundation-check.mjs`
+
+□ Run `node tests/stock-module-check.mjs`
+
+□ Run `node tests/report-module-check.mjs`
+
+□ Open `index-v2.html` through Live Server
+
+□ Confirm Admin and Teacher login remain operational
+
+□ Confirm Browser Console contains no report-module error
+
+□ Confirm working tree is clean
+
+□ Update Project Memory and Changelog after validation
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
-Next Sprint
+Known Migration Gap
 
-Sprint 3.4.4 — Report Module Migration
-
-Target modules:
-
-- `modules/repositories/reportRepository.js`
-- `modules/services/reportService.js`
-- `modules/report/reportManager.js`
-- report calculations and print/export boundaries
+The legacy report also combines browser-local stored-milk, backdated-milk, and vacation-milk collections. The modular service supports injection of these collections, but the storage/sync adapter must be completed before the V2 report replaces the operational legacy report.
 
 ---
 
 Protected Business Rules
 
+- Reports are read-only.
 - Main Stock decreases only when distributing milk to classrooms.
 - Teacher attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
 - Rebuild calculations use transaction history as the source of truth.
