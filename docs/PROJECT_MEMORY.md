@@ -2,7 +2,7 @@
 
 ## Project Memory
 
-Version: 2.2
+Version: 2.3
 
 Last updated: 2026-07-27
 
@@ -100,6 +100,7 @@ Under `milkApp`:
 - `retroMilk`
 - `vacationMilk`
 - `stockTransactions`
+- `stockLog`
 - `updatedAt`
 
 ## Completed Migration Work
@@ -118,7 +119,7 @@ Merged into `develop` at `648fa6d`.
 
 ### Sprint 3.4.3 Stock Module
 
-- `StockRepository`, `StockService`, and `StockManager`
+- Stock Repository, Service, and Manager boundaries
 - receive and classroom distribution workflows
 - Room Stock consumption and rollback workflows
 - rebuild and validation calculations
@@ -162,21 +163,39 @@ Known gaps:
 
 ### Sprint 3.6 Teacher Module
 
-- `modules/repositories/teacherRepository.js`
-- `modules/services/teacherService.js`
-- `modules/teacher/teacherManager.js`
-- Firebase query-parameter support in `FirebaseService`
-- scoped read support in `BaseRepository`
-- authenticated-room-only teacher data boundary
+- room-scoped Teacher Repository, Service, and Manager boundaries
+- Firebase query-parameter support
 - `mcAttendance` key-prefix query for one room only
-- teacher session validation and Admin-session rejection
-- cross-room access rejection
+- authenticated-room-only teacher data
+- Admin-session and cross-room rejection
 - room and student normalization
-- room-scoped distribution, attendance, pending, retroactive, vacation, ledger, and Room Stock normalization
 - teacher dashboard totals
-- teacher command preparation with `mainStockDelta: 0`
-- Room Stock-only consume and rollback boundaries
+- Room Stock-only command preparation
 - Teacher architecture and workflow tests
+
+Validation completed:
+
+- Login, Stock, Report, Room, and Teacher tests passed
+- Teacher browser smoke test passed
+- Browser console clean
+- Working tree clean
+- Legacy files unchanged
+
+### Sprint 3.7 Attendance Module
+
+- `modules/repositories/attendanceRepository.js`
+- `modules/services/attendanceService.js`
+- `modules/attendance/attendanceManager.js`
+- room-scoped attendance reads using `{roomId}_` key-prefix queries
+- legacy-compatible attendance key `{roomId}_{YYYY-MM-DD}`
+- present and absent status validation
+- attendance create and edit workflows
+- Room Stock adjustment by present-count difference
+- attendance deletion and Room Stock rollback
+- compatible `ATTENDANCE` and `ROLLBACK` ledger records
+- compatible `stockLog` records
+- Firebase multi-location mutation boundary
+- Attendance architecture and business-rule tests
 - migration gap report
 
 Validation completed:
@@ -186,36 +205,41 @@ Validation completed:
 - Report module tests passed
 - Room module tests passed
 - Teacher module tests passed
-- Teacher browser smoke test passed
+- Attendance module tests passed
+- Admin Login browser smoke test passed
+- Teacher Login browser smoke test passed
+- Logout browser smoke test passed
 - Browser console clean
 - Working tree clean
 - Legacy files unchanged
 
 Known gaps:
 
-- Operational teacher forms, media capture, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`.
-- Attendance writes move in Sprint 3.7.
-- Persistent offline queue and retry remain unchanged until Sprint 3.8.
+- The operational form, media capture, signatures, and print views remain in `teacher.html`.
+- The modular multi-location PATCH does not yet include the legacy ETag compare-and-retry Room Stock protection.
+- Persistent offline queue, retry, reconnect flush, baseline preservation, and queued-edit conflict handling move to Sprint 3.8.
 
 ## Next Sprint
 
-Sprint 3.7 — Attendance Module Migration
+Sprint 3.8 — Offline Queue and Sync Migration
 
 Planned boundaries:
 
-- AttendanceRepository: room-scoped attendance reads and atomic save boundaries
-- AttendanceService: validation, attendance difference calculation, Room Stock delta calculation, and rollback workflow
-- AttendanceManager: attendance commands and event orchestration
+- QueueStorage: persistent queue serialization, corruption filtering, and replacement rules
+- SyncService: retry scheduling, exponential backoff, attendance replay, Room Stock adjustment replay, and conflict-safe result handling
+- SyncManager: online/offline events, reconnect flush, periodic flush, queue badge state, and sync events
 
 Protected requirements:
 
-- attendance keys remain `{roomId}_{YYYY-MM-DD}`
-- only the authenticated room may be read or written
-- editing an existing day adjusts Room Stock by the difference only
-- Main Stock remains unchanged
-- ledger entries remain compatible
-- offline queue behavior remains unchanged until Sprint 3.8
-- legacy `teacher.html` remains read-only during extraction
+- offline saves survive refresh, browser restart, and device restart
+- repeated edits for the same attendance key replace the queued record but preserve the original baseline
+- attendance replay uses the same AttendanceService business rules
+- Room Stock adjustment retries never rewrite attendance records unnecessarily
+- retries never touch Main Stock
+- only the authenticated room may be replayed
+- queue corruption drops only invalid entries, not the entire queue
+- retry frequency is bounded by exponential backoff
+- existing `teacher.html` remains read-only during extraction
 
 ## Development Rules
 
