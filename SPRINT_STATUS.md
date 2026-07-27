@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/recovery-sprint-3.4.2
+feature/sprint-3.4.3-stock
 
 ---
 
@@ -22,45 +22,71 @@ V2
 
 Current Sprint
 
-Sprint 3.4.2 Recovery — Runtime Config, Firebase REST and Login Foundation
+Sprint 3.4.3 — Stock Module Migration
 
 Status
 
-90% — implementation and static validation complete; local browser smoke test pending
+70% — Repository, Service, Manager, static tests, and migration documentation implemented; local validation pending
 
 ---
 
-Completed
-
-✓ Recovery branch created from develop
+Sprint 3.4.2 Recovery
 
 ✓ Runtime Firebase configuration restored
 
-✓ Legacy `milk_school_db.settings.firebaseUrl/firebaseKey` compatibility restored
+✓ Firebase Realtime Database REST foundation restored
 
-✓ Firebase Realtime Database REST service restored
+✓ Admin and Teacher login restored
 
-✓ GET / PUT / PATCH / POST / DELETE support
+✓ Browser login tests passed
 
-✓ Request timeout and `cache: no-store`
+✓ Logout and session tests passed
 
-✓ BaseRepository routed through FirebaseService
+✓ Recovery branch fast-forward merged into `develop` at `648fa6d`
 
-✓ LoginRepository reads `milkApp/settings` and `milkApp/rooms`
+---
 
-✓ Admin and teacher password rules restored
+Sprint 3.4.3 Completed
 
-✓ Default legacy password fallback remains `1234`
+✓ Branch created from latest `develop`
 
-✓ Session key compatibility restored: `milkApp_loginSession`
+✓ Sprint plan created
 
-✓ Login form connected to Repository → Service → AuthService → Manager
+✓ `StockRepository` owns all stock Firebase paths
 
-✓ Bootstrap starts only once
+✓ Main Stock and Room Stock repository methods
 
-✓ index-v2 dependency order corrected
+✓ Complete stock snapshot loading
 
-✓ Static validation script added: `tests/login-foundation-check.mjs`
+✓ Firebase multi-location update boundary
+
+✓ `StockService` two-layer business rules
+
+✓ Receive calculation: crates × per-crate + extra
+
+✓ Classroom distribution: Main Stock decreases and Room Stock increases
+
+✓ Teacher operations restricted to Room Stock only
+
+✓ Pending, Retroactive, Vacation, and Attendance consumption types
+
+✓ Room Stock rollback support
+
+✓ Main Stock rebuild from receives minus classroom distributions
+
+✓ Room Stock rebuild from distributions minus all Room Stock consumption
+
+✓ Stock validation report calculations
+
+✓ Compatible `stockTransactions` ledger records
+
+✓ `StockManager` UI-safe command boundary
+
+✓ Stock modules loaded by `index-v2.html` in dependency order
+
+✓ Static and business-rule test file added: `tests/stock-module-check.mjs`
+
+✓ Stock migration gap report added
 
 ✓ Legacy `index.html` and `teacher.html` remain unchanged
 
@@ -68,51 +94,44 @@ Completed
 
 Pending Before Merge
 
-□ Pull latest recovery branch to the local workspace
+□ Pull `feature/sprint-3.4.3-stock` to the local workspace
 
 □ Run `node tests/login-foundation-check.mjs`
 
+□ Run `node tests/stock-module-check.mjs`
+
 □ Open `index-v2.html` through Live Server
 
-□ Confirm classroom list loads from Firebase
+□ Confirm Admin and Teacher login remain operational
 
-□ Test incorrect admin password
+□ Confirm no missing stock-module scripts in Browser Console
 
-□ Test correct admin password
+□ Review Stock Module diff
 
-□ Test incorrect teacher password
+□ Decide whether distribution edit-differential is included in this Sprint or the next Stock hardening task
 
-□ Test correct teacher password for one classroom
+□ Update PROJECT_MEMORY.md and CHANGELOG.md after validation
 
-□ Confirm logout clears `sessionStorage.milkApp_loginSession`
+□ Merge Stock branch into `develop` only after all checks pass
 
-□ Merge recovery branch into develop after successful smoke test
+---
+
+Protected Business Rules
+
+1. Main Stock increases only from receiving milk.
+2. Main Stock decreases only when distributing to classrooms.
+3. Classroom distribution transfers quantity to Room Stock.
+4. Attendance, Pending, Retroactive, and Vacation operations reduce Room Stock only.
+5. Rollback restores the same stock layer changed by the original operation.
+6. Rebuild uses source transactions rather than cached balances.
 
 ---
 
 Next Sprint
 
-Sprint 3.4.3 — Stock Module
-
-Do not begin Stock Module until the recovery branch is validated and merged into develop.
-
----
-
-Future
-
 Sprint 3.4.4 — Report Module
 
-Sprint 3.5 — Room Module
-
-Sprint 3.6 — Teacher Module
-
-Sprint 3.7 — Attendance Module
-
-Sprint 3.8 — Offline Queue
-
-Sprint 3.9 — Performance
-
-Sprint 4 — Legacy Replacement
+Do not begin Sprint 3.4.4 until Sprint 3.4.3 passes local tests and is merged into `develop`.
 
 ---
 
@@ -124,11 +143,11 @@ Architecture
 
 Firebase Foundation
 
-█████████░ 90%
+██████████ 100%
 
 Login Foundation
 
-█████████░ 90%
+██████████ 100%
 
 Repository Foundation
 
@@ -136,7 +155,7 @@ Repository Foundation
 
 Stock
 
-██░░░░░░░░ 20%
+███████░░░ 70%
 
 Report
 
@@ -156,10 +175,10 @@ Offline
 
 Testing
 
-████░░░░░░ 40%
+██████░░░░ 60%
 
 ---
 
 Notes
 
-The previously reported Sprint 3.4.2 commits were not present in Git objects, reflog or GitHub history. The foundation was rebuilt on a separate recovery branch without changing legacy files or business data paths.
+Sprint 3.4.2 was validated manually by the user and fast-forward merged into `develop`. Sprint 3.4.3 is isolated on its own feature branch. Legacy pages and their business behavior are protected during migration.
