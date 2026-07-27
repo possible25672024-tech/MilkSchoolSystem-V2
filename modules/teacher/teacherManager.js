@@ -84,12 +84,19 @@ class TeacherManager {
             delete requestOptions.attendanceDate;
         }
 
+        if (session.roomSnapshot && typeof session.roomSnapshot === "object") {
+            requestOptions.roomSnapshot = session.roomSnapshot;
+        } else {
+            delete requestOptions.roomSnapshot;
+        }
+
         this.currentView = await this.teacherService.loadTeacherView(session, requestOptions);
 
         this.emit("milkapp:teacher-refreshed", {
             roomId: this.currentView.snapshot.room.id,
             extrasLoaded: this.currentView.snapshot.extrasLoaded,
             attendanceScope: this.currentView.snapshot.attendanceScope || null,
+            roomSource: this.currentView.snapshot.roomSource || null,
             dashboard: this.currentView.dashboard
         });
 
