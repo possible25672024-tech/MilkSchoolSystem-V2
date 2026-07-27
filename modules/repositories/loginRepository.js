@@ -1,23 +1,36 @@
 class LoginRepository extends BaseRepository {
-
-    async loadUsers() {
-
-        return await this.get("users");
-
+    constructor(firebaseService = window.FirebaseService) {
+        super(firebaseService);
+        this.appRoot = "milkApp";
     }
 
-    async loadTeachers() {
-
-        return await this.get("teachers");
-
+    path(child) {
+        return `${this.appRoot}/${String(child || "").replace(/^\/+/, "")}`;
     }
 
-    async loadAdmins() {
-
-        return await this.get("admins");
-
+    loadSettings() {
+        return this.get(this.path("settings"));
     }
 
+    loadRooms() {
+        return this.get(this.path("rooms"));
+    }
+
+    loadUsers() {
+        return this.get(this.path("users"));
+    }
+
+    async loadLoginContext() {
+        const [settings, rooms] = await Promise.all([
+            this.loadSettings(),
+            this.loadRooms()
+        ]);
+
+        return {
+            settings: settings || {},
+            rooms: rooms || []
+        };
+    }
 }
 
 window.LoginRepository = new LoginRepository();
