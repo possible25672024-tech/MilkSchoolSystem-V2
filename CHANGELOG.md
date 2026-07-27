@@ -2,6 +2,51 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-27 — Sprint 3.7 Attendance Module
+
+### Added
+
+- `modules/repositories/attendanceRepository.js`
+- `modules/services/attendanceService.js`
+- `modules/attendance/attendanceManager.js`
+- `tests/attendance-module-check.mjs`
+- `docs/SPRINT_3_7_PLAN.md`
+- `docs/ATTENDANCE_MIGRATION_GAP_REPORT.md`
+
+### Changed
+
+- Added room-scoped attendance reads using the `{roomId}_` through `{roomId}_\uf8ff` Firebase key-prefix query.
+- Preserved attendance keys as `{roomId}_{YYYY-MM-DD}`.
+- Added authenticated-room-only attendance read, save, edit, and delete boundaries.
+- Added present and absent validation while preserving legacy attendance record fields.
+- Added Room Stock adjustment based on the difference between previous and new present counts.
+- Added attendance deletion rollback that restores the deleted present count to Room Stock.
+- Added compatible `ATTENDANCE` and `ROLLBACK` ledger records.
+- Added compatible `stockLog` records.
+- Added Firebase multi-location attendance mutation updates under `milkApp`.
+- Loaded Attendance modules in dependency order from `index-v2.html`.
+
+### Validation
+
+- Login foundation checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module checks passed.
+- Teacher module checks passed.
+- Attendance module architecture and business-rule checks passed.
+- Admin Login browser smoke test passed.
+- Teacher Login browser smoke test passed.
+- Logout browser smoke test passed.
+- Browser console clean.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Known Gaps
+
+- Operational attendance forms, media capture, signatures, and printing remain in `teacher.html`.
+- The modular multi-location PATCH does not yet include the legacy ETag compare-and-retry Room Stock protection.
+- Persistent offline queue, retry, reconnect flush, baseline preservation, and queued-edit conflict handling move to Sprint 3.8.
+
 ## 2026-07-27 — Sprint 3.6 Teacher Module
 
 ### Added
