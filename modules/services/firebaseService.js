@@ -66,15 +66,24 @@ class FirebaseService {
     async request(path, options = {}, query = {}) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
+        const method = String(options.method || "GET").toUpperCase();
+        const headers = { ...(options.headers || {}) };
+        const hasContentType = Object.keys(headers).some(
+            headerName => headerName.toLowerCase() === "content-type"
+        );
+
+        // A Content-Type: application/json header on a body-less GET triggers an
+        // unnecessary CORS preflight in browsers. Add it only for JSON writes.
+        if (options.body !== undefined && !hasContentType) {
+            headers["Content-Type"] = "application/json";
+        }
 
         try {
             const response = await fetch(this.buildURL(path, query), {
                 cache: "no-store",
                 ...options,
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(options.headers || {})
-                },
+                method,
+                headers,
                 signal: options.signal || controller.signal
             });
 
