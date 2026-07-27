@@ -63,7 +63,19 @@ class FirebaseService {
         return `${this.databaseURL}/${cleanPath}.json${queryString ? `?${queryString}` : ""}`;
     }
 
-    async request(path, options = {}, query = {}) {
+    parseResponseText(text) {
+        if (!text) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            return text;
+        }
+    }
+
+    async performRequest(path, options = {}, query = {}) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
         const method = String(options.method || "GET").toUpperCase();
@@ -86,18 +98,13 @@ class FirebaseService {
                 headers,
                 signal: options.signal || controller.signal
             });
+            const text = response.status === 204 ? "" : await response.text();
 
-            if (!response.ok) {
-                const message = await response.text();
-                throw new Error(`Firebase request failed (${response.status}): ${message}`);
-            }
-
-            if (response.status === 204) {
-                return null;
-            }
-
-            const text = await response.text();
-            return text ? JSON.parse(text) : null;
+            return {
+                response,
+                text,
+                data: this.parseResponseText(text)
+            };
         } catch (error) {
             if (error?.name === "AbortError") {
                 throw new Error(`Firebase request timed out after ${this.requestTimeoutMs} ms.`);
@@ -107,6 +114,16 @@ class FirebaseService {
         } finally {
             clearTimeout(timeoutId);
         }
+    }
+
+    async request(path, options = {}, query = {}) {
+        const result = await this.performRequest(path, options, query);
+
+        if (!result.response.ok) {
+            throw new Error(`Firebase request failed (${result.response.status}): ${result.text}`);
+        }
+
+        return result.response.status === 204 ? null : result.data;
     }
 
     get(path, query = {}) {
@@ -125,6 +142,63 @@ class FirebaseService {
 
         this.inflightGets.set(requestKey, request);
         return request;
+    }
+
+    async getWithEtag(path, query = {}) {
+        const result = await this.performRequest(path, {
+            method: "GET",
+            headers: {
+                "X-Firebase-ETag": "true"
+            }
+        }, query);
+
+        if (!result.response.ok) {
+            throw new Error(`Firebase ETag read failed (${result.response.status}): ${result.text}`);
+        }
+
+        const etag = result.response.headers?.get?.("ETag") || result.response.headers?.get?.("etag") || "";
+        if (!etag) {
+            throw new Error("Firebase ETag read did not return an ETag header.");
+        }
+
+        return {
+            value: result.response.status === 204 ? null : result.data,
+            etag,
+            status: result.response.status
+        };
+    }
+
+    async setIfMatch(path, data, etag) {
+        const normalizedEtag = String(etag || "").trim();
+        if (!normalizedEtag) {
+            throw new Error("An ETag is required for a conditional Firebase write.");
+        }
+
+        const result = await this.performRequest(path, {
+            method: "PUT",
+            headers: {
+                "If-Match": normalizedEtag
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (result.response.status === 412) {
+            return {
+                status: "conflict",
+                value: result.data,
+                etag: result.response.headers?.get?.("ETag") || result.response.headers?.get?.("etag") || ""
+            };
+        }
+
+        if (!result.response.ok) {
+            throw new Error(`Firebase conditional write failed (${result.response.status}): ${result.text}`);
+        }
+
+        return {
+            status: "ok",
+            value: result.response.status === 204 ? data : result.data,
+            etag: result.response.headers?.get?.("ETag") || result.response.headers?.get?.("etag") || ""
+        };
     }
 
     set(path, data) {
