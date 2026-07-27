@@ -1,10 +1,8 @@
 # MilkSchoolSystem-V2
-# Codex Context
+# AI Development Context
 
-Version: 2.0
-
-Last Updated:
-2026-07-20
+Version: 2.1
+Last Updated: 2026-07-27
 
 ---
 
@@ -12,7 +10,7 @@ Repository
 
 possible25672024-tech/MilkSchoolSystem-V2
 
-Default Branch
+Default integration branch
 
 develop
 
@@ -20,313 +18,188 @@ develop
 
 Project Status
 
-Migration Project
-
 Legacy
 
 ↓
 
-Modular V2
+Modular V2 Migration
+
+Backend
+
+Firebase Realtime Database
+
+---
+
+Completed Sprints
+
+Sprint 3.4.2 — Recovery Foundation
+
+✓ Runtime Firebase configuration
+
+✓ Firebase Realtime Database REST service
+
+✓ BaseRepository
+
+✓ Admin and Teacher login
+
+✓ Session compatibility
+
+✓ Bootstrap and index-v2 dependency order
+
+✓ Static and browser validation
+
+Merged into `develop` at `648fa6d`.
+
+Sprint 3.4.3 — Stock Module Migration
+
+✓ StockRepository
+
+✓ StockService
+
+✓ StockManager
+
+✓ Receive workflow
+
+✓ Classroom distribution workflow
+
+✓ Main Stock and Room Stock separation
+
+✓ Attendance, Pending, Retroactive, and Vacation Room Stock rules
+
+✓ Rollback support
+
+✓ Rebuild and validation calculations
+
+✓ Shared stock ledger compatibility
+
+✓ Static and business-rule tests
+
+✓ Browser smoke test
+
+✓ Legacy files unchanged
 
 ---
 
 Current Sprint
 
-Sprint 3.4.2
+Sprint 3.4.4 — Report Module Migration
 
-Status
-
-95%
-
----
-
-Completed
-
-✓ Repository Analysis
-
-✓ Architecture Review
-
-✓ Legacy Analysis
-
-✓ Firebase Layer
-
-✓ Repository Layer
-
-✓ Login Layer
-
-✓ Module Smoke Test
-
-✓ Firebase Test
-
-✓ Session Test
-
-✓ index-v2
-
-✓ bootstrap.js
-
-✓ app.js
-
----
-
-Pending
-
-□ Group commits
-
-□ Commit Firebase Layer
-
-□ Commit Login Layer
-
-□ Push develop
-
-□ Pull Request
-
----
-
-Next Sprint
-
-Sprint 3.4.3
-
-Stock Module
-
-Sprint 3.4.4
-
-Report Module
-
-Sprint 3.5
-
-Room Module
-
-Sprint 3.6
-
-Teacher Module
-
-Sprint 3.7
-
-Attendance Module
-
-Sprint 3.8
-
-Offline Queue
-
-Sprint 3.9
-
-Performance
-
-Sprint 4
-
-Legacy Replacement
-
----
-
-Legacy Files
-
-index.html
-
-teacher.html
-
-Remain untouched during migration.
-
-Only migrate functionality.
-
----
-
-Migration Order
-
-Firebase
-
-↓
-
-Repository
-
-↓
-
-Service
-
-↓
-
-Manager
-
-↓
+Target structure
 
 UI
 
+↓
+
+ReportManager
+
+↓
+
+ReportService
+
+↓
+
+ReportRepository
+
+↓
+
+FirebaseService
+
+↓
+
+Realtime Database
+
+Target files
+
+- `modules/repositories/reportRepository.js`
+- `modules/services/reportService.js`
+- `modules/report/reportManager.js`
+- report tests
+- report migration documentation
+
+Required report views
+
+- per classroom
+- by grade level
+- whole school
+
 ---
 
-Current Modules
+Protected Legacy Files
 
-core
+- `index.html`
+- `teacher.html`
 
-firebase
-
-login
-
-repositories
-
-services
-
-report
-
-stock
-
-teacher
-
-room
-
-attendance
-
-sync
-
-utils
-
----
-
-Business Rules
-
-Main Stock
-
-↓
-
-Distribute
-
-↓
-
-Room Stock
-
-↓
-
-Teacher Attendance
-
-↓
-
-Drink
-
-Pending
-
-Retroactive
-
-Vacation
+Do not modify these files during Sprint 3.x migration unless explicitly approved.
 
 ---
 
 Never Break
 
-Stock Calculation
-
-Attendance
-
-Firebase Schema
-
-Teacher Login
-
-Admin Login
-
-Sync
-
-Offline Queue
+- Main Stock decreases only when distributing to classrooms.
+- Teacher operations reduce only Room Stock.
+- Firebase schema and paths remain compatible.
+- Admin login remains operational.
+- Teacher login remains operational.
+- Offline and sync behavior remains untouched until its scheduled Sprint.
+- Rebuild calculations use transaction history.
 
 ---
 
-Current Firebase Structure
+Repository Responsibilities
 
-milkApp
+Database operations and queries only.
 
-attendance
+No calculations.
 
-roomStock
-
-stock
-
-rooms
-
-users
-
-settings
-
-reports
-
-transactions
+No UI.
 
 ---
 
-AI Instructions
+Service Responsibilities
 
-Before coding:
+Validation.
 
-Read
+Calculation.
 
-AGENTS.md
+Aggregation.
 
-REPOSITORY_RULES.md
+Workflow.
 
-SPRINT_STATUS.md
+Business rules.
 
-MODULE_MAP.md
-
-Never restart completed Sprint.
-
-Continue from latest repository state.
-
-Never recreate existing modules.
-
-Compare before editing.
-
-Refactor only.
-
-Preserve behavior.
-
-Use ES Modules.
-
-Repository Pattern.
-
-Service Layer.
-
-No duplicated code.
+No UI.
 
 ---
 
-Expected Workflow
+Manager Responsibilities
 
-Open Repository
+Display commands.
 
-↓
+Events.
 
-Read AGENTS.md
+Filters.
 
-↓
+Navigation.
 
-Read Context
+Print/export orchestration.
 
-↓
+Never access Firebase directly.
 
-Read Sprint Status
+---
 
-↓
+Required Workflow
 
-Read Required Source Files
-
-↓
-
-Implement
-
-↓
-
-Test
-
-↓
-
-Commit
-
-↓
-
-Update SPRINT_STATUS.md
-
-↓
-
-Update PROJECT_MEMORY.md
-
-↓
-
-Finish
+1. Read `AGENTS.md`.
+2. Read `REPOSITORY_RULES.md`.
+3. Read `SPRINT_STATUS.md`.
+4. Read `MODULE_MAP.md`.
+5. Read only related source files.
+6. Compare before editing.
+7. Implement on a feature branch.
+8. Run static and business-rule tests.
+9. Run browser smoke tests.
+10. Update `SPRINT_STATUS.md`, `docs/PROJECT_MEMORY.md`, and `CHANGELOG.md`.
+11. Merge into `develop` only after all gates pass.
 
 ---
 
