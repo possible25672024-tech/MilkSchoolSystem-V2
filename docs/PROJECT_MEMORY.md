@@ -2,7 +2,7 @@
 
 ## Project Memory
 
-Version: 2.0
+Version: 2.1
 
 Last updated: 2026-07-27
 
@@ -120,7 +120,6 @@ Merged into `develop` at `648fa6d`.
 - `modules/repositories/stockRepository.js`
 - `modules/services/stockService.js`
 - `modules/stock/stockManager.js`
-- multi-location Firebase update boundary
 - receive and classroom distribution workflows
 - Room Stock consumption and rollback workflows
 - rebuild and validation calculations
@@ -128,18 +127,7 @@ Merged into `develop` at `648fa6d`.
 - stock static and business-rule tests
 - migration gap report
 
-Validation completed:
-
-- Login foundation tests passed
-- Stock module tests passed
-- Admin login passed
-- Teacher login passed
-- Logout passed
-- Browser console clean
-- Working tree clean
-- Legacy files unchanged
-
-Merged into `develop` at `f56e430`.
+Merged into `develop` at `f56e430` after Login, Stock, Admin, Teacher, Logout, Browser, and clean-tree validation passed.
 
 ### Sprint 3.4.4 Report Module
 
@@ -149,10 +137,32 @@ Merged into `develop` at `f56e430`.
 - read-only report snapshot boundary
 - classroom, grade-level, and whole-school aggregation
 - Thai grade normalization and natural sorting
-- distributed, attendance, pending, retroactive, vacation, remaining, and percentage-used totals
+- distribution and Room Stock consumption totals
 - print and Excel export models
 - cached view switching without additional Firebase reads
-- report architecture and business-rule tests
+- report architecture and aggregation tests
+- migration gap report
+
+Merged into `develop` after Login, Stock, Report, Admin, Browser, and clean-tree validation passed.
+
+Known gap:
+
+The operational legacy report also uses browser-local pending, retroactive, and vacation collections. V2 supports injecting these collections, but the Storage/Sync adapter must be connected before V2 replaces the operational report.
+
+### Sprint 3.5 Room Module
+
+- `modules/repositories/roomRepository.js`
+- `modules/services/roomService.js`
+- `modules/room/roomManager.js`
+- room normalization for array and object Firebase shapes
+- manual room creation and metadata editing
+- immutable Room IDs during edits
+- Room Stock preservation during edits and repeated imports
+- duplicate room and duplicate student validation
+- student import preparation and confirmation boundary
+- deletion dependency reports
+- deletion blocking for Room Stock, distributions, attendance, pending, retroactive, vacation, and ledger references
+- Room architecture and workflow tests
 - migration gap report
 
 Validation completed:
@@ -160,32 +170,34 @@ Validation completed:
 - Login foundation tests passed
 - Stock module tests passed
 - Report module tests passed
-- Admin login passed
+- Room module tests passed
+- Admin browser smoke test passed
 - Browser console clean
 - Working tree clean
 - Legacy files unchanged
 
-Known gap:
+Known gaps:
 
-The operational legacy report also uses browser-local pending, retroactive, and vacation collections. V2 supports injecting these collections, but the Storage/Sync adapter must be connected before V2 replaces the operational report.
+- XLSX binary parsing remains in the legacy file; RoomService accepts already parsed sheet data.
+- Complete `milkApp/rooms` writes do not yet include multi-admin optimistic concurrency control.
 
 ## Next Sprint
 
-Sprint 3.5 — Room Module Migration
+Sprint 3.6 — Teacher Module Migration
 
 Planned boundaries:
 
-- RoomRepository: room data reads and writes only
-- RoomService: room validation, normalization, import preparation, and room workflows
-- RoomManager: display, forms, filters, and command orchestration
+- TeacherRepository: room-scoped teacher data reads only
+- TeacherService: teacher session validation, room-scoped normalization, and teacher workflows
+- TeacherManager: teacher navigation and command orchestration
 
 Protected requirements:
 
-- preserve room IDs and names
-- preserve teacher assignments and student lists
-- preserve Room Stock references
-- prevent room deletion when dependent operational data would become orphaned
-- do not change legacy Firebase paths
+- only the logged-in teacher room may be loaded for room-scoped operational data
+- teacher workflows must reduce only Room Stock
+- Main Stock must remain untouched
+- existing `teacher.html` remains read-only during extraction
+- offline queue behavior remains unchanged until Sprint 3.8
 
 ## Development Rules
 
@@ -194,4 +206,4 @@ Protected requirements:
 - Use `feature/*` branches for Sprint work.
 - Do not modify `index.html` or `teacher.html` during Sprint 3.x migration unless explicitly approved.
 - Do not change verified business logic while extracting modules.
-- Run Login, Firebase, Stock, Report, and Smoke tests before merging.
+- Run all available regression, module, browser, and clean-tree checks before merging.
