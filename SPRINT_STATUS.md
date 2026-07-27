@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-3.4.4-report
+feature/sprint-3.5-room
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 3.4.4 — Report Module Migration
+Sprint 3.5 — Room Module Migration
 
 Status
 
-100% — implementation, architecture checks, aggregation tests, browser smoke test, login regression, and working-tree validation passed
+10% — Sprint plan and safety boundaries initialized; legacy room workflow inspection and implementation pending
 
 ---
 
@@ -36,106 +36,72 @@ Completed Foundation
 
 ✓ Sprint 3.4.3 Stock Module merged into `develop` at `f56e430`
 
-✓ Login, Firebase, and two-layer Stock rules protected
+✓ Sprint 3.4.4 Report Module merged into `develop` after all automated and browser gates passed
+
+✓ Login, Firebase, Stock, and read-only Report rules protected
 
 ---
 
-Sprint 3.4.4 Completed
+Sprint 3.5 Initialized
 
 ✓ Branch created from latest `develop`
 
-✓ Sprint plan created
+✓ Sprint plan created: `docs/SPRINT_3_5_PLAN.md`
 
-✓ Legacy report calculations inspected without modifying legacy files
+✓ Protected legacy files identified
 
-✓ `ReportRepository` implemented as a read-only data boundary
+✓ Room ID stability requirement recorded
 
-✓ `ReportRepository` composes settings and the shared stock snapshot
+✓ Room Stock preservation requirement recorded
 
-✓ `ReportService` normalizes rooms and transaction collections
+✓ Deletion dependency checks defined
 
-✓ Thai grade parser supports dotted and non-dotted room names
-
-✓ Explicit `room.level` takes priority over room-name parsing
-
-✓ Natural grade sorting implemented
-
-✓ Per-classroom report aggregation implemented
-
-✓ Grade-level report aggregation implemented
-
-✓ Whole-school report aggregation implemented
-
-✓ Distributed, attendance, pending, retroactive, vacation, and remaining totals implemented
-
-✓ Percentage-used calculation preserved
-
-✓ Optional legacy local-data adapters supported
-
-✓ Excel export models implemented
-
-✓ Print models implemented
-
-✓ `ReportManager` view and refresh command boundary implemented
-
-✓ Cached room/grade/school view switching without additional Firebase reads
-
-✓ Report modules loaded by `index-v2.html` in dependency order
-
-✓ Automated test file added: `tests/report-module-check.mjs`
-
-✓ Report migration gap documentation added
-
-✓ Report operations remain read-only
-
-✓ `node tests/login-foundation-check.mjs` passed
-
-✓ `node tests/stock-module-check.mjs` passed
-
-✓ `node tests/report-module-check.mjs` passed
-
-✓ Admin login passed
-
-✓ Teacher login remained operational from the previous regression gate
-
-✓ Browser console contains only `MilkSchoolSystem V2 Started`
-
-✓ Working tree confirmed clean
-
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Target Repository → Service → Manager boundaries defined
 
 ---
 
-Merge Gate
+Pending
 
-PASSED
+□ Inspect legacy room creation, editing, import, and deletion workflows
 
-The branch may be fast-forward merged into `develop`.
+□ Expand `RoomRepository` with `milkApp/rooms` paths and dependency reads
+
+□ Create `RoomService`
+
+□ Create `RoomManager`
+
+□ Add room module dependency wiring to `index-v2.html`
+
+□ Add `tests/room-module-check.mjs`
+
+□ Add `docs/ROOM_MIGRATION_GAP_REPORT.md`
+
+□ Run Login regression tests
+
+□ Run Stock regression tests
+
+□ Run Report regression tests
+
+□ Run Room tests
+
+□ Run Browser smoke test
+
+□ Confirm working tree clean
+
+□ Merge into `develop` only after all gates pass
 
 ---
 
-Known Migration Gap
+Known Report Migration Gap
 
 The legacy report also combines browser-local stored-milk, backdated-milk, and vacation-milk collections. The modular service supports injection of these collections, but the storage/sync adapter must be completed before the V2 report replaces the operational legacy report.
 
 ---
 
-Next Sprint
-
-Sprint 3.5 — Room Module Migration
-
-Target modules:
-
-- `modules/repositories/roomRepository.js`
-- `modules/services/roomService.js`
-- `modules/room/roomManager.js`
-- room validation and import boundaries
-- room tests and migration documentation
-
----
-
 Protected Business Rules
 
+- Existing room IDs must remain stable during edits.
+- Room deletion must not orphan Room Stock or operational history.
 - Reports are read-only.
 - Main Stock decreases only when distributing milk to classrooms.
 - Teacher attendance, pending milk, retroactive milk, and vacation milk reduce only Room Stock.
