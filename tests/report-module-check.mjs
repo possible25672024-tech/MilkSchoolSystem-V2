@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const currentFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(currentFile), "..");
 const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf8");
+const toPlainData = value => JSON.parse(JSON.stringify(value));
 
 const indexCode = read("index-v2.html");
 const repositoryCode = read("modules/repositories/reportRepository.js");
@@ -135,7 +136,7 @@ assert.equal(roomById.r4.remaining, 2, "Room r4 remaining stock must include loc
 
 const gradeReport = service.buildReport(snapshot, "grade");
 assert.deepEqual(
-    gradeReport.gradeSummary.map(group => group.grade),
+    toPlainData(gradeReport.gradeSummary.map(group => group.grade)),
     ["อ.2", "ป.2"],
     "Grade report must normalize and naturally sort grade groups"
 );
@@ -145,7 +146,7 @@ assert.equal(gradeReport.gradeSummary[0].remaining, 20, "Kindergarten grade rema
 
 const schoolReport = service.buildReport(snapshot, "school");
 assert.deepEqual(
-    schoolReport.schoolTotal,
+    toPlainData(schoolReport.schoolTotal),
     {
         roomCount: 4,
         students: 8,
