@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.1
+Version: 2.2
 Last Updated: 2026-07-27
 
 ---
@@ -78,11 +78,37 @@ Sprint 3.4.3 — Stock Module Migration
 
 ✓ Legacy files unchanged
 
+Merged into `develop` at `f56e430`.
+
+Sprint 3.4.4 — Report Module Migration
+
+✓ ReportRepository read-only boundary
+
+✓ ReportService classroom, grade, and school aggregation
+
+✓ ReportManager view, refresh, print, and export boundary
+
+✓ Thai grade normalization and sorting
+
+✓ Distribution and consumption totals
+
+✓ Remaining and percentage-used calculations
+
+✓ Cached view switching
+
+✓ Architecture and aggregation tests
+
+✓ Browser smoke test
+
+✓ Legacy files unchanged
+
+Known gap: browser-local pending, retroactive, and vacation collections require a Storage/Sync adapter before V2 becomes the operational report.
+
 ---
 
 Current Sprint
 
-Sprint 3.4.4 — Report Module Migration
+Sprint 3.5 — Room Module Migration
 
 Target structure
 
@@ -90,15 +116,15 @@ UI
 
 ↓
 
-ReportManager
+RoomManager
 
 ↓
 
-ReportService
+RoomService
 
 ↓
 
-ReportRepository
+RoomRepository
 
 ↓
 
@@ -110,17 +136,21 @@ Realtime Database
 
 Target files
 
-- `modules/repositories/reportRepository.js`
-- `modules/services/reportService.js`
-- `modules/report/reportManager.js`
-- report tests
-- report migration documentation
+- `modules/repositories/roomRepository.js`
+- `modules/services/roomService.js`
+- `modules/room/roomManager.js`
+- room tests
+- room migration documentation
 
-Required report views
+Required room workflows
 
-- per classroom
-- by grade level
-- whole school
+- load and normalize rooms
+- create room
+- update room metadata
+- update teacher assignment
+- prepare student import data
+- validate room deletion safety
+- preserve Room Stock and transaction references
 
 ---
 
@@ -137,7 +167,10 @@ Never Break
 
 - Main Stock decreases only when distributing to classrooms.
 - Teacher operations reduce only Room Stock.
+- Reports remain read-only.
 - Firebase schema and paths remain compatible.
+- Room IDs remain stable after creation.
+- Room deletion must not orphan stock, attendance, distribution, pending, retroactive, vacation, or ledger records.
 - Admin login remains operational.
 - Teacher login remains operational.
 - Offline and sync behavior remains untouched until its scheduled Sprint.
@@ -159,9 +192,9 @@ Service Responsibilities
 
 Validation.
 
-Calculation.
+Normalization.
 
-Aggregation.
+Calculation.
 
 Workflow.
 
@@ -177,11 +210,11 @@ Display commands.
 
 Events.
 
+Forms.
+
 Filters.
 
 Navigation.
-
-Print/export orchestration.
 
 Never access Firebase directly.
 
