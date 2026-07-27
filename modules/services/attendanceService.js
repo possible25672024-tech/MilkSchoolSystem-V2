@@ -223,13 +223,15 @@ class AttendanceService {
                 user: session.teacher || record.teacher
             });
             stockLog = this.buildStockLog({
-                type: "OUT",
+                type: presentDifference > 0 ? "OUT" : "IN",
                 roomId,
                 roomName: record.roomName,
                 date: record.date,
-                quantity: presentDifference,
+                quantity: Math.abs(presentDifference),
                 balanceAfter: roomStockAfter,
-                note: "หักสต็อกจากการเช็คดื่มนมรายวัน"
+                note: presentDifference > 0
+                    ? "หักสต็อกจากการเช็คดื่มนมรายวัน"
+                    : "คืนสต็อกจากการแก้ไขเช็คดื่มนมรายวัน"
             });
 
             updates[`roomStock/${roomId}`] = roomStockAfter;
@@ -246,6 +248,62 @@ class AttendanceService {
             present: currentCounts.present,
             absent: currentCounts.absent,
             presentDifference,
+            roomStockBefore,
+            roomStockAfter,
+            ledger,
+            stockLog,
+            updates,
+            mainStockDelta: 0
+        };
+    }
+
+    async adjustRoomStock(session, input = {}) {
+        const repository = this.ensureRepository();
+        const roomId = this.assertRoomAccess(session, input.roomId);
+        const difference = Number(input.difference);
+
+        if (!Number.isFinite(difference) || difference === 0) {
+            throw this.businessError(
+                "ROOM_STOCK_DIFFERENCE_INVALID",
+                "Room Stock adjustment difference must be a non-zero number."
+            );
+        }
+
+        const roomStockBefore = this.toNumber(await repository.loadRoomStock(roomId));
+        const roomStockAfter = roomStockBefore - difference;
+        const referenceId = String(input.referenceId || "").trim();
+        const ledger = this.buildLedgerEntry({
+            roomId,
+            type: "ATTENDANCE",
+            quantity: -difference,
+            stockBefore: roomStockBefore,
+            stockAfter: roomStockAfter,
+            referenceId,
+            user: session.teacher || input.teacher
+        });
+        const stockLog = this.buildStockLog({
+            type: difference > 0 ? "OUT" : "IN",
+            roomId,
+            roomName: String(input.roomName || session.roomName || roomId),
+            date: String(input.date || ""),
+            quantity: Math.abs(difference),
+            balanceAfter: roomStockAfter,
+            note: difference > 0
+                ? "หักสต็อกจากการเช็คดื่มนมรายวัน (ซิงก์ค้างจากออฟไลน์)"
+                : "คืนสต็อกจากการแก้ไขเช็คดื่มนมรายวัน (ซิงก์ค้างจากออฟไลน์)"
+        });
+        const updates = {
+            [`roomStock/${roomId}`]: roomStockAfter,
+            [`stockTransactions/${ledger.id}`]: ledger,
+            [`stockLog/${stockLog.id}`]: stockLog
+        };
+
+        await repository.applyAttendanceMutation(updates);
+
+        return {
+            roomId,
+            difference,
+            referenceId,
             roomStockBefore,
             roomStockAfter,
             ledger,
