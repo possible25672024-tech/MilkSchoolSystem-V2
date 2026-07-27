@@ -139,21 +139,53 @@ Validation completed:
 - Working tree clean
 - Legacy files unchanged
 
+Merged into `develop` at `f56e430`.
+
+### Sprint 3.4.4 Report Module
+
+- `modules/repositories/reportRepository.js`
+- `modules/services/reportService.js`
+- `modules/report/reportManager.js`
+- read-only report snapshot boundary
+- classroom, grade-level, and whole-school aggregation
+- Thai grade normalization and natural sorting
+- distributed, attendance, pending, retroactive, vacation, remaining, and percentage-used totals
+- print and Excel export models
+- cached view switching without additional Firebase reads
+- report architecture and business-rule tests
+- migration gap report
+
+Validation completed:
+
+- Login foundation tests passed
+- Stock module tests passed
+- Report module tests passed
+- Admin login passed
+- Browser console clean
+- Working tree clean
+- Legacy files unchanged
+
+Known gap:
+
+The operational legacy report also uses browser-local pending, retroactive, and vacation collections. V2 supports injecting these collections, but the Storage/Sync adapter must be connected before V2 replaces the operational report.
+
 ## Next Sprint
 
-Sprint 3.4.4 — Report Module Migration
+Sprint 3.5 — Room Module Migration
 
 Planned boundaries:
 
-- ReportRepository: report data reads only
-- ReportService: aggregation and calculation only
-- ReportManager: display, filters, print, and export commands only
+- RoomRepository: room data reads and writes only
+- RoomService: room validation, normalization, import preparation, and room workflows
+- RoomManager: display, forms, filters, and command orchestration
 
-Required report views already identified in the legacy system:
+Protected requirements:
 
-- classroom
-- grade level
-- whole school
+- preserve room IDs and names
+- preserve teacher assignments and student lists
+- preserve Room Stock references
+- prevent room deletion when dependent operational data would become orphaned
+- do not change legacy Firebase paths
 
 ## Development Rules
 
@@ -162,4 +194,4 @@ Required report views already identified in the legacy system:
 - Use `feature/*` branches for Sprint work.
 - Do not modify `index.html` or `teacher.html` during Sprint 3.x migration unless explicitly approved.
 - Do not change verified business logic while extracting modules.
-- Run Login, Firebase, Stock, and Smoke tests before merging.
+- Run Login, Firebase, Stock, Report, and Smoke tests before merging.
