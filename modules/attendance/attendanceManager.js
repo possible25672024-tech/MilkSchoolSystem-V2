@@ -40,8 +40,8 @@ class AttendanceManager {
             this.syncService = window.SyncService;
         }
 
-        if (!this.syncService?.queueRoomStockAdjustment) {
-            throw new Error("SyncService is not available for Room Stock retry.");
+        if (!this.syncService) {
+            throw new Error("SyncService is not available.");
         }
 
         return this.syncService;
@@ -74,7 +74,12 @@ class AttendanceManager {
 
     queueStockAdjustment(session, error) {
         const details = error?.details || {};
-        const queueEntry = this.ensureSyncService().queueRoomStockAdjustment(session, {
+        const syncService = this.ensureSyncService();
+        if (!syncService.queueRoomStockAdjustment) {
+            throw new Error("SyncService cannot queue Room Stock retries.");
+        }
+
+        const queueEntry = syncService.queueRoomStockAdjustment(session, {
             roomId: details.roomId,
             difference: details.difference,
             referenceId: details.referenceId,
@@ -91,17 +96,47 @@ class AttendanceManager {
         };
     }
 
+    queueAuditIfNeeded(session, result) {
+        if (result?.audit?.ok !== false || (!result?.ledger?.id && !result?.stockLog?.id)) {
+            return result;
+        }
+
+        const syncService = this.ensureSyncService();
+        if (!syncService.queueAttendanceAudit) {
+            throw new Error("SyncService cannot queue attendance audit retries.");
+        }
+
+        const auditQueueEntry = syncService.queueAttendanceAudit(session, {
+            roomId: result.roomId || result.ledger?.roomId || result.stockLog?.roomId,
+            referenceId: result.referenceId || result.ledger?.referenceId || result.key,
+            ledger: result.ledger,
+            stockLog: result.stockLog,
+            key: `audit_${result.ledger?.id || result.stockLog?.id}`
+        });
+
+        return {
+            ...result,
+            auditQueued: true,
+            auditQueueEntry,
+            mainStockDelta: 0
+        };
+    }
+
     async save(input = {}) {
         const session = this.getSession();
 
         try {
-            const result = await this.ensureAttendanceService().saveAttendance(session, input);
+            let result = await this.ensureAttendanceService().saveAttendance(session, input);
+            result = this.queueAuditIfNeeded(session, result);
             this.currentDay = result.record;
             this.history = {
                 ...this.history,
                 [result.key]: result.record
             };
-            this.emit("milkapp:attendance-saved", result);
+            this.emit(
+                result.auditQueued ? "milkapp:attendance-audit-queued" : "milkapp:attendance-saved",
+                result
+            );
             return result;
         } catch (error) {
             if (error?.code !== "ROOM_STOCK_ADJUSTMENT_REQUIRED" || error?.details?.operation !== "save") {
@@ -123,12 +158,16 @@ class AttendanceManager {
         const session = this.getSession();
 
         try {
-            const result = await this.ensureAttendanceService().deleteAttendance(session, input);
+            let result = await this.ensureAttendanceService().deleteAttendance(session, input);
+            result = this.queueAuditIfNeeded(session, result);
             this.currentDay = null;
             const nextHistory = { ...this.history };
             delete nextHistory[result.key];
             this.history = nextHistory;
-            this.emit("milkapp:attendance-deleted", result);
+            this.emit(
+                result.auditQueued ? "milkapp:attendance-audit-queued" : "milkapp:attendance-deleted",
+                result
+            );
             return result;
         } catch (error) {
             if (error?.code !== "ROOM_STOCK_ADJUSTMENT_REQUIRED" || error?.details?.operation !== "delete") {
