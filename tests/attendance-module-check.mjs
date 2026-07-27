@@ -27,6 +27,7 @@ const loadOrder = [
     "modules/repositories/attendanceRepository.js",
     "modules/services/teacherService.js",
     "modules/services/attendanceService.js",
+    "modules/services/syncService.js",
     "modules/teacher/teacherManager.js",
     "modules/attendance/attendanceManager.js",
     "modules/core/app.js"
@@ -44,7 +45,9 @@ assert.ok(repositoryCode.includes('this.appRoot = "milkApp"'), "AttendanceReposi
 assert.ok(repositoryCode.includes('this.path("mcAttendance")'), "AttendanceRepository must read mcAttendance");
 assert.ok(repositoryCode.includes('orderBy: "$key"'), "AttendanceRepository must query attendance by Firebase key");
 assert.ok(repositoryCode.includes("\\uf8ff"), "AttendanceRepository must use the room-prefix upper bound");
-assert.ok(repositoryCode.includes("applyAttendanceMutation"), "AttendanceRepository must expose the multi-location update boundary");
+assert.ok(repositoryCode.includes("loadRoomStockVersioned"), "AttendanceRepository must expose ETag Room Stock reads");
+assert.ok(repositoryCode.includes("setRoomStockIfMatch"), "AttendanceRepository must expose conditional Room Stock writes");
+assert.ok(repositoryCode.includes("applyAttendanceMutation"), "AttendanceRepository must retain the multi-location compatibility boundary");
 assert.ok(!repositoryCode.includes(".reduce("), "AttendanceRepository must not contain business aggregation");
 assert.ok(!repositoryCode.includes("document."), "AttendanceRepository must not contain DOM logic");
 assert.ok(!repositoryCode.includes("localStorage"), "AttendanceRepository must not own offline storage");
@@ -54,6 +57,8 @@ assert.ok(!serviceCode.includes("localStorage"), "AttendanceService must not own
 assert.ok(!serviceCode.includes("sessionStorage"), "AttendanceService must not own sessions");
 assert.ok(!serviceCode.includes("fetch("), "AttendanceService must not fetch directly");
 assert.ok(!serviceCode.includes("FirebaseService"), "AttendanceService must not access Firebase directly");
+assert.ok(serviceCode.includes("ROOM_STOCK_CONFLICT_RETRY_EXHAUSTED"), "AttendanceService must report exhausted ETag retries");
+assert.ok(serviceCode.includes("ROOM_STOCK_ADJUSTMENT_REQUIRED"), "AttendanceService must preserve attendance and request stock retry");
 assert.ok(!managerCode.includes("FirebaseService"), "AttendanceManager must not access Firebase directly");
 assert.ok(!managerCode.includes("fetch("), "AttendanceManager must not fetch directly");
 
@@ -80,9 +85,25 @@ const repositoryContext = {
                 repositoryCalls.push({ method: "get", path: pathValue, query });
                 return {};
             },
+            set(pathValue, data) {
+                repositoryCalls.push({ method: "set", path: pathValue, data });
+                return data;
+            },
+            remove(pathValue) {
+                repositoryCalls.push({ method: "remove", path: pathValue });
+                return null;
+            },
             update(pathValue, data) {
                 repositoryCalls.push({ method: "update", path: pathValue, data });
                 return data;
+            },
+            getWithEtag(pathValue) {
+                repositoryCalls.push({ method: "getWithEtag", path: pathValue });
+                return { value: 10, etag: '"v1"' };
+            },
+            setIfMatch(pathValue, data, etag) {
+                repositoryCalls.push({ method: "setIfMatch", path: pathValue, data, etag });
+                return { status: "ok", value: data };
             }
         }
     },
@@ -107,6 +128,19 @@ assert.deepEqual(
     },
     "Room attendance must use the compatible Firebase key-prefix query"
 );
+await repositoryContext.window.AttendanceRepository.loadRoomStockVersioned("r1");
+assert.equal(repositoryCalls.at(-1).path, "milkApp/roomStock/r1", "ETag read must target one Room Stock path");
+await repositoryContext.window.AttendanceRepository.setRoomStockIfMatch("r1", 9, '"v1"');
+assert.deepEqual(
+    toPlainData(repositoryCalls.at(-1)),
+    {
+        method: "setIfMatch",
+        path: "milkApp/roomStock/r1",
+        data: 9,
+        etag: '"v1"'
+    },
+    "Conditional write must preserve the Room Stock path and ETag"
+);
 
 const teacherPolicy = {
     assertRoomAccess(session, targetRoomId = null) {
@@ -128,6 +162,7 @@ const teacherPolicy = {
 const state = {
     attendance: {},
     roomStock: { r1: 20 },
+    roomStockVersion: { r1: 0 },
     stockTransactions: {},
     stockLog: {},
     mutations: []
@@ -142,27 +177,50 @@ const repositoryMock = {
             Object.entries(state.attendance).filter(([key]) => key.startsWith(`${roomId}_`))
         );
     },
-    async loadMutationState(roomId, date) {
+    async saveAttendanceRecord(roomId, date, record) {
+        const key = `${roomId}_${date}`;
+        state.attendance[key] = toPlainData(record);
+        state.mutations.push({ type: "attendance-set", key });
+        return record;
+    },
+    async deleteAttendanceRecord(roomId, date) {
+        const key = `${roomId}_${date}`;
+        delete state.attendance[key];
+        state.mutations.push({ type: "attendance-delete", key });
+        return null;
+    },
+    async loadRoomStockVersioned(roomId) {
         return {
-            attendance: state.attendance[`${roomId}_${date}`] || null,
-            roomStock: state.roomStock[roomId] ?? 0
+            value: state.roomStock[roomId] ?? 0,
+            etag: `"v${state.roomStockVersion[roomId] || 0}"`
         };
     },
+    async setRoomStockIfMatch(roomId, value, etag) {
+        const currentEtag = `"v${state.roomStockVersion[roomId] || 0}"`;
+        if (etag !== currentEtag) {
+            return { status: "conflict", value: state.roomStock[roomId] };
+        }
+        state.roomStock[roomId] = value;
+        state.roomStockVersion[roomId] = (state.roomStockVersion[roomId] || 0) + 1;
+        state.mutations.push({ type: "room-stock-cas", roomId, value, etag });
+        return {
+            status: "ok",
+            value,
+            etag: `"v${state.roomStockVersion[roomId]}"`
+        };
+    },
+    async appendAttendanceAudit(ledger, stockLog) {
+        if (ledger?.id) {
+            state.stockTransactions[ledger.id] = toPlainData(ledger);
+        }
+        if (stockLog?.id) {
+            state.stockLog[stockLog.id] = toPlainData(stockLog);
+        }
+        state.mutations.push({ type: "audit", ledgerId: ledger?.id, stockLogId: stockLog?.id });
+        return { ledger, stockLog };
+    },
     async applyAttendanceMutation(updates) {
-        state.mutations.push(toPlainData(updates));
-        Object.entries(updates).forEach(([key, value]) => {
-            if (key.startsWith("mcAttendance/")) {
-                const recordKey = key.slice("mcAttendance/".length);
-                if (value === null) delete state.attendance[recordKey];
-                else state.attendance[recordKey] = toPlainData(value);
-            } else if (key.startsWith("roomStock/")) {
-                state.roomStock[key.slice("roomStock/".length)] = value;
-            } else if (key.startsWith("stockTransactions/")) {
-                state.stockTransactions[key.slice("stockTransactions/".length)] = toPlainData(value);
-            } else if (key.startsWith("stockLog/")) {
-                state.stockLog[key.slice("stockLog/".length)] = toPlainData(value);
-            }
-        });
+        state.mutations.push({ type: "compatibility-patch", updates: toPlainData(updates) });
         return updates;
     }
 };
@@ -180,13 +238,18 @@ const serviceContext = {
     Array,
     Number,
     String,
-    Error
+    Error,
+    Promise,
+    setTimeout
 };
 vm.runInNewContext(serviceCode, serviceContext);
 const AttendanceService = serviceContext.window.AttendanceService.constructor;
 const service = new AttendanceService(repositoryMock, teacherPolicy, {
     clock: () => new Date("2026-07-27T12:00:00.000Z"),
-    idFactory: () => `id${++idNumber}`
+    idFactory: () => `id${++idNumber}`,
+    sleep: async () => {},
+    maxStockRetries: 6,
+    auditRetries: 2
 });
 
 const teacherSession = {
@@ -214,8 +277,10 @@ assert.equal(firstSave.key, "r1_2026-07-27", "Attendance key must preserve roomI
 assert.equal(firstSave.presentDifference, 2, "New attendance must consume the present count");
 assert.equal(firstSave.roomStockBefore, 20, "New attendance must read the current Room Stock");
 assert.equal(firstSave.roomStockAfter, 18, "New attendance must reduce only Room Stock");
+assert.equal(firstSave.stockAttempts, 1, "Uncontended Room Stock update must succeed on the first attempt");
 assert.equal(firstSave.ledger.type, "ATTENDANCE", "New attendance must write an ATTENDANCE ledger entry");
 assert.equal(firstSave.ledger.quantity, -2, "Attendance ledger quantity must be negative for consumption");
+assert.equal(firstSave.audit.ok, true, "Attendance audit must be written after Room Stock succeeds");
 assert.equal(firstSave.mainStockDelta, 0, "Attendance must never change Main Stock");
 assert.ok(!Object.prototype.hasOwnProperty.call(firstSave.updates, "stock"), "Attendance updates must not contain Main Stock");
 assert.equal(state.attendance["r1_2026-07-27"].clsId, "r1", "Attendance record must preserve the legacy clsId field");
@@ -265,6 +330,11 @@ const managerContext = {
         AuthService: {
             getSession: () => teacherSession
         },
+        SyncService: {
+            queueRoomStockAdjustment: () => {
+                throw new Error("Normal test flow must not queue Room Stock.");
+            }
+        },
         dispatchEvent: event => managerEvents.push(event)
     },
     CustomEvent: class CustomEvent {
@@ -278,7 +348,11 @@ const managerContext = {
 };
 vm.runInNewContext(managerCode, managerContext);
 const AttendanceManager = managerContext.window.AttendanceManager.constructor;
-const manager = new AttendanceManager(service, managerContext.window.AuthService);
+const manager = new AttendanceManager(
+    service,
+    managerContext.window.AuthService,
+    managerContext.window.SyncService
+);
 const managerSave = await manager.save({
     date: "2026-07-28",
     data: { s1: "present", s2: "absent" }
