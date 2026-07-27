@@ -1,14 +1,14 @@
 # Sprint 3.9 — Performance Audit Report
 
-Date: 2026-07-27
+Date: 2026-07-28
 
 Branch: `feature/sprint-3.9-performance`
 
 ## Scope
 
-This report records deterministic code-path request counts and serialization counts produced by automated tests. It does not claim real network speed, payload bytes, or device timings until those values are captured with browser tools on the actual dataset.
+This report records deterministic code-path counts from automated tests and actual browser Network measurements captured on the school dataset. It does not claim that the observed timings or transferred sizes will be identical on every device, browser, network, or Firebase dataset.
 
-Protected files remain unchanged:
+Protected files remained unchanged:
 
 - `index.html`
 - `teacher.html`
@@ -17,12 +17,12 @@ Protected files remain unchanged:
 
 ### 1. Firebase identical in-flight GET deduplication
 
-`FirebaseService` now shares one Promise when identical GET requests for the same fully built URL are active at the same time.
+`FirebaseService` shares one Promise when identical GET requests for the same fully built URL are active at the same time.
 
 Properties:
 
 - identical path and query while the first request is active: one network request
-- different query values: separate network requests
+- different query values: separate requests
 - completed requests are removed from the in-flight map
 - this is not a persistent response cache
 - `cache: "no-store"` remains unchanged
@@ -33,9 +33,21 @@ Deterministic test result:
 - two concurrent identical GET calls: one fetch call
 - one later GET after completion: a new fetch call
 
-### 2. Login settings and room context reuse
+### 2. Firebase GET preflight removal
 
-Before this Sprint, the V2 shell loaded `settings` and `rooms` to populate the login selector, then loaded the same two paths again during credential validation.
+A body-less GET no longer sends `Content-Type: application/json` automatically.
+
+Behavior:
+
+- GET without a body: no Content-Type header
+- PUT, PATCH, and POST with JSON body: `Content-Type: application/json`
+- explicit caller-provided headers remain supported
+
+This removed the unnecessary browser CORS preflight rows previously observed for Firebase GET requests.
+
+### 3. Login settings and room context reuse
+
+Before this Sprint, the V2 shell loaded `settings` and `rooms` to populate the login selector, then loaded the same two paths again during immediate credential validation.
 
 The normalized Login context now has a five-minute in-memory TTL:
 
@@ -53,19 +65,21 @@ Deterministic code-path count:
 | Login immediately after option load | 2 additional Firebase GETs | 0 additional Firebase GETs |
 | Total option load plus immediate login | 4 Firebase GETs | 2 Firebase GETs |
 
-The table is a code-path request count, not a measured timing or byte result.
+The selected Teacher room is copied into the authenticated session as `roomSnapshot`. This allows the Teacher core refresh to reuse the room data already downloaded for the login selector instead of downloading or querying the full rooms collection again.
 
-### 3. Teacher core and deferred snapshot boundary
+Sessions created before this change remain compatible. They fall back to a complete rooms read until the user logs out and logs in again.
 
-The Teacher repository now separates frequently needed core data from deferred dashboard/history collections.
+### 4. Teacher core and deferred snapshot boundary
 
-Core snapshot:
+Teacher loading is separated into core and deferred groups.
+
+Default core refresh:
 
 - `settings`
-- `rooms`
 - `roomStock/{roomId}`
-- room-scoped `mcAttendance` key-prefix query
+- `mcAttendance/{roomId}_{today}/data`
 - `updatedAt`
+- room data from the authenticated session snapshot
 
 Deferred collections:
 
@@ -75,28 +89,27 @@ Deferred collections:
 - `vacationMilk`
 - `stockTransactions`
 
-`TeacherManager.refresh()` defaults to the core snapshot. `TeacherManager.refreshFull()` explicitly requests all deferred collections.
+`TeacherManager.refresh()` loads only the core data and defaults attendance to today's `/data` child.
 
-Deterministic code-path count:
+`TeacherManager.refreshFull()` explicitly loads room attendance history and deferred collections.
+
+Deterministic request count with a new Teacher session:
 
 | Teacher refresh | Firebase GET count |
 |---|---:|
-| Core refresh | 5 |
-| Explicit full refresh | 10 |
+| Default core refresh | 4 |
+| Explicit full refresh | 9 |
 
-The full refresh keeps its two groups parallel. The normal refresh no longer downloads five nonessential collections.
+The default core refresh does not request:
 
-The attendance request remains scoped with:
+- the complete rooms collection
+- room-wide attendance history
+- photos or signatures stored outside the attendance `/data` child
+- deferred Teacher history collections
 
-- `orderBy="$key"`
-- `startAt="{roomId}_"`
-- `endAt="{roomId}_"`
+### 5. Queue upsert serialization reduction
 
-An all-school `mcAttendance` read is not used by the modular Teacher flow.
-
-### 4. Queue upsert serialization reduction
-
-`QueueStorage.upsert()` previously saved the normalized queue and immediately called `get()`, which parsed persistent storage a second time only to return the entry just written.
+`QueueStorage.upsert()` previously saved the normalized queue and immediately called `get()`, parsing persistent storage a second time only to return the entry just written.
 
 It now returns the matching entry from the normalized result returned by `save()`.
 
@@ -132,85 +145,81 @@ Expected behavior:
 - corrupt records are filtered individually
 - original attendance baseline remains stable
 
-## Browser Measurement Procedure
+## Actual Desktop Browser Measurement
 
-Use Chrome DevTools on `index-v2.html` with Live Server.
+Environment:
 
-### Desktop login request check
+- Chrome desktop on Windows
+- Live Server at `127.0.0.1:5500`
+- actual school dataset containing 83 rooms
+- DevTools Network filtered to Fetch/XHR
+- no throttling
 
-1. Open DevTools → Network.
-2. Clear the request list.
-3. Disable Network cache only for the test run when a cold-load scenario is required.
-4. Reload the page.
-5. Confirm the room selector loads.
-6. Record Firebase request names and transferred sizes.
-7. Clear the request list without reloading.
-8. Log in with the already loaded room list.
-9. Confirm that `settings.json` and `rooms.json` are not downloaded again during immediate credential validation.
+### Before final Teacher core optimization
 
-### Teacher core snapshot check
+Observed core refresh:
 
-After Teacher Login, invoke the project command `TeacherManager.refresh()` from the Console only after reviewing that command.
+| Request group | Observed transferred size |
+|---|---:|
+| Complete rooms collection | approximately 589 KB |
+| Room-scoped attendance history | approximately 19,924 KB |
+| Total Network result | approximately 20.5 MB |
 
-Expected Firebase reads:
+Observed request count: 5.
 
-- `settings.json`
-- `rooms.json`
-- `roomStock/{roomId}.json`
-- `mcAttendance.json` with room key-prefix query parameters
-- `updatedAt.json`
+The attendance-history request took approximately 2.43 seconds in the captured run.
 
-Not expected during core refresh:
+### After final Teacher core optimization
 
-- `distributes.json`
-- `absentMilk.json`
-- `retroMilk.json`
-- `vacationMilk.json`
-- `stockTransactions.json`
-- all-school `mcAttendance.json` without room query parameters
+Observed core refresh:
 
-Run `TeacherManager.refreshFull()` only when validating the explicit full-data path.
+| Request | Observed transferred size | Observed time |
+|---|---:|---:|
+| `settings.json` | approximately 0.6 KB | approximately 134 ms |
+| `roomStock/{roomId}.json` | approximately 0.3 KB | approximately 136 ms |
+| `mcAttendance/{roomId}_{date}/data.json` | approximately 0.3 KB | approximately 135 ms |
+| `updatedAt.json` | approximately 0.3 KB | approximately 144 ms |
 
-### Responsive and iPad-class check
+Observed result:
 
-Validate at minimum:
+- 4 requests
+- approximately 1.6 KB transferred
+- no rooms request
+- no room-history attendance request
+- no deferred collection request
+- no GET preflight
+- no HTTP error
 
-- responsive mobile viewport
-- iPad-class viewport
-- physical iPad when available
+These values describe the captured environment only. They are not universal production benchmarks.
 
-Record:
+## Automated Tests
 
-- browser and version
-- viewport or device model
-- network profile
-- Firebase request count
-- transferred bytes
-- visible errors
-- console errors
-
-Do not convert subjective impressions into benchmark numbers.
-
-## Remaining Performance and Concurrency Gaps
-
-- The operational legacy Teacher UI still owns forms, photos, signatures, printing, queue badge, and offline banner.
-- V2 multi-location PATCH remains atomic only for included paths and does not yet provide legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
-- Full room and settings collections are still required because the current room collection can be stored as an array and Room ID is not guaranteed to equal the Firebase child key.
-- Deferred Teacher collections are still full-path reads when explicitly requested; room-field query migration requires schema/index compatibility validation.
-- Real transferred byte totals and timings remain pending browser measurement on the actual 83-room dataset.
-
-## Automated Test
-
-Run:
+Required checks:
 
 ```powershell
+node tests/login-foundation-check.mjs
+node tests/stock-module-check.mjs
+node tests/report-module-check.mjs
+node tests/room-module-check.mjs
+node tests/teacher-module-check.mjs
+node tests/attendance-module-check.mjs
+node tests/sync-module-check.mjs
+node tests/firebase-request-header-check.mjs
 node tests/performance-module-check.mjs
+node tests/teacher-core-payload-check.mjs
 ```
 
-Expected output:
+All checks passed during Sprint closeout.
 
-```text
-Performance module checks passed.
-```
+## Remaining Performance and Cutover Gaps
 
-All previous regression tests remain required before merge.
+- Physical iPad and responsive-mobile validation were not demonstrated in the Sprint 3.9 closeout and remain required before production cutover.
+- The operational legacy Teacher UI still owns forms, photos, signatures, printing, queue badge, and offline banner.
+- V2 multi-location PATCH remains atomic only for included paths and does not yet provide legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
+- Deferred Teacher collections remain full-path reads when explicitly requested.
+- Production cutover still requires compatibility validation between queues written by legacy `teacher.html` and queues normalized by V2.
+- Report browser-local adapters, XLSX import parsing, and complete-room multi-admin concurrency remain unresolved migration gaps.
+
+## Conclusion
+
+Sprint 3.9 met the desktop performance objective without changing Firebase schema, stock calculations, protected legacy files, attendance keys, queue semantics, or authentication rules. Production cutover remains gated by device validation and unresolved compatibility/concurrency items.
