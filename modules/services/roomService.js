@@ -173,10 +173,14 @@ class RoomService {
         return this.normalizeCollection(await this.ensureRepository().loadRooms());
     }
 
-    async createRoom(input) {
+    async createRoom(input = {}) {
         const repository = this.ensureRepository();
         const rooms = this.normalizeCollection(await repository.loadRooms());
-        const room = this.normalizeRoom({ ...input, stock: 0, students: input?.students || [] });
+        const createInput = { ...input, stock: 0 };
+        if (!Array.isArray(input.students)) {
+            delete createInput.students;
+        }
+        const room = this.normalizeRoom(createInput);
         const validation = this.validateRoom(room, rooms);
 
         if (!validation.valid) {
