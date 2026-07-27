@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const currentFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(currentFile), "..");
 const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf8");
+const plain = value => JSON.parse(JSON.stringify(value));
 
 const index = read("index-v2.html");
 const repositoryCode = read("modules/repositories/stockRepository.js");
@@ -73,7 +74,7 @@ assert.equal(
     "Receive total must equal crates × perCrate + extra"
 );
 assert.deepEqual(
-    calculationService.calculateDistributionTotal({ students: 20, days: 5, perCrate: 36 }),
+    plain(calculationService.calculateDistributionTotal({ students: 20, days: 5, perCrate: 36 })),
     { students: 20, days: 5, total: 100, crates: 2, boxes: 28, perCrate: 36 },
     "Classroom distribution calculation must preserve the legacy formula"
 );
@@ -102,7 +103,7 @@ const snapshot = {
 };
 
 assert.deepEqual(
-    calculationService.calculateMainStock(snapshot),
+    plain(calculationService.calculateMainStock(snapshot)),
     { received: 280, distributed: 150, expected: 130 },
     "Main Stock must equal receives minus classroom distributions only"
 );
@@ -138,10 +139,14 @@ assert.equal(capturedUpdates["roomStock/r1"], 150, "Room Stock update must be in
 assert.equal(distribution.ledger.type, "DISTRIBUTE", "Distribution must create a DISTRIBUTE ledger entry");
 
 capturedUpdates = null;
+let mutableRoomStock = 30;
 const consumptionRepository = {
-    loadRoomStock: async () => 30,
+    loadRoomStock: async () => mutableRoomStock,
     applyMultiLocationUpdate: async updates => {
         capturedUpdates = updates;
+        if (Object.hasOwn(updates, "roomStock/r1")) {
+            mutableRoomStock = updates["roomStock/r1"];
+        }
         return updates;
     }
 };
@@ -166,7 +171,7 @@ const rollback = await consumptionService.rollbackRoomStock({
     referenceId: "r1_2026-07-27",
     recordPath: "mcAttendance/r1_2026-07-27"
 });
-assert.equal(rollback.roomStockAfter, 37, "Rollback must restore the same Room Stock layer");
+assert.equal(rollback.roomStockAfter, 30, "Rollback must restore the original Room Stock balance");
 assert.equal(capturedUpdates["mcAttendance/r1_2026-07-27"], null, "Rollback may delete its source record atomically");
 assert.equal(Object.hasOwn(capturedUpdates, "stock"), false, "Room rollback must not change Main Stock");
 
