@@ -26,7 +26,7 @@ Sprint 3.6 — Teacher Module Migration
 
 Status
 
-70% — Repository, Service, Manager, room-scoped query support, dependency wiring, automated tests, and migration documentation implemented; local validation pending
+100% — implementation, room-scoped query support, architecture checks, teacher workflow tests, regression tests, browser smoke test, and clean-tree validation passed
 
 ---
 
@@ -92,37 +92,31 @@ Sprint 3.6 Completed
 
 ✓ Teacher migration gap documentation added
 
+✓ `node tests/login-foundation-check.mjs` passed
+
+✓ `node tests/stock-module-check.mjs` passed
+
+✓ `node tests/report-module-check.mjs` passed
+
+✓ `node tests/room-module-check.mjs` passed
+
+✓ `node tests/teacher-module-check.mjs` passed
+
+✓ Teacher browser smoke test passed
+
+✓ Browser console contains only `MilkSchoolSystem V2 Started`
+
+✓ Working tree confirmed clean
+
 ✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending Before Merge
+Merge Gate
 
-□ Pull `feature/sprint-3.6-teacher` to the local workspace
+PASSED
 
-□ Run `node tests/login-foundation-check.mjs`
-
-□ Run `node tests/stock-module-check.mjs`
-
-□ Run `node tests/report-module-check.mjs`
-
-□ Run `node tests/room-module-check.mjs`
-
-□ Run `node tests/teacher-module-check.mjs`
-
-□ Open `index-v2.html` through Live Server
-
-□ Confirm Admin and Teacher login remain operational
-
-□ Confirm Logout remains operational
-
-□ Confirm Browser Console contains no teacher-module error
-
-□ Confirm working tree is clean
-
-□ Update Project Memory, Changelog, AI Context, and Module Map after validation
-
-□ Merge into `develop` only after all gates pass
+The branch may be fast-forward merged into `develop`.
 
 ---
 
@@ -137,6 +131,20 @@ The persistent offline queue and retry behavior remain untouched until Sprint 3.
 Only `mcAttendance` uses a Firebase room-prefix query in this Sprint. Smaller teacher collections are read and filtered in the Service to avoid requiring production `.indexOn` rule changes.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
+
+---
+
+Next Sprint
+
+Sprint 3.7 — Attendance Module Migration
+
+Target modules:
+
+- `modules/repositories/attendanceRepository.js`
+- `modules/services/attendanceService.js`
+- `modules/attendance/attendanceManager.js`
+- attendance save and rollback tests
+- attendance migration documentation
 
 ---
 
