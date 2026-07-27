@@ -26,7 +26,7 @@ Sprint 3.8 — Offline Queue and Sync Migration
 
 Status
 
-10% — Sprint plan, queue entry contracts, baseline-preservation rules, retry policy, room-scope safety, and merge gates initialized; legacy sync workflow inspection and implementation pending
+70% — QueueStorage, SyncService, SyncManager, Attendance Room Stock adjustment replay, dependency wiring, automated tests, and migration documentation implemented; local validation pending
 
 ---
 
@@ -42,75 +42,109 @@ Completed Foundation
 
 ✓ Sprint 3.6 Teacher Module merged into `develop`
 
-✓ Sprint 3.7 Attendance Module merged into `develop` after Login, Stock, Report, Room, Teacher, Attendance, Browser, Logout, Console, and clean-tree gates passed
+✓ Sprint 3.7 Attendance Module merged into `develop`
 
 ✓ Login, Firebase, Stock, Report, Room, Teacher, and Attendance rules protected
 
 ---
 
-Sprint 3.8 Initialized
+Sprint 3.8 Implemented
 
 ✓ Branch created from latest `develop`
 
 ✓ Sprint plan created: `docs/SPRINT_3_8_PLAN.md`
 
-✓ Attendance and Room Stock adjustment queue entry contracts recorded
+✓ Legacy queue storage, replacement, baseline preservation, retry, reconnect, periodic flush, Room Stock adjustment, and badge workflows inspected
 
-✓ Persistent queue survival requirement recorded
+✓ `QueueStorage` added with compatible `tc_pending_saves_v1` key
 
-✓ Corrupt-entry filtering requirement recorded
+✓ Legacy `rec` and `diff` aliases accepted during queue normalization
 
-✓ Duplicate attendance replacement rule recorded
+✓ Missing and malformed queue storage recovers safely
 
-✓ Original `baselinePresent` preservation rule recorded
+✓ Invalid queue entries are filtered individually
 
-✓ Authenticated-room-only replay rule recorded
+✓ Attendance queue entries persist across browser restarts
 
-✓ Sequential replay requirement recorded
+✓ Duplicate attendance edits replace the latest record
 
-✓ Exponential backoff schedule recorded
+✓ Original unsynced `baselinePresent` is preserved
 
-✓ Reconnect and periodic flush requirements recorded
+✓ Original queue timestamp is preserved
 
-✓ Main Stock isolation requirement recorded
+✓ Newer queued edits reset retry attempts
 
-✓ Repository/Storage → Service → Manager responsibilities defined
+✓ Room Stock adjustment queue entries implemented
+
+✓ Individual queue removal implemented
+
+✓ `AttendanceService.adjustRoomStock` added for Room Stock-only replay without rewriting attendance
+
+✓ `SyncService` added
+
+✓ Teacher session and authenticated-room replay checks implemented
+
+✓ Attendance replay delegates to `AttendanceService.saveAttendance`
+
+✓ Room Stock adjustment replay delegates to `AttendanceService.adjustRoomStock`
+
+✓ Queue replay is sequential
+
+✓ Successful entries are removed individually
+
+✓ Failed entries remain queued and increment attempts
+
+✓ Retry timestamps and bounded 5s → 10s → 20s → 40s → 60s backoff implemented
+
+✓ Every Sync result reports `mainStockDelta: 0`
+
+✓ `SyncManager` added
+
+✓ Startup, reconnect, retry, and periodic online flush boundaries implemented
+
+✓ Overlapping flush prevention implemented
+
+✓ Queue-count and sync lifecycle events implemented
+
+✓ Sync modules loaded by `index-v2.html` in dependency order
+
+✓ Automated test file added: `tests/sync-module-check.mjs`
+
+✓ Sync migration and ETag concurrency gap documentation added
+
+✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending
+Pending Before Merge
 
-□ Inspect legacy queue storage, replacement, retry, reconnect, periodic flush, Room Stock adjustment, and badge workflows
+□ Pull `feature/sprint-3.8-offline-sync` to the local workspace
 
-□ Create `QueueStorage`
+□ Run `node tests/login-foundation-check.mjs`
 
-□ Create `SyncService`
+□ Run `node tests/stock-module-check.mjs`
 
-□ Create `SyncManager`
+□ Run `node tests/report-module-check.mjs`
 
-□ Add Sync module dependency wiring to `index-v2.html`
+□ Run `node tests/room-module-check.mjs`
 
-□ Add `tests/sync-module-check.mjs`
+□ Run `node tests/teacher-module-check.mjs`
 
-□ Add `docs/SYNC_MIGRATION_GAP_REPORT.md`
+□ Run `node tests/attendance-module-check.mjs`
 
-□ Run Login regression tests
+□ Run `node tests/sync-module-check.mjs`
 
-□ Run Stock regression tests
+□ Open `index-v2.html` through Live Server
 
-□ Run Report regression tests
+□ Confirm Admin and Teacher login remain operational
 
-□ Run Room regression tests
+□ Confirm Logout remains operational
 
-□ Run Teacher regression tests
+□ Confirm Browser Console contains no queue or sync module error
 
-□ Run Attendance regression tests
+□ Confirm working tree is clean
 
-□ Run Sync tests
-
-□ Run Browser smoke test
-
-□ Confirm working tree clean
+□ Update Project Memory, Changelog, AI Context, and Module Map after validation
 
 □ Merge into `develop` only after all gates pass
 
@@ -118,9 +152,11 @@ Pending
 
 Known Migration Gaps
 
-The operational attendance form, media capture, signatures, printing, ETag Room Stock protection, and current offline queue remain in `teacher.html` while the modular sync boundary is extracted.
+The operational attendance form, media capture, signatures, printing, queue badge, and offline banner remain in `teacher.html` while the modular sync boundary is extracted.
 
-The modular Attendance multi-location PATCH does not yet include the legacy ETag compare-and-retry Room Stock protection for simultaneous writers.
+The modular Attendance and Sync multi-location PATCH is atomic for its included paths, but it does not yet include the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
+
+Production cutover still requires compatibility testing between queues written by legacy `teacher.html` and queues normalized by V2.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
