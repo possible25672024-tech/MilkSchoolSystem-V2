@@ -59,16 +59,25 @@ class TeacherManager {
         return session;
     }
 
-    async refresh() {
+    async refresh(options = {}) {
         const session = this.getSession();
-        this.currentView = await this.teacherService.loadTeacherView(session);
+        const includeExtras = options?.includeExtras === true;
+        this.currentView = await this.teacherService.loadTeacherView(session, {
+            ...options,
+            includeExtras
+        });
 
         this.emit("milkapp:teacher-refreshed", {
             roomId: this.currentView.snapshot.room.id,
+            extrasLoaded: this.currentView.snapshot.extrasLoaded,
             dashboard: this.currentView.dashboard
         });
 
         return this.currentView;
+    }
+
+    refreshFull() {
+        return this.refresh({ includeExtras: true });
     }
 
     getSnapshot() {
