@@ -4,7 +4,7 @@
 
 Last Update
 
-2026-07-27
+2026-07-28
 
 ---
 
@@ -26,7 +26,7 @@ Sprint 3.9 — Performance and Payload Optimization
 
 Status
 
-70% — deterministic request-count optimizations, Teacher core/deferred loading, queue serialization reduction, compatibility fixtures, automated tests, V2 status wiring, and performance audit documentation implemented; local regression, browser Network measurement, responsive/iPad validation, and clean-tree confirmation pending
+100% — request and payload optimizations, compatibility fixtures, automated regression tests, desktop browser measurement, Admin/Teacher login, Logout, Network validation, console validation, and clean-tree validation passed
 
 ---
 
@@ -50,47 +50,41 @@ Completed Foundation
 
 ---
 
-Sprint 3.9 Implemented
-
-✓ Branch created from latest `develop`
+Sprint 3.9 Completed
 
 ✓ Sprint plan created: `docs/SPRINT_3_9_PLAN.md`
 
-✓ No-invented-benchmark rule recorded
-
-✓ Firebase request-count and payload audit targets recorded
-
-✓ Authenticated-room-only attendance verification recorded
-
-✓ Lazy-loading and cache audit targets recorded
-
-✓ Desktop, mobile, and iPad validation matrix recorded
+✓ No-invented-benchmark rule followed
 
 ✓ Identical in-flight Firebase GET deduplication implemented
 
-✓ Completed Firebase GETs are not retained as a stale response cache
+✓ Completed GETs are removed from the in-flight map
+
+✓ Body-less Firebase GETs no longer send `Content-Type: application/json`
+
+✓ Unnecessary GET CORS preflight requests removed
 
 ✓ Login settings and rooms normalized context cache implemented
 
-✓ Login option load followed by immediate credential validation reuses the loaded context
+✓ Immediate credential validation reuses the loaded login context
 
-✓ Manual room-list reload bypasses the Login cache
+✓ Manual room reload bypasses the Login cache
 
-✓ Login cache returns cloned data to avoid consumer mutation
+✓ Login cache returns cloned data
 
-✓ Teacher core snapshot separated from deferred dashboard/history collections
+✓ Authenticated Teacher session carries the selected room snapshot
 
-✓ Teacher core snapshot uses five reads
+✓ Teacher core refresh reuses the session room snapshot
 
-✓ Teacher attendance remains a `{roomId}_` key-prefix query
+✓ Teacher core refresh no longer downloads or queries the complete rooms collection
 
-✓ Teacher normal refresh defaults to core data
+✓ Default Teacher refresh reads only today's attendance `/data` child
 
-✓ Explicit `refreshFull()` loads deferred collections
+✓ Explicit `refreshFull()` retains room-history and deferred-data behavior
 
-✓ Full Teacher snapshot keeps core and deferred groups parallel
+✓ Teacher deferred collections remain excluded from normal refresh
 
-✓ Queue upsert no longer rereads persistent storage only to return the saved entry
+✓ Queue upsert persistent-storage reads reduced from two to one
 
 ✓ Legacy `rec` and `diff` queue fixtures added
 
@@ -98,61 +92,96 @@ Sprint 3.9 Implemented
 
 ✓ Mixed valid and corrupt queue fixture added
 
-✓ Repeated queued edit baseline and timestamp preservation checks added
+✓ Repeated queued edit baseline and timestamp preservation verified
 
-✓ Automated test file added: `tests/performance-module-check.mjs`
+✓ `tests/performance-module-check.mjs` added
 
-✓ Performance audit report added: `docs/PERFORMANCE_AUDIT_REPORT.md`
+✓ `tests/firebase-request-header-check.mjs` added
 
-✓ V2 shell updated to Sprint 3.9 validation status
+✓ `tests/teacher-core-payload-check.mjs` added
 
-✓ Legacy `index.html` and `teacher.html` remain unchanged
+✓ Performance audit report added and updated with actual browser measurements
+
+✓ `node tests/login-foundation-check.mjs` passed
+
+✓ `node tests/stock-module-check.mjs` passed
+
+✓ `node tests/report-module-check.mjs` passed
+
+✓ `node tests/room-module-check.mjs` passed
+
+✓ `node tests/teacher-module-check.mjs` passed
+
+✓ `node tests/attendance-module-check.mjs` passed
+
+✓ `node tests/sync-module-check.mjs` passed
+
+✓ `node tests/firebase-request-header-check.mjs` passed
+
+✓ `node tests/performance-module-check.mjs` passed
+
+✓ `node tests/teacher-core-payload-check.mjs` passed
+
+✓ Admin login passed
+
+✓ Teacher login passed
+
+✓ Logout passed
+
+✓ Browser console clean after test-generated errors were cleared
+
+✓ Working tree clean
+
+✓ Legacy `index.html` and `teacher.html` unchanged
 
 ---
 
-Pending Before Merge
+Measured Desktop Result
 
-□ Pull `feature/sprint-3.9-performance` to the local workspace
+Environment:
 
-□ Run `node tests/login-foundation-check.mjs`
+- Chrome desktop on Windows
+- Live Server at `127.0.0.1:5500`
+- actual school dataset with 83 rooms
+- DevTools Network filtered to Fetch/XHR
 
-□ Run `node tests/stock-module-check.mjs`
+Before final Teacher core optimization:
 
-□ Run `node tests/report-module-check.mjs`
+- 5 requests
+- approximately 20.5 MB transferred
+- room-scoped attendance history request approximately 19,924 KB
+- complete rooms request approximately 589 KB
 
-□ Run `node tests/room-module-check.mjs`
+After final Teacher core optimization:
 
-□ Run `node tests/teacher-module-check.mjs`
+- 4 requests
+- approximately 1.6 KB transferred
+- `settings.json`: approximately 0.6 KB
+- `roomStock/{roomId}.json`: approximately 0.3 KB
+- `mcAttendance/{roomId}_{date}/data.json`: approximately 0.3 KB
+- `updatedAt.json`: approximately 0.3 KB
+- observed individual request times: approximately 134–144 ms
+- no rooms request
+- no room-history attendance request
+- no deferred Teacher collection request
+- no GET preflight
+- no HTTP error
 
-□ Run `node tests/attendance-module-check.mjs`
+These are observed browser results for the recorded environment, not universal production benchmarks.
 
-□ Run `node tests/sync-module-check.mjs`
+---
 
-□ Run `node tests/performance-module-check.mjs`
+Merge Gate
 
-□ Open `index-v2.html` through Live Server
+PASSED
 
-□ Confirm Admin and Teacher login remain operational
+The branch may be fast-forward merged into `develop`.
 
-□ Confirm Logout remains operational
+---
 
-□ Confirm Browser Console is clean
+Deferred Device Gate
 
-□ Confirm immediate login does not redownload settings and rooms
-
-□ Confirm `TeacherManager.refresh()` uses room-scoped attendance and excludes deferred collections
-
-□ Record actual Network request count and transferred sizes
-
-□ Run responsive mobile viewport validation
-
-□ Run iPad-class viewport or physical iPad validation when available
-
-□ Confirm working tree clean
-
-□ Update closeout documentation after validation
-
-□ Merge into `develop` only after all gates pass
+Responsive mobile and physical iPad validation were not demonstrated in this Sprint closeout. They remain required before production cutover and move to Sprint 4.0 Cutover Readiness.
 
 ---
 
@@ -164,11 +193,28 @@ The modular Attendance and Sync multi-location PATCH still lacks the legacy ETag
 
 Production cutover still requires compatibility validation between queues written by legacy `teacher.html` and queues normalized by V2.
 
-Full settings and rooms are still read because the existing rooms collection may be array-shaped and Room ID is not guaranteed to equal the Firebase child key.
+Teacher sessions created before Sprint 3.9 do not contain `roomSnapshot`; the repository safely falls back to a complete rooms read until the user logs out and logs in again.
 
-Deferred Teacher collections remain full-path reads when explicitly requested; field-query migration requires schema and index compatibility validation.
+Deferred Teacher collections remain full-path reads when explicitly requested.
 
-Real payload bytes and timings remain pending browser measurement on the actual dataset.
+The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
+
+---
+
+Next Sprint
+
+Sprint 4.0 — Cutover Readiness and Compatibility
+
+Target areas:
+
+- legacy-to-V2 functional parity matrix
+- physical iPad and responsive mobile validation
+- legacy/V2 queue compatibility tests
+- ETag Room Stock concurrency design and implementation gate
+- Report local-data adapter readiness
+- XLSX import parser migration decision
+- operational forms, media, signatures, printing, queue badge, and offline banner integration plan
+- rollback and production cutover checklist
 
 ---
 
@@ -176,11 +222,12 @@ Protected Business Rules
 
 - Performance work must not change Firebase schema.
 - Performance work must not change Main Stock or Room Stock calculations.
-- Teacher attendance reads remain scoped to the authenticated room.
+- Teacher normal refresh reads only the authenticated room and today's attendance summary.
+- Full history loads only through explicit full-refresh paths.
 - Queue entries survive refresh and browser restart.
 - Repeated queued edits preserve the original baseline.
 - Main Stock must remain unchanged by Teacher, Attendance, and Sync operations.
 - Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
 - Reports remain read-only.
 - Negative Room Stock is not silently clamped.
-- Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
+- Legacy `index.html` and `teacher.html` remain protected until cutover gates pass.
