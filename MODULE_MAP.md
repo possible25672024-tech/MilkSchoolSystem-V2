@@ -55,7 +55,7 @@ V2 modules:
 
 ### Stock — Completed
 
-Legacy source:
+Legacy sources:
 
 - `index.html`
 - teacher stock workflows in `teacher.html`
@@ -99,7 +99,7 @@ Remaining gaps:
 - XLSX binary parser
 - multi-admin optimistic concurrency for complete room collection writes
 
-### Teacher — Completed, Operational Write Gaps Recorded
+### Teacher — Completed, Operational UI Gaps Recorded
 
 Legacy source:
 
@@ -120,32 +120,38 @@ Completed boundary:
 Remaining gaps:
 
 - forms, media, signatures, and print views
-- attendance writes and atomic Room Stock writes move to Sprint 3.7
 - offline queue moves to Sprint 3.8
 
-### Attendance — Current Sprint 3.7
+### Attendance — Completed, ETag and Offline Gaps Recorded
 
 Legacy source:
 
 - `teacher.html`
 
-Target modules:
+V2 modules:
 
 - `modules/attendance/attendanceManager.js`
 - `modules/services/attendanceService.js`
 - `modules/repositories/attendanceRepository.js`
 
-Required boundary:
+Completed boundary:
 
 - key format `{roomId}_{YYYY-MM-DD}`
 - authenticated-room-only read and write
 - present/absent validation
 - Room Stock difference adjustment on edits
-- compatible ledger writes
+- compatible ledger and stockLog writes
 - safe deletion rollback
 - no Main Stock change
+- Firebase multi-location mutation boundary
 
-### Sync and Offline Queue — Planned Sprint 3.8
+Remaining gaps:
+
+- legacy ETag compare-and-retry Room Stock protection
+- persistent offline queue and retry orchestration
+- attendance form, media, signatures, and print UI remain in `teacher.html`
+
+### Sync and Offline Queue — Current Sprint 3.8
 
 Legacy source:
 
@@ -153,9 +159,24 @@ Legacy source:
 
 Target modules:
 
-- `modules/sync/syncManager.js`
+- `modules/storage/queueStorage.js`
 - `modules/services/syncService.js`
-- storage and queue adapter modules
+- `modules/sync/syncManager.js`
+
+Required boundary:
+
+- persistent queue survives refresh and restart
+- corrupt entries are filtered individually
+- duplicate attendance keys replace the queued record with the latest data
+- original `baselinePresent` remains stable across repeated offline edits
+- attendance and Room Stock adjustment entries remain separate
+- sequential replay avoids overlapping Room Stock mutations
+- bounded exponential backoff
+- reconnect and periodic flush
+- successful entries removed individually
+- failed entries retained for retry
+- authenticated-room-only replay
+- no Main Stock change
 
 ### Performance — Planned Sprint 3.9
 
@@ -180,13 +201,17 @@ Classroom distribution
 
 → increases Room Stock
 
-Teacher and Attendance operations
+Teacher, Attendance, and queued retry operations
 
 → reduce Room Stock only
 
 Attendance edit
 
 → adjusts Room Stock by the difference between previous and new present totals
+
+Offline attendance edit
+
+→ keeps the latest queued record while preserving the original baseline present count
 
 Rollback
 
@@ -207,8 +232,8 @@ Rebuild
 - Sprint 3.4.4 — Report — Completed
 - Sprint 3.5 — Room — Completed
 - Sprint 3.6 — Teacher — Completed
-- Sprint 3.7 — Attendance — Current
-- Sprint 3.8 — Offline Queue — Planned
+- Sprint 3.7 — Attendance — Completed
+- Sprint 3.8 — Offline Queue — Current
 - Sprint 3.9 — Performance — Planned
 - Sprint 4 — Legacy Removal — Planned
 
