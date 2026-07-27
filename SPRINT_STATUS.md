@@ -26,7 +26,7 @@ Sprint 3.7 — Attendance Module Migration
 
 Status
 
-10% — Sprint plan, atomic write boundary, stock-difference rules, and safety requirements initialized; legacy attendance workflow inspection and implementation pending
+70% — Repository, Service, Manager, room-scoped reads, stock-difference rules, atomic multi-location boundary, automated tests, dependency wiring, and migration documentation implemented; local validation pending
 
 ---
 
@@ -40,69 +40,93 @@ Completed Foundation
 
 ✓ Sprint 3.5 Room Module merged into `develop`
 
-✓ Sprint 3.6 Teacher Module merged into `develop` after Login, Stock, Report, Room, Teacher, Browser, and clean-tree gates passed
+✓ Sprint 3.6 Teacher Module merged into `develop`
 
 ✓ Login, Firebase, Stock, Report, Room, and Teacher rules protected
 
 ---
 
-Sprint 3.7 Initialized
+Sprint 3.7 Completed
 
 ✓ Branch created from latest `develop`
 
 ✓ Sprint plan created: `docs/SPRINT_3_7_PLAN.md`
 
-✓ Compatible attendance key format recorded
+✓ Legacy attendance save, edit, Room Stock difference, ledger, deletion, rollback, media, signature, and offline queue workflows inspected
 
-✓ Authenticated-room-only read and write rule recorded
+✓ `AttendanceRepository` added
 
-✓ New attendance Room Stock consumption rule recorded
+✓ Attendance key format preserved as `{roomId}_{YYYY-MM-DD}`
 
-✓ Attendance edit difference rule recorded
+✓ Room attendance reads use the `{roomId}_` through `{roomId}_\uf8ff` Firebase key-prefix query
 
-✓ Attendance deletion rollback rule recorded
+✓ Attendance record and Room Stock mutation state reads implemented
 
-✓ Main Stock isolation requirement recorded
+✓ Firebase multi-location attendance mutation boundary implemented under `milkApp`
 
-✓ Multi-location Firebase update boundary recorded
+✓ `AttendanceService` added
 
-✓ Offline queue deferral to Sprint 3.8 recorded
+✓ Teacher session and authenticated-room validation reused from `TeacherService`
 
-✓ Repository → Service → Manager responsibilities defined
+✓ Admin and cross-room attendance operations rejected
+
+✓ Legacy-compatible attendance record fields preserved
+
+✓ New attendance consumes Room Stock by the present count
+
+✓ Attendance edits adjust Room Stock by the present-count difference only
+
+✓ Attendance deletion restores the deleted record's present count
+
+✓ Compatible `ATTENDANCE` and `ROLLBACK` ledger records implemented
+
+✓ Compatible `stockLog` records implemented
+
+✓ Negative Room Stock remains visible and is not clamped
+
+✓ Every attendance result reports `mainStockDelta: 0`
+
+✓ No attendance update contains the Main Stock `stock` path
+
+✓ `AttendanceManager` load, save, delete, cache, and event boundary implemented
+
+✓ Attendance modules loaded by `index-v2.html` in dependency order
+
+✓ Automated test file added: `tests/attendance-module-check.mjs`
+
+✓ Attendance migration gap documentation added
+
+✓ Legacy `index.html` and `teacher.html` remain unchanged
 
 ---
 
-Pending
+Pending Before Merge
 
-□ Inspect legacy attendance save, edit, difference, Room Stock, ledger, deletion, rollback, media, and signature workflows
+□ Pull `feature/sprint-3.7-attendance` to the local workspace
 
-□ Create `AttendanceRepository`
+□ Run `node tests/login-foundation-check.mjs`
 
-□ Create `AttendanceService`
+□ Run `node tests/stock-module-check.mjs`
 
-□ Create `AttendanceManager`
+□ Run `node tests/report-module-check.mjs`
 
-□ Add Attendance module dependency wiring to `index-v2.html`
+□ Run `node tests/room-module-check.mjs`
 
-□ Add `tests/attendance-module-check.mjs`
+□ Run `node tests/teacher-module-check.mjs`
 
-□ Add `docs/ATTENDANCE_MIGRATION_GAP_REPORT.md`
+□ Run `node tests/attendance-module-check.mjs`
 
-□ Run Login regression tests
+□ Open `index-v2.html` through Live Server
 
-□ Run Stock regression tests
+□ Confirm Admin and Teacher login remain operational
 
-□ Run Report regression tests
+□ Confirm Logout remains operational
 
-□ Run Room regression tests
+□ Confirm Browser Console contains no attendance-module error
 
-□ Run Teacher regression tests
+□ Confirm working tree is clean
 
-□ Run Attendance tests
-
-□ Run Browser smoke test
-
-□ Confirm working tree clean
+□ Update Project Memory, Changelog, AI Context, and Module Map after validation
 
 □ Merge into `develop` only after all gates pass
 
@@ -110,9 +134,11 @@ Pending
 
 Known Migration Gaps
 
-The operational attendance form, media capture, signatures, printing, and offline queue remain in `teacher.html` during this extraction.
+The operational attendance form, media capture, signatures, printing, ETag Room Stock write, and persistent offline queue remain in `teacher.html` during this extraction.
 
-Persistent offline queue, retry, reconnect flush, and queued-edit conflict handling remain scheduled for Sprint 3.8.
+The modular multi-location PATCH is atomic for its included paths, but it does not yet include the legacy ETag compare-and-retry protection for simultaneous Room Stock writers.
+
+Persistent offline queue, retry, reconnect flush, baseline preservation, queued-edit replacement, and conflict handling remain scheduled for Sprint 3.8.
 
 The Smart Excel parser, complete-room concurrency, and Report local-data adapter gaps remain recorded from earlier Sprints.
 
@@ -127,9 +153,7 @@ Protected Business Rules
 - Attendance deletion restores the previously consumed Room Stock.
 - Main Stock must remain unchanged.
 - Ledger records remain compatible.
+- Negative Room Stock is not silently clamped.
 - Existing Room IDs and Room Stock links remain stable.
-- Reports are read-only.
-- Rebuild calculations use transaction history as the source of truth.
-- UI modules never call Firebase directly.
 - Offline queue behavior remains unchanged until Sprint 3.8.
 - Legacy `index.html` and `teacher.html` remain unchanged during Sprint 3.x migration.
