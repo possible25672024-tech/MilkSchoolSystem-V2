@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.4
+Version: 2.5
 Last Updated: 2026-07-27
 
 ---
@@ -124,25 +124,51 @@ Sprint 3.6 — Teacher Module Migration
 
 ✓ Login, Stock, Report, Room, Teacher, browser, and clean-tree validation
 
-Known gaps: operational forms, media, signatures, print views, attendance writes, and atomic Room Stock writes remain in `teacher.html`; offline queue work remains deferred to Sprint 3.8.
+Sprint 3.7 — Attendance Module Migration
+
+✓ AttendanceRepository room-scoped read and mutation boundary
+
+✓ AttendanceService create, edit, delete, Room Stock difference, ledger, and stockLog rules
+
+✓ AttendanceManager load, save, delete, cache, and event boundary
+
+✓ Key format `{roomId}_{YYYY-MM-DD}` preserved
+
+✓ Cross-room writes rejected
+
+✓ New attendance reduces Room Stock by present count
+
+✓ Edits adjust Room Stock by present-count difference only
+
+✓ Deletion restores Room Stock
+
+✓ Main Stock remains unchanged
+
+✓ Login, Stock, Report, Room, Teacher, Attendance, browser, Logout, console, and clean-tree validation
+
+Known gaps: operational form, media, signatures, printing, legacy ETag Room Stock protection, and persistent offline queue remain outside V2.
 
 ---
 
 Current Sprint
 
-Sprint 3.7 — Attendance Module Migration
+Sprint 3.8 — Offline Queue and Sync Migration
 
 Target structure
 
-UI
+UI / Browser Events
 
 ↓
 
-AttendanceManager
+SyncManager
 
 ↓
 
-AttendanceService
+SyncService
+
+↓
+
+QueueStorage + AttendanceService
 
 ↓
 
@@ -158,25 +184,27 @@ Realtime Database
 
 Target files
 
-- `modules/repositories/attendanceRepository.js`
-- `modules/services/attendanceService.js`
-- `modules/attendance/attendanceManager.js`
-- attendance tests
-- attendance migration documentation
+- `modules/storage/queueStorage.js`
+- `modules/services/syncService.js`
+- `modules/sync/syncManager.js`
+- sync tests
+- sync migration documentation
 
-Required attendance workflows
+Required sync workflows
 
-- load one room and one attendance date
-- preserve key format `{roomId}_{YYYY-MM-DD}`
-- validate student attendance values
-- calculate present and absent totals
-- save a new attendance record
-- edit an existing attendance record
-- calculate Room Stock delta from the difference between previous and new present totals
-- append compatible stock ledger records
-- rollback attendance deletion safely
-- reject cross-room reads and writes
-- keep Main Stock unchanged
+- persist failed attendance saves
+- persist failed Room Stock adjustments separately
+- survive page refresh and browser restart
+- replace queued edits for the same attendance key with the latest record
+- preserve the original `baselinePresent` across repeated queued edits
+- retry sequentially to avoid Room Stock collisions
+- use bounded exponential backoff
+- flush on reconnect
+- flush periodically while online
+- remove only successful queue items
+- keep failed items for later retry
+- reject corrupt or cross-room queue items safely
+- never change Main Stock
 
 ---
 
@@ -192,15 +220,16 @@ Do not modify these files during Sprint 3.x migration unless explicitly approved
 Never Break
 
 - Main Stock decreases only when distributing to classrooms.
-- Teacher and attendance operations reduce only Room Stock.
+- Teacher, Attendance, and queued retry operations reduce only Room Stock.
 - Attendance edits change Room Stock by the difference only.
+- Offline retries preserve the original attendance baseline.
+- Repeated queued edits keep the latest record without replacing the original baseline.
 - Attendance keys remain compatible.
 - Reports remain read-only.
 - Firebase schema and paths remain compatible.
 - Room IDs remain stable after creation.
 - Admin and Teacher login remain operational.
 - Teacher data loads remain scoped to the authenticated room.
-- Offline and sync behavior remains untouched until Sprint 3.8.
 - Rebuild calculations use transaction history.
 
 ---
@@ -233,13 +262,13 @@ No UI.
 
 Manager Responsibilities
 
-Display commands.
+Browser online/offline events.
 
-Events.
+Retry timing.
 
-Forms.
+Queue status events.
 
-Navigation.
+Periodic flush orchestration.
 
 Never access Firebase directly.
 
