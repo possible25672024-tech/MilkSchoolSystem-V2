@@ -56,7 +56,7 @@ class LoginManager {
         );
 
         try {
-            const { rooms } = await this.loginService.loadLoginOptions();
+            const { rooms } = await this.loginService.loadLoginOptions({ forceReload: true });
 
             rooms.forEach(room => {
                 const label = room.teacher
