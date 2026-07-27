@@ -59,17 +59,37 @@ class TeacherManager {
         return session;
     }
 
+    today() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
     async refresh(options = {}) {
         const session = this.getSession();
         const includeExtras = options?.includeExtras === true;
-        this.currentView = await this.teacherService.loadTeacherView(session, {
+        const attendanceDate = String(
+            options?.attendanceDate || (!includeExtras ? this.today() : "")
+        ).trim();
+        const requestOptions = {
             ...options,
             includeExtras
-        });
+        };
+
+        if (attendanceDate) {
+            requestOptions.attendanceDate = attendanceDate;
+        } else {
+            delete requestOptions.attendanceDate;
+        }
+
+        this.currentView = await this.teacherService.loadTeacherView(session, requestOptions);
 
         this.emit("milkapp:teacher-refreshed", {
             roomId: this.currentView.snapshot.room.id,
             extrasLoaded: this.currentView.snapshot.extrasLoaded,
+            attendanceScope: this.currentView.snapshot.attendanceScope || null,
             dashboard: this.currentView.dashboard
         });
 
