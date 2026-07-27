@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.5
+Version: 2.6
 Last Updated: 2026-07-27
 
 ---
@@ -54,13 +54,9 @@ Sprint 3.4.3 — Stock Module Migration
 
 ✓ StockRepository, StockService, and StockManager
 
-✓ Receive and classroom distribution workflows
-
 ✓ Main Stock and Room Stock separation
 
-✓ Attendance, Pending, Retroactive, and Vacation Room Stock rules
-
-✓ Rollback, rebuild, validation, and ledger compatibility
+✓ Receive, distribute, rollback, rebuild, validation, and ledger rules
 
 ✓ Static, business-rule, and browser tests
 
@@ -76,135 +72,93 @@ Sprint 3.4.4 — Report Module Migration
 
 ✓ Print and Excel export models
 
-✓ Cached report view switching
-
 ✓ Architecture, aggregation, and browser tests
 
-Known gap: browser-local pending, retroactive, and vacation collections require a Storage/Sync adapter before V2 becomes the operational report.
+Known gap: browser-local pending, retroactive, and vacation collections still require an adapter before V2 replaces the operational report.
 
 Sprint 3.5 — Room Module Migration
 
-✓ RoomRepository Firebase boundary
+✓ RoomRepository, RoomService, and RoomManager
 
-✓ RoomService normalization, validation, import preparation, and deletion safety
+✓ Immutable Room IDs
 
-✓ RoomManager command boundary
+✓ Room Stock preservation
 
-✓ Immutable Room IDs during edits
+✓ Duplicate validation, import preparation, and deletion safety
 
-✓ Room Stock preservation during edits and repeated imports
-
-✓ Duplicate room and duplicate student detection
-
-✓ Deletion blocking for Room Stock and operational references
-
-✓ Login, Stock, Report, Room, browser, and clean-tree validation
-
-Known gaps: XLSX binary parsing remains in the legacy file, and complete room collection writes do not yet include multi-admin optimistic concurrency control.
+Known gaps: XLSX parsing remains legacy, and complete room writes lack multi-admin optimistic concurrency.
 
 Sprint 3.6 — Teacher Module Migration
 
-✓ TeacherRepository room-scoped read boundary
+✓ Authenticated-room-only teacher boundary
 
-✓ TeacherService session validation and authenticated-room-only normalization
+✓ One-room `mcAttendance` query
 
-✓ TeacherManager session, refresh, dashboard, command, and event boundary
+✓ Teacher session, dashboard, and Room Stock-only command preparation
 
-✓ Firebase key-prefix query support
-
-✓ `mcAttendance` loaded for one room only
-
-✓ Admin-session and cross-room access rejection
-
-✓ Teacher dashboard calculations
-
-✓ Room Stock-only consume and rollback command preparation
-
-✓ Every Teacher command has `mainStockDelta: 0`
-
-✓ Login, Stock, Report, Room, Teacher, browser, and clean-tree validation
+✓ Admin and cross-room access rejection
 
 Sprint 3.7 — Attendance Module Migration
 
-✓ AttendanceRepository room-scoped read and mutation boundary
+✓ AttendanceRepository, AttendanceService, and AttendanceManager
 
-✓ AttendanceService create, edit, delete, Room Stock difference, ledger, and stockLog rules
+✓ Key format `{roomId}_{YYYY-MM-DD}`
 
-✓ AttendanceManager load, save, delete, cache, and event boundary
+✓ Create, edit-by-difference, delete rollback, ledger, and stockLog rules
 
-✓ Key format `{roomId}_{YYYY-MM-DD}` preserved
+✓ Main Stock isolation
 
-✓ Cross-room writes rejected
+✓ Full regression and browser validation
 
-✓ New attendance reduces Room Stock by present count
+Sprint 3.8 — Offline Queue and Sync Migration
 
-✓ Edits adjust Room Stock by present-count difference only
+✓ QueueStorage using compatible `tc_pending_saves_v1`
 
-✓ Deletion restores Room Stock
+✓ Legacy `rec` and `diff` alias normalization
 
-✓ Main Stock remains unchanged
+✓ Corrupt-entry filtering
 
-✓ Login, Stock, Report, Room, Teacher, Attendance, browser, Logout, console, and clean-tree validation
+✓ Duplicate queued edit replacement with original baseline preservation
 
-Known gaps: operational form, media, signatures, printing, legacy ETag Room Stock protection, and persistent offline queue remain outside V2.
+✓ Attendance and Room Stock adjustment replay
+
+✓ Authenticated-room-only sequential replay
+
+✓ Individual success removal and failure retention
+
+✓ Bounded 5s → 10s → 20s → 40s → 60s retry backoff
+
+✓ Startup, reconnect, retry, and periodic online flush
+
+✓ Overlapping flush prevention
+
+✓ Login, Stock, Report, Room, Teacher, Attendance, Sync, browser, Logout, console, and clean-tree validation
+
+Known gaps: operational queue UI remains in `teacher.html`; V2 does not yet provide legacy ETag compare-and-retry Room Stock protection; production cutover requires legacy/V2 queue compatibility validation.
 
 ---
 
 Current Sprint
 
-Sprint 3.8 — Offline Queue and Sync Migration
+Sprint 3.9 — Performance and Payload Optimization
 
-Target structure
+Target areas
 
-UI / Browser Events
+- Firebase request-count and payload audit
+- Teacher login payload reduction verification
+- room-scoped attendance read verification
+- lazy-loading and cache invalidation audit
+- mobile and iPad performance validation
+- repeatable performance checks
+- legacy and V2 queue compatibility fixtures
+- performance documentation without invented benchmark numbers
 
-↓
+Target files may include
 
-SyncManager
-
-↓
-
-SyncService
-
-↓
-
-QueueStorage + AttendanceService
-
-↓
-
-AttendanceRepository
-
-↓
-
-FirebaseService
-
-↓
-
-Realtime Database
-
-Target files
-
-- `modules/storage/queueStorage.js`
-- `modules/services/syncService.js`
-- `modules/sync/syncManager.js`
-- sync tests
-- sync migration documentation
-
-Required sync workflows
-
-- persist failed attendance saves
-- persist failed Room Stock adjustments separately
-- survive page refresh and browser restart
-- replace queued edits for the same attendance key with the latest record
-- preserve the original `baselinePresent` across repeated queued edits
-- retry sequentially to avoid Room Stock collisions
-- use bounded exponential backoff
-- flush on reconnect
-- flush periodically while online
-- remove only successful queue items
-- keep failed items for later retry
-- reject corrupt or cross-room queue items safely
-- never change Main Stock
+- performance-focused tests under `tests/`
+- performance utilities under `modules/performance/` only when justified
+- `docs/SPRINT_3_9_PLAN.md`
+- `docs/PERFORMANCE_AUDIT_REPORT.md`
 
 ---
 
@@ -220,7 +174,7 @@ Do not modify these files during Sprint 3.x migration unless explicitly approved
 Never Break
 
 - Main Stock decreases only when distributing to classrooms.
-- Teacher, Attendance, and queued retry operations reduce only Room Stock.
+- Teacher, Attendance, and Sync operations change only Room Stock.
 - Attendance edits change Room Stock by the difference only.
 - Offline retries preserve the original attendance baseline.
 - Repeated queued edits keep the latest record without replacing the original baseline.
@@ -229,16 +183,17 @@ Never Break
 - Firebase schema and paths remain compatible.
 - Room IDs remain stable after creation.
 - Admin and Teacher login remain operational.
-- Teacher data loads remain scoped to the authenticated room.
+- Teacher attendance reads remain scoped to the authenticated room.
+- Queue entries survive refresh and browser restart.
 - Rebuild calculations use transaction history.
 
 ---
 
-Repository Responsibilities
+Repository and Storage Responsibilities
 
-Database operations and queries only.
+Database paths, queries, serialization, and persistent storage only.
 
-No calculations.
+No business calculations.
 
 No UI.
 
@@ -254,6 +209,8 @@ Calculation.
 
 Workflow.
 
+Retry and performance policy.
+
 Business rules.
 
 No UI.
@@ -262,13 +219,13 @@ No UI.
 
 Manager Responsibilities
 
-Browser online/offline events.
+Browser events.
 
 Retry timing.
 
-Queue status events.
+Queue and performance status events.
 
-Periodic flush orchestration.
+Periodic orchestration.
 
 Never access Firebase directly.
 
@@ -284,7 +241,7 @@ Required Workflow
 6. Compare before editing.
 7. Implement on a feature branch.
 8. Run static and business-rule tests.
-9. Run browser smoke tests.
+9. Run browser and device smoke tests.
 10. Update `SPRINT_STATUS.md`, `docs/PROJECT_MEMORY.md`, `CHANGELOG.md`, and `MODULE_MAP.md`.
 11. Merge into `develop` only after all gates pass.
 
