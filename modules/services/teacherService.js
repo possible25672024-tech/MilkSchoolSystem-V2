@@ -201,7 +201,8 @@ class TeacherService {
             retroMilk: this.filterRoomRecords(rawSnapshot.retroMilk, roomId),
             vacationMilk: this.filterRoomRecords(rawSnapshot.vacationMilk, roomId),
             stockTransactions: this.filterRoomRecords(rawSnapshot.stockTransactions, roomId),
-            updatedAt: rawSnapshot.updatedAt || {}
+            updatedAt: rawSnapshot.updatedAt || {},
+            extrasLoaded: rawSnapshot.extrasLoaded !== false
         };
     }
 
@@ -239,9 +240,9 @@ class TeacherService {
         };
     }
 
-    async loadTeacherView(session) {
+    async loadTeacherView(session, options = {}) {
         const roomId = this.requireSession(session);
-        const rawSnapshot = await this.ensureRepository().loadTeacherSnapshot(roomId);
+        const rawSnapshot = await this.ensureRepository().loadTeacherSnapshot(roomId, options);
         const snapshot = this.buildScopedSnapshot(rawSnapshot, session);
 
         return {
