@@ -16,6 +16,18 @@ class TeacherRepository extends BaseRepository {
         return this.get(this.path("rooms"));
     }
 
+    loadRoomById(roomId) {
+        const normalizedRoomId = String(roomId || "").trim();
+        if (!normalizedRoomId) {
+            return Promise.resolve({});
+        }
+
+        return this.get(this.path("rooms"), {
+            orderBy: "id",
+            equalTo: normalizedRoomId
+        });
+    }
+
     loadRoomStock(roomId) {
         return this.get(this.path(`roomStock/${String(roomId || "")}`));
     }
@@ -35,6 +47,30 @@ class TeacherRepository extends BaseRepository {
             startAt: `${normalizedRoomId}_`,
             endAt: `${normalizedRoomId}_\uf8ff`
         });
+    }
+
+    async loadAttendanceSummaryForDate(roomId, date) {
+        const normalizedRoomId = String(roomId || "").trim();
+        const normalizedDate = String(date || "").trim();
+        if (!normalizedRoomId || !/^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+            return {};
+        }
+
+        const key = `${normalizedRoomId}_${normalizedDate}`;
+        const data = await this.get(this.path(`mcAttendance/${key}/data`));
+        if (!data || typeof data !== "object") {
+            return {};
+        }
+
+        return {
+            [key]: {
+                roomId: normalizedRoomId,
+                classId: normalizedRoomId,
+                clsId: normalizedRoomId,
+                date: normalizedDate,
+                data
+            }
+        };
     }
 
     loadAbsentMilk() {
@@ -57,12 +93,17 @@ class TeacherRepository extends BaseRepository {
         return this.get(this.path("updatedAt"));
     }
 
-    async loadTeacherCoreSnapshot(roomId) {
+    async loadTeacherCoreSnapshot(roomId, options = {}) {
+        const attendanceDate = String(options?.attendanceDate || "").trim();
+        const attendancePromise = attendanceDate
+            ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
+            : this.loadAttendanceForRoom(roomId);
+
         const [settings, rooms, roomStock, attendance, updatedAt] = await Promise.all([
             this.loadSettings(),
-            this.loadRooms(),
+            this.loadRoomById(roomId),
             this.loadRoomStock(roomId),
-            this.loadAttendanceForRoom(roomId),
+            attendancePromise,
             this.loadUpdatedAt()
         ]);
 
@@ -72,6 +113,9 @@ class TeacherRepository extends BaseRepository {
             roomStock,
             attendance: attendance || {},
             updatedAt: updatedAt || {},
+            attendanceScope: attendanceDate
+                ? { mode: "date-summary", date: attendanceDate }
+                : { mode: "room-history", date: null },
             extrasLoaded: false
         };
     }
@@ -99,7 +143,7 @@ class TeacherRepository extends BaseRepository {
         const includeExtras = options?.includeExtras !== false;
 
         if (!includeExtras) {
-            const core = await this.loadTeacherCoreSnapshot(roomId);
+            const core = await this.loadTeacherCoreSnapshot(roomId, options);
             return {
                 ...core,
                 distributes: [],
@@ -111,7 +155,7 @@ class TeacherRepository extends BaseRepository {
         }
 
         const [core, extras] = await Promise.all([
-            this.loadTeacherCoreSnapshot(roomId),
+            this.loadTeacherCoreSnapshot(roomId, options),
             this.loadTeacherExtraSnapshot()
         ]);
 
