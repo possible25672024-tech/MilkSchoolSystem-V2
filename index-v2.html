@@ -25,7 +25,7 @@
         }
 
         main {
-            width: min(460px, 100%);
+            width: min(760px, 100%);
         }
 
         .panel {
@@ -35,16 +35,37 @@
             box-shadow: 0 18px 50px rgba(15, 46, 68, 0.14);
         }
 
-        h1 {
-            margin: 0 0 6px;
+        .auth-panel {
+            width: min(460px, 100%);
+            margin-inline: auto;
+        }
+
+        h1,
+        h2 {
+            margin: 0;
             color: #1a5276;
+        }
+
+        h1 {
+            margin-bottom: 6px;
             font-size: 1.55rem;
         }
 
+        h2 {
+            font-size: 1.3rem;
+        }
+
         .subtitle,
-        .status {
+        .status,
+        .eyebrow {
             color: #64748b;
             font-size: 0.9rem;
+        }
+
+        .eyebrow {
+            margin: 0 0 4px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
         }
 
         label {
@@ -101,8 +122,124 @@
             margin-top: 12px;
         }
 
+        .teacher-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .teacher-school {
+            margin: 8px 0 0;
+            color: #475569;
+        }
+
+        .connection-badge {
+            flex: 0 0 auto;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .connection-badge[data-state="offline"] {
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .teacher-identity-grid,
+        .teacher-metrics {
+            display: grid;
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .teacher-identity-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .teacher-metrics {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .info-card,
+        .metric-card {
+            min-width: 0;
+            margin: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .info-card dt,
+        .metric-label {
+            margin: 0 0 6px;
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .info-card dd,
+        .metric-value {
+            margin: 0;
+            overflow-wrap: anywhere;
+            color: #1f2937;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .metric-card {
+            background: #eef6fb;
+        }
+
+        .metric-value {
+            color: #1a5276;
+            font-size: 1.45rem;
+        }
+
+        .teacher-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .teacher-actions button {
+            width: min(220px, 100%);
+        }
+
         [hidden] {
             display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 16px;
+            }
+
+            .panel {
+                padding: 22px;
+            }
+
+            .teacher-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .connection-badge {
+                align-self: flex-start;
+            }
+
+            .teacher-identity-grid,
+            .teacher-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .teacher-actions button {
+                width: 100%;
+            }
         }
     </style>
 
@@ -138,6 +275,7 @@
     <script defer src="modules/teacher/teacherManager.js"></script>
     <script defer src="modules/attendance/attendanceManager.js"></script>
     <script defer src="modules/sync/syncManager.js"></script>
+    <script defer src="modules/teacher/teacherView.js"></script>
 
     <script defer src="modules/core/app.js"></script>
     <script defer src="modules/core/bootstrap.js"></script>
@@ -146,7 +284,7 @@
     <main>
         <p id="bootstrap-error" class="error" hidden></p>
 
-        <section id="login-panel" class="panel">
+        <section id="login-panel" class="panel auth-panel">
             <h1>MilkSchoolSystem V2</h1>
             <p class="subtitle">เข้าสู่ระบบผู้ดูแลหรือครูประจำชั้น</p>
 
@@ -175,10 +313,52 @@
         </section>
 
         <section id="app-panel" class="panel" hidden>
-            <h1>เข้าสู่ระบบสำเร็จ</h1>
-            <p id="current-user"></p>
-            <p class="subtitle">Sprint 4.0 Cutover Readiness and Compatibility พร้อมสำหรับการตรวจสอบความพร้อมก่อนใช้งานจริง</p>
-            <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+            <div id="admin-shell">
+                <h1>เข้าสู่ระบบสำเร็จ</h1>
+                <p id="current-user"></p>
+                <p class="subtitle">Sprint 4.1 Teacher UI Shell and Read-Only State พร้อมสำหรับการตรวจสอบหน้าครูแบบอ่านอย่างเดียว</p>
+                <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+            </div>
+
+            <section id="teacher-shell" aria-labelledby="teacher-shell-title" aria-busy="false" hidden>
+                <header class="teacher-header">
+                    <div>
+                        <p class="eyebrow">MilkSchoolSystem V2 · หน้าครู</p>
+                        <h2 id="teacher-shell-title">ข้อมูลห้องเรียน</h2>
+                        <p id="teacher-school-name" class="teacher-school"></p>
+                    </div>
+                    <span id="teacher-connection-state" class="connection-badge" data-state="online">ออนไลน์</span>
+                </header>
+
+                <dl class="teacher-identity-grid">
+                    <div class="info-card">
+                        <dt>ห้องเรียน</dt>
+                        <dd id="teacher-room-name">—</dd>
+                    </div>
+                    <div class="info-card">
+                        <dt>ครูประจำชั้น</dt>
+                        <dd id="teacher-name">—</dd>
+                    </div>
+                </dl>
+
+                <div class="teacher-metrics">
+                    <article class="metric-card">
+                        <p class="metric-label">นมคงเหลือในห้อง</p>
+                        <p id="teacher-room-stock" class="metric-value">—</p>
+                    </article>
+                    <article class="metric-card">
+                        <p class="metric-label">รายการรอซิงก์</p>
+                        <p id="teacher-queue-count" class="metric-value">0 รายการ</p>
+                    </article>
+                </div>
+
+                <p id="teacher-shell-status" class="status" aria-live="polite"></p>
+                <p id="teacher-shell-error" class="error" role="alert" hidden></p>
+
+                <div class="teacher-actions">
+                    <button id="teacher-logout-button" class="secondary" type="button">ออกจากระบบ</button>
+                </div>
+            </section>
         </section>
     </main>
 </body>
