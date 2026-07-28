@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-90% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, Logout, Console, branch synchronization, clean working tree, and upper/middle 820 x 1180 Attendance interaction passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
+92% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, responsive upper/middle interaction, responsive Logout, Console, branch synchronization, and clean working tree passed; responsive bottom action/status visibility and approved isolated create/edit/delete validation remain pending
 
 ---
 
@@ -66,7 +66,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added one-date loading through `AttendanceManager.loadDay(date)`
 
-✓ Added authenticated-room student list from the existing Teacher snapshot
+✓ Added authenticated-room student list from the Teacher snapshot
 
 ✓ Added student number, name, and gender display
 
@@ -76,9 +76,9 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added total, checked, present, absent, and unchecked counters
 
-✓ Added save and edit through `AttendanceManager.save(input)`
+✓ Added save/edit through `AttendanceManager.save(input)`
 
-✓ Added explicit delete confirmation and `AttendanceManager.remove(input)`
+✓ Added delete confirmation and `AttendanceManager.remove(input)`
 
 ✓ Added Room Stock before/after feedback from Manager results
 
@@ -228,15 +228,26 @@ Chrome Device Toolbar at 820 x 1180:
 
 ✓ No write request was visible
 
+✓ Responsive Logout returned to the login form
+
+✓ Room/role selector reset after Logout
+
+✓ Password field returned empty
+
+✓ Responsive Console displayed only `MilkSchoolSystem V2 Started`
+
+✓ No visible application JavaScript error or warning
+
+Scope note:
+
+- DevTools displayed an Issues count, but no Issues details were supplied
+- the clean Console evidence is recorded independently from the Issues badge
+
 Still pending:
 
 □ Scroll to the bottom and confirm Save and Delete controls remain reachable
 
 □ Confirm status and error feedback areas remain readable
-
-□ Open Console and confirm no application error or warning
-
-□ Logout from the responsive Attendance page and confirm the login form returns cleanly
 
 ---
 
@@ -276,7 +287,7 @@ Required evidence:
 
 Current Merge Decision
 
-Sprint 4.2 is not ready to merge into `develop` until responsive bottom controls/Console evidence passes and approved isolated create/edit/delete validation is recorded.
+Sprint 4.2 is not ready to merge into `develop` until responsive bottom action/status evidence passes and approved isolated create/edit/delete validation is recorded.
 
 ---
 
