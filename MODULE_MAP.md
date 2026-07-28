@@ -40,8 +40,7 @@ Completed boundary:
 - compatible session storage
 - cached settings and rooms context
 - authenticated Teacher room snapshot
-- desktop and 820 x 1180 login/logout evidence
-- Admin and Teacher role routing into separate V2 shell containers
+- Admin and Teacher role routing
 
 ### Firebase Foundation — Completed
 
@@ -56,7 +55,6 @@ Completed boundary:
 - Realtime Database REST access
 - query parameters
 - identical in-flight GET deduplication
-- no persistent stale response cache
 - no automatic JSON Content-Type on body-less GET
 - ETag reads through `X-Firebase-ETag: true`
 - conditional writes through `If-Match`
@@ -163,7 +161,7 @@ Production-confidence gap:
 
 - real multi-writer validation must run in an isolated Firebase environment under D-06
 
-### Sync and Offline Queue — Completed with Recovery Paths
+### Sync and Offline Queue — Service Foundation Completed
 
 Modules:
 
@@ -188,10 +186,9 @@ Completed boundary:
 - no repeated Room Stock mutation during audit-only retry
 - no Main Stock change
 
-Deferred production gaps:
+Current UI gap:
 
-- real sanitized operational queue sample under D-07
-- item-level operational queue UI remains future work
+- item-level operational queue status, retry state, last-sync time, and manual retry controls are not yet integrated into the V2 Teacher shell
 
 ### Performance — Completed
 
@@ -215,7 +212,7 @@ Measured result on the recorded 83-room dataset:
 
 ### Cutover Readiness — Sprint 4.0 Completed
 
-Completed artifacts:
+Artifacts:
 
 - `docs/SPRINT_4_0_PLAN.md`
 - `docs/CUTOVER_PARITY_MATRIX.md`
@@ -254,42 +251,81 @@ Completed boundary:
 - restored-session rendering
 - Manager and event-driven View boundary
 - no direct Firebase, Repository, Local Storage, Session Storage, or stock calculation in the View
-- Admin role-routing regression pass
-- desktop Teacher Network pass at four reads and approximately 1.6 KB
-- Offline/Online transition pass
-- desktop and 820 x 1180 Login/Logout and Console pass
+- Admin, desktop Network, Offline/Online, responsive, and Console gates passed
+
+Integration meaning:
+
+- merged into `develop`
+- does not replace `teacher.html`
+
+### Teacher Daily Attendance CRUD UI — Sprint 4.2 Completed
+
+Modules and artifacts:
+
+- `modules/attendance/attendanceView.js`
+- `tests/attendance-ui-check.mjs`
+- `tests/attendance-isolated-write-check.mjs`
+- `docs/SPRINT_4_2_PLAN.md`
+- `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
+- `docs/ATTENDANCE_ISOLATED_WRITE_GATE.md`
+- `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
+
+Completed boundary:
+
+- date-scoped daily Attendance form
+- authenticated-room student list
+- present and absent controls
+- per-student notes
+- totals and responsive layout
+- load one day through `AttendanceManager.loadDay()`
+- create and edit through `AttendanceManager.save()`
+- confirmed delete through `AttendanceManager.remove()`
+- Room Stock result display
+- conflict, partial-save, queue, and audit feedback
+- compatible media-field preservation during edits
+- no direct Firebase, Repository, storage, stock calculations, ledger, retry, or ETag ownership in the View
+- complete in-memory create/edit-up/edit-down/delete validation
+- Main Stock unchanged through all isolated operations
+- one protected Room Stock retry on deliberate partial save
+- all 16 regression checks accepted as passed
+- desktop and 820 x 1180 validation passed
 
 Integration meaning:
 
 - approved for fast-forward merge into `develop`
 - does not replace `teacher.html`
-- does not authorize Attendance operational cutover
+- does not authorize `main` or production cutover
 
-### Teacher Daily Attendance CRUD UI — Current Sprint 4.2
+Deferred incident:
 
-Target branch:
+- room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined with Attendance 22 present / 3 absent and Room Stock discrepancy -22
+- recovery is mandatory before production acceptance
 
-`feature/sprint-4.2-attendance-daily-ui`
+### Offline Queue Operational UI — Next Sprint 4.3
+
+Planned branch:
+
+`feature/sprint-4.3-offline-queue-ui`
 
 Target boundary:
 
-- date-scoped daily Attendance form
-- authenticated-room student list
-- present and absent controls
-- notes
-- load one day through `AttendanceManager.loadDay()`
-- create and edit through `AttendanceManager.save()`
-- delete through `AttendanceManager.remove()`
-- present and absent totals
-- Room Stock result display
-- partial-save and queued Room Stock feedback
-- no direct Firebase, Repository, or stock calculations in the View
-- isolated test data only for write validation
-- desktop and 820 x 1180 validation
+- operational offline banner
+- persistent queue badge and item count
+- last successful sync time
+- retrying, failed, and deferred states
+- manual retry action
+- item-level safe error summary
+- consume `SyncManager` and events only
+- no direct QueueStorage mutation from the View
+- preserve `tc_pending_saves_v1`
+- preserve legacy `rec` and `diff` compatibility
+- preserve repeated-edit original baseline
+- restart and reconnect validation
+- no real-classroom write tests
 
 Out of scope:
 
-- pending, retroactive, or vacation milk
+- pending, retroactive, or vacation milk forms
 - photos and signatures
 - printing and history-range views
 - replacing or removing `teacher.html`
@@ -297,7 +333,7 @@ Out of scope:
 
 ### Legacy Removal — Blocked
 
-Legacy removal becomes eligible only after operational Admin and Teacher parity, data compatibility, backup/restore rehearsal, device risk decision, and explicit production approval.
+Legacy removal becomes eligible only after operational Admin and Teacher parity, data compatibility, backup/restore rehearsal, device risk decision, incident closure, and explicit production approval.
 
 ## Business Rules
 
@@ -353,7 +389,8 @@ Rebuild
 - Sprint 3.9 — Performance — Completed
 - Sprint 4.0 — Cutover Readiness — Completed
 - Sprint 4.1 — Teacher UI Shell and Read-Only State — Completed
-- Sprint 4.2 — Teacher Daily Attendance CRUD UI — Current
+- Sprint 4.2 — Teacher Daily Attendance CRUD UI — Completed
+- Sprint 4.3 — Offline Queue Operational UI — Next
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
@@ -369,4 +406,4 @@ Always read:
 
 before editing source code.
 
-Preserve verified business logic, storage compatibility, and legacy rollback capability throughout UI integration.
+Preserve verified business logic, storage compatibility, incident quarantine, and legacy rollback capability throughout UI integration.
