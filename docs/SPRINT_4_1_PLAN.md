@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Status: 10% — plan initialized; runtime implementation not started
+Status: 65% — Teacher View, responsive shell markup, role routing, App initialization, and deterministic shell tests implemented; local regression and browser gates remain pending
 
 ## Goal
 
@@ -19,48 +19,74 @@ Sprint 4.1 implements only the Teacher session shell and read-only state. It doe
 
 Both files remain unchanged, operational, and available as rollback paths.
 
-## In Scope
+## Implemented Runtime Boundary
 
-### Teacher Session Header
+### Teacher View
 
-Display:
+Added:
 
-- school name
-- room name
-- teacher name
-- current Room Stock
-- online/offline connection state
-- pending queue count
-- Logout action
+- `modules/teacher/teacherView.js`
 
-### Read-Only State Sources
+Implemented behavior:
 
-Use existing modular boundaries:
+- restores the shell from an existing Teacher session
+- reacts to `milkapp:login-success`
+- clears on `milkapp:logout`
+- calls `TeacherManager.refresh()` for room-scoped read-only state
+- renders school, room, teacher, and current Room Stock
+- renders queue count from `SyncManager.getStatus()`
+- renders online/offline state from browser events
+- delegates Logout to `LoginManager.logout()`
+- keeps negative Room Stock visible
+- ignores Admin sessions
+- clears stale Teacher values after Logout
 
-- `AuthService` for the authenticated session
-- `TeacherManager` for the Teacher snapshot and dashboard
-- `SyncManager` or `SyncService` status for queue count
-- browser `online` and `offline` events for connection state
+### V2 Shell Markup
 
-### View Boundary
+Updated:
 
-The view may:
+- `index-v2.html`
 
-- create and update DOM elements
-- format display-only values
-- call Manager methods
-- subscribe to existing browser events
-- emit UI interaction events where needed
+Added:
 
-The view must not:
+- explicit Admin and Teacher shell containers
+- responsive Teacher identity cards
+- Room Stock read-only metric
+- queue-count metric
+- online/offline badge
+- Teacher Logout action
+- responsive one-column layout below 600 CSS pixels
+- Sprint 4.1 user-visible shell text
+- completed Sprint 4.0 foundation marker for existing regression protection
 
-- access Firebase directly
-- access repositories directly
-- calculate Main Stock or Room Stock rules
-- mutate Attendance
-- mutate Room Stock
-- own the offline queue
-- change session-storage keys
+### Role and Startup Integration
+
+Updated:
+
+- `modules/login/loginManager.js`
+- `modules/core/app.js`
+
+Implemented:
+
+- Teacher sessions route to the modular Teacher shell
+- Admin sessions retain the existing Admin shell
+- Logout hides and clears the Teacher shell
+- App initializes TeacherView after LoginManager
+- restored Teacher sessions render after bootstrap
+
+## Architecture Protection
+
+The View:
+
+- owns DOM rendering and browser interaction only
+- calls Managers
+- subscribes to browser and application events
+- does not access Firebase directly
+- does not access Repositories directly
+- does not call `fetch()`
+- does not own Local Storage or Session Storage
+- does not calculate stock deltas
+- does not mutate Attendance or Room Stock
 
 ## Out of Scope
 
@@ -88,39 +114,38 @@ The view must not:
 - Queue count must come from the existing persistent queue boundary.
 - Logout must clear the active session and return to the login form.
 - Negative Room Stock must remain visible.
-- The view must not silently clamp, recalculate, or rewrite stock values.
+- The View must not silently clamp, recalculate, or rewrite stock values.
 
-## Planned Runtime Files
+## Test Implementation
 
-Create only when implementation starts:
-
-- `modules/teacher/teacherView.js`
-
-Optional only if the current shell structure requires a separate renderer:
-
-- `modules/teacher/teacherShellRenderer.js`
-
-Do not create additional Service or Repository modules for display-only concerns.
-
-## Planned Test Files
+Added:
 
 - `tests/teacher-ui-shell-check.mjs`
 
-The test must verify:
+Coverage:
 
 - valid JavaScript
 - dependency order in `index-v2.html`
-- no direct `FirebaseService` access
-- no `fetch()` in the view
-- no direct repository access
-- no stock calculations in the view
-- authenticated Teacher state rendering
-- Room Stock display including zero and negative values
-- queue count rendering
-- online/offline state rendering
+- no direct Firebase access
+- no `fetch()` in the View
+- no direct Repository access
+- no stock-delta calculations in the View
+- restored authenticated Teacher state
+- school, room, and teacher rendering
+- positive, zero, and negative Room Stock rendering
+- queue-count rendering and update events
+- online/offline rendering
 - Logout delegation
-- Admin sessions do not render the Teacher shell
-- shell clears after Logout
+- Admin session rejection
+- shell clearing after Logout
+
+Updated:
+
+- `tests/cutover-documentation-check.mjs`
+
+Reason:
+
+- preserve completed Sprint 4.0 evidence while `SPRINT_STATUS.md` advances to Sprint 4.1
 
 ## Browser Gate
 
@@ -152,7 +177,7 @@ Physical iPad remains deferred and must not be represented as PASS.
 
 - no additional full `rooms.json` request after Teacher login
 - no full room-history Attendance request during normal shell refresh
-- no deferred Teacher collection request unless explicitly requested by an existing Manager flow
+- no deferred Teacher collection request
 - no write request from shell rendering
 - no Main Stock request required for the Teacher shell
 
@@ -174,27 +199,36 @@ node tests/teacher-core-payload-check.mjs
 node tests/cutover-concurrency-check.mjs
 node tests/audit-recovery-check.mjs
 node tests/cutover-documentation-check.mjs
-```
-
-New Sprint test:
-
-```powershell
 node tests/teacher-ui-shell-check.mjs
 ```
+
+## Current Pending Gate
+
+- pull the latest feature branch
+- run all 14 automated tests
+- confirm working tree clean
+- run desktop Admin Login
+- run desktop Teacher Login and verify shell values
+- switch DevTools Network to Offline and verify the badge
+- return Online and verify the badge
+- verify queue count
+- Logout and confirm the login form
+- confirm Console clean
+- repeat Teacher Login and Logout at 820 x 1180
+- inspect Fetch/XHR for unexpected reads or writes
 
 ## Merge Gate
 
 Sprint 4.1 may merge into `develop` when:
 
-- the Teacher shell is implemented through a View boundary
-- no direct Firebase or Repository access exists in the view
+- all existing and new automated tests pass
 - Teacher room identity and Room Stock display are correct
 - queue count and connection state are correct
 - Logout works
-- all existing and new automated tests pass
 - desktop browser gate passes
 - 820 x 1180 responsive gate passes
 - Console is clean
+- no unexpected network reads or writes occur
 - working tree is clean
 - `index.html` and `teacher.html` remain unchanged
 
