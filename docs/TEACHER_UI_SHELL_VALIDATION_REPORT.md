@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Overall status: PARTIAL PASS — automated and responsive shell gates passed; desktop Admin, explicit offline/online transition, and Network inspection remain pending
+Overall status: PARTIAL PASS — automated, responsive, desktop Teacher shell, desktop Logout, and Teacher Network gates passed; desktop Admin, explicit Offline/Online transition, and desktop Console evidence remain pending
 
 ## Automated Gate
 
@@ -73,6 +73,76 @@ Observed:
 - connection status reported 83 rooms
 - Console remained clean with only `MilkSchoolSystem V2 Started`
 
+## Desktop Teacher Shell and Network Gate
+
+Environment recorded from supplied screenshots:
+
+- Browser: Chrome desktop
+- Device Toolbar: disabled
+- Host: Live Server at `127.0.0.1:5500/index-v2.html`
+- Network filter: Fetch/XHR
+- Date observed: 2026-07-28
+
+### Desktop Teacher Login
+
+Result: PASS
+
+Observed:
+
+- modular Teacher shell rendered after login
+- school name displayed
+- room name displayed as `อ.3-1`
+- teacher identity displayed
+- current Room Stock displayed as `962 กล่อง`
+- pending queue count displayed as `0 รายการ`
+- online badge displayed
+- Logout button remained visible and usable
+
+### Teacher Core Network
+
+Result: PASS
+
+Observed exactly four successful read requests:
+
+- today's Attendance `data.json` — HTTP 200, approximately 0.3 KB
+- `settings.json` — HTTP 200, approximately 0.6 KB
+- authenticated room `roomStock/<roomId>.json` — HTTP 200, approximately 0.3 KB
+- `updatedAt.json` — HTTP 200, approximately 0.3 KB
+
+Recorded total:
+
+- 4 requests
+- approximately 1.6 KB transferred
+
+Not visible during Teacher shell rendering:
+
+- no failed application request
+- no `PUT`, `PATCH`, `POST`, or `DELETE`
+- no full `rooms.json` request
+- no room-history `mcAttendance.json?orderBy=...` request
+- no `distributes.json`
+- no `absentMilk.json`
+- no `retroMilk.json`
+- no `vacationMilk.json`
+- no `stockTransactions.json`
+- no Main Stock `stock.json` request
+
+### Desktop Logout Network
+
+Result: PASS
+
+Observed:
+
+- Teacher shell cleared and login form returned
+- room/role selector returned to the unselected state
+- password field returned empty
+- the previous four Teacher read requests remained visible in Network history
+- `settings.json` and full `rooms.json` loaded after Logout to rebuild the login form and 83-room selector
+- all visible requests returned HTTP 200
+- no write request was visible
+
+The post-Logout `rooms.json` request is expected for the login form and does not violate the rule that the Teacher shell must not download all rooms after Teacher login.
+
 ## Business and Architecture Evidence
 
 Confirmed by automated tests and browser evidence:
@@ -84,22 +154,18 @@ Confirmed by automated tests and browser evidence:
 - zero and negative Room Stock rendering is protected by tests
 - View does not access Firebase, repositories, Local Storage, or Session Storage directly
 - View does not calculate or mutate stock
+- normal Teacher refresh remains date-scoped
 - protected `index.html` and `teacher.html` remain unchanged
 
-## Pending Desktop and Network Evidence
+## Remaining Evidence Before Merge
 
-Required before Sprint 4.1 merge:
+Required:
 
 - desktop Admin Login after the Sprint 4.1 role-routing changes
-- desktop Teacher Login outside Device Toolbar
-- DevTools Network switched to Offline and badge observed as `ออฟไลน์`
-- return Online and badge observed as `ออนไลน์`
-- Fetch/XHR inspection confirming no failed application request
-- no unexpected Firebase write request during shell rendering
-- no additional full `rooms.json` request after Teacher login
-- no full room-history Attendance request during normal shell refresh
-- no deferred Teacher collection request during normal shell refresh
-- no Main Stock request required by the Teacher shell
+- desktop Admin Logout
+- desktop Console confirmation for Admin, Teacher, and post-Logout flows
+- DevTools switched to Offline with badge observed as `ออฟไลน์`
+- return Online with badge observed as `ออนไลน์`
 
 ## Physical iPad
 
@@ -109,4 +175,4 @@ Physical iPad testing remains outside the Sprint 4.1 merge gate and must not be 
 
 ## Decision
 
-Automated and responsive Teacher-shell gates passed. Sprint 4.1 is not yet ready to merge into `develop` until the remaining desktop Admin, offline/online transition, and Network evidence are recorded.
+Automated, responsive, desktop Teacher, desktop Logout, and Teacher Network gates passed. Sprint 4.1 is not yet ready to merge into `develop` until desktop Admin, explicit Offline/Online transition, and desktop Console evidence are recorded.
