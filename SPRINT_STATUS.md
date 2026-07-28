@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-82% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, direct Logout evidence, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; Admin/Logout Console evidence, responsive viewport validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
+86% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Teacher and post-Logout Console evidence, current Sprint 4.0 shell text, browser Network evidence, and initial 820 x 1180 responsive-layout evidence completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; responsive interaction/login validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -128,6 +128,10 @@ Sprint 4.0 Implemented
 
 ✓ Teacher-session Console captured with only `MilkSchoolSystem V2 Started` and no visible error
 
+✓ Post-Logout Console captured with only `MilkSchoolSystem V2 Started` and no visible error
+
+✓ Admin-login-to-Logout browser sequence completed without a visible application error
+
 ✓ V2 shell stale Sprint 3.9 text corrected to Sprint 4.0
 
 ✓ Performance static test updated to protect the current Sprint 4.0 shell text
@@ -135,6 +139,14 @@ Sprint 4.0 Implemented
 ✓ Parity matrix separates concurrency, partial-save recovery, audit-only recovery, and browser evidence status
 
 ✓ Local feature branch confirmed synchronized with origin and working tree clean after the latest documentation update
+
+✓ Browser device toolbar evidence recorded at 820 x 1180 CSS pixels
+
+✓ Login panel remained contained within the emulated viewport without visible horizontal overflow
+
+✓ Room selector, password field, login button, reload button, and 83-room status remained visible in the emulated viewport
+
+✓ Emulated 820 x 1180 viewport Console captured without a visible application error
 
 ✓ Physical iPad validation explicitly deferred by the user/product owner on 2026-07-28
 
@@ -146,11 +158,11 @@ Sprint 4.0 Implemented
 
 Pending Immediate Browser Validation
 
-□ Capture or explicitly confirm a clean Console after Admin login and Logout
+□ Interact with the room selector and complete one Teacher login in the 820 x 1180 emulated viewport
 
-□ Run responsive mobile validation
+□ Confirm Logout returns to the login form in the 820 x 1180 emulated viewport
 
-□ Run iPad-class browser viewport validation at approximately 820 x 1180 CSS pixels
+□ Optionally record a narrower mobile viewport if mobile-phone support is part of the production scope
 
 ---
 
@@ -184,8 +196,7 @@ Pending Cutover Work
 
 Current Blockers to Production Cutover
 
-- clean Admin-login and Logout Console evidence is not yet separately recorded
-- responsive mobile and iPad-class viewport evidence not yet recorded
+- full 820 x 1180 responsive interaction, Teacher login, and Logout evidence is not yet recorded
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
 - Report browser-local adapter is unresolved
 - XLSX binary parser remains legacy
