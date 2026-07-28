@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.9
+Version: 3.0
 Last Updated: 2026-07-28
 
 ---
@@ -26,15 +26,21 @@ Protected operational legacy system
 
 ↓
 
-Modular V2 service, repository, queue, recovery, performance, and cutover-readiness foundation completed
+Modular V2 Firebase, repository, stock, report, room, Teacher, Attendance, queue, recovery, performance, and cutover-readiness foundations completed
 
 ↓
 
-Teacher read-only UI shell completed
+Teacher read-only shell completed
 
 ↓
 
-Teacher daily Attendance CRUD UI integration is current
+Teacher daily Attendance CRUD UI code completed and approved for `develop`
+
+↓
+
+Offline Queue operational UI is next
+
+Production cutover remains blocked.
 
 ---
 
@@ -92,6 +98,7 @@ Production gaps: XLSX binary parsing remains legacy; complete-room multi-admin c
 - baseline preservation
 - sequential retry and bounded backoff
 - Room Stock-only replay
+- audit-only recovery
 
 ### Sprint 3.9 — Performance
 
@@ -118,7 +125,6 @@ Recorded desktop result on the 83-room dataset:
 - persistent audit-only recovery
 - deterministic concurrency and audit tests
 - parity, decisions, Teacher UI integration, backup, and rollback documentation
-- automated, desktop, responsive, Console, and clean-tree gates passed
 
 Integration decision:
 
@@ -129,60 +135,90 @@ Integration decision:
 
 - modular `TeacherView`
 - separate Admin and Teacher shell containers
-- school, room, and teacher identity
-- read-only current Room Stock
-- persistent queue count
-- online/offline badge
-- Logout delegation
-- restored-session rendering
+- school, room, teacher, Room Stock, queue count, and connection state
+- Logout and restored-session rendering
 - no direct Firebase, Repository, storage, or stock calculations in the View
-- Admin role-routing regression passed
-- Teacher core Network gate passed at four reads and approximately 1.6 KB
-- desktop and 820 x 1180 Teacher Login/Logout passed
-- Offline/Online transition passed
-- Teacher, Admin, and post-Logout Console gates passed
-- all 14 automated tests and clean-tree gate passed
+- Admin, Teacher, Network, desktop, responsive, Offline/Online, Console, and 14-test gates passed
+
+Integration decision:
+
+- merged into `develop`
+- does not replace `teacher.html`
+
+### Sprint 4.2 — Teacher Daily Attendance CRUD UI
+
+- modular `AttendanceView`
+- exact one-date Attendance loading
+- authenticated-room student list
+- present/absent and notes controls
+- totals and responsive layout
+- create/edit through `AttendanceManager.save()`
+- confirmed delete through `AttendanceManager.remove()`
+- Room Stock result, conflict, queue, and audit feedback
+- compatible media-field preservation during edits
+- no direct Firebase, Repository, storage, stock, ledger, retry, or ETag ownership in the View
+- complete in-memory create → edit up → edit down → delete test
+- Main Stock unchanged through all isolated operations
+- deliberate partial-save queue simulation
+- all 16 regression checks accepted as passed
+- desktop and 820 x 1180 browser gates passed
+- `index.html` and `teacher.html` unchanged
 
 Integration decision:
 
 - approved for fast-forward merge into `develop`
-- does not replace `teacher.html`
-- does not authorize operational Attendance cutover
+- not approved for `main` or production cutover
 
 ---
 
-Current Sprint
+Deferred Real-Data Incident
 
-Sprint 4.2 — Teacher Daily Attendance CRUD UI
+Room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined:
 
-Target branch
+- test-created Attendance record: 22 present, 3 absent
+- Room Stock: 1,253
+- recorded pre-test Room Stock: 1,275
+- known difference: -22
 
-`feature/sprint-4.2-attendance-daily-ui`
+Room `อ.3-4` / `mqn0z13emyrc` is reconciled at Attendance and Room Stock level:
 
-Goals
+- Attendance: `null`
+- Room Stock: 350
 
-- add a date-scoped daily Attendance form to the modular Teacher shell
-- render only students from the authenticated room snapshot
-- support present and absent controls
-- support per-student notes
-- load one day through `AttendanceManager.loadDay()`
-- save new and edited records through `AttendanceManager.save()`
-- delete through `AttendanceManager.remove()`
-- display present and absent totals
-- display Room Stock result after save or delete
-- show partial-save and queued Room Stock feedback
-- consume Managers and events only
-- keep Firebase, Repository, stock calculation, and queue ownership out of the View
-- use isolated test data only for write validation
-- pass desktop and 820 x 1180 gates
-- keep `teacher.html` operational and unchanged
+The product owner deferred recovery so development can continue. This is not incident closure. Recovery, Main Stock review, queue/audit review, and explicit closure remain mandatory before `main`, production cutover, or official use of the affected room/date.
 
-Out of scope
+Do not use the quarantined room/date for further writes or trusted report evidence.
 
-- pending, retroactive, or vacation milk
+---
+
+Next Sprint
+
+Sprint 4.3 — Offline Queue Operational UI
+
+Planned branch:
+
+`feature/sprint-4.3-offline-queue-ui`
+
+Goals:
+
+- operational offline banner
+- persistent queue badge and item count
+- last successful sync time
+- retrying, failed, and deferred states
+- manual retry action
+- item-level safe error summary
+- restart and reconnect validation
+- preserve `tc_pending_saves_v1`
+- preserve legacy `rec` and `diff` compatibility
+- preserve repeated-edit original baseline
+- no direct queue-storage mutation from the View
+- no additional real-classroom write tests
+
+Out of scope:
+
+- pending, retroactive, or vacation milk forms
 - photos and signatures
 - printing
-- history-range views
 - replacement or removal of `teacher.html`
 - production deployment
 
@@ -209,7 +245,7 @@ Never Break
 - Offline retries preserve the original Attendance baseline.
 - Repeated queued edits keep the latest record without replacing the original baseline.
 - Audit-only retries never repeat a successful Room Stock mutation.
-- Partial Attendance saves must surface queued Room Stock status without rewriting Attendance.
+- Partial Attendance saves surface queued Room Stock status without rewriting Attendance.
 - Reports remain read-only.
 - Firebase schema and paths remain compatible unless an approved migration includes rollback.
 - Room IDs remain stable.
@@ -243,7 +279,7 @@ View
 - DOM rendering and user interaction
 - consumes Managers and events
 - no business calculations
-- no direct Firebase access
+- no direct Firebase or storage access
 
 ---
 
