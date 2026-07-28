@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-4.1-teacher-ui-shell
+feature/sprint-4.2-attendance-daily-ui
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 4.1 — Teacher UI Shell and Read-Only State
+Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-100% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, desktop and 820 x 1180 browser validation, Teacher Network gate, explicit Offline/Online transition, Teacher and Admin Console gates, Admin regression, and Logout gates all passed; Sprint 4.1 is approved for fast-forward integration into `develop`
+10% — Sprint plan initialized from the completed Sprint 4.1 Teacher shell; Attendance View implementation, workflow tests, isolated write validation, browser validation, responsive validation, Network validation, and clean-tree gate have not started
 
 ---
 
@@ -42,7 +42,7 @@ Completed Foundation
 
 ✓ Sprint 3.6 Teacher Service Foundation merged into `develop`
 
-✓ Sprint 3.7 Attendance Module merged into `develop`
+✓ Sprint 3.7 Attendance Service Foundation merged into `develop`
 
 ✓ Sprint 3.8 Offline Queue and Sync Module merged into `develop`
 
@@ -50,9 +50,15 @@ Completed Foundation
 
 ✓ Sprint 4.0 Cutover Readiness and Compatibility merged into `develop`
 
-✓ ETag Room Stock protection and recovery foundations available
+✓ Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`
 
-✓ Production decisions, Teacher UI integration plan, and rollback plan documented
+✓ Modular Teacher shell displays school, room, teacher, Room Stock, connection state, queue count, and Logout
+
+✓ Teacher core refresh remains four reads and approximately 1.6 KB in the recorded desktop environment
+
+✓ Admin role routing remained unchanged
+
+✓ Offline/Online and desktop/responsive Console gates passed
 
 ✓ Protected `index.html` and `teacher.html` remain operational
 
@@ -60,178 +66,248 @@ Completed Foundation
 
 ---
 
-Sprint 4.1 Runtime Completed
+Sprint 4.2 Goal
 
-✓ Added `modules/teacher/teacherView.js`
-
-✓ Added responsive Teacher shell markup to `index-v2.html`
-
-✓ Added separate Admin and Teacher shell containers
-
-✓ Added school, room, and teacher identity display
-
-✓ Added read-only current Room Stock display
-
-✓ Added online/offline connection badge
-
-✓ Added persistent queue-count display through `SyncManager.getStatus()`
-
-✓ Added Teacher Logout delegated to `LoginManager.logout()`
-
-✓ Added restored Teacher session rendering during App startup
-
-✓ Added Login, Logout, Teacher refresh, Sync, and browser connection event handling
-
-✓ Added Admin session rejection from the Teacher View
-
-✓ Preserved zero and negative Room Stock values without clamping
-
-✓ Kept Firebase, Repository, Local Storage, Session Storage, and stock calculations out of the View
-
-✓ Updated LoginManager role routing without changing credential rules
-
-✓ Updated App initialization order
-
-✓ Added `tests/teacher-ui-shell-check.mjs`
-
-✓ Added `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
-
-✓ `index.html` unchanged
-
-✓ `teacher.html` unchanged
+Add a modular daily Attendance interface to the V2 Teacher shell while preserving the completed Attendance, Room Stock, ETag, offline queue, recovery, and protected legacy behavior.
 
 ---
 
-Automated Gate
+Sprint 4.2 In Scope
 
-✓ Login foundation checks passed
+□ Date-scoped daily Attendance form
 
-✓ Stock module checks passed
+□ Current local date default
 
-✓ Report module checks passed
+□ Load one day through `AttendanceManager.loadDay(date)`
 
-✓ Room module checks passed
+□ Authenticated-room student list only
 
-✓ Teacher module checks passed
+□ Present and absent controls
 
-✓ Attendance module checks passed
+□ Per-student notes
 
-✓ Sync module checks passed
+□ Checked, present, absent, and unchecked totals
 
-✓ Firebase request-header checks passed
+□ Create new record through `AttendanceManager.save(input)`
 
-✓ Performance module checks passed
+□ Edit existing record through `AttendanceManager.save(input)`
 
-✓ Teacher core payload checks passed
+□ Delete through `AttendanceManager.remove(input)` with confirmation
 
-✓ Cutover concurrency checks passed
+□ Display Room Stock before and after successful mutations
 
-✓ Audit recovery checks passed
+□ Display ETag conflict retry count when available
 
-✓ Cutover documentation checks passed
+□ Display partial-save and queued Room Stock status
 
-✓ Teacher UI shell checks passed
+□ Refresh Teacher Room Stock through the existing Manager boundary
 
-✓ Feature branch synchronized with origin
+□ Desktop browser validation
 
-✓ Working tree clean
+□ Chrome Device Toolbar validation at 820 x 1180
 
----
-
-Browser and Responsive Gate
-
-✓ Desktop Teacher Login rendered the modular shell
-
-✓ Desktop Teacher identity and Room Stock displayed correctly
-
-✓ Desktop Teacher core made exactly four successful reads
-
-✓ Desktop Teacher core transfer measured approximately 1.6 KB
-
-✓ No failed application request or Firebase write visible
-
-✓ No full rooms, room-history Attendance, deferred Teacher collection, or Main Stock request during Teacher shell rendering
-
-✓ Desktop Teacher Logout returned to login form
-
-✓ Offline mode changed badge to `ออฟไลน์`
-
-✓ Returning online restored badge to `ออนไลน์`
-
-✓ Teacher and post-Logout Console displayed only `MilkSchoolSystem V2 Started`
-
-✓ 820 x 1180 Teacher Login and Logout passed
-
-✓ Responsive shell remained contained without abnormal horizontal overflow
-
-✓ Desktop Admin Login remained unchanged
-
-✓ Admin shell displayed without Teacher-shell overlap
-
-✓ Admin Console displayed only `MilkSchoolSystem V2 Started`
-
-✓ Admin Logout returned to login form
-
-✓ Admin post-Logout Console remained clean
+□ Isolated/disposable Attendance write validation only
 
 ---
 
-Develop Integration Decision
+Sprint 4.2 Architecture Rules
 
-APPROVED
+- Planned View file: `modules/attendance/attendanceView.js`.
+- View owns DOM rendering and form interaction only.
+- View calls `AttendanceManager`, `TeacherManager`, and existing shell boundaries.
+- View must not access Firebase directly.
+- View must not access Repositories directly.
+- View must not call `fetch()`.
+- View must not own Local Storage or Session Storage.
+- View must not calculate Room Stock differences.
+- View must not construct ledger or stockLog records.
+- View must never mutate Main Stock.
+- ETag, retry, partial-save, queue, and audit rules remain in existing Services and Managers.
+- Teacher data remains limited to the authenticated room.
+- Normal day load remains date-scoped and must not load full room history.
 
-A fast-forward merge into `develop` is authorized because all Sprint 4.1 branch gates passed.
+---
 
-This approval does not authorize:
+Required Data Compatibility
 
-- replacement or removal of `teacher.html`
-- operational Attendance cutover
-- merge or deployment to `main`
-- production traffic switching
+Loaded and edited records must preserve:
+
+- `clsId`
+- `roomName`
+- `date`
+- `year`
+- `term`
+- `teacher`
+- `data`
+- `notes`
+- `photos`
+- `signature`
+- `savedAt`
+
+Sprint 4.2 does not add media inputs, but edits must not silently discard existing `photos` or `signature` values.
+
+---
+
+Planned Test
+
+□ `tests/attendance-ui-check.mjs`
+
+Required static coverage:
+
+- valid JavaScript
+- dependency order
+- no Firebase or Repository access
+- no `fetch()`
+- no direct storage ownership
+- no stock-delta, ledger, or Main Stock calculations in the View
+
+Required workflow coverage:
+
+- Teacher room student rendering
+- Admin session rejection
+- current date default
+- empty-day load
+- existing-day load
+- existing notes, photos, and signature preservation
+- present/absent/unchecked totals
+- create delegation
+- edit delegation
+- delete confirmation and delegation
+- successful Room Stock result rendering
+- partial-save and queued Room Stock feedback
+- queue-count refresh
+- form clearing after Logout
+- zero and negative Room Stock compatibility
+
+---
+
+Automated Regression Gate
+
+□ `node tests/login-foundation-check.mjs`
+
+□ `node tests/stock-module-check.mjs`
+
+□ `node tests/report-module-check.mjs`
+
+□ `node tests/room-module-check.mjs`
+
+□ `node tests/teacher-module-check.mjs`
+
+□ `node tests/attendance-module-check.mjs`
+
+□ `node tests/sync-module-check.mjs`
+
+□ `node tests/firebase-request-header-check.mjs`
+
+□ `node tests/performance-module-check.mjs`
+
+□ `node tests/teacher-core-payload-check.mjs`
+
+□ `node tests/cutover-concurrency-check.mjs`
+
+□ `node tests/audit-recovery-check.mjs`
+
+□ `node tests/cutover-documentation-check.mjs`
+
+□ `node tests/teacher-ui-shell-check.mjs`
+
+□ `node tests/attendance-ui-check.mjs`
+
+---
+
+Browser Gate
+
+Desktop Chrome using isolated/disposable Attendance data:
+
+□ Admin Login remains unchanged
+
+□ Teacher Login renders shell and Attendance form
+
+□ Authenticated room students display correctly
+
+□ Load an empty test date
+
+□ Save a controlled record
+
+□ Edit the controlled record and verify difference-only Room Stock result
+
+□ Delete the controlled record and verify Room Stock restoration
+
+□ Partial-save/queued feedback behaves correctly
+
+□ No cross-room request
+
+□ No Main Stock request or mutation
+
+□ Logout returns to login form
+
+□ Console clean
+
+Chrome Device Toolbar at 820 x 1180:
+
+□ Student rows remain readable
+
+□ Present/absent controls remain usable
+
+□ Notes input remains usable
+
+□ Totals remain visible
+
+□ Save/delete controls remain reachable
+
+□ Status feedback remains readable
+
+□ No abnormal horizontal overflow
+
+□ Console clean
+
+Physical iPad remains deferred and must not be represented as PASS.
+
+---
+
+Network Gate
+
+Normal form load:
+
+□ One date-scoped Attendance read only
+
+□ No full room-history Attendance read
+
+□ No full rooms read after Teacher Login
+
+□ No deferred Teacher collections
+
+Save/edit/delete:
+
+□ Only expected Attendance, Room Stock ETag, ledger, stockLog, updated data, and queue-related operations
+
+□ No Main Stock request or mutation
+
+□ No all-school Attendance request
+
+---
+
+Out of Scope
+
+- Pending milk
+- Retroactive milk
+- Vacation milk
+- Photos and signatures
+- Printing
+- Attendance history-range views
+- Report UI
+- Admin UI
+- XLSX parsing
 - Firebase schema changes
-- legacy-file removal
-
----
-
-Next Sprint
-
-Sprint 4.2 — Teacher Daily Attendance CRUD UI
-
-Planned branch:
-
-`feature/sprint-4.2-attendance-daily-ui`
-
-Initial scope:
-
-- date-scoped daily Attendance form
-- authenticated-room student list
-- present and absent controls
-- notes
-- load one day
-- create, edit, and delete through `AttendanceManager`
-- display present/absent totals
-- display Room Stock result after save/delete
-- partial-save and queued Room Stock status
-- no direct Firebase or stock calculation in the View
-- desktop and 820 x 1180 validation
-- isolated test data only for write validation
-
-Out of scope:
-
-- pending milk
-- retroactive milk
-- vacation milk
-- photos and signatures
-- printing and history range views
-- replacement or removal of `teacher.html`
-- production deployment
+- Replacement or removal of `teacher.html`
+- Production deployment
 
 ---
 
 Current Production Blockers
 
 - Operational Admin UI remains in `index.html`.
-- Operational Teacher write workflows remain in `teacher.html`.
+- Pending, retroactive, vacation, media, signature, print, and history-range Teacher workflows remain in `teacher.html`.
 - Report browser-local adapter is not implemented.
 - XLSX binary parsing remains in the protected legacy flow.
 - Real isolated Firebase multi-writer evidence is not recorded.
@@ -249,11 +325,13 @@ Protected Business Rules
 - Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations change Room Stock only.
 - Attendance edits change Room Stock by the present-count difference only.
 - Attendance deletion restores previously consumed Room Stock.
+- Attendance key remains `{roomId}_{YYYY-MM-DD}`.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
 - Offline retries preserve the original Attendance baseline.
+- Partial saves queue only the unresolved Room Stock adjustment.
 - Audit-only retries never repeat a successful Room Stock mutation.
 - Reports remain read-only.
-- Firebase paths and Attendance keys remain compatible.
+- Firebase paths remain compatible.
 - Room IDs remain stable.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
