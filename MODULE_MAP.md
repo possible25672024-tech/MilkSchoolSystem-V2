@@ -9,7 +9,7 @@ Last updated: 2026-07-28
 - `index.html`
 - `teacher.html`
 
-These files remain operational and deployable until explicit cutover approval. Do not delete, rename, or replace them during readiness work.
+These files remain operational and deployable until explicit production-cutover approval. Do not delete, rename, replace, or silently redirect them during modular UI integration.
 
 ## Target Architecture
 
@@ -27,7 +27,7 @@ UI
 
 ### Authentication — Completed
 
-V2 modules:
+Modules:
 
 - `modules/login/loginManager.js`
 - `modules/login/authService.js`
@@ -37,13 +37,14 @@ V2 modules:
 Completed boundary:
 
 - Admin and Teacher login
-- session compatibility
+- compatible session storage
 - cached settings and rooms context
 - authenticated Teacher room snapshot
+- desktop and 820 x 1180 shell login/logout evidence
 
 ### Firebase Foundation — Completed
 
-V2 modules:
+Modules:
 
 - `modules/services/firebaseService.js`
 - `modules/repositories/baseRepository.js`
@@ -56,43 +57,71 @@ Completed boundary:
 - identical in-flight GET deduplication
 - no persistent stale response cache
 - no automatic JSON Content-Type on body-less GET
+- ETag reads through `X-Firebase-ETag: true`
+- conditional writes through `If-Match`
+- HTTP 412 conflict exposure
 
 ### Stock — Completed
 
-V2 modules:
+Modules:
 
 - `modules/stock/stockManager.js`
 - `modules/services/stockService.js`
 - `modules/repositories/stockRepository.js`
 
-### Report — Completed, Adapter Gap Recorded
+Completed boundary:
 
-V2 modules:
+- Main Stock receive and classroom distribution
+- Room Stock consumption and rollback
+- rebuild and validation
+- compatible ledger calculations
+- Main Stock and Room Stock separation
+
+### Report — Foundation Completed, Operational Adapter Deferred
+
+Modules:
 
 - `modules/report/reportManager.js`
 - `modules/services/reportService.js`
 - `modules/repositories/reportRepository.js`
 
-Remaining gap:
+Completed boundary:
 
-- browser-local pending, retroactive, and vacation adapter
+- read-only report model
+- classroom, grade, and whole-school aggregation
+- Thai grade normalization
+- print and Excel export models
+- injected `extraSources` boundary
 
-### Room — Completed, Parser and Concurrency Gaps Recorded
+Deferred production gap:
 
-V2 modules:
+- browser-local pending, retroactive, and vacation adapter under cutover decision D-02
+
+### Room — Foundation Completed, Operational Import/UI Deferred
+
+Modules:
 
 - `modules/room/roomManager.js`
 - `modules/services/roomService.js`
 - `modules/repositories/roomRepository.js`
 
-Remaining gaps:
+Completed boundary:
 
-- XLSX binary parser
-- multi-admin optimistic concurrency for complete room collection writes
+- Room ID stability
+- Room Stock preservation
+- duplicate validation
+- parsed-sheet import preparation
+- deletion safety
 
-### Teacher — Completed, Operational UI Gaps Recorded
+Deferred production gaps:
 
-V2 modules:
+- XLSX binary parser remains in protected legacy Admin flow under D-03
+- complete-room multi-admin optimistic concurrency remains unresolved
+- operational Admin room UI remains in `index.html`
+
+### Teacher Service Foundation — Completed
+
+Modules:
 
 - `modules/teacher/teacherManager.js`
 - `modules/services/teacherService.js`
@@ -105,16 +134,16 @@ Completed boundary:
 - default today's attendance `/data` read
 - explicit room-history and deferred-data refresh
 - Teacher dashboard and Room Stock-only command preparation
-- desktop payload optimization
+- measured desktop payload optimization
 
-Remaining gaps:
+Operational UI status:
 
-- forms, media, signatures, print views, queue badge, and offline banner remain in `teacher.html`
-- responsive mobile and physical iPad validation remain cutover gates
+- dedicated integration begins in Sprint 4.1
+- `teacher.html` remains operational and protected
 
-### Attendance — Completed, ETag Gap Recorded
+### Attendance — Completed with ETag Protection
 
-V2 modules:
+Modules:
 
 - `modules/attendance/attendanceManager.js`
 - `modules/services/attendanceService.js`
@@ -126,19 +155,22 @@ Completed boundary:
 - authenticated-room-only read and write
 - present/absent validation
 - Room Stock difference adjustment on edits
+- deletion rollback
 - compatible ledger and stockLog writes
-- safe deletion rollback
 - no Main Stock change
-- Firebase multi-location mutation boundary
-- Room Stock-only adjustment replay entry point
+- versioned Room Stock reads
+- conditional Room Stock writes
+- latest-value recalculation after conflicts
+- bounded ETag retry
+- partial-save conversion to Room Stock-only retry
 
-Remaining gap:
+Production-confidence gap:
 
-- legacy ETag compare-and-retry Room Stock protection
+- real multi-writer validation must run in an isolated Firebase environment under D-06
 
-### Sync and Offline Queue — Completed, Cutover Gap Recorded
+### Sync and Offline Queue — Completed with Recovery Paths
 
-V2 modules:
+Modules:
 
 - `modules/storage/queueStorage.js`
 - `modules/services/syncService.js`
@@ -149,24 +181,22 @@ Completed boundary:
 - compatible `tc_pending_saves_v1` persistence
 - legacy `rec` and `diff` alias normalization
 - corrupt-entry filtering
-- duplicate queued attendance replacement
-- original baseline and queue timestamp preservation
-- separate Room Stock adjustment replay
+- latest queued attendance with original baseline preservation
 - sequential replay
-- bounded exponential backoff
+- bounded backoff
 - startup, reconnect, retry, and periodic flush
-- successful-entry individual removal
-- failed-entry retention
+- successful-entry removal and failed-entry retention
 - authenticated-room-only replay
-- overlapping flush prevention
-- queue and sync lifecycle events
+- overlapping-flush prevention
+- Room Stock-only retry conversion
+- persistent `attendanceAudit` recovery
+- no repeated Room Stock mutation during audit-only retry
 - no Main Stock change
 
-Remaining gaps:
+Deferred production gaps:
 
-- production compatibility validation for queues created by legacy `teacher.html`
-- operational queue badge and offline banner remain in `teacher.html`
-- ETag compare-and-retry Room Stock protection remains legacy-only
+- real sanitized operational queue sample under D-07
+- queue badge and offline banner operational UI under D-04
 
 ### Performance — Completed
 
@@ -183,32 +213,70 @@ Completed boundary:
 - deterministic performance tests
 - actual desktop Network measurement
 
-Measured desktop result on the actual 83-room dataset:
+Measured result on the recorded 83-room dataset:
 
 - before final optimization: approximately 20.5 MB across 5 requests
 - after final optimization: approximately 1.6 KB across 4 requests
 
-Remaining gate:
+### Cutover Readiness — Sprint 4.0 Completed
 
-- responsive mobile and physical iPad validation before production cutover
+Completed artifacts:
 
-### Cutover Readiness — Current Sprint 4.0
+- `docs/SPRINT_4_0_PLAN.md`
+- `docs/CUTOVER_PARITY_MATRIX.md`
+- `docs/CUTOVER_READINESS_REPORT.md`
+- `docs/CUTOVER_DECISIONS.md`
+- `docs/TEACHER_UI_INTEGRATION_PLAN.md`
+- `docs/PRODUCTION_ROLLBACK_PLAN.md`
+- `tests/cutover-concurrency-check.mjs`
+- `tests/audit-recovery-check.mjs`
+- `tests/cutover-documentation-check.mjs`
 
-Targets:
+Completed gates:
 
-- legacy-to-V2 parity matrix
-- mobile and physical iPad validation
-- legacy/V2 queue compatibility
-- ETag Room Stock concurrency resolution or formal deployment block
-- Report local-data adapter decision
-- XLSX parser migration decision
-- operational Teacher UI integration plan
-- backup, rollback, deployment, and cutover checklists
-- no legacy removal until every gate passes
+- all automated tests
+- desktop Admin/Teacher Login and Logout
+- clean recorded Console
+- 820 x 1180 Teacher Login and Logout
+- explicit production decisions
+- backup and rollback plan
+- clean working tree
+
+Integration meaning:
+
+- approved for fast-forward merge into `develop`
+- production cutover remains blocked
+- no `main` merge or legacy removal authorized
+
+### Teacher UI Shell and Read-Only State — Current Sprint 4.1
+
+Target branch:
+
+`feature/sprint-4.1-teacher-ui-shell`
+
+Target boundary:
+
+- Teacher session header
+- school, room, and teacher identity
+- current Room Stock display
+- connection state
+- pending queue count
+- Logout
+- Manager/event-driven rendering
+- no direct Firebase access from the view
+- desktop and 820 x 1180 validation
+
+Out of scope:
+
+- Attendance write UI
+- pending, retroactive, or vacation write UI
+- photos and signatures
+- printing
+- replacing or removing `teacher.html`
 
 ### Legacy Removal — Blocked
 
-Legacy removal is not authorized during Sprint 4.0. It becomes eligible only after parity, device, concurrency, data compatibility, rollback, and explicit production approval gates pass.
+Legacy removal becomes eligible only after operational Admin and Teacher parity, data compatibility, backup/restore rehearsal, device risk decision, and explicit production approval.
 
 ## Business Rules
 
@@ -220,9 +288,9 @@ Classroom distribution
 
 → increases Room Stock
 
-Teacher, Attendance, and queued retry operations
+Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations
 
-→ reduce Room Stock only
+→ change Room Stock only
 
 Attendance edit
 
@@ -232,9 +300,13 @@ Offline attendance edit
 
 → keeps the latest queued record while preserving the original baseline present count
 
-Rollback
+ETag conflict
 
-→ restores the stock layer changed by the original operation
+→ reads the latest Room Stock and recalculates before retry
+
+Audit-only retry
+
+→ never repeats a successful Room Stock mutation
 
 Reports
 
@@ -250,12 +322,13 @@ Rebuild
 - Sprint 3.4.3 — Stock — Completed
 - Sprint 3.4.4 — Report — Completed
 - Sprint 3.5 — Room — Completed
-- Sprint 3.6 — Teacher — Completed
+- Sprint 3.6 — Teacher Service Foundation — Completed
 - Sprint 3.7 — Attendance — Completed
 - Sprint 3.8 — Offline Queue — Completed
 - Sprint 3.9 — Performance — Completed
-- Sprint 4.0 — Cutover Readiness — Current
-- Legacy Removal — Blocked pending cutover approval
+- Sprint 4.0 — Cutover Readiness — Completed
+- Sprint 4.1 — Teacher UI Shell and Read-Only State — Current
+- Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
 
@@ -266,7 +339,8 @@ Always read:
 - `REPOSITORY_RULES.md`
 - `SPRINT_STATUS.md`
 - `MODULE_MAP.md`
+- the active Sprint plan
 
 before editing source code.
 
-Preserve verified business logic and legacy rollback capability during cutover readiness.
+Preserve verified business logic, storage compatibility, and legacy rollback capability throughout UI integration.
