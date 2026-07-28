@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-65% — Attendance View, responsive daily form, date-scoped load, authenticated-room student rendering, present/absent and notes controls, totals, save/edit/delete delegation, compatible media-field preservation, Room Stock result feedback, partial-save queue feedback, App startup integration, automated workflow test, and implementation report completed; automated, browser, isolated write, responsive, Network, Console, and clean-tree gates remain pending
+75% — Attendance View, responsive daily form, date-scoped load, authenticated-room student rendering, present/absent and notes controls, totals, save/edit/delete delegation, compatible media-field preservation, Room Stock result feedback, partial-save queue feedback, App startup integration, all 15 automated tests, Node.js 24 cross-realm test compatibility, branch synchronization, and clean working tree completed; browser read-only, isolated write, responsive interaction, Network, and Console gates remain pending
 
 ---
 
@@ -118,6 +118,8 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Updated Cutover documentation regression checks for Sprint 4.2
 
+✓ Corrected the Attendance UI test for Node.js 24 cross-VM Array prototype comparison without changing Runtime behavior
+
 ✓ `index.html` unchanged
 
 ✓ `teacher.html` unchanged
@@ -160,41 +162,41 @@ Sprint 4.2 does not add media inputs, but edits do not silently discard existing
 
 ---
 
-Automated Gate Pending
+Automated Gate Passed
 
-□ `node tests/login-foundation-check.mjs`
+✓ `node tests/login-foundation-check.mjs`
 
-□ `node tests/stock-module-check.mjs`
+✓ `node tests/stock-module-check.mjs`
 
-□ `node tests/report-module-check.mjs`
+✓ `node tests/report-module-check.mjs`
 
-□ `node tests/room-module-check.mjs`
+✓ `node tests/room-module-check.mjs`
 
-□ `node tests/teacher-module-check.mjs`
+✓ `node tests/teacher-module-check.mjs`
 
-□ `node tests/attendance-module-check.mjs`
+✓ `node tests/attendance-module-check.mjs`
 
-□ `node tests/sync-module-check.mjs`
+✓ `node tests/sync-module-check.mjs`
 
-□ `node tests/firebase-request-header-check.mjs`
+✓ `node tests/firebase-request-header-check.mjs`
 
-□ `node tests/performance-module-check.mjs`
+✓ `node tests/performance-module-check.mjs`
 
-□ `node tests/teacher-core-payload-check.mjs`
+✓ `node tests/teacher-core-payload-check.mjs`
 
-□ `node tests/cutover-concurrency-check.mjs`
+✓ `node tests/cutover-concurrency-check.mjs`
 
-□ `node tests/audit-recovery-check.mjs`
+✓ `node tests/audit-recovery-check.mjs`
 
-□ `node tests/cutover-documentation-check.mjs`
+✓ `node tests/cutover-documentation-check.mjs`
 
-□ `node tests/teacher-ui-shell-check.mjs`
+✓ `node tests/teacher-ui-shell-check.mjs`
 
-□ `node tests/attendance-ui-check.mjs`
+✓ `node tests/attendance-ui-check.mjs`
 
-□ Feature branch synchronized with origin
+✓ Feature branch synchronized with origin
 
-□ Working tree clean
+✓ Working tree clean
 
 ---
 
@@ -208,9 +210,9 @@ Browser Read-Only Gate Pending
 
 □ Current date defaults correctly
 
-□ Empty date loads without full-history request
+□ Empty approved test date loads without a full-history request
 
-□ Existing date restores statuses and notes
+□ Existing approved test date restores statuses and notes
 
 □ No cross-room request
 
