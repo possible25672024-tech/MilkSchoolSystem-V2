@@ -26,7 +26,7 @@ Sprint 4.3 — Offline Queue Operational UI
 
 Status
 
-10% — Sprint plan initialized from the completed Sprint 4.2 Attendance UI foundation; Sync View implementation, UI tests, restart/reconnect fixtures, browser validation, and responsive validation have not started
+70% — Sync View, safe Manager summaries, dynamic App integration, operational UI tests, implementation report, and Cutover documentation compatibility are implemented. Local 17-test regression, isolated restart/reconnect fixtures, desktop browser validation, and 820 x 1180 responsive validation remain pending.
 
 ---
 
@@ -60,180 +60,193 @@ Completed Foundation
 
 ---
 
-Sprint 4.2 Completed Evidence
+Sprint 4.3 Runtime Implemented
 
-✓ Modular Attendance View
+✓ Added `modules/sync/syncView.js`
 
-✓ Date-scoped authenticated-room loading
+✓ Added operational online/offline/syncing banner
 
-✓ Present/absent and notes controls
+✓ Added persistent queue count and maximum-attempt display
 
-✓ Create/edit/delete Manager delegation
+✓ Added last successful sync time
 
-✓ Room Stock result, ETag conflict, queue, and audit feedback
+✓ Added processed, succeeded, failed/deferred, and remaining summary
 
-✓ Complete in-memory create/edit-up/edit-down/delete validation
+✓ Added next retry delay display
 
-✓ Main Stock unchanged in isolated validation
+✓ Added safe item-level queue summaries
 
-✓ Partial-save queue simulation
+✓ Added manual retry through `SyncManager.flushNow("manual-ui")`
 
-✓ All 16 regression checks accepted as passed
+✓ Disabled manual retry while offline
 
-✓ Desktop exact-date Network gate passed
+✓ Disabled manual retry while flushing
 
-✓ Complete 820 x 1180 Attendance interaction passed
+✓ Disabled manual retry when no queue item remains
 
-✓ Feature branch synchronized and working tree clean
+✓ Added Login, Logout, connection, and Sync lifecycle event rendering
 
-✓ `index.html` and `teacher.html` unchanged
+✓ Added Teacher-only Sync lifecycle start/stop
 
----
+✓ Added Logout cleanup and Admin rejection
 
-Sprint 4.3 Goal
-
-Add an operational Offline Queue interface to the modular Teacher shell without changing QueueStorage persistence, Sync replay, Attendance, Room Stock, Main Stock, Firebase, or protected legacy behavior.
+✓ Added responsive Queue panel styles
 
 ---
 
-Sprint 4.3 In Scope
+SyncManager Boundary Updated
 
-□ Operational online/offline/syncing banner
+✓ `getStatus()` now exposes safe `queueItems`
 
-□ Persistent queue item count
+✓ Safe summaries include queue type, room, date/reference, attempts, queued time, next retry time, status, and safe error details
 
-□ Maximum attempt count
+✓ Per-student Attendance data is not exposed
 
-□ Last successful sync time
+✓ Photos and signatures are not exposed
 
-□ Last processed, succeeded, failed, deferred, and remaining totals
+✓ Complete ledger and stockLog payloads are not exposed
 
-□ Next retry delay
+✓ `milkapp:sync-started` now reports `flushing: true`
 
-□ Safe item-level queue summaries
+✓ Overlapping flushes continue to share one in-flight operation
 
-□ Manual retry delegated to `SyncManager.flushNow("manual-ui")`
-
-□ Manual retry disabled while offline
-
-□ Manual retry disabled while already flushing
-
-□ Restart and View-recreation state restoration
-
-□ Reconnect validation
-
-□ Success removal and failed/deferred retention display
-
-□ Desktop browser validation
-
-□ Chrome Device Toolbar validation at 820 x 1180
+✓ Main Stock behavior remains unchanged
 
 ---
 
-Existing Sync Boundary
+App Integration Implemented
 
-SyncManager already owns:
+✓ App dynamically loads `modules/sync/syncView.js`
 
-- startup and reconnect flow
-- periodic and retry scheduling
-- online/offline detection
-- overlapping-flush protection
-- last summary and last successful sync time
-- queue-count and sync lifecycle events
+✓ LoginManager initializes first
 
-SyncService already owns:
+✓ TeacherView initializes second
 
-- `attendance`, `roomStockAdjust`, and `attendanceAudit` queue types
-- sequential replay
-- failure retention
-- deferred conversion
-- bounded backoff
-- queue entries, count, and maximum attempts
+✓ AttendanceView initializes third
 
-Sprint 4.3 must consume these existing boundaries rather than duplicate them.
+✓ SyncView initializes after the existing Teacher UI foundation
+
+✓ Protected legacy files remain unchanged
 
 ---
 
-Sprint 4.3 Architecture Rules
+Automated Test Added
 
-- View owns DOM rendering and browser interaction only.
-- View calls SyncManager and subscribes to events.
-- View does not access QueueStorage directly.
-- View does not access Firebase or Repositories directly.
-- View does not call `fetch()`.
-- View does not access Local Storage or Session Storage.
-- View does not mutate, remove, convert, or replay queue entries.
-- View does not calculate Attendance or stock differences.
-- View does not build ledger or stockLog records.
-- Main Stock remains unchanged.
-- Sensitive Attendance/media payloads must not be displayed.
+✓ Added `tests/sync-ui-check.mjs`
 
----
+Coverage implemented:
 
-Planned Runtime File
+✓ valid SyncView and SyncManager JavaScript
 
-□ `modules/sync/syncView.js`
+✓ App loading and initialization boundary
 
-Do not create new QueueStorage, Service, or Repository modules unless a measured missing boundary is identified.
+✓ no direct queue persistence access from the View
 
----
+✓ no direct Firebase, Repository, fetch, Local Storage, or Session Storage access
 
-Planned Test
+✓ safe summaries exclude fake student/media payloads
 
-□ `tests/sync-ui-check.mjs`
+✓ manual retry delegation
 
-Required coverage:
+✓ overlapping retry protection
 
-- valid JavaScript
-- dependency order
-- no direct QueueStorage/Firebase/Repository/storage access
-- no direct replay or mutation
-- online/offline rendering
-- queue count and last-sync rendering
-- syncing, success, failed, and deferred states
-- safe item summaries
-- manual retry delegation and disabled states
-- overlapping-flush protection
-- Admin session rejection
-- cleanup after Logout
+✓ flushing state visibility
+
+✓ restored Teacher-session activation
+
+✓ online/offline rendering
+
+✓ queue count and queue-item rendering
+
+✓ successful manual retry rendering
+
+✓ Logout cleanup
+
+✓ Admin session rejection
 
 ---
 
-Isolated Queue Fixtures
+Cutover Documentation Compatibility
 
-□ Legacy Attendance entry using `rec`
+✓ Active Sprint assertion updated to Sprint 4.3
 
-□ Legacy Room Stock entry using `diff`
+✓ Sprint 4.2 Attendance UI foundation remains recorded
 
-□ Repeated Attendance edits preserving original `baselinePresent`
+✓ Sprint 4.1 Teacher shell foundation remains recorded
 
-□ Mixed valid and corrupt entries
+✓ Sprint 4.0 Cutover foundation remains recorded
 
-□ Successful entry
-
-□ Failed entry with attempts and next retry
-
-□ Attendance partial save converted to `roomStockAdjust`
-
-□ Successful Room Stock update converted to `attendanceAudit`
-
-□ Queue state before and after View recreation
-
-No production Firebase or real-classroom queue writes are allowed.
+✓ Production readiness remains blocked
 
 ---
 
-Automated Regression Gate
+Local Automated Gate — Pending
 
-Existing 16 tests remain mandatory, plus:
+Run the new test first:
 
-□ `node tests/sync-ui-check.mjs`
+```powershell
+node tests/sync-ui-check.mjs
+```
 
-Total expected Sprint gate: 17 tests.
+Then run the complete regression gate:
+
+□ Login foundation checks
+
+□ Stock module checks
+
+□ Report module checks
+
+□ Room module checks
+
+□ Teacher module checks
+
+□ Attendance module checks
+
+□ Sync module checks
+
+□ Firebase request-header checks
+
+□ Performance module checks
+
+□ Teacher core-payload checks
+
+□ Cutover concurrency checks
+
+□ Audit recovery checks
+
+□ Cutover documentation checks
+
+□ Teacher UI shell checks
+
+□ Attendance UI checks
+
+□ Attendance isolated write checks
+
+□ Sync UI checks
+
+Expected total: 17 tests.
 
 ---
 
-Browser Gate
+Browser Safety Gate — Not Started
+
+Do not open the new Teacher Queue UI against the connected classroom database yet.
+
+Activating a Teacher Sync session can invoke the existing startup replay when a pending browser queue exists.
+
+Before Browser validation:
+
+□ Automated 17-test gate passes
+
+□ Browser queue count is verified
+
+□ Use an empty queue or fully isolated browser/Firebase target
+
+□ Do not press Save, Delete, manual retry, or trigger reconnect replay against real classroom data
+
+---
+
+Browser Gate — Pending
 
 Desktop Chrome:
 
@@ -247,7 +260,7 @@ Desktop Chrome:
 
 □ Manual retry disabled offline and while flushing
 
-□ Manual retry delegates through SyncManager
+□ Manual retry delegates safely in an isolated target
 
 □ Success/failure/deferred summaries render
 
@@ -255,13 +268,11 @@ Desktop Chrome:
 
 □ Console clean
 
-□ No unexpected Firebase write caused by rendering
+□ No unexpected Firebase write occurs from rendering
 
 Chrome Device Toolbar at 820 x 1180:
 
-□ Banner, count, last sync, and retry action remain readable
-
-□ Item summaries remain contained
+□ Banner, count, last sync, retry, and item summaries remain readable
 
 □ No sensitive payload is exposed
 
@@ -270,8 +281,6 @@ Chrome Device Toolbar at 820 x 1180:
 □ Logout remains reachable
 
 □ Console clean
-
-Physical iPad remains deferred and must not be represented as PASS.
 
 ---
 
@@ -290,7 +299,7 @@ Rules:
 
 - do not use the quarantined room/date for Queue or write tests
 - do not use its values as trusted operational evidence
-- do not manually edit its Attendance, Room Stock, Main Stock, queue, ledger, stockLog, or history
+- do not manually edit Attendance, Room Stock, Main Stock, queue, ledger, stockLog, or transaction history
 - recovery remains mandatory before `main` or production cutover
 
 ---
