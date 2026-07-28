@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Status: 92% — Teacher View, responsive shell markup, role routing, App initialization, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, and Teacher Fetch/XHR gate passed; desktop Admin, explicit Offline/Online transition, and desktop Console evidence remain pending
+Status: 100% — runtime, automated, desktop, responsive, network, offline/online, Console, Admin regression, Logout, and clean-working-tree gates passed
 
 ## Goal
 
@@ -19,7 +19,7 @@ Sprint 4.1 implements only the Teacher session shell and read-only state. It doe
 
 Both files remain unchanged, operational, and available as rollback paths.
 
-## Implemented Runtime Boundary
+## Completed Runtime Boundary
 
 ### Teacher View
 
@@ -116,97 +116,7 @@ The View:
 - Negative Room Stock must remain visible.
 - The View must not silently clamp, recalculate, or rewrite stock values.
 
-## Test Implementation
-
-Added:
-
-- `tests/teacher-ui-shell-check.mjs`
-
-Coverage:
-
-- valid JavaScript
-- dependency order in `index-v2.html`
-- no direct Firebase access
-- no `fetch()` in the View
-- no direct Repository access
-- no stock-delta calculations in the View
-- restored authenticated Teacher state
-- school, room, and teacher rendering
-- positive, zero, and negative Room Stock rendering
-- queue-count rendering and update events
-- online/offline rendering
-- Logout delegation
-- Admin session rejection
-- shell clearing after Logout
-
-Updated:
-
-- `tests/cutover-documentation-check.mjs`
-
-Reason:
-
-- preserve completed Sprint 4.0 evidence while `SPRINT_STATUS.md` advances to Sprint 4.1
-
-## Validation Report
-
-Added:
-
-- `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
-
-Recorded:
-
-- all 14 automated tests passed
-- branch synchronized with origin
-- working tree clean
-- responsive 820 x 1180 Teacher Login and Logout passed
-- desktop Teacher Login and Logout passed
-- desktop Teacher core Network gate passed
-- shell values displayed correctly in responsive and desktop evidence
-- no unexpected read or write request visible in the Teacher core flow
-- physical iPad remains deferred
-
-## Browser Gate
-
-Desktop Chrome:
-
-- Admin login remains unchanged — PENDING
-- Teacher login renders the new shell — PASS
-- school, room, teacher, and Room Stock display correctly — PASS
-- queue count displays — PASS
-- online state displays — PASS
-- offline state changes when DevTools Offline mode is enabled — PENDING
-- Logout returns to the login form — PASS
-- Console clean — PENDING DESKTOP EVIDENCE
-- no failed application Fetch/XHR requests — PASS FOR TEACHER FLOW
-
-Responsive Chrome Device Toolbar at 820 x 1180:
-
-- Teacher shell remains contained — PASS
-- header fields remain readable — PASS
-- Room Stock remains visible — PASS
-- queue count remains visible — PASS
-- online badge remains visible — PASS
-- Logout remains usable — PASS
-- no abnormal horizontal overflow — PASS
-- Console clean — PASS
-
-Physical iPad remains deferred and must not be represented as PASS.
-
-## Data and Network Gate
-
-Passed in the recorded desktop Teacher flow:
-
-- no additional full `rooms.json` request after Teacher login
-- no full room-history Attendance request during normal shell refresh
-- no deferred Teacher collection request
-- no write request from shell rendering
-- no Main Stock request required for the Teacher shell
-- exactly four visible successful core reads
-- approximately 1.6 KB total transfer
-
-After Logout, `settings.json` and full `rooms.json` reload to rebuild the login form and 83-room selector. This expected login-form reload is separate from the Teacher core refresh.
-
-## Automated Regression Gate
+## Automated Validation
 
 All 14 tests passed locally on 2026-07-28:
 
@@ -230,35 +140,77 @@ node tests/teacher-ui-shell-check.mjs
 Result:
 
 - PASS
-- branch synchronized with origin
+- feature branch synchronized with origin
 - working tree clean
 
-## Current Pending Gate
+## Browser and Responsive Validation
 
-- run desktop Admin Login after Sprint 4.1 role-routing changes
-- confirm Admin Logout returns to the login form
-- switch DevTools Network to Offline and verify badge `ออฟไลน์`
-- return Online and verify badge `ออนไลน์`
-- confirm desktop Console clean for Admin Login
-- confirm desktop Console clean for Teacher Login
-- confirm desktop Console clean after Logout
+Desktop Chrome:
+
+- Admin Login unchanged — PASS
+- Admin Logout returned to login form — PASS
+- Admin Console clean — PASS
+- Teacher Login rendered modular shell — PASS
+- school, room, teacher, and Room Stock displayed correctly — PASS
+- queue count displayed — PASS
+- online state displayed — PASS
+- Offline badge transition — PASS
+- Online recovery — PASS
+- Teacher Logout returned to login form — PASS
+- Teacher and post-Logout Console clean — PASS
+- no failed application Fetch/XHR request — PASS
+
+Responsive Chrome Device Toolbar at 820 x 1180:
+
+- Teacher shell contained — PASS
+- header fields readable — PASS
+- Room Stock visible — PASS
+- queue count visible — PASS
+- online badge visible — PASS
+- Logout usable — PASS
+- no abnormal horizontal overflow — PASS
+- Console clean — PASS
+
+Physical iPad remains deferred and must not be represented as PASS.
+
+## Data and Network Gate
+
+Passed in the recorded desktop Teacher flow:
+
+- exactly four successful core reads
+- approximately 1.6 KB transferred
+- no additional full `rooms.json` request after Teacher login
+- no full room-history Attendance request
+- no deferred Teacher collection request
+- no Firebase write request from shell rendering
+- no Main Stock request
+
+After Logout, `settings.json` and full `rooms.json` reload to rebuild the login form and 83-room selector. This expected login-form reload is separate from the Teacher core refresh.
+
+## Validation Report
+
+Completed:
+
+- `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
 
 ## Merge Gate
 
-Sprint 4.1 may merge into `develop` when:
+All Sprint 4.1 branch gates passed:
 
-- all existing and new automated tests pass — PASS
-- Teacher room identity and Room Stock display are correct — PASS
-- queue count displays correctly — PASS
-- Logout works — PASS
-- desktop Teacher browser gate passes — PASS
-- desktop Admin regression passes — PENDING
-- 820 x 1180 responsive gate passes — PASS
-- Console is clean — RESPONSIVE PASS; DESKTOP PENDING
-- explicit Offline/Online transition passes — PENDING
-- no unexpected network reads or writes occur — PASS FOR TEACHER FLOW
-- working tree is clean — PASS
-- `index.html` and `teacher.html` remain unchanged — PASS
+- automated tests — PASS
+- Teacher identity and Room Stock — PASS
+- queue count — PASS
+- Offline/Online state — PASS
+- Logout — PASS
+- desktop Teacher gate — PASS
+- desktop Admin regression — PASS
+- responsive 820 x 1180 gate — PASS
+- Console — PASS
+- Network — PASS
+- working tree — PASS
+- `index.html` and `teacher.html` unchanged — PASS
+
+Sprint 4.1 is approved for fast-forward integration into `develop`.
 
 ## Production Meaning
 
@@ -271,4 +223,4 @@ A Sprint 4.1 merge into `develop` does not authorize:
 - Firebase schema changes
 - legacy-file removal
 
-The next Teacher UI Sprint may begin Attendance CRUD only after this read-only shell is stable.
+The next Teacher UI Sprint may begin Attendance CRUD only after this read-only shell is integrated into `develop`.
