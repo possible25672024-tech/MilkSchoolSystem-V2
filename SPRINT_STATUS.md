@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-80% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; direct Logout evidence, Admin/Logout Console evidence, responsive viewport validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
+82% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, direct Logout evidence, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; Admin/Logout Console evidence, responsive viewport validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -116,6 +116,10 @@ Sprint 4.0 Implemented
 
 ✓ Desktop Chrome Teacher login evidence recorded
 
+✓ Direct Logout evidence recorded: active session cleared and login form displayed again
+
+✓ Login form after Logout displayed the 83-room connection status
+
 ✓ Firebase `settings.json` and `rooms.json` returned HTTP 200 in the supplied browser captures
 
 ✓ No failed Fetch/XHR request visible in the supplied browser captures
@@ -142,11 +146,11 @@ Sprint 4.0 Implemented
 
 Pending Immediate Browser Validation
 
-□ Capture the Login screen directly after pressing Logout
-
 □ Capture or explicitly confirm a clean Console after Admin login and Logout
 
-□ Confirm Logout clears the active session and returns to the login form
+□ Run responsive mobile validation
+
+□ Run iPad-class browser viewport validation at approximately 820 x 1180 CSS pixels
 
 ---
 
@@ -168,10 +172,6 @@ Pending Cutover Work
 
 □ Create `docs/PRODUCTION_ROLLBACK_PLAN.md`
 
-□ Run responsive mobile validation
-
-□ Run iPad-class viewport validation at approximately 820 x 1180 CSS pixels
-
 □ Revisit physical iPad validation only when a device is available or record explicit production risk acceptance
 
 □ Rehearse Firebase backup and isolated restore
@@ -184,7 +184,6 @@ Pending Cutover Work
 
 Current Blockers to Production Cutover
 
-- direct Logout evidence is not yet recorded for the current Sprint 4.0 shell
 - clean Admin-login and Logout Console evidence is not yet separately recorded
 - responsive mobile and iPad-class viewport evidence not yet recorded
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
