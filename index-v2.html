@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="milkapp-foundation" content="Sprint 4.0 Cutover Readiness and Compatibility">
+    <meta name="milkapp-teacher-shell" content="Sprint 4.1 Teacher UI Shell and Read-Only State">
     <title>MilkSchoolSystem V2</title>
     <link rel="icon" href="data:,">
     <style>
@@ -26,7 +27,7 @@
         }
 
         main {
-            width: min(760px, 100%);
+            width: min(960px, 100%);
         }
 
         .panel {
@@ -42,7 +43,8 @@
         }
 
         h1,
-        h2 {
+        h2,
+        h3 {
             margin: 0;
             color: #1a5276;
         }
@@ -54,6 +56,10 @@
 
         h2 {
             font-size: 1.3rem;
+        }
+
+        h3 {
+            font-size: 1.12rem;
         }
 
         .subtitle,
@@ -110,6 +116,10 @@
             background: #475569;
         }
 
+        .danger {
+            background: #b91c1c;
+        }
+
         .error {
             margin-top: 14px;
             padding: 10px 12px;
@@ -157,10 +167,7 @@
             margin-top: 22px;
         }
 
-        .teacher-identity-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
+        .teacher-identity-grid,
         .teacher-metrics {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -201,18 +208,197 @@
             font-size: 1.45rem;
         }
 
+        .attendance-panel {
+            margin-top: 28px;
+            padding-top: 26px;
+            border-top: 1px solid #dbe5ef;
+        }
+
+        .attendance-intro {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .attendance-toolbar {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto;
+            align-items: end;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .attendance-toolbar label {
+            margin: 0 0 6px;
+        }
+
+        .attendance-toolbar button {
+            width: auto;
+            min-width: 150px;
+            margin: 0;
+        }
+
+        .attendance-summary {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .attendance-summary-card {
+            margin: 0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            background: #f1f5f9;
+        }
+
+        .attendance-summary-card dt {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .attendance-summary-card dd {
+            margin: 5px 0 0;
+            color: #1a5276;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .attendance-student-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .attendance-student-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto minmax(210px, 1fr);
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 13px;
+            background: #ffffff;
+        }
+
+        .attendance-student-identity {
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .attendance-student-number {
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            color: #1a5276;
+            background: #e0f2fe;
+            font-weight: 800;
+        }
+
+        .attendance-student-name {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .attendance-student-meta {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .attendance-choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .attendance-choice {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 10px;
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .attendance-choice input {
+            width: auto;
+            min-height: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .attendance-choice-present:has(input:checked) {
+            border-color: #16a34a;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .attendance-choice-absent:has(input:checked) {
+            border-color: #ea580c;
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .attendance-note {
+            min-width: 0;
+            min-height: 40px;
+        }
+
+        .attendance-empty {
+            margin: 0;
+            border-radius: 10px;
+            padding: 16px;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        #attendance-status[data-state="success"] {
+            color: #166534;
+        }
+
+        #attendance-status[data-state="warning"] {
+            color: #9a3412;
+        }
+
+        #attendance-status[data-state="error"] {
+            color: #991b1b;
+        }
+
+        .attendance-actions,
         .teacher-actions {
             display: flex;
             justify-content: flex-end;
+            gap: 10px;
             margin-top: 8px;
         }
 
+        .attendance-actions button,
         .teacher-actions button {
             width: min(220px, 100%);
         }
 
         [hidden] {
             display: none !important;
+        }
+
+        @media (max-width: 760px) {
+            .attendance-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .attendance-student-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 600px) {
@@ -234,12 +420,21 @@
             }
 
             .teacher-identity-grid,
-            .teacher-metrics {
+            .teacher-metrics,
+            .attendance-toolbar,
+            .attendance-summary {
                 grid-template-columns: 1fr;
             }
 
+            .attendance-toolbar button,
+            .attendance-actions button,
             .teacher-actions button {
                 width: 100%;
+            }
+
+            .attendance-actions,
+            .teacher-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -277,6 +472,7 @@
     <script defer src="modules/attendance/attendanceManager.js"></script>
     <script defer src="modules/sync/syncManager.js"></script>
     <script defer src="modules/teacher/teacherView.js"></script>
+    <script defer src="modules/attendance/attendanceView.js"></script>
 
     <script defer src="modules/core/app.js"></script>
     <script defer src="modules/core/bootstrap.js"></script>
@@ -317,7 +513,7 @@
             <div id="admin-shell">
                 <h1>เข้าสู่ระบบสำเร็จ</h1>
                 <p id="current-user"></p>
-                <p class="subtitle">Sprint 4.1 Teacher UI Shell and Read-Only State พร้อมสำหรับการตรวจสอบหน้าครูแบบอ่านอย่างเดียว</p>
+                <p class="subtitle">Sprint 4.2 Teacher Daily Attendance CRUD UI พร้อมสำหรับการตรวจสอบหน้าครูเช็กดื่มนมรายวัน</p>
                 <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
             </div>
 
@@ -355,6 +551,54 @@
 
                 <p id="teacher-shell-status" class="status" aria-live="polite"></p>
                 <p id="teacher-shell-error" class="error" role="alert" hidden></p>
+
+                <section id="attendance-panel" class="attendance-panel" aria-labelledby="attendance-title" aria-busy="false" hidden>
+                    <h3 id="attendance-title">เช็กดื่มนมรายวัน</h3>
+                    <p class="attendance-intro">โหลดและบันทึกเฉพาะวันที่เลือกสำหรับห้องที่เข้าสู่ระบบ</p>
+
+                    <div class="attendance-toolbar">
+                        <div>
+                            <label for="attendance-date">วันที่</label>
+                            <input id="attendance-date" type="date" required>
+                        </div>
+                        <button id="attendance-load-button" type="button">โหลดข้อมูล</button>
+                    </div>
+
+                    <dl class="attendance-summary" aria-label="สรุปการเช็กดื่มนม">
+                        <div class="attendance-summary-card">
+                            <dt>นักเรียนทั้งหมด</dt>
+                            <dd id="attendance-total-students">0</dd>
+                        </div>
+                        <div class="attendance-summary-card">
+                            <dt>ตรวจแล้ว</dt>
+                            <dd id="attendance-total-checked">0</dd>
+                        </div>
+                        <div class="attendance-summary-card">
+                            <dt>มาเรียน</dt>
+                            <dd id="attendance-total-present">0</dd>
+                        </div>
+                        <div class="attendance-summary-card">
+                            <dt>ขาดเรียน</dt>
+                            <dd id="attendance-total-absent">0</dd>
+                        </div>
+                        <div class="attendance-summary-card">
+                            <dt>ยังไม่ตรวจ</dt>
+                            <dd id="attendance-total-unchecked">0</dd>
+                        </div>
+                    </dl>
+
+                    <form id="attendance-form" novalidate>
+                        <div id="attendance-student-list" class="attendance-student-list"></div>
+
+                        <p id="attendance-status" class="status" data-state="idle" aria-live="polite"></p>
+                        <p id="attendance-error" class="error" role="alert" hidden></p>
+
+                        <div class="attendance-actions">
+                            <button id="attendance-save-button" type="submit" disabled>บันทึกข้อมูล</button>
+                            <button id="attendance-delete-button" class="danger" type="button" disabled>ลบข้อมูลวันที่เลือก</button>
+                        </div>
+                    </form>
+                </section>
 
                 <div class="teacher-actions">
                     <button id="teacher-logout-button" class="secondary" type="button">ออกจากระบบ</button>
