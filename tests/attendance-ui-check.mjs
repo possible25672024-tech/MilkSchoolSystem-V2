@@ -337,7 +337,7 @@ assert.equal(savedInput.roomId, "r1", "Save must remain in the authenticated roo
 assert.equal(savedInput.data.s1, "present", "Save must delegate first student status");
 assert.equal(savedInput.data.s2, "present", "Save must delegate edited second student status");
 assert.equal(savedInput.notes.s2, "กลับมาเรียน", "Save must delegate edited notes");
-assert.deepEqual(savedInput.photos, ["existing-photo"], "Edit must preserve existing photos");
+assert.deepEqual(Array.from(savedInput.photos), ["existing-photo"], "Edit must preserve existing photos across VM realms");
 assert.equal(savedInput.signature, "existing-signature", "Edit must preserve existing signature");
 assert.equal(savedInput.savedAt, "2026-07-28T01:00:00.000Z", "Edit must preserve compatible savedAt value");
 assert.equal(teacherRefreshCount, 1, "Successful save must refresh the read-only Teacher state");
