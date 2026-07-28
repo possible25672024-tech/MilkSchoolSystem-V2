@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: 10% — plan initialized; runtime implementation not started
+Status: 65% — Attendance View, responsive form, App integration, workflow test, and implementation report completed; automated, browser, isolated write, responsive, Network, Console, and clean-tree validation remain pending
 
 ## Goal
 
@@ -19,58 +19,68 @@ Sprint 4.2 integrates the existing `AttendanceManager` into the View. It must no
 
 Both remain unchanged, operational, and available as rollback paths.
 
-## In Scope
+## Implemented Runtime
 
 ### Date-Scoped Attendance Form
 
-- default to the current local date
-- allow selecting one date in `YYYY-MM-DD`
-- load only `{roomId}_{date}` through `AttendanceManager.loadDay(date)`
-- do not load full room Attendance history during normal form use
+Implemented:
+
+- current local date default
+- one-date selector in `YYYY-MM-DD`
+- load through `AttendanceManager.loadDay(date)`
+- no full room Attendance history request in the View
 
 ### Authenticated-Room Student List
 
-- render students only from the authenticated Teacher room snapshot
-- preserve stable student IDs
-- show student names and existing metadata needed for recognition
-- do not query all rooms or all students after Teacher login
+Implemented:
 
-### Present and Absent Controls
+- student list from the existing Teacher room snapshot
+- stable student IDs
+- number, name, and gender display
+- no all-room or all-student View query
 
-- mark each student `present` or `absent`
-- preserve existing record status when a day is loaded
-- support per-student notes
-- show checked, present, absent, and unchecked totals
+### Present, Absent, and Notes
+
+Implemented:
+
+- present and absent radio controls
+- existing status restoration
+- per-student notes
+- total, checked, present, absent, and unchecked counters
 
 ### Create and Edit
 
+Implemented:
+
 - save through `AttendanceManager.save(input)` only
-- use the existing Service difference calculation
-- display previous and current present totals when available
-- display Room Stock before and after when the operation succeeds
-- display conflict retry count when reported
-- never calculate or write Room Stock directly in the View
+- existing Room Stock difference calculation remains in AttendanceService
+- Room Stock before and after display from the Manager result
+- conflict count display when reported
+- no direct Room Stock calculation or write in the View
 
 ### Delete
 
+Implemented:
+
+- explicit confirmation
 - delete through `AttendanceManager.remove(input)` only
-- require an explicit user confirmation
-- display the restored Room Stock quantity and resulting balance
-- do not construct rollback ledger entries in the View
+- restored quantity and resulting Room Stock display
+- no rollback ledger construction in the View
 
 ### Partial Save and Queue Feedback
 
-Handle `milkapp:attendance-stock-queued`:
+Implemented:
 
-- show that Attendance data was saved
-- show that Room Stock adjustment is waiting in the persistent queue
-- keep the form state visible
-- refresh queue count through the existing Sync boundary
-- do not retry Room Stock directly from the View
+- `milkapp:attendance-stock-queued` feedback
+- Attendance-saved/Room-Stock-pending message
+- audit-queue feedback
+- form state remains visible
+- Teacher shell refresh after completed mutations
+- no direct retry from the View
 
 ### Existing Teacher Shell
 
-Keep visible:
+Preserved:
 
 - school
 - room
@@ -80,15 +90,19 @@ Keep visible:
 - queue count
 - Logout
 
-After Attendance save/delete, refresh the read-only Teacher dashboard through the existing Manager boundary so the displayed Room Stock remains current.
+## Runtime Files
 
-## Architecture Boundary
-
-### View
-
-Planned file:
+Added:
 
 - `modules/attendance/attendanceView.js`
+
+Updated:
+
+- `index-v2.html`
+- `modules/core/app.js`
+- `tests/cutover-documentation-check.mjs`
+
+## Architecture Boundary
 
 The View may:
 
@@ -96,7 +110,7 @@ The View may:
 - manage form interaction state
 - call `AttendanceManager`
 - call `TeacherManager.refresh()` after completed mutations
-- subscribe to Attendance, Sync, Login, Logout, and connection events
+- subscribe to Attendance, Sync, Login, Logout, and Teacher events
 - format display-only numbers and dates
 
 The View must not:
@@ -110,37 +124,33 @@ The View must not:
 - mutate Main Stock
 - own retry or ETag logic
 
-No new Service or Repository is planned unless a measured missing business boundary is discovered.
+No new Service or Repository was added because the existing business boundary is sufficient.
 
-## Existing Manager Methods
-
-Use the current boundaries:
+## Existing Manager Methods Used
 
 - `AttendanceManager.loadDay(date)`
 - `AttendanceManager.save(input)`
 - `AttendanceManager.remove(input)`
 - `TeacherManager.refresh()`
-- `SyncManager.getStatus()`
-- `LoginManager.logout()` through the existing Teacher shell
+- `SyncManager.getStatus()` through the existing shell
+- `LoginManager.logout()` through the existing shell
 
-## Existing Events
-
-Consume:
+## Existing Events Consumed
 
 - `milkapp:attendance-day-loaded`
 - `milkapp:attendance-saved`
 - `milkapp:attendance-deleted`
 - `milkapp:attendance-stock-queued`
+- `milkapp:attendance-audit-queued`
 - `milkapp:teacher-refreshed`
-- Sync lifecycle/status events already used by the Teacher shell
 - `milkapp:login-success`
 - `milkapp:logout`
 
-## Required Data Compatibility
+## Data Compatibility
 
-Attendance record must remain compatible with:
+Loaded and edited records preserve:
 
-- `clsId`
+- `clsId` through the authenticated `roomId`
 - `roomName`
 - `date`
 - `year`
@@ -152,11 +162,11 @@ Attendance record must remain compatible with:
 - `signature`
 - `savedAt`
 
-Sprint 4.2 does not add media input, but loaded records must not discard existing `photos` or `signature` values when an edit is saved. The View must preserve unsupported existing fields through its form model or Manager input.
+Sprint 4.2 does not add media inputs, but an edit does not silently discard existing `photos` or `signature` values.
 
-## Required Business Protection
+## Business Protection
 
-- Main Stock delta is always zero.
+- Main Stock delta remains zero.
 - Attendance save consumes Room Stock by the present-count difference only.
 - Editing from fewer to more present students consumes only the increase.
 - Editing from more to fewer present students restores only the decrease.
@@ -168,118 +178,62 @@ Sprint 4.2 does not add media input, but loaded records must not discard existin
 - Attendance key remains `{roomId}_{YYYY-MM-DD}`.
 - Teacher access remains limited to the authenticated room.
 
+## Automated Test Added
+
+- `tests/attendance-ui-check.mjs`
+
+Coverage:
+
+- valid JavaScript
+- dependency order
+- no direct Firebase, Repository, fetch, or storage access
+- no stock-delta, ledger, stockLog, or Main Stock calculation in the View
+- Teacher-only activation
+- current date default
+- room student rendering
+- existing-day load
+- notes and unsupported media-field preservation
+- present/absent/unchecked totals
+- save delegation
+- delete confirmation and delegation
+- Room Stock result and conflict display
+- partial-save queue feedback
+- shell refresh after mutation
+- Logout clearing
+- Admin rejection
+
+## Validation Report
+
+Added:
+
+- `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
+
 ## Offline Scope
 
-Sprint 4.2 must expose the existing partial-save/queue result in the UI.
+Sprint 4.2 exposes the existing partial-save and queue result in the UI.
 
-A complete offline-first form-save UX, manual retry controls, item-level queue details, and restart/reconnect workflow remain in the next Offline Queue UI phase unless the existing Manager already supplies them without new business logic.
+Complete offline-first form-save UX, manual retry controls, item-level queue details, and restart/reconnect workflow remain in the next Offline Queue UI phase unless supplied by existing Manager events without new business logic.
 
 ## Isolated Write Validation
 
 Do not intentionally write Attendance against production classroom data for development validation.
 
-Allowed validation targets:
+Allowed targets:
 
 - deterministic VM tests with mocked Managers
 - a dedicated isolated Firebase project
 - a disposable test room and date approved for testing
 
-Record before/after values for:
+Record before and after:
 
 - Attendance record
 - Room Stock
 - queue count
 - ledger and stockLog when available
 
-## Planned Tests
-
-Add:
-
-- `tests/attendance-ui-check.mjs`
-
-Required static coverage:
-
-- valid JavaScript
-- dependency order in `index-v2.html`
-- no Firebase or Repository access
-- no `fetch()`
-- no Local Storage or Session Storage ownership
-- no stock-delta or ledger calculations in the View
-- no Main Stock references for mutation
-
-Required workflow coverage:
-
-- authenticated Teacher renders only room students
-- Admin session does not render Attendance form
-- current date default
-- load empty day
-- load existing day
-- preserve existing notes, photos, and signature values
-- present/absent/unchecked totals
-- save delegation
-- edit delegation
-- delete confirmation and delegation
-- successful Room Stock result rendering
-- partial-save/queued stock rendering
-- queue-count refresh
-- form clears after Logout
-- zero and negative Room Stock display remains valid
-
-All previous tests remain mandatory.
-
-## Browser Gate
-
-Desktop Chrome using isolated/disposable Attendance data:
-
-- Admin Login remains unchanged
-- Teacher Login renders shell and Attendance form
-- authenticated room students display correctly
-- load an empty date
-- save a controlled record
-- edit the controlled record and verify difference-only Room Stock result
-- delete the controlled record and verify Room Stock restoration
-- Console clean
-- no cross-room request
-- no Main Stock write
-- Logout returns to login form
-
-Responsive Chrome Device Toolbar at 820 x 1180:
-
-- student rows remain readable
-- present/absent controls remain usable
-- notes input remains usable
-- totals remain visible
-- save/delete controls remain reachable
-- status feedback remains readable
-- no abnormal horizontal overflow
-- Console clean
-
-Physical iPad remains deferred and must not be represented as PASS.
-
-## Network Gate
-
-Normal form load:
-
-- one date-scoped Attendance read only
-- no full room-history Attendance read
-- no full rooms read after Teacher Login
-- no deferred Teacher collections
-
-Save/edit/delete:
-
-- only expected Attendance, Room Stock ETag, ledger, stockLog, updated data, and queue-related operations
-- no Main Stock request or mutation
-- no all-school Attendance request
-
 ## Automated Regression Gate
 
-Run all existing tests plus:
-
-```powershell
-node tests/attendance-ui-check.mjs
-```
-
-The complete gate includes:
+Pending local execution:
 
 ```powershell
 node tests/login-foundation-check.mjs
@@ -299,20 +253,46 @@ node tests/teacher-ui-shell-check.mjs
 node tests/attendance-ui-check.mjs
 ```
 
+## Browser Gate
+
+Desktop Chrome using isolated/disposable Attendance data:
+
+- Admin Login remains unchanged
+- Teacher Login renders shell and Attendance form
+- authenticated room students display correctly
+- empty and existing test dates load
+- controlled create, edit, and delete work
+- difference-only Room Stock result is verified
+- partial-save/queued feedback works
+- no cross-room request
+- no Main Stock request or mutation
+- Logout returns to login form
+- Console clean
+
+Chrome Device Toolbar at 820 x 1180:
+
+- student rows remain readable
+- present/absent controls remain usable
+- notes remain usable
+- totals remain visible
+- save/delete controls remain reachable
+- status feedback remains readable
+- no abnormal horizontal overflow
+- Console clean
+
+Physical iPad remains deferred and must not be represented as PASS.
+
 ## Merge Gate
 
 Sprint 4.2 may merge into `develop` only when:
 
-- Attendance View uses Managers only
-- no Firebase, Repository, storage, or stock business logic exists in the View
-- authenticated-room student rendering passes
-- create, edit-by-difference, and delete-restoration tests pass
-- partial-save/queued feedback passes
-- all previous and new automated tests pass
-- isolated write validation passes
-- desktop browser gate passes
-- 820 x 1180 responsive gate passes
-- Network and Console gates pass
+- all existing and new automated tests pass
+- read-only browser loading passes
+- isolated create/edit/delete evidence passes
+- difference-only Room Stock behavior is recorded
+- no Main Stock request or mutation occurs
+- desktop and 820 x 1180 gates pass
+- Network and Console are clean
 - working tree is clean
 - `index.html` and `teacher.html` remain unchanged
 
@@ -322,8 +302,8 @@ A Sprint 4.2 merge into `develop` does not authorize:
 
 - replacement of `teacher.html`
 - pending, retroactive, or vacation milk cutover
-- photos, signatures, or printing cutover
-- merge or deployment to `main`
+- photos, signatures, printing, or full-history cutover
+- `main` merge
 - production traffic switching
 - Firebase schema changes
 - legacy-file removal
