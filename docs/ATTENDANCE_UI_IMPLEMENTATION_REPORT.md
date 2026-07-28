@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: IMPLEMENTED — automated and browser validation pending
+Status: AUTOMATED GATE PASSED — browser read-only, isolated write, responsive interaction, Network, and Console validation pending
 
 ## Runtime Added
 
@@ -96,6 +96,38 @@ Coverage:
 - form clearing after Logout
 - Admin session rejection
 
+## Node.js 24 Test Compatibility
+
+The first local execution reported a failed `deepStrictEqual` for two visually identical photo arrays. The saved array was created inside the Node VM realm while the expected array was created in the test realm. Node.js 24 compares Array prototypes across realms during strict deep comparison.
+
+The test now normalizes the VM value with `Array.from(savedInput.photos)` before comparison.
+
+This correction changes only the test harness. It does not change `AttendanceView`, Attendance data, Room Stock, Main Stock, Firebase writes, or media preservation behavior.
+
+## Automated Validation Result
+
+Verified locally by the user on 2026-07-28:
+
+- Login foundation checks passed
+- Stock module checks passed
+- Report module checks passed
+- Room module checks passed
+- Teacher module checks passed
+- Attendance module checks passed
+- Sync module checks passed
+- Firebase request header checks passed
+- Performance module checks passed
+- Teacher core payload checks passed
+- Cutover concurrency checks passed
+- Audit recovery checks passed
+- Cutover documentation checks passed
+- Teacher UI shell checks passed
+- Attendance UI checks passed after cross-realm test normalization
+- feature branch synchronized with origin
+- working tree clean
+
+Result: PASS
+
 ## Compatibility Protection
 
 - Attendance key remains `{roomId}_{YYYY-MM-DD}`.
@@ -110,22 +142,33 @@ Coverage:
 
 ## Validation Still Required
 
-### Automated
-
-- all existing regression tests
-- `tests/attendance-ui-check.mjs`
-- clean working tree
-
 ### Browser Read-Only
 
 - Admin Login remains unchanged
 - Teacher Login renders the Attendance form
 - correct authenticated-room student list
-- empty and existing date load
+- current date defaults correctly
+- an empty approved test date loads without full-history access
+- an existing approved test date restores statuses and notes
 - no full room-history Attendance request
 - no cross-room request
+- no Main Stock request
+- Logout returns to login form
 - Console clean
-- responsive 820 x 1180 layout
+
+### Responsive and Network
+
+- 820 x 1180 student rows remain readable
+- present/absent controls remain usable
+- notes input remains usable
+- totals and status feedback remain visible
+- save/delete controls remain reachable
+- no abnormal horizontal overflow
+- one selected Attendance key per date load
+- no room-history request
+- no cross-room request
+- no Main Stock request or mutation
+- writes occur only during approved isolated validation
 
 ### Isolated Write Validation
 
@@ -141,6 +184,7 @@ Record before and after:
 
 - Attendance record
 - Room Stock
+- Main Stock
 - queue count
 - ledger and stockLog when applicable
 
@@ -155,4 +199,4 @@ Test:
 
 ## Current Decision
 
-Runtime implementation is ready for automated validation. Sprint 4.2 is not ready to merge into `develop` until automated, read-only browser, isolated write, responsive, Network, Console, and clean-tree gates pass.
+Runtime implementation and the complete automated gate passed. Sprint 4.2 is not ready to merge into `develop` until browser read-only, approved isolated write, responsive interaction, Network, and Console gates pass.
