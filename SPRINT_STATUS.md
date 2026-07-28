@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-75% — Attendance View, responsive daily form, date-scoped load, authenticated-room student rendering, present/absent and notes controls, totals, save/edit/delete delegation, compatible media-field preservation, Room Stock result feedback, partial-save queue feedback, App startup integration, all 15 automated tests, Node.js 24 cross-realm test compatibility, branch synchronization, and clean working tree completed; browser read-only, isolated write, responsive interaction, Network, and Console gates remain pending
+85% — Attendance View, responsive form foundation, date-scoped loading, authenticated-room students, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock result feedback, partial-save feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, current-date rendering, existing-date restoration, one-key Attendance Network evidence, Console, Logout, branch synchronization, and clean working tree passed; 820 x 1180 Attendance interaction and approved isolated create/edit/delete validation remain pending
 
 ---
 
@@ -50,15 +50,7 @@ Completed Foundation
 
 ✓ Sprint 4.0 Cutover Readiness and Compatibility merged into `develop`
 
-✓ Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`
-
-✓ Modular Teacher shell displays school, room, teacher, Room Stock, connection state, queue count, and Logout
-
-✓ Teacher core refresh remains four reads and approximately 1.6 KB in the recorded desktop environment
-
-✓ Admin role routing remained unchanged
-
-✓ Offline/Online and desktop/responsive Console gates passed
+✓ Sprint 4.1 Teacher UI Shell and Read-Only State merged into `develop`
 
 ✓ Protected `index.html` and `teacher.html` remain operational
 
@@ -90,7 +82,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added Room Stock before/after feedback from Manager results
 
-✓ Added reported ETag conflict-count feedback
+✓ Added ETag conflict-count feedback
 
 ✓ Added Attendance-saved/Room-Stock-queued feedback
 
@@ -102,23 +94,21 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added Admin session rejection
 
-✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt` values during edits
+✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt` during edits
 
-✓ Kept Firebase, Repository, fetch, Local Storage, Session Storage, stock-delta, ledger, stockLog, retry, and ETag ownership out of the View
+✓ Kept Firebase, Repository, fetch, browser storage, stock calculation, ledger, stockLog, retry, and ETag ownership out of the View
 
 ✓ Kept Main Stock out of the Attendance View
 
-✓ Updated `index-v2.html` with responsive Attendance form markup and CSS
+✓ Added responsive Attendance form markup and CSS to `index-v2.html`
 
-✓ Updated `modules/core/app.js` to initialize AttendanceView after TeacherView
+✓ Initialized AttendanceView after TeacherView
 
 ✓ Added `tests/attendance-ui-check.mjs`
 
 ✓ Added `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
 
-✓ Updated Cutover documentation regression checks for Sprint 4.2
-
-✓ Corrected the Attendance UI test for Node.js 24 cross-VM Array prototype comparison without changing Runtime behavior
+✓ Corrected the Node.js 24 cross-VM Array assertion without changing Runtime behavior
 
 ✓ `index.html` unchanged
 
@@ -126,73 +116,37 @@ Sprint 4.2 Runtime Implemented
 
 ---
 
-Architecture Rules Preserved
-
-- View owns DOM rendering and form interaction only.
-- View calls AttendanceManager and TeacherManager.
-- View does not access Firebase directly.
-- View does not access Repositories directly.
-- View does not call `fetch()`.
-- View does not own browser storage.
-- View does not calculate Room Stock differences.
-- View does not construct ledger or stockLog records.
-- View never mutates Main Stock.
-- ETag, retry, partial-save, queue, and audit rules remain in existing Services and Managers.
-- Teacher data remains limited to the authenticated room.
-- Normal day load remains date-scoped and does not load full room history.
-
----
-
-Data Compatibility Preserved
-
-- `clsId` / authenticated `roomId`
-- `roomName`
-- `date`
-- `year`
-- `term`
-- `teacher`
-- `data`
-- `notes`
-- `photos`
-- `signature`
-- `savedAt`
-- Attendance key `{roomId}_{YYYY-MM-DD}`
-
-Sprint 4.2 does not add media inputs, but edits do not silently discard existing photos or signatures.
-
----
-
 Automated Gate Passed
 
-✓ `node tests/login-foundation-check.mjs`
+✓ Login foundation checks
 
-✓ `node tests/stock-module-check.mjs`
+✓ Stock module checks
 
-✓ `node tests/report-module-check.mjs`
+✓ Report module checks
 
-✓ `node tests/room-module-check.mjs`
+✓ Room module checks
 
-✓ `node tests/teacher-module-check.mjs`
+✓ Teacher module checks
 
-✓ `node tests/attendance-module-check.mjs`
+✓ Attendance module checks
 
-✓ `node tests/sync-module-check.mjs`
+✓ Sync module checks
 
-✓ `node tests/firebase-request-header-check.mjs`
+✓ Firebase request-header checks
 
-✓ `node tests/performance-module-check.mjs`
+✓ Performance module checks
 
-✓ `node tests/teacher-core-payload-check.mjs`
+✓ Teacher core-payload checks
 
-✓ `node tests/cutover-concurrency-check.mjs`
+✓ Cutover concurrency checks
 
-✓ `node tests/audit-recovery-check.mjs`
+✓ Audit recovery checks
 
-✓ `node tests/cutover-documentation-check.mjs`
+✓ Cutover documentation checks
 
-✓ `node tests/teacher-ui-shell-check.mjs`
+✓ Teacher UI shell checks
 
-✓ `node tests/attendance-ui-check.mjs`
+✓ Attendance UI checks
 
 ✓ Feature branch synchronized with origin
 
@@ -200,59 +154,57 @@ Automated Gate Passed
 
 ---
 
-Browser Read-Only Gate Pending
+Desktop Browser Read-Only Gate Passed
 
-□ Admin Login remains unchanged
+✓ Admin Login displayed the existing Admin shell
 
-□ Teacher Login renders the shell and Attendance form
+✓ Admin Console displayed only `MilkSchoolSystem V2 Started`
 
-□ Authenticated-room student list displays correctly
+✓ Admin Logout returned to the login form
 
-□ Current date defaults correctly
+✓ Teacher Login rendered the Teacher shell and Attendance form
 
-□ Empty approved test date loads without a full-history request
+✓ Authenticated room displayed 26 students
 
-□ Existing approved test date restores statuses and notes
+✓ Current date displayed as 2026-07-28 in the date control
 
-□ No cross-room request
+✓ Current date showed 3 checked, 3 present, 0 absent, and 23 unchecked
 
-□ No Main Stock request
+✓ Existing date 2026-07-15 restored 26 checked and 26 present
 
-□ Logout returns to login form
+✓ Student rows, present/absent controls, and notes fields displayed correctly
 
-□ Console clean
+✓ Console displayed only `MilkSchoolSystem V2 Started`
 
----
+✓ Logout returned to the login form
 
-Isolated Write Gate Pending
-
-Use only mocked tests, an isolated Firebase project, or an approved disposable room/date.
-
-□ Record Attendance and Room Stock before testing
-
-□ Create a controlled Attendance record
-
-□ Verify only the present count is deducted from Room Stock
-
-□ Edit from fewer to more present students and verify only the increase is deducted
-
-□ Edit from more to fewer present students and verify only the decrease is restored
-
-□ Delete and verify the previous present count is restored
-
-□ Verify Main Stock remains unchanged
-
-□ Verify compatible Attendance key and fields
-
-□ Verify ledger and stockLog when available
-
-□ Verify queue count and partial-save feedback when deliberately simulated
-
-□ Verify no duplicate Attendance or Room Stock mutation during retry
+✓ No visible JavaScript error or warning in the supplied Console captures
 
 ---
 
-Responsive and Network Gate Pending
+Desktop Network Evidence Passed with Scope Note
+
+✓ Selected date 2026-07-15 requested one exact Attendance key: `{roomId}_2026-07-15.json`
+
+✓ Exact-key request returned HTTP 200
+
+✓ No full-history `mcAttendance.json?orderBy=...` request was visible
+
+✓ No cross-room Attendance request was visible
+
+✓ No Main Stock request was visible
+
+✓ No PUT, PATCH, POST, or DELETE request was visible during the read-only test
+
+Scope note:
+
+- the supplied Network panel retained earlier Login and shell requests, including `settings.json` and `rooms.json`;
+- therefore the capture proves the selected-date load used one exact Attendance key, but it is not used to measure fresh Login request counts;
+- DevTools displayed an Issues count, but the Issues details were not supplied and are not classified as application JavaScript errors by this evidence.
+
+---
+
+Responsive Interaction Gate Pending
 
 Chrome Device Toolbar at 820 x 1180:
 
@@ -264,7 +216,7 @@ Chrome Device Toolbar at 820 x 1180:
 
 □ Totals visible
 
-□ Save/delete controls reachable
+□ Save and delete controls reachable
 
 □ Status feedback readable
 
@@ -272,17 +224,41 @@ Chrome Device Toolbar at 820 x 1180:
 
 □ Console clean
 
-Network:
+---
 
-□ Date load requests one Attendance key only
+Approved Isolated Write Gate Pending
 
-□ No full room-history Attendance request
+Do not write development Attendance against normal classroom data.
 
-□ No cross-room request
+Allowed targets:
 
-□ No Main Stock request or mutation
+- mocked automated tests
+- a dedicated isolated Firebase project
+- an approved disposable room and date
 
-□ Writes occur only during approved isolated save/delete validation
+Required evidence:
+
+□ Record Attendance, Room Stock, Main Stock, queue count, ledger, and stockLog before testing
+
+□ Create a controlled Attendance record
+
+□ Verify only the present count is deducted from Room Stock
+
+□ Edit from fewer to more present students and deduct only the increase
+
+□ Edit from more to fewer present students and restore only the decrease
+
+□ Delete and restore the previous present count
+
+□ Verify Main Stock remains unchanged
+
+□ Verify compatible Attendance key and fields
+
+□ Verify ledger and stockLog where applicable
+
+□ Verify partial-save queue feedback when deliberately simulated
+
+□ Verify no duplicate Attendance or Room Stock mutation during retry
 
 ---
 
@@ -291,7 +267,7 @@ Out of Scope
 - pending milk
 - retroactive milk
 - vacation milk
-- photos and signature input
+- photo and signature input
 - printing
 - history-range views
 - Report UI
