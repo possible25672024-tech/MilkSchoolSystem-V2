@@ -133,6 +133,8 @@ class LoginManager {
         this.currentUser = null;
 
         document.getElementById("app-panel")?.setAttribute("hidden", "");
+        document.getElementById("admin-shell")?.removeAttribute("hidden");
+        document.getElementById("teacher-shell")?.setAttribute("hidden", "");
         document.getElementById("login-panel")?.removeAttribute("hidden");
 
         this.refreshLoginOptions();
@@ -143,6 +145,18 @@ class LoginManager {
     renderAuthenticated(session) {
         document.getElementById("login-panel")?.setAttribute("hidden", "");
         document.getElementById("app-panel")?.removeAttribute("hidden");
+
+        const isTeacher = session.role === "teacher";
+        const adminShell = document.getElementById("admin-shell");
+        const teacherShell = document.getElementById("teacher-shell");
+
+        if (isTeacher) {
+            adminShell?.setAttribute("hidden", "");
+            teacherShell?.setAttribute("hidden", "");
+        } else {
+            adminShell?.removeAttribute("hidden");
+            teacherShell?.setAttribute("hidden", "");
+        }
 
         const currentUser = document.getElementById("current-user");
         if (currentUser) {
