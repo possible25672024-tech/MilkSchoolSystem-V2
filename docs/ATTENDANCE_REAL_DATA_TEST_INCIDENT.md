@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: OPEN — both affected rooms verified read-only; Room A requires one reviewed Attendance delete after backup, Room B is reconciled at Attendance/Room Stock level
+Status: OPEN — both affected rooms verified read-only; Room A requires one reviewed Attendance delete after backup, but the first recovery attempt was halted because the active Teacher UI did not match the verified Room A state
 
 ## Confirmation
 
@@ -61,6 +61,25 @@ Assessment:
 - Room Stock is 350, matching the verified pre-test value
 - no additional Attendance or Room Stock correction is required for Room B unless queue, Main Stock, ledger, or stockLog review reveals a mismatch
 
+## Halted Recovery Attempt
+
+A later supplied Teacher UI screenshot did not satisfy the Room A recovery prerequisites:
+
+- the displayed Room Stock was 1,404, not 1,253
+- the form displayed 26 students with 0 checked, 0 present, 0 absent, and 26 unchecked
+- the verified Room A test record should display 22 present and 3 absent
+
+Decision:
+
+- do not press Save or Delete on that screen
+- the active Teacher session or loaded room/date state does not match the verified Room A recovery target
+- return to Login and select the exact Teacher account/session for `อ.3-3` / `mqn0z13eyx5b`
+- after Login, verify the Teacher header identifies `อ.3-3`
+- verify Room Stock is 1,253 before loading the date
+- load `2026-07-28` and verify 22 present and 3 absent before any delete
+
+This halted attempt caused no recorded corrective write because the delete prerequisites were not met.
+
 ## Immediate Safety Actions
 
 - Stop all additional Save, Edit, and Delete tests against real classroom data except the single reviewed recovery delete for Room A.
@@ -86,6 +105,8 @@ Before changing Room A:
 Prerequisites:
 
 - Firebase export preserved
+- active Teacher header identifies `อ.3-3`
+- active session is for room ID `mqn0z13eyx5b`
 - current Attendance record still contains 22 present and 3 absent
 - current Room Stock is still 1,253
 - no legitimate school Attendance should exist for `2026-07-28`
@@ -93,11 +114,12 @@ Prerequisites:
 Recovery action:
 
 1. Login as Teacher for room `อ.3-3` / `mqn0z13eyx5b`.
-2. Load date `2026-07-28`.
-3. Confirm the form still shows the test-created 22 present and 3 absent record.
-4. Press `ลบข้อมูลวันที่เลือก` once.
-5. Confirm the deletion once.
-6. Do not separately edit Room Stock before or after the delete.
+2. Confirm the Teacher header displays `อ.3-3` and Room Stock 1,253.
+3. Load date `2026-07-28`.
+4. Confirm the form still shows the test-created 22 present and 3 absent record.
+5. Press `ลบข้อมูลวันที่เลือก` once.
+6. Confirm the deletion once.
+7. Do not separately edit Room Stock before or after the delete.
 
 Expected result:
 
@@ -109,8 +131,9 @@ Expected result:
 
 Stop conditions:
 
-- the form no longer shows 22 present and 3 absent
-- Room Stock is no longer 1,253 before deletion
+- Teacher header does not identify `อ.3-3`
+- Room Stock is not 1,253 before loading or deletion
+- the form does not show 22 present and 3 absent
 - the delete reports a restoration other than 22
 - a queue or error message appears
 - another user changed the same room/date after verification
