@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Status: 85% — Teacher View, responsive shell markup, role routing, App initialization, all 14 automated tests, clean working tree, and complete 820 x 1180 Teacher Login/Logout evidence passed; desktop Admin, explicit Offline/Online transition, and Network inspection remain pending
+Status: 92% — Teacher View, responsive shell markup, role routing, App initialization, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, and Teacher Fetch/XHR gate passed; desktop Admin, explicit Offline/Online transition, and desktop Console evidence remain pending
 
 ## Goal
 
@@ -158,25 +158,26 @@ Recorded:
 - all 14 automated tests passed
 - branch synchronized with origin
 - working tree clean
-- responsive 820 x 1180 Teacher Login passed
-- school, room, teacher, Room Stock, queue count, and online badge displayed
-- responsive Logout passed
-- Console clean before and after Logout
+- responsive 820 x 1180 Teacher Login and Logout passed
+- desktop Teacher Login and Logout passed
+- desktop Teacher core Network gate passed
+- shell values displayed correctly in responsive and desktop evidence
+- no unexpected read or write request visible in the Teacher core flow
 - physical iPad remains deferred
 
 ## Browser Gate
 
 Desktop Chrome:
 
-- Admin login remains unchanged
-- Teacher login renders the new shell
-- school, room, teacher, and Room Stock display correctly
-- queue count displays
-- online state displays
-- offline state changes when DevTools Offline mode is enabled
-- Logout returns to the login form
-- Console clean
-- no failed application Fetch/XHR requests
+- Admin login remains unchanged — PENDING
+- Teacher login renders the new shell — PASS
+- school, room, teacher, and Room Stock display correctly — PASS
+- queue count displays — PASS
+- online state displays — PASS
+- offline state changes when DevTools Offline mode is enabled — PENDING
+- Logout returns to the login form — PASS
+- Console clean — PENDING DESKTOP EVIDENCE
+- no failed application Fetch/XHR requests — PASS FOR TEACHER FLOW
 
 Responsive Chrome Device Toolbar at 820 x 1180:
 
@@ -193,11 +194,17 @@ Physical iPad remains deferred and must not be represented as PASS.
 
 ## Data and Network Gate
 
+Passed in the recorded desktop Teacher flow:
+
 - no additional full `rooms.json` request after Teacher login
 - no full room-history Attendance request during normal shell refresh
 - no deferred Teacher collection request
 - no write request from shell rendering
 - no Main Stock request required for the Teacher shell
+- exactly four visible successful core reads
+- approximately 1.6 KB total transfer
+
+After Logout, `settings.json` and full `rooms.json` reload to rebuild the login form and 83-room selector. This expected login-form reload is separate from the Teacher core refresh.
 
 ## Automated Regression Gate
 
@@ -229,30 +236,27 @@ Result:
 ## Current Pending Gate
 
 - run desktop Admin Login after Sprint 4.1 role-routing changes
-- run desktop Teacher Login outside Device Toolbar
+- confirm Admin Logout returns to the login form
 - switch DevTools Network to Offline and verify badge `ออฟไลน์`
 - return Online and verify badge `ออนไลน์`
-- inspect Fetch/XHR for failed requests
-- confirm no unexpected write request from shell rendering
-- confirm no additional full `rooms.json` request after Teacher Login
-- confirm no room-history Attendance request during normal shell refresh
-- confirm no deferred Teacher collection request during normal shell refresh
-- confirm no Main Stock request from the Teacher shell
-- Logout and confirm login form
-- confirm desktop Console clean
+- confirm desktop Console clean for Admin Login
+- confirm desktop Console clean for Teacher Login
+- confirm desktop Console clean after Logout
 
 ## Merge Gate
 
 Sprint 4.1 may merge into `develop` when:
 
 - all existing and new automated tests pass — PASS
-- Teacher room identity and Room Stock display are correct — RESPONSIVE PASS
-- queue count displays correctly — RESPONSIVE PASS
-- Logout works — RESPONSIVE PASS
-- desktop browser gate passes — PENDING
+- Teacher room identity and Room Stock display are correct — PASS
+- queue count displays correctly — PASS
+- Logout works — PASS
+- desktop Teacher browser gate passes — PASS
+- desktop Admin regression passes — PENDING
 - 820 x 1180 responsive gate passes — PASS
 - Console is clean — RESPONSIVE PASS; DESKTOP PENDING
-- no unexpected network reads or writes occur — PENDING
+- explicit Offline/Online transition passes — PENDING
+- no unexpected network reads or writes occur — PASS FOR TEACHER FLOW
 - working tree is clean — PASS
 - `index.html` and `teacher.html` remain unchanged — PASS
 
