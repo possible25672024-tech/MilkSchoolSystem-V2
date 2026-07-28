@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-95% — Runtime, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. Real-classroom recovery was deferred by the product owner so development can continue. Room `อ.3-3` remains quarantined with a known Attendance/Room Stock discrepancy. The remaining code gate is a complete isolated automated create/edit/delete validation. Production cutover remains blocked until the real-data incident is reconciled and closed.
+97% — Runtime, the original 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. A complete in-memory isolated create/edit/delete/queue test has now been added and awaits local execution plus the full regression suite. Real-classroom recovery remains deferred; room `อ.3-3` stays quarantined and production cutover remains blocked until that incident is reconciled.
 
 ---
 
@@ -80,7 +80,11 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added `tests/attendance-ui-check.mjs`
 
+✓ Added `tests/attendance-isolated-write-check.mjs`
+
 ✓ Added `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
+
+✓ Added `docs/ATTENDANCE_ISOLATED_WRITE_GATE.md`
 
 ✓ Added and updated `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
 
@@ -90,7 +94,7 @@ Sprint 4.2 Runtime Implemented
 
 ---
 
-Automated Gate Passed
+Original Automated Gate Passed
 
 ✓ Login foundation checks
 
@@ -164,6 +168,58 @@ Chrome Device Toolbar at 820 x 1180:
 
 ---
 
+Isolated Automated Write Gate — Implemented / Local Run Pending
+
+File:
+
+- `tests/attendance-isolated-write-check.mjs`
+
+In-memory only:
+
+✓ Uses room `isolated-room`, Room Stock 50, and Main Stock 999 inside the Node.js process
+
+✓ Does not load FirebaseService or the production AttendanceRepository
+
+✓ Does not call the production Firebase URL
+
+Coverage awaiting local confirmation:
+
+□ Create 3 present: Room Stock `50 → 47`
+
+□ Edit 3 to 5 present: deduct only 2, Room Stock `47 → 45`
+
+□ Edit 5 to 2 present: restore only 3, Room Stock `45 → 48`
+
+□ Delete 2-present record: restore 2, Room Stock `48 → 50`
+
+□ Verify Main Stock remains 999 through all operations
+
+□ Verify compatible Attendance key and fields
+
+□ Verify one ledger and stockLog entry per successful operation
+
+□ Verify successful CRUD creates no retry queue entries
+
+□ Deliberately fail Room Stock after Attendance save and verify exactly one protected retry is queued
+
+□ Verify queue difference and reference key remain exact
+
+□ Verify Manager emits persistent queue feedback
+
+Run:
+
+```powershell
+node tests/attendance-isolated-write-check.mjs
+```
+
+Expected:
+
+```text
+Attendance isolated write checks passed.
+```
+
+---
+
 Real Classroom Data Incident — DEFERRED / OPEN
 
 The product owner requested postponement of corrective recovery so implementation can continue.
@@ -191,33 +247,19 @@ Quarantine rules:
 - do not manually rewrite stock, ledger, stockLog, or transaction history
 - use only mocked, in-memory, isolated Firebase, or disposable targets for future write validation
 
-The incident is not resolved. Recovery is moved to the mandatory pre-production checklist.
+The incident is not resolved. Recovery remains on the mandatory pre-production checklist.
 
 ---
 
-Approved Isolated Write Gate — Not Complete
+Remaining Gate
 
-The real-data observations do not count as the approved isolated write gate.
+□ Run `tests/attendance-isolated-write-check.mjs`
 
-Required next:
+□ Run the complete regression suite including all 16 tests
 
-□ Add or run a complete isolated automated write test
+□ Confirm feature branch synchronized with origin
 
-□ Verify create deducts exactly the present count from Room Stock
-
-□ Verify edit from fewer to more present students deducts only the increase
-
-□ Verify edit from more to fewer present students restores only the decrease
-
-□ Verify delete restores the previous present count
-
-□ Verify Main Stock remains unchanged
-
-□ Verify compatible Attendance key and fields
-
-□ Verify queue feedback when deliberately simulated
-
-□ Run the full regression suite and confirm a clean working tree
+□ Confirm working tree clean
 
 ---
 
@@ -227,44 +269,4 @@ DEVELOPMENT MAY CONTINUE
 
 Sprint 4.2 may proceed using automated isolated tests only. No additional real-classroom writes are permitted.
 
-A merge into `develop` may be considered after the complete isolated automated write gate and full regression suite pass.
-
----
-
-Production and Release Decision
-
-BLOCKED
-
-The following remain prohibited until the deferred incident is reconciled and explicitly closed:
-
-- merge to `main`
-- production cutover
-- official acceptance of the affected Room A Attendance, stock, or reports
-- removal of protected legacy rollback paths
-
-Before production use:
-
-- export Firebase
-- recover or reconcile Room `อ.3-3`
-- verify Attendance becomes `null`
-- verify Room Stock is authoritative
-- verify Main Stock is unchanged
-- review queue, ledger, stockTransactions, and stockLog
-- close the incident explicitly
-
----
-
-Protected Business Rules
-
-- Main Stock decreases only on classroom distribution.
-- Classroom distribution increases Room Stock.
-- Teacher and Attendance operations change Room Stock only.
-- Attendance edits change Room Stock by the difference only.
-- Attendance deletion restores previously consumed Room Stock.
-- ETag conflicts read the latest Room Stock and recalculate before retry.
-- Offline retries preserve the original Attendance baseline.
-- Audit-only retries never repeat a successful Room Stock mutation.
-- Attendance keys remain compatible.
-- Teacher access remains limited to the authenticated room.
-- Negative Room Stock is not silently clamped.
-- Legacy files remain available until explicit production-cutover approval.
+A merge into `develop` may be considered after the isolated automated write gate and the full regression suite pass. This does not authorize merge to `main` or production cutover while the real-data incident remains open.
