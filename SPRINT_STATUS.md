@@ -10,7 +10,7 @@ Last Update
 
 Current Branch
 
-feature/sprint-4.0-cutover-readiness
+feature/sprint-4.1-teacher-ui-shell
 
 ---
 
@@ -22,11 +22,11 @@ V2
 
 Current Sprint
 
-Sprint 4.0 — Cutover Readiness and Compatibility
+Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-100% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Console evidence, Network evidence, complete 820 x 1180 responsive Teacher login/Logout evidence, cutover decisions, Teacher UI integration planning, rollback planning, documentation gate, and clean working-tree gate all passed; Sprint 4.0 is approved for fast-forward integration into `develop` while production cutover remains explicitly blocked
+10% — Sprint plan initialized from the completed Sprint 4.0 cutover-readiness foundation; runtime Teacher View implementation, shell tests, browser validation, and responsive validation have not started
 
 ---
 
@@ -40,7 +40,7 @@ Completed Foundation
 
 ✓ Sprint 3.5 Room Module merged into `develop`
 
-✓ Sprint 3.6 Teacher Module merged into `develop`
+✓ Sprint 3.6 Teacher Service Foundation merged into `develop`
 
 ✓ Sprint 3.7 Attendance Module merged into `develop`
 
@@ -48,183 +48,198 @@ Completed Foundation
 
 ✓ Sprint 3.9 Performance and Payload Optimization merged into `develop`
 
-✓ Desktop Teacher core refresh measured at approximately 1.6 KB across 4 requests on the recorded 83-room dataset
+✓ Sprint 4.0 Cutover Readiness and Compatibility fast-forward merged into `develop`
+
+✓ ETag Room Stock protection and recovery foundations available
+
+✓ Desktop and 820 x 1180 Login/Logout shell evidence recorded
+
+✓ Production decisions, Teacher UI integration plan, and rollback plan documented
+
+✓ Protected `index.html` and `teacher.html` remain operational
 
 ---
 
-Sprint 4.0 Runtime and Recovery Foundation
+Sprint 4.1 Goal
 
-✓ FirebaseService ETag read using `X-Firebase-ETag: true`
-
-✓ FirebaseService conditional write using `If-Match`
-
-✓ HTTP 412 conflict surfaced as retryable state
-
-✓ AttendanceRepository versioned Room Stock boundary
-
-✓ AttendanceService ETag compare-and-retry with latest-value recalculation
-
-✓ Attendance-first save order retained
-
-✓ Partial Attendance save converts to persistent Room Stock-only retry
-
-✓ Persistent `attendanceAudit` recovery queue
-
-✓ Audit-only retry never repeats a successful Room Stock change
-
-✓ Sequential queue replay and original attendance baseline remain protected
-
-✓ Main Stock remains unchanged in Attendance and Sync workflows
-
-✓ Negative Room Stock remains visible and is not silently clamped
+Create the first modular Teacher interface in `index-v2.html` as a read-only shell without changing verified Attendance, stock, queue, Firebase, or protected legacy behavior.
 
 ---
 
-Sprint 4.0 Automated Gate
+Sprint 4.1 In Scope
 
-✓ Login foundation checks passed
+□ Teacher session header
 
-✓ Stock module checks passed
+□ School name
 
-✓ Report module checks passed
+□ Room name
 
-✓ Room module checks passed
+□ Teacher name
 
-✓ Teacher module checks passed
+□ Current Room Stock display
 
-✓ Attendance module checks passed
+□ Online/offline connection state
 
-✓ Sync module checks passed
+□ Pending queue count
 
-✓ Firebase request header checks passed
+□ Logout action
 
-✓ Performance module checks passed
+□ Event-driven View boundary
 
-✓ Teacher core payload checks passed
+□ Desktop browser validation
 
-✓ Cutover concurrency checks passed
-
-✓ Audit recovery checks passed
-
-✓ Cutover documentation checks passed
-
-✓ Feature branch synchronized with origin
-
-✓ Working tree clean
+□ Chrome Device Toolbar validation at 820 x 1180
 
 ---
 
-Sprint 4.0 Browser and Responsive Gate
+Sprint 4.1 Architecture Rules
 
-✓ Desktop Chrome Admin login
-
-✓ Desktop Chrome Teacher login
-
-✓ Direct Logout returned to the login form and cleared the active UI session
-
-✓ Firebase `settings.json` and `rooms.json` returned HTTP 200
-
-✓ No failed Fetch/XHR request visible in supplied captures
-
-✓ Sprint 4.0 shell text displayed correctly
-
-✓ Teacher-session and post-Logout Console showed only `MilkSchoolSystem V2 Started`
-
-✓ Browser Device Toolbar recorded at 820 x 1180 CSS pixels
-
-✓ Responsive login form remained contained without horizontal overflow
-
-✓ Responsive Teacher login succeeded and displayed the correct room/teacher identity
-
-✓ Responsive Logout returned to the login form without layout breakage
-
-✓ Responsive Console remained clean before and after Logout
-
-✓ Physical iPad validation explicitly deferred by the product owner and not represented as PASS
+- View owns DOM rendering and interaction only.
+- View calls Managers and subscribes to browser events.
+- View must not access Firebase directly.
+- View must not access Repositories directly.
+- View must not calculate Main Stock or Room Stock.
+- Room Stock is display-only in this Sprint.
+- Negative Room Stock remains visible.
+- Queue count comes from the existing persistent Sync/Queue boundary.
+- Logout delegates through the existing Auth/Login boundary.
+- Teacher data remains limited to the authenticated room.
+- Normal Teacher refresh remains date-scoped and does not load full room history.
 
 ---
 
-Sprint 4.0 Documentation and Decisions
+Planned Runtime File
 
-✓ `docs/SPRINT_4_0_PLAN.md`
+□ `modules/teacher/teacherView.js`
 
-✓ `docs/CUTOVER_PARITY_MATRIX.md`
+Optional only when justified by the current shell structure:
 
-✓ `docs/CUTOVER_READINESS_REPORT.md`
+□ `modules/teacher/teacherShellRenderer.js`
 
-✓ `docs/CUTOVER_DECISIONS.md`
-
-✓ `docs/TEACHER_UI_INTEGRATION_PLAN.md`
-
-✓ `docs/PRODUCTION_ROLLBACK_PLAN.md`
-
-✓ Every remaining production blocker has an explicit owner and production consequence
-
-✓ Report browser-local adapter deferred to an operational Admin/report UI sprint
-
-✓ XLSX binary parsing retained in the protected legacy Admin flow
-
-✓ Operational Admin and Teacher interfaces deferred to dedicated integration sprints
-
-✓ Real Firebase multi-writer validation restricted to an isolated environment
-
-✓ Real legacy queue sample must not be fabricated and remains pending until supplied
-
-✓ Backup and rollback plan complete as documentation; rehearsal remains required before production
+Do not create new Service or Repository modules for display-only concerns.
 
 ---
 
-Develop Integration Decision
+Planned Test
 
-APPROVED
+□ `tests/teacher-ui-shell-check.mjs`
 
-A fast-forward merge into `develop` is authorized because all Sprint 4.0 branch gates passed. This integration preserves the modular safety foundation and the readiness record for continued development.
+Required coverage:
 
-It does not authorize:
+- valid JavaScript
+- dependency order
+- no direct Firebase access
+- no `fetch()` in the View
+- no direct Repository access
+- no stock calculations in the View
+- Teacher identity rendering
+- Room Stock zero, positive, and negative rendering
+- queue count rendering
+- online/offline rendering
+- Logout delegation
+- Admin session rejection
+- shell clearing after Logout
 
-- merge or deployment to `main`
-- production traffic switching
+---
+
+Automated Regression Gate
+
+□ `node tests/login-foundation-check.mjs`
+
+□ `node tests/stock-module-check.mjs`
+
+□ `node tests/report-module-check.mjs`
+
+□ `node tests/room-module-check.mjs`
+
+□ `node tests/teacher-module-check.mjs`
+
+□ `node tests/attendance-module-check.mjs`
+
+□ `node tests/sync-module-check.mjs`
+
+□ `node tests/firebase-request-header-check.mjs`
+
+□ `node tests/performance-module-check.mjs`
+
+□ `node tests/teacher-core-payload-check.mjs`
+
+□ `node tests/cutover-concurrency-check.mjs`
+
+□ `node tests/audit-recovery-check.mjs`
+
+□ `node tests/cutover-documentation-check.mjs`
+
+□ `node tests/teacher-ui-shell-check.mjs`
+
+---
+
+Browser Gate
+
+Desktop Chrome:
+
+□ Admin Login remains unchanged
+
+□ Teacher Login renders the modular Teacher shell
+
+□ School, room, teacher, and Room Stock display correctly
+
+□ Queue count displays correctly
+
+□ Online/offline state displays correctly
+
+□ Logout returns to the login form
+
+□ Console clean
+
+□ No failed application Fetch/XHR requests
+
+Chrome Device Toolbar at 820 x 1180:
+
+□ Teacher shell remains contained
+
+□ Room Stock and queue count remain visible
+
+□ Logout remains usable
+
+□ No abnormal horizontal overflow
+
+□ Console clean
+
+Physical iPad remains deferred and must not be represented as PASS.
+
+---
+
+Out of Scope
+
+- Attendance create, edit, or delete UI
+- Pending milk write UI
+- Retroactive milk write UI
+- Vacation milk write UI
+- Photos
+- Signatures
+- Printing
+- History screens
+- Report UI
+- Admin UI
+- XLSX parsing
 - Firebase schema changes
-- database restore
-- removal, rename, or replacement of `index.html`
-- removal, rename, or replacement of `teacher.html`
+- Replacement or removal of `teacher.html`
+- Production deployment
 
 ---
 
-Production Work Explicitly Deferred or Blocked
+Current Production Blockers
 
-- operational Admin forms are not integrated in V2
-- operational Teacher attendance, pending, retroactive, vacation, media, signature, print, queue-badge, and offline-banner screens are not integrated
-- Report browser-local adapter is not implemented
-- XLSX binary parsing remains in the protected legacy flow
-- real isolated Firebase multi-writer evidence is not recorded
-- real sanitized legacy queue sample is not replayed
-- Firebase export verification and isolated restore rehearsal are not recorded
-- physical iPad evidence is deferred without final production risk acceptance
-- explicit production approval is not granted
-
----
-
-Next Sprint
-
-Sprint 4.1 — Teacher UI Shell and Read-Only State
-
-Planned branch:
-
-`feature/sprint-4.1-teacher-ui-shell`
-
-Initial scope:
-
-- Teacher session header
-- school, room, and teacher identity
-- current Room Stock display
-- connection state
-- pending queue count
-- Logout
-- responsive desktop and 820 x 1180 shell gate
-- no Attendance write UI yet
-- no direct Firebase access from the view
-- protected `teacher.html` remains operational
+- Operational Admin UI remains in `index.html`.
+- Operational Teacher workflows remain in `teacher.html`.
+- Report browser-local adapter is not implemented.
+- XLSX binary parsing remains in the protected legacy flow.
+- Real isolated Firebase multi-writer evidence is not recorded.
+- Real sanitized legacy queue evidence is not recorded.
+- Backup export and isolated restore rehearsal are not recorded.
+- Physical iPad evidence remains deferred.
+- Explicit production approval is not granted.
 
 ---
 
@@ -236,10 +251,10 @@ Protected Business Rules
 - Attendance edits change Room Stock by the difference only.
 - Attendance deletion restores previously consumed Room Stock.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
-- Offline retries preserve the original attendance baseline.
-- Audit-only retries never repeat a successful Room Stock change.
+- Offline retries preserve the original Attendance baseline.
+- Audit-only retries never repeat a successful Room Stock mutation.
 - Reports remain read-only.
-- Firebase paths and attendance keys remain compatible unless an approved migration includes rollback.
+- Firebase paths and Attendance keys remain compatible.
 - Room IDs remain stable.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
