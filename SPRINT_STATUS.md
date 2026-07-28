@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-95% — Runtime, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. A Save/Delete test was confirmed to have used real classroom data; the incident is open, Sprint merge is blocked, real data must be verified and reconciled, and the complete write gate must be repeated on an isolated or approved disposable target.
+95% — Runtime, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. Real-classroom recovery was deferred by the product owner so development can continue. Room `อ.3-3` remains quarantined with a known Attendance/Room Stock discrepancy. The remaining code gate is a complete isolated automated create/edit/delete validation. Production cutover remains blocked until the real-data incident is reconciled and closed.
 
 ---
 
@@ -82,7 +82,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
 
-✓ Added `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
+✓ Added and updated `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
 
 ✓ `index.html` unchanged
 
@@ -164,55 +164,34 @@ Chrome Device Toolbar at 820 x 1180:
 
 ---
 
-Real Classroom Data Incident — OPEN
+Real Classroom Data Incident — DEFERRED / OPEN
 
-The product owner confirmed that the observed Save/Delete validation used real classroom data.
+The product owner requested postponement of corrective recovery so implementation can continue.
 
-Observed:
+Known quarantined discrepancy:
 
-- one save reported 22 present and Room Stock `1,275 → 1,253`
-- another save reported 7 present and Room Stock `350 → 343`
-- delete reported restoration of 7 and Room Stock `343 → 350`
-- Console remained free of visible application JavaScript errors
+- room: `อ.3-3`
+- room ID: `mqn0z13eyx5b`
+- date: `2026-07-28`
+- test-created Attendance record remains with 22 present and 3 absent
+- Room Stock remains 1,253 instead of the recorded pre-test value 1,275
+- known difference: -22
 
-Assessment:
+Reconciled room:
 
-- the second delete reversed the immediately preceding 7-box deduction at the displayed UI-result level
-- this does not prove the original real Attendance record was restored
-- Git working-tree cleanliness does not prove Firebase data reconciliation
+- room: `อ.3-4`
+- room ID: `mqn0z13emyrc`
+- Attendance is `null`
+- Room Stock is 350
 
-Required safety actions:
+Quarantine rules:
 
-- stop all additional Save/Edit/Delete tests against real classroom data
-- do not manually delete ledger or stockLog entries
-- do not manually rewrite stock without a backup and reviewed reconciliation plan
-- complete the read-only verification in `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
+- do not use Room `อ.3-3` or date `2026-07-28` for further write testing
+- do not treat Room A Attendance, Room Stock, or report values as trusted operational evidence
+- do not manually rewrite stock, ledger, stockLog, or transaction history
+- use only mocked, in-memory, isolated Firebase, or disposable targets for future write validation
 
----
-
-Incident Verification Pending
-
-□ Confirm affected room ID, room name, and date
-
-□ Confirm whether the Attendance key currently exists
-
-□ Compare current Attendance with authoritative school records
-
-□ Verify current Room Stock against the authoritative expected value
-
-□ Verify Main Stock against the authoritative expected value
-
-□ Record queue count
-
-□ Inspect related ledger, stockTransactions, and stockLog entries
-
-□ Confirm whether the 22-present and 7-present sequences involved the same room
-
-□ Export Firebase before any correction
-
-□ Complete any required recovery and review
-
-□ Close the incident
+The incident is not resolved. Recovery is moved to the mandatory pre-production checklist.
 
 ---
 
@@ -220,19 +199,17 @@ Approved Isolated Write Gate — Not Complete
 
 The real-data observations do not count as the approved isolated write gate.
 
-Required after incident closure:
+Required next:
 
-□ Use a mocked, isolated Firebase, or approved disposable room/date target
+□ Add or run a complete isolated automated write test
 
-□ Record Attendance, Room Stock, Main Stock, queue, ledger, and stockLog before and after
+□ Verify create deducts exactly the present count from Room Stock
 
-□ Verify create
+□ Verify edit from fewer to more present students deducts only the increase
 
-□ Verify edit from fewer to more present students
+□ Verify edit from more to fewer present students restores only the decrease
 
-□ Verify edit from more to fewer present students
-
-□ Verify delete restoration
+□ Verify delete restores the previous present count
 
 □ Verify Main Stock remains unchanged
 
@@ -240,13 +217,40 @@ Required after incident closure:
 
 □ Verify queue feedback when deliberately simulated
 
+□ Run the full regression suite and confirm a clean working tree
+
 ---
 
-Current Merge Decision
+Current Development Decision
+
+DEVELOPMENT MAY CONTINUE
+
+Sprint 4.2 may proceed using automated isolated tests only. No additional real-classroom writes are permitted.
+
+A merge into `develop` may be considered after the complete isolated automated write gate and full regression suite pass.
+
+---
+
+Production and Release Decision
 
 BLOCKED
 
-Sprint 4.2 must not merge into `develop` until the real classroom data incident is verified and closed and the complete write gate is repeated on an isolated or approved disposable target.
+The following remain prohibited until the deferred incident is reconciled and explicitly closed:
+
+- merge to `main`
+- production cutover
+- official acceptance of the affected Room A Attendance, stock, or reports
+- removal of protected legacy rollback paths
+
+Before production use:
+
+- export Firebase
+- recover or reconcile Room `อ.3-3`
+- verify Attendance becomes `null`
+- verify Room Stock is authoritative
+- verify Main Stock is unchanged
+- review queue, ledger, stockTransactions, and stockLog
+- close the incident explicitly
 
 ---
 
