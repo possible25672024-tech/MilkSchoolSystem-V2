@@ -13,7 +13,7 @@ These files remain operational and deployable until explicit production-cutover 
 
 ## Target Architecture
 
-UI
+UI / View
 
 → Manager
 
@@ -40,7 +40,8 @@ Completed boundary:
 - compatible session storage
 - cached settings and rooms context
 - authenticated Teacher room snapshot
-- desktop and 820 x 1180 shell login/logout evidence
+- desktop and 820 x 1180 login/logout evidence
+- Admin and Teacher role routing into separate V2 shell containers
 
 ### Firebase Foundation — Completed
 
@@ -87,8 +88,7 @@ Modules:
 
 Completed boundary:
 
-- read-only report model
-- classroom, grade, and whole-school aggregation
+- read-only classroom, grade, and whole-school aggregation
 - Thai grade normalization
 - print and Excel export models
 - injected `extraSources` boundary
@@ -131,17 +131,12 @@ Completed boundary:
 
 - authenticated-room-only access
 - Teacher session room snapshot reuse
-- default today's attendance `/data` read
+- default today's Attendance `/data` read
 - explicit room-history and deferred-data refresh
 - Teacher dashboard and Room Stock-only command preparation
 - measured desktop payload optimization
 
-Operational UI status:
-
-- dedicated integration begins in Sprint 4.1
-- `teacher.html` remains operational and protected
-
-### Attendance — Completed with ETag Protection
+### Attendance Service Foundation — Completed with ETag Protection
 
 Modules:
 
@@ -181,7 +176,7 @@ Completed boundary:
 - compatible `tc_pending_saves_v1` persistence
 - legacy `rec` and `diff` alias normalization
 - corrupt-entry filtering
-- latest queued attendance with original baseline preservation
+- latest queued Attendance with original baseline preservation
 - sequential replay
 - bounded backoff
 - startup, reconnect, retry, and periodic flush
@@ -196,7 +191,7 @@ Completed boundary:
 Deferred production gaps:
 
 - real sanitized operational queue sample under D-07
-- queue badge and offline banner operational UI under D-04
+- item-level operational queue UI remains future work
 
 ### Performance — Completed
 
@@ -207,7 +202,7 @@ Completed boundary:
 - Login context reuse
 - session-backed Teacher room data
 - default four-request Teacher core refresh
-- today's attendance `/data` child only
+- today's Attendance `/data` child only
 - deferred history loading
 - QueueStorage serialization reduction
 - deterministic performance tests
@@ -232,47 +227,73 @@ Completed artifacts:
 - `tests/audit-recovery-check.mjs`
 - `tests/cutover-documentation-check.mjs`
 
-Completed gates:
+Integration meaning:
 
-- all automated tests
-- desktop Admin/Teacher Login and Logout
-- clean recorded Console
-- 820 x 1180 Teacher Login and Logout
-- explicit production decisions
-- backup and rollback plan
-- clean working tree
+- merged into `develop`
+- production cutover remains blocked
+- no `main` merge or legacy removal authorized
+
+### Teacher UI Shell and Read-Only State — Sprint 4.1 Completed
+
+Modules and artifacts:
+
+- `modules/teacher/teacherView.js`
+- `tests/teacher-ui-shell-check.mjs`
+- `docs/SPRINT_4_1_PLAN.md`
+- `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
+
+Completed boundary:
+
+- separate Admin and Teacher shell containers
+- Teacher session header
+- school, room, and teacher identity
+- read-only current Room Stock
+- online/offline connection badge
+- persistent queue count
+- Logout delegation
+- restored-session rendering
+- Manager and event-driven View boundary
+- no direct Firebase, Repository, Local Storage, Session Storage, or stock calculation in the View
+- Admin role-routing regression pass
+- desktop Teacher Network pass at four reads and approximately 1.6 KB
+- Offline/Online transition pass
+- desktop and 820 x 1180 Login/Logout and Console pass
 
 Integration meaning:
 
 - approved for fast-forward merge into `develop`
-- production cutover remains blocked
-- no `main` merge or legacy removal authorized
+- does not replace `teacher.html`
+- does not authorize Attendance operational cutover
 
-### Teacher UI Shell and Read-Only State — Current Sprint 4.1
+### Teacher Daily Attendance CRUD UI — Current Sprint 4.2
 
 Target branch:
 
-`feature/sprint-4.1-teacher-ui-shell`
+`feature/sprint-4.2-attendance-daily-ui`
 
 Target boundary:
 
-- Teacher session header
-- school, room, and teacher identity
-- current Room Stock display
-- connection state
-- pending queue count
-- Logout
-- Manager/event-driven rendering
-- no direct Firebase access from the view
+- date-scoped daily Attendance form
+- authenticated-room student list
+- present and absent controls
+- notes
+- load one day through `AttendanceManager.loadDay()`
+- create and edit through `AttendanceManager.save()`
+- delete through `AttendanceManager.remove()`
+- present and absent totals
+- Room Stock result display
+- partial-save and queued Room Stock feedback
+- no direct Firebase, Repository, or stock calculations in the View
+- isolated test data only for write validation
 - desktop and 820 x 1180 validation
 
 Out of scope:
 
-- Attendance write UI
-- pending, retroactive, or vacation write UI
+- pending, retroactive, or vacation milk
 - photos and signatures
-- printing
+- printing and history-range views
 - replacing or removing `teacher.html`
+- production deployment
 
 ### Legacy Removal — Blocked
 
@@ -296,7 +317,11 @@ Attendance edit
 
 → adjusts Room Stock by the difference between previous and new present totals
 
-Offline attendance edit
+Attendance deletion
+
+→ restores the previously consumed present total
+
+Offline Attendance edit
 
 → keeps the latest queued record while preserving the original baseline present count
 
@@ -323,11 +348,12 @@ Rebuild
 - Sprint 3.4.4 — Report — Completed
 - Sprint 3.5 — Room — Completed
 - Sprint 3.6 — Teacher Service Foundation — Completed
-- Sprint 3.7 — Attendance — Completed
+- Sprint 3.7 — Attendance Service Foundation — Completed
 - Sprint 3.8 — Offline Queue — Completed
 - Sprint 3.9 — Performance — Completed
 - Sprint 4.0 — Cutover Readiness — Completed
-- Sprint 4.1 — Teacher UI Shell and Read-Only State — Current
+- Sprint 4.1 — Teacher UI Shell and Read-Only State — Completed
+- Sprint 4.2 — Teacher Daily Attendance CRUD UI — Current
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
