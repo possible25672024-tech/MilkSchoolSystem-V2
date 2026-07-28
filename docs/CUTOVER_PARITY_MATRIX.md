@@ -15,10 +15,10 @@ Status values:
 
 | Area | Legacy source | V2 source | Status | Evidence required | Current gap |
 |---|---|---|---|---|---|
-| Admin login | `index.html` | Login modules | PASS | automated test + browser login | none recorded |
-| Teacher login | `teacher.html` | Login and Teacher modules | PASS | automated test + browser login | physical iPad validation pending |
-| Logout | legacy pages | Auth/Login modules | PASS | browser logout | none recorded |
-| Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | physical iPad validation pending |
+| Admin login | `index.html` | Login modules | PASS | automated test + browser login | desktop Chrome evidence recorded |
+| Teacher login | `teacher.html` | Login and Teacher modules | PASS | automated test + browser login | desktop Chrome evidence recorded; physical iPad pending |
+| Logout | legacy pages | Auth/Login modules | PARTIAL | direct browser logout evidence | Admin-to-Teacher sequence observed, but direct logout screen capture remains pending |
+| Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | desktop Chrome evidence recorded; physical iPad pending |
 | Room creation/edit | `index.html` | Room modules | PARTIAL | operational form parity | V2 operational UI not integrated |
 | Student import | `index.html` XLSX parser | RoomService parsed-data boundary | PARTIAL | import fixture + Room ID preservation | binary XLSX parser remains legacy |
 | Main Stock receive | `index.html` | Stock modules | PARTIAL | end-to-end operational UI test | V2 operational UI not integrated |
@@ -26,11 +26,11 @@ Status values:
 | Attendance save | `teacher.html` | Attendance modules | PARTIAL | create/edit/delete + Room Stock delta | operational form remains legacy |
 | Attendance ETag Room Stock update | legacy `atomicRoomStockDelta` | FirebaseService + AttendanceService | PARTIAL | deterministic conflict test + real Firebase conflict validation | implementation and local deterministic test added; real multi-writer evidence pending |
 | Attendance partial-save recovery | legacy `roomStockAdjust` queue | AttendanceManager + SyncService | PARTIAL | attendance-first failure fixture + queue conversion test | implementation and deterministic test added; browser/device evidence pending |
-| Attendance audit write recovery | legacy best-effort stockLog/ledger | QueueStorage + AttendanceManager + SyncService | PARTIAL | audit failure fixture + persistent replay | audit-only queue and test added; local regression and production evidence pending |
+| Attendance audit write recovery | legacy best-effort stockLog/ledger | QueueStorage + AttendanceManager + SyncService | PARTIAL | audit failure fixture + persistent replay | audit-only queue and local test passed; production evidence pending |
 | Pending milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
 | Retroactive milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
 | Vacation milk | `teacher.html` | Stock/Teacher foundations | PARTIAL | Room Stock-only operation | operational form and adapter incomplete |
-| Offline queue persistence | `teacher.html` | QueueStorage | PASS | restart fixture | production device evidence pending |
+| Offline queue persistence | `teacher.html` | QueueStorage | PASS | restart fixture | local deterministic evidence recorded; production device evidence pending |
 | Legacy/V2 queue format compatibility | legacy `rec`/`diff` | QueueStorage normalization | PARTIAL | representative legacy fixtures + replay | fixture coverage exists; actual operational fixture pending |
 | Offline retry | `teacher.html` | Sync modules | PARTIAL | reconnect and failure-retention test | physical device validation pending |
 | Simultaneous Room Stock writes | legacy ETag path | modular ETag compare-and-retry | PARTIAL | conflict retry + real Firebase multi-writer test | code and deterministic test added; production evidence pending |
@@ -46,6 +46,7 @@ Status values:
 | Backup | legacy Admin workflow | not yet integrated | BLOCKED | Firebase export and restore rehearsal | cutover backup checklist pending |
 | Restore | legacy Admin workflow | not yet integrated | BLOCKED | isolated restore rehearsal | cutover rollback plan pending |
 | Desktop performance | legacy/V2 comparison | Sprint 3.9 | PASS | Network evidence | observed 4 requests / approximately 1.6 KB core refresh |
+| Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PARTIAL | Admin, Teacher, Logout, Console | Admin and Teacher pass; direct Logout and clean Console evidence pending |
 | Responsive mobile | legacy/V2 comparison | V2 | BLOCKED | recorded viewport test | evidence pending |
 | Physical iPad | legacy/V2 comparison | V2 | BLOCKED | recorded device test | evidence pending |
 
