@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-70% — ETag conditional requests, protected Room Stock retry, attendance-first partial-save recovery, stock-only retry conversion, persistent audit-only recovery, deterministic cutover tests, and parity documentation implemented; local regression, real Firebase conflict validation, device gates, UI parity, backup, and rollback gates remain pending
+75% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, browser Network evidence, parity documentation, and initial readiness reporting completed; direct Logout/Console evidence, responsive and physical iPad gates, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -59,6 +59,8 @@ Sprint 4.0 Implemented
 ✓ Sprint plan created: `docs/SPRINT_4_0_PLAN.md`
 
 ✓ Parity matrix created and expanded: `docs/CUTOVER_PARITY_MATRIX.md`
+
+✓ Initial readiness report created: `docs/CUTOVER_READINESS_REPORT.md`
 
 ✓ Legacy `index.html` and `teacher.html` retained as rollback paths
 
@@ -106,27 +108,37 @@ Sprint 4.0 Implemented
 
 ✓ Persistent audit recovery test added: `tests/audit-recovery-check.mjs`
 
-✓ Parity matrix separates concurrency, partial-save recovery, and audit-only recovery status
+✓ All 12 current automated tests passed locally on 2026-07-28
+
+✓ Working tree confirmed clean after automated validation
+
+✓ Desktop Chrome Admin login evidence recorded
+
+✓ Desktop Chrome Teacher login evidence recorded
+
+✓ Firebase `settings.json` and `rooms.json` returned HTTP 200 in the supplied browser captures
+
+✓ No failed Fetch/XHR request visible in the supplied browser captures
+
+✓ V2 shell stale Sprint 3.9 text corrected to Sprint 4.0
+
+✓ Performance static test updated to protect the current Sprint 4.0 shell text
+
+✓ Parity matrix separates concurrency, partial-save recovery, audit-only recovery, and browser evidence status
 
 ---
 
-Pending Local Validation
+Pending Immediate Browser Validation
 
 □ Pull the latest `feature/sprint-4.0-cutover-readiness`
 
-□ Run all previous regression tests
+□ Run `node tests/performance-module-check.mjs` after the shell text correction
 
-□ Run `node tests/cutover-concurrency-check.mjs`
+□ Confirm the successful-login panel now displays Sprint 4.0
 
-□ Run `node tests/audit-recovery-check.mjs`
+□ Capture the Login screen directly after pressing Logout
 
-□ Confirm Attendance and Sync tests remain compatible
-
-□ Confirm browser Admin and Teacher login
-
-□ Confirm Logout
-
-□ Confirm browser console clean
+□ Capture a clean Console after Admin login, Teacher login, and Logout
 
 □ Confirm working tree clean
 
@@ -148,11 +160,11 @@ Pending Cutover Work
 
 □ Create operational Teacher UI integration plan
 
-□ Create `docs/CUTOVER_READINESS_REPORT.md`
-
 □ Create `docs/PRODUCTION_ROLLBACK_PLAN.md`
 
 □ Run responsive mobile validation
+
+□ Run iPad-class viewport validation at approximately 820 x 1180 CSS pixels
 
 □ Run physical iPad validation when available
 
@@ -166,8 +178,9 @@ Pending Cutover Work
 
 Current Blockers to Production Cutover
 
+- direct Logout and clean Console evidence are not yet recorded for the current Sprint 4.0 shell
 - physical iPad evidence not yet recorded
-- responsive mobile evidence not yet recorded
+- responsive mobile and iPad-class viewport evidence not yet recorded
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
 - Report browser-local adapter is unresolved
 - XLSX binary parser remains legacy
