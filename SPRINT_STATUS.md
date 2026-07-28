@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-97% — Attendance View, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, complete 820 x 1180 responsive interaction, one successful save with correct Room Stock delta, one successful delete with exact Room Stock restoration, clean Console, branch synchronization, and clean working tree passed; target isolation, Main Stock, ledger/stockLog, queue, and controlled edit-increase/edit-decrease evidence remain pending
+95% — Runtime, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. A Save/Delete test was confirmed to have used real classroom data; the incident is open, Sprint merge is blocked, real data must be verified and reconciled, and the complete write gate must be repeated on an isolated or approved disposable target.
 
 ---
 
@@ -62,43 +62,27 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added `modules/attendance/attendanceView.js`
 
-✓ Added date selector defaulting to the current local date
+✓ Added date selector and exact one-date loading through `AttendanceManager.loadDay(date)`
 
-✓ Added one-date loading through `AttendanceManager.loadDay(date)`
+✓ Added authenticated-room student list, present/absent controls, notes, and totals
 
-✓ Added authenticated-room student list from the Teacher snapshot
+✓ Added save/edit delegation through `AttendanceManager.save(input)`
 
-✓ Added present and absent controls and per-student notes
+✓ Added confirmed delete delegation through `AttendanceManager.remove(input)`
 
-✓ Added total, checked, present, absent, and unchecked counters
+✓ Added Room Stock before/after, conflict, queue, and audit feedback
 
-✓ Added save/edit through `AttendanceManager.save(input)`
-
-✓ Added delete confirmation and `AttendanceManager.remove(input)`
-
-✓ Added Room Stock before/after feedback from Manager results
-
-✓ Added ETag conflict-count, queue, and audit feedback
-
-✓ Added Teacher shell refresh after completed mutations
-
-✓ Added form clearing after Logout and Admin session rejection
-
-✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt` during edits
+✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt`
 
 ✓ Kept Firebase, Repository, fetch, browser storage, stock calculation, ledger, stockLog, retry, and ETag ownership out of the View
 
-✓ Kept Main Stock out of the Attendance View
-
 ✓ Added responsive Attendance markup and CSS to `index-v2.html`
-
-✓ Initialized AttendanceView after TeacherView
 
 ✓ Added `tests/attendance-ui-check.mjs`
 
 ✓ Added `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
 
-✓ Corrected the Node.js 24 cross-VM Array assertion without changing Runtime behavior
+✓ Added `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
 
 ✓ `index.html` unchanged
 
@@ -148,19 +132,15 @@ Desktop Browser and Network Gate Passed
 
 ✓ Admin Login and Logout remained unchanged
 
-✓ Teacher Login rendered the Attendance form for the authenticated room
+✓ Teacher Login rendered Attendance for the authenticated room
 
 ✓ Current and historical date records loaded without JavaScript errors
 
 ✓ Selected date requested one exact Attendance key: `{roomId}_{YYYY-MM-DD}.json`
 
-✓ No full-history `mcAttendance.json?orderBy=...` request was visible
+✓ No full-history or cross-room Attendance request was visible
 
-✓ No cross-room Attendance request was visible
-
-✓ No Main Stock request was visible during read-only testing
-
-✓ No write request occurred during read-only testing
+✓ No Main Stock request or write request occurred during read-only testing
 
 ✓ Console displayed only `MilkSchoolSystem V2 Started`
 
@@ -170,17 +150,11 @@ Responsive Interaction Gate Passed
 
 Chrome Device Toolbar at 820 x 1180:
 
-✓ Teacher header and read-only metrics remained contained
-
-✓ Attendance date, totals, all student rows, notes, and controls remained reachable
+✓ Teacher header, Room Stock, queue, date, totals, all student rows, notes, and controls remained reachable
 
 ✓ Present/absent selections updated totals correctly
 
-✓ `บันทึกข้อมูล` remained visible and reachable
-
-✓ `ลบข้อมูลวันที่เลือก` remained visible and reachable
-
-✓ Teacher Logout remained visible and reachable
+✓ Save, Delete, and Logout remained visible and reachable
 
 ✓ No abnormal horizontal overflow was visible
 
@@ -190,79 +164,89 @@ Chrome Device Toolbar at 820 x 1180:
 
 ---
 
-Observed Write Evidence — Partial Pass
+Real Classroom Data Incident — OPEN
 
-✓ A successful save reported 22 present and 3 absent students
+The product owner confirmed that the observed Save/Delete validation used real classroom data.
 
-✓ That save reported Room Stock `1,275 → 1,253`, a decrease of 22 matching the present count
+Observed:
 
-✓ A later successful save reported 7 present and 3 absent students
+- one save reported 22 present and Room Stock `1,275 → 1,253`
+- another save reported 7 present and Room Stock `350 → 343`
+- delete reported restoration of 7 and Room Stock `343 → 350`
+- Console remained free of visible application JavaScript errors
 
-✓ That save reported Room Stock `350 → 343`, a decrease of 7 matching the present count
+Assessment:
 
-✓ Delete required explicit confirmation for date `2026-07-28`
+- the second delete reversed the immediately preceding 7-box deduction at the displayed UI-result level
+- this does not prove the original real Attendance record was restored
+- Git working-tree cleanliness does not prove Firebase data reconciliation
 
-✓ Delete reported restoration of 7 boxes
+Required safety actions:
 
-✓ Delete reported Room Stock `343 → 350`, exactly reversing the prior 7-box deduction
+- stop all additional Save/Edit/Delete tests against real classroom data
+- do not manually delete ledger or stockLog entries
+- do not manually rewrite stock without a backup and reviewed reconciliation plan
+- complete the read-only verification in `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
 
-✓ Console remained free of visible application JavaScript errors
+---
 
-What remains unverified:
+Incident Verification Pending
 
-□ The write target was a dedicated isolated Firebase project or approved disposable room/date
+□ Confirm affected room ID, room name, and date
 
-□ Attendance exact key and record before/after
+□ Confirm whether the Attendance key currently exists
 
-□ Main Stock before/after
+□ Compare current Attendance with authoritative school records
 
-□ queue count before/after
+□ Verify current Room Stock against the authoritative expected value
 
-□ ledger and stockLog records
+□ Verify Main Stock against the authoritative expected value
 
-□ controlled edit from fewer to more present students
+□ Record queue count
 
-□ controlled edit from more to fewer present students
+□ Inspect related ledger, stockTransactions, and stockLog entries
+
+□ Confirm whether the 22-present and 7-present sequences involved the same room
+
+□ Export Firebase before any correction
+
+□ Complete any required recovery and review
+
+□ Close the incident
 
 ---
 
 Approved Isolated Write Gate — Not Complete
 
-Do not continue development writes against normal classroom data.
+The real-data observations do not count as the approved isolated write gate.
 
-Allowed targets:
+Required after incident closure:
 
-- mocked automated tests
-- dedicated isolated Firebase project
-- approved disposable room and date
+□ Use a mocked, isolated Firebase, or approved disposable room/date target
 
-Required completion evidence:
-
-□ Confirm target isolation or disposable approval
-
-□ Record Attendance, Room Stock, Main Stock, queue count, ledger, and stockLog before and after
+□ Record Attendance, Room Stock, Main Stock, queue, ledger, and stockLog before and after
 
 □ Verify create
 
-□ Verify edit from fewer to more present students and deduct only the increase
+□ Verify edit from fewer to more present students
 
-□ Verify edit from more to fewer present students and restore only the decrease
+□ Verify edit from more to fewer present students
 
-✓ Verify delete restores the previous present count at the UI result level
+□ Verify delete restoration
 
 □ Verify Main Stock remains unchanged
 
 □ Verify compatible Attendance key and fields
 
-□ Verify ledger and stockLog where applicable
-
-□ Verify partial-save queue feedback when deliberately simulated
+□ Verify queue feedback when deliberately simulated
 
 ---
 
 Current Merge Decision
 
-Sprint 4.2 is not ready to merge into `develop` until target isolation is confirmed and the remaining controlled write evidence is recorded.
+BLOCKED
+
+Sprint 4.2 must not merge into `develop` until the real classroom data incident is verified and closed and the complete write gate is repeated on an isolated or approved disposable target.
 
 ---
 
