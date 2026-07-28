@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: 65% — Attendance View, responsive form, App integration, workflow test, and implementation report completed; automated, browser, isolated write, responsive, Network, Console, and clean-tree validation remain pending
+Status: 90% — runtime, all automated tests, desktop read-only loading, exact-key Network evidence, and upper/middle 820 x 1180 interaction passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
 
 ## Goal
 
@@ -23,78 +23,62 @@ Both remain unchanged, operational, and available as rollback paths.
 
 ### Date-Scoped Attendance Form
 
-Implemented:
-
 - current local date default
-- one-date selector in `YYYY-MM-DD`
+- one-date selector
 - load through `AttendanceManager.loadDay(date)`
-- no full room Attendance history request in the View
+- no full-room Attendance history request in the View
 
 ### Authenticated-Room Student List
 
-Implemented:
-
-- student list from the existing Teacher room snapshot
+- students from the existing Teacher room snapshot
 - stable student IDs
 - number, name, and gender display
 - no all-room or all-student View query
 
 ### Present, Absent, and Notes
 
-Implemented:
-
-- present and absent radio controls
-- existing status restoration
+- present and absent controls
+- existing-status restoration
 - per-student notes
 - total, checked, present, absent, and unchecked counters
 
-### Create and Edit
-
-Implemented:
+### Create, Edit, and Delete Delegation
 
 - save through `AttendanceManager.save(input)` only
-- existing Room Stock difference calculation remains in AttendanceService
-- Room Stock before and after display from the Manager result
-- conflict count display when reported
-- no direct Room Stock calculation or write in the View
-
-### Delete
-
-Implemented:
-
-- explicit confirmation
-- delete through `AttendanceManager.remove(input)` only
-- restored quantity and resulting Room Stock display
-- no rollback ledger construction in the View
+- delete through `AttendanceManager.remove(input)` only after confirmation
+- Room Stock difference calculation remains in AttendanceService
+- Room Stock before/after and conflict count display come from Manager results
+- no direct Room Stock or ledger calculation in the View
 
 ### Partial Save and Queue Feedback
 
-Implemented:
-
-- `milkapp:attendance-stock-queued` feedback
-- Attendance-saved/Room-Stock-pending message
+- Attendance-saved/Room-Stock-pending feedback
 - audit-queue feedback
 - form state remains visible
 - Teacher shell refresh after completed mutations
 - no direct retry from the View
 
-### Existing Teacher Shell
+### Existing Data Preservation
 
-Preserved:
+Loaded and edited records preserve:
 
-- school
-- room
+- room ID and room name
+- date, year, and term
 - teacher
-- Room Stock
-- online/offline state
-- queue count
-- Logout
+- attendance data and notes
+- photos
+- signature
+- savedAt
+
+Sprint 4.2 does not add media inputs, but edits do not silently discard existing media fields.
 
 ## Runtime Files
 
 Added:
 
 - `modules/attendance/attendanceView.js`
+- `tests/attendance-ui-check.mjs`
+- `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
 
 Updated:
 
@@ -108,16 +92,16 @@ The View may:
 
 - render DOM
 - manage form interaction state
-- call `AttendanceManager`
-- call `TeacherManager.refresh()` after completed mutations
-- subscribe to Attendance, Sync, Login, Logout, and Teacher events
-- format display-only numbers and dates
+- call AttendanceManager
+- call TeacherManager.refresh() after completed mutations
+- subscribe to application events
+- format display-only values
 
 The View must not:
 
-- access `FirebaseService`
+- access FirebaseService
 - access any Repository
-- call `fetch()`
+- call fetch()
 - access Local Storage or Session Storage directly
 - calculate Room Stock differences
 - create ledger or stockLog records
@@ -125,44 +109,6 @@ The View must not:
 - own retry or ETag logic
 
 No new Service or Repository was added because the existing business boundary is sufficient.
-
-## Existing Manager Methods Used
-
-- `AttendanceManager.loadDay(date)`
-- `AttendanceManager.save(input)`
-- `AttendanceManager.remove(input)`
-- `TeacherManager.refresh()`
-- `SyncManager.getStatus()` through the existing shell
-- `LoginManager.logout()` through the existing shell
-
-## Existing Events Consumed
-
-- `milkapp:attendance-day-loaded`
-- `milkapp:attendance-saved`
-- `milkapp:attendance-deleted`
-- `milkapp:attendance-stock-queued`
-- `milkapp:attendance-audit-queued`
-- `milkapp:teacher-refreshed`
-- `milkapp:login-success`
-- `milkapp:logout`
-
-## Data Compatibility
-
-Loaded and edited records preserve:
-
-- `clsId` through the authenticated `roomId`
-- `roomName`
-- `date`
-- `year`
-- `term`
-- `teacher`
-- `data`
-- `notes`
-- `photos`
-- `signature`
-- `savedAt`
-
-Sprint 4.2 does not add media inputs, but an edit does not silently discard existing `photos` or `signature` values.
 
 ## Business Protection
 
@@ -178,62 +124,9 @@ Sprint 4.2 does not add media inputs, but an edit does not silently discard exis
 - Attendance key remains `{roomId}_{YYYY-MM-DD}`.
 - Teacher access remains limited to the authenticated room.
 
-## Automated Test Added
+## Automated Gate
 
-- `tests/attendance-ui-check.mjs`
-
-Coverage:
-
-- valid JavaScript
-- dependency order
-- no direct Firebase, Repository, fetch, or storage access
-- no stock-delta, ledger, stockLog, or Main Stock calculation in the View
-- Teacher-only activation
-- current date default
-- room student rendering
-- existing-day load
-- notes and unsupported media-field preservation
-- present/absent/unchecked totals
-- save delegation
-- delete confirmation and delegation
-- Room Stock result and conflict display
-- partial-save queue feedback
-- shell refresh after mutation
-- Logout clearing
-- Admin rejection
-
-## Validation Report
-
-Added:
-
-- `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
-
-## Offline Scope
-
-Sprint 4.2 exposes the existing partial-save and queue result in the UI.
-
-Complete offline-first form-save UX, manual retry controls, item-level queue details, and restart/reconnect workflow remain in the next Offline Queue UI phase unless supplied by existing Manager events without new business logic.
-
-## Isolated Write Validation
-
-Do not intentionally write Attendance against production classroom data for development validation.
-
-Allowed targets:
-
-- deterministic VM tests with mocked Managers
-- a dedicated isolated Firebase project
-- a disposable test room and date approved for testing
-
-Record before and after:
-
-- Attendance record
-- Room Stock
-- queue count
-- ledger and stockLog when available
-
-## Automated Regression Gate
-
-Pending local execution:
+All 15 tests passed locally:
 
 ```powershell
 node tests/login-foundation-check.mjs
@@ -253,46 +146,102 @@ node tests/teacher-ui-shell-check.mjs
 node tests/attendance-ui-check.mjs
 ```
 
-## Browser Gate
+Result:
 
-Desktop Chrome using isolated/disposable Attendance data:
+- PASS
+- feature branch synchronized with origin
+- working tree clean
 
-- Admin Login remains unchanged
-- Teacher Login renders shell and Attendance form
-- authenticated room students display correctly
-- empty and existing test dates load
-- controlled create, edit, and delete work
-- difference-only Room Stock result is verified
-- partial-save/queued feedback works
-- no cross-room request
-- no Main Stock request or mutation
-- Logout returns to login form
-- Console clean
+## Desktop Browser Gate
+
+Passed:
+
+- Admin Login and Logout
+- clean Admin Console
+- Teacher Login and Attendance rendering
+- authenticated-room student list
+- current-date rendering
+- existing-date restoration
+- Teacher Logout
+- clean Teacher Console
+
+## Desktop Network Gate
+
+Passed for date-scoped read:
+
+- selected date requested one exact Attendance key
+- exact-key request returned HTTP 200
+- no full-history Attendance query
+- no cross-room Attendance request
+- no Main Stock request
+- no write request during read-only validation
+
+The supplied Network capture retained earlier Login reads, so it is not used as a fresh Login request-count measurement.
+
+## Responsive Gate — Partial Pass
 
 Chrome Device Toolbar at 820 x 1180:
 
-- student rows remain readable
-- present/absent controls remain usable
-- notes remain usable
-- totals remain visible
-- save/delete controls remain reachable
-- status feedback remains readable
+Passed:
+
+- Teacher header and metrics contained
+- date and load controls visible
+- totals visible
+- student rows readable
+- present/absent controls usable
+- two absent selections updated totals correctly
+- notes inputs visible
 - no abnormal horizontal overflow
-- Console clean
+- visible Network reads returned HTTP 200
+- no write request visible
+
+Pending:
+
+- scroll to bottom and confirm Save/Delete controls reachable
+- confirm status and error feedback readable
+- open Console and confirm clean
+- Logout and confirm clean return to Login
 
 Physical iPad remains deferred and must not be represented as PASS.
+
+## Approved Isolated Write Validation
+
+Do not intentionally write Attendance against normal classroom data.
+
+Allowed targets:
+
+- deterministic mocked tests
+- a dedicated isolated Firebase project
+- an approved disposable room and date
+
+Record before and after:
+
+- Attendance record
+- Room Stock
+- Main Stock
+- queue count
+- ledger and stockLog when applicable
+
+Required workflow:
+
+- create
+- edit from fewer to more present students
+- edit from more to fewer present students
+- delete and restore Room Stock
+- verify Main Stock unchanged
+- verify compatible Attendance key and fields
+- verify queue feedback when deliberately simulated
 
 ## Merge Gate
 
 Sprint 4.2 may merge into `develop` only when:
 
-- all existing and new automated tests pass
-- read-only browser loading passes
-- isolated create/edit/delete evidence passes
-- difference-only Room Stock behavior is recorded
+- all automated tests pass — PASS
+- desktop read-only and Network gates pass — PASS
+- responsive top/middle interaction passes — PASS
+- responsive bottom controls and Console pass — PENDING
+- approved isolated create/edit/delete evidence passes — PENDING
 - no Main Stock request or mutation occurs
-- desktop and 820 x 1180 gates pass
-- Network and Console are clean
 - working tree is clean
 - `index.html` and `teacher.html` remain unchanged
 
