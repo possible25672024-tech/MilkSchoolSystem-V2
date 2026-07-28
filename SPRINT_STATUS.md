@@ -26,7 +26,7 @@ Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-97% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, Teacher Fetch/XHR gate, explicit Offline/Online transition, Teacher Console, and post-Logout Console passed; desktop Admin Login, Logout, and Console regression remain pending
+100% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, desktop and 820 x 1180 browser validation, Teacher Network gate, explicit Offline/Online transition, Teacher and Admin Console gates, Admin regression, and Logout gates all passed; Sprint 4.1 is approved for fast-forward integration into `develop`
 
 ---
 
@@ -48,11 +48,9 @@ Completed Foundation
 
 ✓ Sprint 3.9 Performance and Payload Optimization merged into `develop`
 
-✓ Sprint 4.0 Cutover Readiness and Compatibility fast-forward merged into `develop`
+✓ Sprint 4.0 Cutover Readiness and Compatibility merged into `develop`
 
 ✓ ETag Room Stock protection and recovery foundations available
-
-✓ Desktop and 820 x 1180 Login/Logout cutover evidence recorded
 
 ✓ Production decisions, Teacher UI integration plan, and rollback plan documented
 
@@ -62,7 +60,7 @@ Completed Foundation
 
 ---
 
-Sprint 4.1 Implemented
+Sprint 4.1 Runtime Completed
 
 ✓ Added `modules/teacher/teacherView.js`
 
@@ -78,17 +76,11 @@ Sprint 4.1 Implemented
 
 ✓ Added persistent queue-count display through `SyncManager.getStatus()`
 
-✓ Added Teacher Logout action delegated to `LoginManager.logout()`
+✓ Added Teacher Logout delegated to `LoginManager.logout()`
 
 ✓ Added restored Teacher session rendering during App startup
 
-✓ Added `milkapp:login-success` activation
-
-✓ Added `milkapp:logout` cleanup
-
-✓ Added Teacher refresh event rendering
-
-✓ Added Sync and browser network event rendering
+✓ Added Login, Logout, Teacher refresh, Sync, and browser connection event handling
 
 ✓ Added Admin session rejection from the Teacher View
 
@@ -98,15 +90,11 @@ Sprint 4.1 Implemented
 
 ✓ Updated LoginManager role routing without changing credential rules
 
-✓ Updated App to initialize TeacherView after LoginManager
+✓ Updated App initialization order
 
 ✓ Added `tests/teacher-ui-shell-check.mjs`
 
 ✓ Added `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
-
-✓ Updated Cutover documentation regression checks for the active Sprint
-
-✓ Preserved completed Sprint 4.0 marker required by the existing performance regression
 
 ✓ `index.html` unchanged
 
@@ -114,53 +102,35 @@ Sprint 4.1 Implemented
 
 ---
 
-Sprint 4.1 Architecture Rules
-
-- View owns DOM rendering and browser interaction only.
-- View calls Managers and subscribes to events.
-- View does not access Firebase directly.
-- View does not access Repositories directly.
-- View does not call `fetch()`.
-- View does not own Local Storage or Session Storage.
-- View does not calculate Main Stock or Room Stock deltas.
-- Room Stock is display-only.
-- Negative Room Stock remains visible.
-- Queue count comes from the existing persistent queue boundary.
-- Logout delegates through the existing Login/Auth boundary.
-- Teacher data remains limited to the authenticated room.
-- Normal Teacher refresh remains date-scoped and excludes full history and deferred collections.
-
----
-
 Automated Gate
 
-✓ `node tests/login-foundation-check.mjs`
+✓ Login foundation checks passed
 
-✓ `node tests/stock-module-check.mjs`
+✓ Stock module checks passed
 
-✓ `node tests/report-module-check.mjs`
+✓ Report module checks passed
 
-✓ `node tests/room-module-check.mjs`
+✓ Room module checks passed
 
-✓ `node tests/teacher-module-check.mjs`
+✓ Teacher module checks passed
 
-✓ `node tests/attendance-module-check.mjs`
+✓ Attendance module checks passed
 
-✓ `node tests/sync-module-check.mjs`
+✓ Sync module checks passed
 
-✓ `node tests/firebase-request-header-check.mjs`
+✓ Firebase request-header checks passed
 
-✓ `node tests/performance-module-check.mjs`
+✓ Performance module checks passed
 
-✓ `node tests/teacher-core-payload-check.mjs`
+✓ Teacher core payload checks passed
 
-✓ `node tests/cutover-concurrency-check.mjs`
+✓ Cutover concurrency checks passed
 
-✓ `node tests/audit-recovery-check.mjs`
+✓ Audit recovery checks passed
 
-✓ `node tests/cutover-documentation-check.mjs`
+✓ Cutover documentation checks passed
 
-✓ `node tests/teacher-ui-shell-check.mjs`
+✓ Teacher UI shell checks passed
 
 ✓ Feature branch synchronized with origin
 
@@ -168,138 +138,93 @@ Automated Gate
 
 ---
 
-Responsive Browser Gate — 820 x 1180
-
-✓ Teacher Login rendered the modular Teacher shell
-
-✓ School name displayed correctly
-
-✓ Room displayed as `อ.3-2`
-
-✓ Teacher identity displayed correctly
-
-✓ Current Room Stock displayed as `1,073 กล่อง`
-
-✓ Pending queue count displayed as `0 รายการ`
-
-✓ Online badge displayed correctly
-
-✓ Teacher shell remained contained
-
-✓ Header, identity cards, and metrics remained readable
-
-✓ Logout remained visible and usable
-
-✓ Logout returned to the login form
-
-✓ Room/role selector reset after Logout
-
-✓ Password field returned empty
-
-✓ No abnormal horizontal overflow visible
-
-✓ Console displayed only `MilkSchoolSystem V2 Started`
-
-✓ No visible application error or warning
-
----
-
-Desktop Teacher and Network Gate
+Browser and Responsive Gate
 
 ✓ Desktop Teacher Login rendered the modular shell
 
-✓ School name displayed correctly
+✓ Desktop Teacher identity and Room Stock displayed correctly
 
-✓ Room displayed as `อ.3-1`
+✓ Desktop Teacher core made exactly four successful reads
 
-✓ Teacher identity displayed correctly
+✓ Desktop Teacher core transfer measured approximately 1.6 KB
 
-✓ Current Room Stock displayed as `962 กล่อง`
+✓ No failed application request or Firebase write visible
 
-✓ Pending queue count displayed as `0 รายการ`
+✓ No full rooms, room-history Attendance, deferred Teacher collection, or Main Stock request during Teacher shell rendering
 
-✓ Online badge displayed correctly
+✓ Desktop Teacher Logout returned to login form
 
-✓ Teacher shell made exactly four visible read requests
+✓ Offline mode changed badge to `ออฟไลน์`
 
-✓ Today's Attendance `data.json` returned HTTP 200
+✓ Returning online restored badge to `ออนไลน์`
 
-✓ `settings.json` returned HTTP 200
+✓ Teacher and post-Logout Console displayed only `MilkSchoolSystem V2 Started`
 
-✓ Authenticated Room Stock returned HTTP 200
+✓ 820 x 1180 Teacher Login and Logout passed
 
-✓ `updatedAt.json` returned HTTP 200
+✓ Responsive shell remained contained without abnormal horizontal overflow
 
-✓ Teacher core transfer measured approximately 1.6 KB
+✓ Desktop Admin Login remained unchanged
 
-✓ No failed application request visible
+✓ Admin shell displayed without Teacher-shell overlap
 
-✓ No Firebase write request visible
+✓ Admin Console displayed only `MilkSchoolSystem V2 Started`
 
-✓ No full `rooms.json` request during Teacher shell rendering
+✓ Admin Logout returned to login form
 
-✓ No room-history Attendance request
-
-✓ No deferred Teacher collection request
-
-✓ No Main Stock request
-
-✓ Desktop Logout returned to the login form
-
-✓ Post-Logout `settings.json` and `rooms.json` loaded successfully to rebuild the login selector
-
-✓ Post-Logout room loading is expected and separate from Teacher core refresh
+✓ Admin post-Logout Console remained clean
 
 ---
 
-Connection and Console Gate
+Develop Integration Decision
 
-✓ DevTools Offline mode changed the badge to `ออฟไลน์`
+APPROVED
 
-✓ Teacher identity, Room Stock, and queue count remained stable while Offline
+A fast-forward merge into `develop` is authorized because all Sprint 4.1 branch gates passed.
 
-✓ Returning to `No throttling` restored the badge to `ออนไลน์`
+This approval does not authorize:
 
-✓ Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
-
-✓ No visible JavaScript error or application warning
-
-✓ Post-Logout Console remained clean
-
-✓ Logout returned to the login form
-
----
-
-Pending Final Admin Gate
-
-□ Admin Login remains unchanged after Sprint 4.1 role routing
-
-□ Admin shell displays correctly
-
-□ Admin Console contains no visible application error
-
-□ Admin Logout returns to the login form
-
-□ Post-Admin-Logout Console remains clean
-
----
-
-Out of Scope
-
-- Attendance create, edit, or delete UI
-- Pending milk write UI
-- Retroactive milk write UI
-- Vacation milk write UI
-- Photos
-- Signatures
-- Printing
-- History screens
-- Report UI
-- Admin UI implementation
-- XLSX parsing
+- replacement or removal of `teacher.html`
+- operational Attendance cutover
+- merge or deployment to `main`
+- production traffic switching
 - Firebase schema changes
-- Replacement or removal of `teacher.html`
-- Production deployment
+- legacy-file removal
+
+---
+
+Next Sprint
+
+Sprint 4.2 — Teacher Daily Attendance CRUD UI
+
+Planned branch:
+
+`feature/sprint-4.2-attendance-daily-ui`
+
+Initial scope:
+
+- date-scoped daily Attendance form
+- authenticated-room student list
+- present and absent controls
+- notes
+- load one day
+- create, edit, and delete through `AttendanceManager`
+- display present/absent totals
+- display Room Stock result after save/delete
+- partial-save and queued Room Stock status
+- no direct Firebase or stock calculation in the View
+- desktop and 820 x 1180 validation
+- isolated test data only for write validation
+
+Out of scope:
+
+- pending milk
+- retroactive milk
+- vacation milk
+- photos and signatures
+- printing and history range views
+- replacement or removal of `teacher.html`
+- production deployment
 
 ---
 
@@ -322,7 +247,7 @@ Protected Business Rules
 - Main Stock decreases only on classroom distribution.
 - Classroom distribution increases Room Stock.
 - Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations change Room Stock only.
-- Attendance edits change Room Stock by the difference only.
+- Attendance edits change Room Stock by the present-count difference only.
 - Attendance deletion restores previously consumed Room Stock.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
 - Offline retries preserve the original Attendance baseline.
