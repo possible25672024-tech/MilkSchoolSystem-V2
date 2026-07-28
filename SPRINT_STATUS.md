@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-92% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, responsive upper/middle interaction, responsive Logout, Console, branch synchronization, and clean working tree passed; responsive bottom action/status visibility and approved isolated create/edit/delete validation remain pending
+95% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, complete 820 x 1180 Attendance interaction, Logout, Console, branch synchronization, and clean working tree passed; approved isolated create/edit/delete validation remains pending
 
 ---
 
@@ -204,7 +204,7 @@ Scope note:
 
 ---
 
-Responsive Interaction Gate — Partial Pass
+Responsive Interaction Gate Passed
 
 Chrome Device Toolbar at 820 x 1180:
 
@@ -214,19 +214,29 @@ Chrome Device Toolbar at 820 x 1180:
 
 ✓ Totals remained visible and readable
 
-✓ Student rows remained readable
+✓ Student rows 1 through 26 remained reachable by vertical scrolling
 
 ✓ Present/absent controls were usable
 
 ✓ Two absent selections updated totals to 2 checked, 0 present, 2 absent, and 24 unchecked
 
-✓ Notes inputs remained visible for the displayed rows
+✓ Notes inputs remained visible
+
+✓ Final student row remained readable
+
+✓ Instructional/status text below the student list remained readable
+
+✓ `บันทึกข้อมูล` remained visible and reachable
+
+✓ `ลบข้อมูลวันที่เลือก` remained visible and reachable
+
+✓ Teacher Logout remained visible and reachable
 
 ✓ No abnormal horizontal overflow was visible
 
 ✓ Visible Network reads returned HTTP 200
 
-✓ No write request was visible
+✓ No write request was visible during responsive read-only testing
 
 ✓ Responsive Logout returned to the login form
 
@@ -242,12 +252,6 @@ Scope note:
 
 - DevTools displayed an Issues count, but no Issues details were supplied
 - the clean Console evidence is recorded independently from the Issues badge
-
-Still pending:
-
-□ Scroll to the bottom and confirm Save and Delete controls remain reachable
-
-□ Confirm status and error feedback areas remain readable
 
 ---
 
@@ -287,7 +291,7 @@ Required evidence:
 
 Current Merge Decision
 
-Sprint 4.2 is not ready to merge into `develop` until responsive bottom action/status evidence passes and approved isolated create/edit/delete validation is recorded.
+Sprint 4.2 is not ready to merge into `develop` until approved isolated create/edit/delete validation is recorded.
 
 ---
 
