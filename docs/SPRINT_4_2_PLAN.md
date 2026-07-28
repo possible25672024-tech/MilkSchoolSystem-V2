@@ -4,13 +4,13 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: 90% — runtime, all automated tests, desktop read-only loading, exact-key Network evidence, and upper/middle 820 x 1180 interaction passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
+Status: 100% CODE COMPLETE — approved for fast-forward merge into `develop`; deferred real-classroom incident remains open and blocks `main` and production cutover
 
 ## Goal
 
 Add a modular daily Attendance interface to the V2 Teacher shell while preserving the completed Attendance, Room Stock, ETag, offline queue, recovery, and protected legacy behavior.
 
-Sprint 4.2 integrates the existing `AttendanceManager` into the View. It must not move Attendance business rules into the DOM layer and must not replace `teacher.html`.
+Sprint 4.2 integrates the existing `AttendanceManager` into the View. It does not move Attendance business rules into the DOM layer and does not replace `teacher.html`.
 
 ## Protected Legacy Files
 
@@ -19,7 +19,7 @@ Sprint 4.2 integrates the existing `AttendanceManager` into the View. It must no
 
 Both remain unchanged, operational, and available as rollback paths.
 
-## Implemented Runtime
+## Completed Runtime
 
 ### Date-Scoped Attendance Form
 
@@ -30,7 +30,7 @@ Both remain unchanged, operational, and available as rollback paths.
 
 ### Authenticated-Room Student List
 
-- students from the existing Teacher room snapshot
+- students from the Teacher room snapshot
 - stable student IDs
 - number, name, and gender display
 - no all-room or all-student View query
@@ -47,14 +47,13 @@ Both remain unchanged, operational, and available as rollback paths.
 - save through `AttendanceManager.save(input)` only
 - delete through `AttendanceManager.remove(input)` only after confirmation
 - Room Stock difference calculation remains in AttendanceService
-- Room Stock before/after and conflict count display come from Manager results
+- Room Stock before/after and conflict count come from Manager results
 - no direct Room Stock or ledger calculation in the View
 
 ### Partial Save and Queue Feedback
 
 - Attendance-saved/Room-Stock-pending feedback
 - audit-queue feedback
-- form state remains visible
 - Teacher shell refresh after completed mutations
 - no direct retry from the View
 
@@ -78,7 +77,10 @@ Added:
 
 - `modules/attendance/attendanceView.js`
 - `tests/attendance-ui-check.mjs`
+- `tests/attendance-isolated-write-check.mjs`
 - `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
+- `docs/ATTENDANCE_ISOLATED_WRITE_GATE.md`
+- `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
 
 Updated:
 
@@ -108,7 +110,7 @@ The View must not:
 - mutate Main Stock
 - own retry or ETag logic
 
-No new Service or Repository was added because the existing business boundary is sufficient.
+No new Service or Repository was required because the existing business boundary was sufficient.
 
 ## Business Protection
 
@@ -126,7 +128,7 @@ No new Service or Repository was added because the existing business boundary is
 
 ## Automated Gate
 
-All 15 tests passed locally:
+All 16 checks accepted as passed:
 
 ```powershell
 node tests/login-foundation-check.mjs
@@ -144,7 +146,10 @@ node tests/audit-recovery-check.mjs
 node tests/cutover-documentation-check.mjs
 node tests/teacher-ui-shell-check.mjs
 node tests/attendance-ui-check.mjs
+node tests/attendance-isolated-write-check.mjs
 ```
+
+The complete run initially stopped on one exact documentation-wording assertion. Only that assertion was changed. The corrected Cutover documentation test and all remaining tests then passed.
 
 Result:
 
@@ -152,7 +157,31 @@ Result:
 - feature branch synchronized with origin
 - working tree clean
 
-## Desktop Browser Gate
+## Isolated Write Gate
+
+In-memory only:
+
+- room `isolated-room`
+- Room Stock 50
+- Main Stock 999
+- no FirebaseService
+- no production AttendanceRepository
+
+Passed:
+
+- Create 3 present: Room Stock `50 → 47`
+- Edit 3 to 5 present: deduct only 2, `47 → 45`
+- Edit 5 to 2 present: restore only 3, `45 → 48`
+- Delete 2-present record: restore 2, `48 → 50`
+- Main Stock remained 999
+- compatible Attendance key and fields
+- ledger and stockLog records
+- no retry queue for successful CRUD
+- exactly one protected Room Stock retry after deliberate partial-save failure
+- exact queue difference and reference key
+- Manager queue-feedback event
+
+## Desktop Browser and Network Gates
 
 Passed:
 
@@ -164,95 +193,80 @@ Passed:
 - existing-date restoration
 - Teacher Logout
 - clean Teacher Console
-
-## Desktop Network Gate
-
-Passed for date-scoped read:
-
-- selected date requested one exact Attendance key
-- exact-key request returned HTTP 200
+- one exact Attendance key for selected date
 - no full-history Attendance query
 - no cross-room Attendance request
 - no Main Stock request
 - no write request during read-only validation
 
-The supplied Network capture retained earlier Login reads, so it is not used as a fresh Login request-count measurement.
+## Responsive Gate
 
-## Responsive Gate — Partial Pass
-
-Chrome Device Toolbar at 820 x 1180:
-
-Passed:
+Chrome Device Toolbar at 820 x 1180 passed:
 
 - Teacher header and metrics contained
-- date and load controls visible
-- totals visible
-- student rows readable
+- date, load, totals, all student rows, notes, and controls reachable
 - present/absent controls usable
-- two absent selections updated totals correctly
-- notes inputs visible
+- totals updated correctly
+- Save and Delete reachable
+- status area readable
+- Logout reachable
 - no abnormal horizontal overflow
-- visible Network reads returned HTTP 200
-- no write request visible
-
-Pending:
-
-- scroll to bottom and confirm Save/Delete controls reachable
-- confirm status and error feedback readable
-- open Console and confirm clean
-- Logout and confirm clean return to Login
+- clean Console
 
 Physical iPad remains deferred and must not be represented as PASS.
 
-## Approved Isolated Write Validation
+## Deferred Real-Classroom Incident
 
-Do not intentionally write Attendance against normal classroom data.
+The product owner deferred correction so development could continue.
 
-Allowed targets:
+Quarantined:
 
-- deterministic mocked tests
-- a dedicated isolated Firebase project
-- an approved disposable room and date
+- room `อ.3-3`
+- room ID `mqn0z13eyx5b`
+- date `2026-07-28`
+- Attendance: 22 present, 3 absent
+- Room Stock: 1,253
+- recorded pre-test Room Stock: 1,275
+- discrepancy: -22
 
-Record before and after:
+Reconciled:
 
-- Attendance record
-- Room Stock
-- Main Stock
-- queue count
-- ledger and stockLog when applicable
+- room `อ.3-4`
+- room ID `mqn0z13emyrc`
+- Attendance: `null`
+- Room Stock: 350
 
-Required workflow:
-
-- create
-- edit from fewer to more present students
-- edit from more to fewer present students
-- delete and restore Room Stock
-- verify Main Stock unchanged
-- verify compatible Attendance key and fields
-- verify queue feedback when deliberately simulated
+The incident remains open. Do not use the quarantined room/date for further writes or trusted operational evidence. Recovery remains mandatory before `main` or production cutover.
 
 ## Merge Gate
 
-Sprint 4.2 may merge into `develop` only when:
-
 - all automated tests pass — PASS
+- isolated create/edit/delete/queue test passes — PASS
 - desktop read-only and Network gates pass — PASS
-- responsive top/middle interaction passes — PASS
-- responsive bottom controls and Console pass — PENDING
-- approved isolated create/edit/delete evidence passes — PENDING
-- no Main Stock request or mutation occurs
-- working tree is clean
-- `index.html` and `teacher.html` remain unchanged
+- complete responsive gate passes — PASS
+- Main Stock remains unchanged — PASS IN ISOLATED TEST
+- working tree clean — PASS
+- `index.html` and `teacher.html` unchanged — PASS
 
-## Production Meaning
+Decision:
 
-A Sprint 4.2 merge into `develop` does not authorize:
+- approved for fast-forward merge into `develop`
+- not approved for `main`
+- not approved for production cutover
 
-- replacement of `teacher.html`
-- pending, retroactive, or vacation milk cutover
-- photos, signatures, printing, or full-history cutover
-- `main` merge
-- production traffic switching
-- Firebase schema changes
-- legacy-file removal
+## Next Sprint
+
+Sprint 4.3 — Offline Queue Operational UI
+
+Planned scope:
+
+- offline banner
+- persistent queue status and item count
+- last successful sync time
+- retrying, failed, and deferred states
+- manual retry
+- safe item-level error summary
+- restart and reconnect validation
+- preserve `tc_pending_saves_v1`, `rec`, `diff`, and original baseline behavior
+- no direct QueueStorage mutation from the View
+- no real-classroom write tests
