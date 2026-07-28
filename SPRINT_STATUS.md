@@ -26,7 +26,7 @@ Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-92% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, and Teacher Fetch/XHR gate passed; desktop Admin regression, explicit Offline/Online transition, and desktop Console evidence remain pending
+97% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, Teacher Fetch/XHR gate, explicit Offline/Online transition, Teacher Console, and post-Logout Console passed; desktop Admin Login, Logout, and Console regression remain pending
 
 ---
 
@@ -248,25 +248,39 @@ Desktop Teacher and Network Gate
 
 ✓ Post-Logout `settings.json` and `rooms.json` loaded successfully to rebuild the login selector
 
-✓ Post-Logout room loading is documented as expected and separate from Teacher core refresh
+✓ Post-Logout room loading is expected and separate from Teacher core refresh
 
 ---
 
-Pending Final Desktop Gate
+Connection and Console Gate
+
+✓ DevTools Offline mode changed the badge to `ออฟไลน์`
+
+✓ Teacher identity, Room Stock, and queue count remained stable while Offline
+
+✓ Returning to `No throttling` restored the badge to `ออนไลน์`
+
+✓ Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
+
+✓ No visible JavaScript error or application warning
+
+✓ Post-Logout Console remained clean
+
+✓ Logout returned to the login form
+
+---
+
+Pending Final Admin Gate
 
 □ Admin Login remains unchanged after Sprint 4.1 role routing
 
+□ Admin shell displays correctly
+
+□ Admin Console contains no visible application error
+
 □ Admin Logout returns to the login form
 
-□ DevTools Offline mode changes the badge to `ออฟไลน์`
-
-□ Returning Online restores the badge to `ออนไลน์`
-
-□ Desktop Console clean for Admin Login
-
-□ Desktop Console clean for Teacher Login
-
-□ Desktop Console clean after Logout
+□ Post-Admin-Logout Console remains clean
 
 ---
 
@@ -281,7 +295,7 @@ Out of Scope
 - Printing
 - History screens
 - Report UI
-- Admin UI
+- Admin UI implementation
 - XLSX parsing
 - Firebase schema changes
 - Replacement or removal of `teacher.html`
