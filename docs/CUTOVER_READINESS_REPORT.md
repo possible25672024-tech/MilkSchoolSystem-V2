@@ -8,7 +8,7 @@ Overall status: NOT READY FOR PRODUCTION CUTOVER
 
 ## Executive Summary
 
-The modular V2 foundation now passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset. Production cutover remains blocked by device evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
+The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console. Production cutover remains blocked by direct Logout evidence, responsive and physical-device evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
 
 Legacy `index.html` and `teacher.html` remain the operational rollback path.
 
@@ -48,6 +48,7 @@ Observed:
 
 - successful Admin session
 - school name displayed
+- corrected Sprint 4.0 shell text displayed
 - Firebase `settings.json` returned HTTP 200
 - Firebase `rooms.json` returned HTTP 200
 - no failed Fetch/XHR request visible in the supplied capture
@@ -60,31 +61,38 @@ Observed:
 
 - successful Teacher session
 - room and teacher identity displayed
-- Firebase `settings.json` returned HTTP 200
-- Firebase `rooms.json` returned HTTP 200
-- no failed Fetch/XHR request visible in the supplied capture
-
-The second capture contains two `settings.json` and two `rooms.json` requests because the Network panel contains the Admin and Teacher login sequence together. This is not evidence of duplicate reads inside one credential validation attempt.
+- corrected Sprint 4.0 shell text displayed
+- Firebase `settings.json` and `rooms.json` were already verified in the login sequence
+- no failed Fetch/XHR request visible in the supplied captures
 
 ### Logout
 
 Result: PARTIAL EVIDENCE
 
-The Admin-to-Teacher sequence is consistent with a logout and second login, but the supplied images do not directly show the login screen after pressing Logout. A direct logout capture or final confirmation remains required for the Sprint browser record.
+The Admin-to-Teacher sequence is consistent with a logout and second login, but the supplied images do not directly show the login screen after pressing Logout. A direct logout capture or explicit final confirmation remains required for the Sprint browser record.
 
 ### Browser Console
 
-Result: PENDING
+Result: PARTIAL PASS
 
-The supplied images show the Network panel, not the Console panel. A clean Console capture remains required.
+Observed in the supplied Teacher-session Console capture:
+
+- `MilkSchoolSystem V2 Started`
+- no visible JavaScript error
+- no visible warning produced by the application
+
+Still required:
+
+- separate clean Console confirmation after Admin login
+- clean Console confirmation after pressing Logout and returning to the login form
 
 ## Shell Status Correction
 
-The browser evidence exposed stale user-visible text that still identified Sprint 3.9. The V2 shell has been updated to display:
+The earlier browser evidence exposed stale user-visible text that identified Sprint 3.9. The V2 shell was updated and the current evidence confirms it now displays:
 
 `Sprint 4.0 Cutover Readiness and Compatibility`
 
-The Performance static test was updated to protect the current shell status.
+The Performance static test protects the current shell status.
 
 ## Responsive and Device Evidence
 
@@ -143,6 +151,8 @@ Still required:
 
 ## Remaining Production Blockers
 
+- direct Logout evidence incomplete
+- clean Admin-login and Logout Console evidence incomplete
 - operational Admin forms not integrated in V2
 - operational Teacher forms not integrated in V2
 - photos and signatures not integrated
