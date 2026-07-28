@@ -58,7 +58,12 @@ assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report mus
 assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must include responsive shell parity");
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("Sprint 4.2 — Teacher Daily Attendance CRUD UI"), "Sprint status must identify the active Attendance UI Sprint");
+assert.ok(sprint.includes("Sprint 4.3 — Offline Queue Operational UI"), "Sprint status must identify the active Offline Queue UI Sprint");
+assert.ok(
+    sprint.includes("Sprint 4.2 Teacher Daily Attendance CRUD UI merged into `develop`") ||
+        sprint.includes("Sprint 4.2 Teacher Daily Attendance CRUD UI fast-forward merged into `develop`"),
+    "Sprint status must preserve the completed Attendance UI foundation"
+);
 assert.ok(
     sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State merged into `develop`") ||
         sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`"),
