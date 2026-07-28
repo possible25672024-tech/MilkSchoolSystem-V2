@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Overall status: PARTIAL PASS — automated, desktop read-only, exact-key Network, and upper/middle responsive interaction evidence passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
+Overall status: PARTIAL PASS — automated, desktop read-only, exact-key Network, upper/middle responsive interaction, responsive Logout, and responsive Console evidence passed; responsive bottom action/status areas and approved isolated create/edit/delete validation remain pending
 
 ## Runtime Added
 
@@ -212,7 +212,7 @@ Scope note:
 
 ## Responsive Attendance Interaction
 
-Environment recorded from the supplied screenshot:
+Environment recorded from supplied screenshots:
 
 - Chrome Device Toolbar
 - Responsive viewport at 820 x 1180 CSS pixels
@@ -234,17 +234,30 @@ Observed:
 - two absent selections were reflected in the totals as 2 checked, 0 present, 2 absent, and 24 unchecked
 - notes inputs remained visible for the displayed rows
 - no abnormal horizontal overflow was visible
-- the supplied Network panel showed only successful HTTP 200 reads in the visible list
-- no write request was visible in the supplied responsive capture
+- visible Network reads returned HTTP 200
+- no write request was visible
+
+### Responsive Logout and Console
+
+Result: PASS
+
+Observed:
+
+- Logout returned the responsive viewport to the login form
+- room/role selector returned to the unselected state
+- password field returned empty
+- room connection status remained visible
+- Console displayed only `MilkSchoolSystem V2 Started`
+- no visible application JavaScript error or warning
+
+DevTools displayed an Issues count, but the Issues details were not supplied. This evidence records the Console as clean and does not classify the Issues badge itself as an application failure.
 
 ### Responsive Evidence Still Required
 
-- scroll to the bottom and confirm Save and Delete controls remain reachable
-- confirm status and error feedback areas remain readable
-- open Console and confirm no application error or warning
-- Logout from the responsive Attendance page and confirm the login form returns cleanly
+- scroll to the bottom of the Attendance form and confirm Save and Delete controls remain reachable
+- confirm the status and error feedback areas remain readable
 
-The current screenshot does not show the bottom action area or Console, so those items are not yet represented as PASS.
+The current screenshot proves responsive Logout and Console behavior, but it does not show the bottom Attendance action area. Save, Delete, status, and error-area reachability are not yet represented as PASS.
 
 ## Compatibility Protection
 
@@ -290,4 +303,4 @@ Test:
 
 ## Current Decision
 
-Automated, desktop read-only, exact-key Network, and upper/middle responsive interaction gates passed. Sprint 4.2 is not ready to merge into `develop` until responsive bottom controls and Console evidence pass and approved isolated create/edit/delete validation is recorded.
+Automated, desktop read-only, exact-key Network, upper/middle responsive interaction, responsive Logout, and responsive Console gates passed. Sprint 4.2 is not ready to merge into `develop` until responsive bottom action/status evidence passes and approved isolated create/edit/delete validation is recorded.
