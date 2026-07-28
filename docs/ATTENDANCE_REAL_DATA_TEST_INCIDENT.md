@@ -4,109 +4,161 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: OPEN — production classroom data requires read-only verification and reconciliation review
+Status: OPEN — affected rooms identified; read-only verification, backup, and reconciliation are still required
 
 ## Confirmation
 
 The product owner confirmed that the Attendance save/delete validation was performed against real classroom data, not an isolated Firebase project and not an approved disposable room/date.
 
-This means the observed browser writes cannot be counted as the approved isolated Sprint 4.2 write gate.
+The product owner also confirmed that neither affected room had an Attendance record for 2026-07-28 before the test.
 
-## Observed Actions
+The observed browser writes cannot be counted as the approved isolated Sprint 4.2 write gate.
 
-Evidence supplied in screenshots shows:
+## Affected Real Classroom Records
 
-1. One successful save reported 22 present and 3 absent students.
-2. That save reported Room Stock `1,275 → 1,253`, a decrease of 22.
-3. A later successful save reported 7 present and 3 absent students.
-4. That save reported Room Stock `350 → 343`, a decrease of 7.
-5. Delete required confirmation for Attendance date `2026-07-28`.
-6. Delete reported restoration of 7 boxes.
-7. Delete reported Room Stock `343 → 350`.
-8. Console remained free of visible application JavaScript errors.
+### Room A — Created Test Record Still Requires Verification and Recovery
 
-## Current Assessment
+- room name: `อ.3-3`
+- room ID: `mqn0z13eyx5b`
+- tested date: `2026-07-28`
+- exact Attendance key: `mqn0z13eyx5b_2026-07-28`
+- pre-test Attendance state: no record had been checked or saved for this date
+- observed save: 22 present and 3 absent
+- observed Room Stock: `1,275 → 1,253`
+- observed Room Stock difference: `-22`, matching the present count
+- delete evidence: not supplied for this room
 
-The final displayed Room Stock for the second observed sequence returned to its displayed pre-save value of 350 boxes.
+Current assessment:
 
-This is evidence that the delete operation reversed the immediately preceding 7-box Room Stock deduction at the UI-result level.
+- the test appears to have created a new real Attendance record where no record existed before
+- the displayed Room Stock appears to remain 22 boxes below the pre-test displayed value unless another later operation changed it
+- this room requires backup and read-only verification before any corrective delete or stock recovery
 
-It does not prove that the real classroom data is fully restored because the screenshots do not establish:
+Expected recovery target, subject to read-only verification:
 
-- whether an Attendance record already existed before the test
-- the exact Attendance key and record before the first write
-- the exact Attendance record after deletion
-- Main Stock before and after
-- queue state before and after
-- ledger and stockLog entries
-- whether the first 22-present save and the later 7-present save involved the same room
-- whether other users wrote to the same room/date during the test
+- Attendance key absent, because no record existed before the test
+- Room Stock restored to the authoritative pre-test value, expected from the supplied evidence to be 1,275 boxes
+- Main Stock unchanged
+- test-created ledger and stockLog entries retained and documented unless a separate approved audit-cleanup procedure is defined
 
-If no Attendance record existed before the tested save, deletion may have returned the date to its original no-record state.
+### Room B — Save Followed by Delete, Probable Reversal Pending Verification
 
-If a valid Attendance record existed before the tested save, the delete may have removed that real record. In that case, the record must be restored through an approved recovery workflow that also preserves Room Stock consistency.
+- room name: `อ.3-4`
+- room ID: `mqn0z13emyrc`
+- tested date: `2026-07-28`
+- exact Attendance key: `mqn0z13emyrc_2026-07-28`
+- pre-test Attendance state: no record existed for this date
+- observed save: 7 present and 3 absent
+- observed Room Stock: `350 → 343`
+- observed delete: restored 7 boxes
+- observed final Room Stock: `343 → 350`
+
+Current assessment:
+
+- the delete reversed the immediately preceding 7-box Room Stock deduction at the displayed UI-result level
+- because no Attendance record existed before the test, the expected final Attendance state is no record
+- this room is probably restored, but must still be verified read-only
+
+Expected reconciled state:
+
+- Attendance key absent
+- Room Stock 350 boxes, unless authoritative school records show another valid operation after the test
+- Main Stock unchanged
+- no pending queue item for this Attendance operation
 
 ## Immediate Safety Actions
 
 - Stop all additional Save, Edit, and Delete tests against real classroom data.
-- Do not manually delete ledger, stockLog, or transaction history entries.
-- Do not manually rewrite Room Stock or Main Stock without an exported backup and a documented reconciliation plan.
-- Preserve the current Firebase state until read-only verification is completed.
+- Do not manually delete ledger, stockLog, or transaction-history entries.
+- Do not manually rewrite Room Stock or Main Stock.
+- Preserve the current Firebase state until export and read-only verification are completed.
 - Keep `index.html` and `teacher.html` available as protected operational and recovery paths.
 
-## Required Read-Only Verification
+## Required Backup Before Correction
 
-Use the affected real room and date only for reads.
+Before changing Room A or Room B:
 
-Record:
-
-1. room ID and room name
-2. tested Attendance date
-3. whether `mcAttendance/{roomId}_{YYYY-MM-DD}` currently exists
-4. current Attendance present/absent totals and notes
-5. authoritative expected Attendance for that room/date from school records
-6. current Room Stock and the authoritative expected Room Stock
-7. current Main Stock and the authoritative expected Main Stock
-8. current queue count
-9. related ledger, stockTransactions, and stockLog entries around the test time
-10. whether the 22-present and 7-present observations came from the same room or different rooms
-
-## Backup Before Correction
-
-Before any correction:
-
-- export the current Firebase database or at least the affected `milkApp` subtree
+- export the current Firebase database or at least the complete `milkApp` subtree
 - record the export timestamp
-- retain the export outside the working browser
+- store the export outside the working browser
 - do not overwrite the only available backup
+- capture the current values for both Attendance keys, both Room Stock values, Main Stock, queue count, ledger, and stockLog
+
+## Read-Only Verification Checklist
+
+### Room A — `อ.3-3`
+
+Read only:
+
+1. `milkApp/mcAttendance/mqn0z13eyx5b_2026-07-28`
+2. `milkApp/roomStock/mqn0z13eyx5b`
+3. `milkApp/stock`
+4. queue count for room `mqn0z13eyx5b`
+5. related `stockTransactions` and `stockLog` entries around the test time
+
+Confirm:
+
+- whether the Attendance key currently exists
+- whether it contains 22 present and 3 absent
+- whether Room Stock is currently 1,253
+- whether Main Stock is unchanged from the authoritative value
+- whether a Room Stock or audit retry remains queued
+- whether another user changed this room/date after the test
+
+### Room B — `อ.3-4`
+
+Read only:
+
+1. `milkApp/mcAttendance/mqn0z13emyrc_2026-07-28`
+2. `milkApp/roomStock/mqn0z13emyrc`
+3. `milkApp/stock`
+4. queue count for room `mqn0z13emyrc`
+5. related `stockTransactions` and `stockLog` entries around the test time
+
+Confirm:
+
+- Attendance key is absent or null
+- Room Stock is 350
+- Main Stock is unchanged from the authoritative value
+- no Room Stock or audit retry remains queued
+- delete and rollback audit records are present and internally consistent
 
 ## Recovery Decision
 
-### Case A — No Real Attendance Existed Before Testing
+### Room A — Required Corrective Workflow
 
-If authoritative records confirm that no Attendance record should exist for the tested date and Room Stock is back at the authoritative value, no Attendance rewrite may be required.
+After backup and read-only verification, if the exact Attendance key exists with the test-created record and no legitimate school Attendance should exist for 2026-07-28:
 
-Audit entries produced by the test should remain documented. Do not erase them without a separate approved audit-cleanup procedure.
+- use one reviewed Attendance delete workflow that removes the exact key and restores its current recorded present count exactly once
+- verify the result reports restoration of 22 boxes when the current record still contains 22 present students
+- verify Room Stock returns from 1,253 to 1,275, unless authoritative records establish a different current value
+- verify Main Stock does not change
+- verify the Attendance key becomes absent
+- verify no duplicate Room Stock adjustment remains queued
 
-### Case B — A Real Attendance Record Existed Before Testing
+Do not separately edit Room Stock before or after the Attendance delete. Doing both would restore stock twice.
 
-If a real record should exist but is now missing or incorrect:
+If the current key no longer matches the observed 22-present record, stop and reconcile from the backup and audit history before any correction.
 
-- restore the Attendance record from an authoritative source or backup
-- apply the matching Room Stock effect exactly once
-- verify Main Stock remains unchanged
-- verify ledger and stockLog consistency
-- avoid restoring Attendance alone when Room Stock already reflects a different state
+### Room B — Verification-Only Unless a Mismatch Is Found
 
-Use the protected operational workflow or a reviewed recovery script after backup. Do not patch isolated Firebase nodes ad hoc.
+If the Attendance key is absent, Room Stock is 350, Main Stock is unchanged, and no retry is queued:
+
+- no further corrective write is required
+- retain the incident and audit entries as the record of the test
+
+If any value differs, stop and review the backup, queue, ledger, and stockLog before correction.
 
 ## Sprint Decision
 
 Sprint 4.2 remains blocked from merge into `develop` until:
 
-- the affected real classroom data is verified
-- any required correction is completed and reviewed
+- both affected rooms complete read-only verification
+- the current Firebase export is preserved
+- Room A is corrected through one reviewed Attendance delete workflow when required
+- Room B is confirmed reconciled or corrected if a mismatch is found
 - Room Stock and Main Stock are reconciled
+- queue, ledger, and stockLog are reviewed
 - the incident is closed
 - the complete write gate is repeated on an isolated or approved disposable target
 
