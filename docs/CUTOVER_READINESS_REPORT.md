@@ -10,11 +10,13 @@ Overall status: NOT READY FOR PRODUCTION CUTOVER
 
 ## Executive Summary
 
-The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, direct Logout back to the login form, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console.
+The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, direct Logout back to the login form, the corrected Sprint 4.0 shell text, and clean Teacher-session and post-Logout Console captures.
+
+Browser device-toolbar evidence at 820 x 1180 CSS pixels confirms that the login panel remains contained in the viewport, the form controls remain visible, no abnormal horizontal overflow is visible, and the Console has no visible application error. Interaction, Teacher login, and Logout inside that emulated viewport remain pending.
 
 Physical iPad testing was explicitly deferred by the user/product owner on 2026-07-28. It is removed from the Sprint 4.0 feature-to-`develop` merge gate, but it is not recorded as PASS. A later production decision must either add physical-device evidence or explicitly accept the remaining device risk.
 
-Production cutover remains blocked by Admin/Logout Console evidence, responsive viewport evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
+Production cutover remains blocked by responsive interaction evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
 
 Legacy `index.html` and `teacher.html` remain the operational rollback path.
 
@@ -88,18 +90,15 @@ This confirms that Logout clears the active UI session and returns the user to t
 
 ### Browser Console
 
-Result: PARTIAL PASS
+Result: PASS FOR RECORDED DESKTOP FLOW
 
-Observed in the supplied Teacher-session Console capture:
+Observed:
 
-- `MilkSchoolSystem V2 Started`
+- Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
+- post-Logout Console displayed only `MilkSchoolSystem V2 Started`
 - no visible JavaScript error
-- no visible warning produced by the application
-
-Still required:
-
-- separate clean Console confirmation after Admin login
-- clean Console confirmation after pressing Logout and returning to the login form
+- no visible application warning
+- Admin login followed by Logout completed without a visible application error in the supplied sequence
 
 ## Shell Status Correction
 
@@ -113,32 +112,34 @@ The Performance static test protects the current shell status.
 
 ### Responsive Mobile Viewport
 
-Status: BLOCKED
+Status: PARTIAL
 
-Required evidence:
+Recorded evidence:
 
-- login panel at a narrow mobile viewport
-- room selector interaction
-- Admin and Teacher login
-- Logout
-- no abnormal horizontal scrolling
-- clean Console
+- browser device toolbar configured to 820 x 1180 CSS pixels
+- login panel remains inside the viewport
+- no abnormal horizontal overflow is visible
+- room selector remains visible
+- password field remains visible
+- login and reload buttons remain visible
+- 83-room connection status remains visible
+- Console displays only `MilkSchoolSystem V2 Started`
+- no visible application error
+
+Still required for a complete responsive workflow PASS:
+
+- interact with the room selector in the emulated viewport
+- complete one Teacher login in the emulated viewport
+- press Logout in the emulated viewport
+- confirm the login form returns without layout breakage
+
+A narrower mobile-phone viewport remains optional unless mobile-phone support is part of the production scope.
 
 ### iPad-Class Viewport
 
-Status: BLOCKED
+Status: PARTIAL PASS
 
-This browser-emulated viewport test remains separate from physical-device testing.
-
-Required viewport evidence:
-
-- approximately 820 x 1180 CSS pixels
-- login form layout
-- room selector interaction
-- button interaction
-- successful Teacher login
-- Logout
-- clean Console
+The 820 x 1180 browser-emulated viewport confirms layout containment and a clean Console. It does not prove physical iPad behavior and does not yet include full login/logout interaction evidence.
 
 ### Physical iPad
 
@@ -173,8 +174,7 @@ Still required:
 
 ## Remaining Production Blockers
 
-- clean Admin-login and Logout Console evidence incomplete
-- responsive mobile and iPad-class viewport evidence incomplete
+- complete 820 x 1180 responsive Teacher login and Logout evidence incomplete
 - operational Admin forms not integrated in V2
 - operational Teacher forms not integrated in V2
 - photos and signatures not integrated
