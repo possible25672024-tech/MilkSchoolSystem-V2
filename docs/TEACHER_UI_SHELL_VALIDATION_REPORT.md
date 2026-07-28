@@ -1,0 +1,112 @@
+# Sprint 4.1 — Teacher UI Shell Validation Report
+
+Date started: 2026-07-28
+
+Last updated: 2026-07-28
+
+Branch: `feature/sprint-4.1-teacher-ui-shell`
+
+Overall status: PARTIAL PASS — automated and responsive shell gates passed; desktop Admin, explicit offline/online transition, and Network inspection remain pending
+
+## Automated Gate
+
+Verified locally by the user:
+
+- Login foundation checks passed
+- Stock module checks passed
+- Report module checks passed
+- Room module checks passed
+- Teacher module checks passed
+- Attendance module checks passed
+- Sync module checks passed
+- Firebase request header checks passed
+- Performance module checks passed
+- Teacher core payload checks passed
+- Cutover concurrency checks passed
+- Audit recovery checks passed
+- Cutover documentation checks passed
+- Teacher UI shell checks passed
+- feature branch synchronized with origin
+- working tree clean
+
+Result: PASS
+
+## Responsive Browser Gate
+
+Environment recorded from supplied screenshots:
+
+- Browser: Chrome desktop
+- Host: Live Server at `127.0.0.1:5500/index-v2.html`
+- Device Toolbar: Responsive, 820 x 1180 CSS pixels
+- Date observed: 2026-07-28
+
+### Teacher Login and Read-Only Shell
+
+Result: PASS
+
+Observed:
+
+- modular Teacher shell rendered after login
+- school name displayed
+- room name displayed as `อ.3-2`
+- teacher identity displayed
+- current Room Stock displayed as `1,073 กล่อง`
+- pending queue count displayed as `0 รายการ`
+- online badge displayed
+- shell remained contained within the emulated viewport
+- identity and metric cards remained readable
+- Logout button remained visible and usable
+- no abnormal horizontal overflow visible
+- Console displayed only `MilkSchoolSystem V2 Started`
+- no visible application error or warning
+
+### Responsive Logout
+
+Result: PASS
+
+Observed:
+
+- Teacher shell cleared
+- login form returned
+- room/role selector returned to the unselected state
+- password field returned empty
+- connection status reported 83 rooms
+- Console remained clean with only `MilkSchoolSystem V2 Started`
+
+## Business and Architecture Evidence
+
+Confirmed by automated tests and browser evidence:
+
+- Room Stock is display-only in Sprint 4.1
+- queue count comes from the existing Sync/Queue boundary
+- Logout delegates through the existing Login/Auth boundary
+- Teacher shell is limited to the authenticated room
+- zero and negative Room Stock rendering is protected by tests
+- View does not access Firebase, repositories, Local Storage, or Session Storage directly
+- View does not calculate or mutate stock
+- protected `index.html` and `teacher.html` remain unchanged
+
+## Pending Desktop and Network Evidence
+
+Required before Sprint 4.1 merge:
+
+- desktop Admin Login after the Sprint 4.1 role-routing changes
+- desktop Teacher Login outside Device Toolbar
+- DevTools Network switched to Offline and badge observed as `ออฟไลน์`
+- return Online and badge observed as `ออนไลน์`
+- Fetch/XHR inspection confirming no failed application request
+- no unexpected Firebase write request during shell rendering
+- no additional full `rooms.json` request after Teacher login
+- no full room-history Attendance request during normal shell refresh
+- no deferred Teacher collection request during normal shell refresh
+- no Main Stock request required by the Teacher shell
+
+## Physical iPad
+
+Status: DEFERRED
+
+Physical iPad testing remains outside the Sprint 4.1 merge gate and must not be represented as PASS.
+
+## Decision
+
+Automated and responsive Teacher-shell gates passed. Sprint 4.1 is not yet ready to merge into `develop` until the remaining desktop Admin, offline/online transition, and Network evidence are recorded.
