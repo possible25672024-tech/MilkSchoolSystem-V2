@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Overall status: PARTIAL PASS — automated, responsive, desktop Teacher shell, desktop Logout, and Teacher Network gates passed; desktop Admin, explicit Offline/Online transition, and desktop Console evidence remain pending
+Overall status: PARTIAL PASS — automated, responsive, desktop Teacher shell, desktop Logout, Teacher Network, explicit Offline/Online transition, Teacher Console, and post-Logout Console gates passed; desktop Admin regression remains pending
 
 ## Automated Gate
 
@@ -143,6 +143,50 @@ Observed:
 
 The post-Logout `rooms.json` request is expected for the login form and does not violate the rule that the Teacher shell must not download all rooms after Teacher login.
 
+## Offline and Online Connection-State Gate
+
+Environment recorded from supplied screenshots:
+
+- Browser: Chrome desktop
+- Teacher room: `อ.3-1`
+- Room Stock: `962 กล่อง`
+- queue count: `0 รายการ`
+- Date observed: 2026-07-28
+
+### Offline Transition
+
+Result: PASS
+
+Observed:
+
+- DevTools Network throttling changed to `Offline`
+- Teacher shell remained visible and readable
+- connection badge changed from green `ออนไลน์` to orange `ออฟไลน์`
+- room identity, Room Stock, and queue count remained unchanged
+- no page reload or write operation was required
+
+### Online Recovery
+
+Result: PASS
+
+Observed:
+
+- DevTools Network throttling returned to `No throttling`
+- connection badge changed back to green `ออนไลน์`
+- Teacher shell remained stable
+- no visible application error occurred
+
+## Desktop Console and Logout Gate
+
+Result: PASS FOR TEACHER FLOW
+
+Observed:
+
+- Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
+- no visible JavaScript error or application warning
+- Logout returned to the login form
+- post-Logout Console remained clean with only `MilkSchoolSystem V2 Started`
+
 ## Business and Architecture Evidence
 
 Confirmed by automated tests and browser evidence:
@@ -155,6 +199,7 @@ Confirmed by automated tests and browser evidence:
 - View does not access Firebase, repositories, Local Storage, or Session Storage directly
 - View does not calculate or mutate stock
 - normal Teacher refresh remains date-scoped
+- online/offline state reacts to browser connection events without stock mutation
 - protected `index.html` and `teacher.html` remain unchanged
 
 ## Remaining Evidence Before Merge
@@ -163,9 +208,7 @@ Required:
 
 - desktop Admin Login after the Sprint 4.1 role-routing changes
 - desktop Admin Logout
-- desktop Console confirmation for Admin, Teacher, and post-Logout flows
-- DevTools switched to Offline with badge observed as `ออฟไลน์`
-- return Online with badge observed as `ออนไลน์`
+- desktop Admin Console confirmation with no visible error
 
 ## Physical iPad
 
@@ -175,4 +218,4 @@ Physical iPad testing remains outside the Sprint 4.1 merge gate and must not be 
 
 ## Decision
 
-Automated, responsive, desktop Teacher, desktop Logout, and Teacher Network gates passed. Sprint 4.1 is not yet ready to merge into `develop` until desktop Admin, explicit Offline/Online transition, and desktop Console evidence are recorded.
+Automated, responsive, desktop Teacher, desktop Logout, Teacher Network, explicit Offline/Online transition, Teacher Console, and post-Logout Console gates passed. Sprint 4.1 is not yet ready to merge into `develop` until the desktop Admin Login, Logout, and Console regression evidence are recorded.
