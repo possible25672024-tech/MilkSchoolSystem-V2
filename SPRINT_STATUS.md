@@ -26,7 +26,7 @@ Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-85% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, and complete 820 x 1180 Teacher Login/Logout evidence passed; desktop Admin regression, explicit Offline/Online transition, and Fetch/XHR inspection remain pending
+92% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, complete 820 x 1180 Teacher Login/Logout evidence, desktop Teacher Login/Logout, and Teacher Fetch/XHR gate passed; desktop Admin regression, explicit Offline/Online transition, and desktop Console evidence remain pending
 
 ---
 
@@ -204,31 +204,69 @@ Responsive Browser Gate — 820 x 1180
 
 ---
 
-Pending Desktop and Network Gate
+Desktop Teacher and Network Gate
+
+✓ Desktop Teacher Login rendered the modular shell
+
+✓ School name displayed correctly
+
+✓ Room displayed as `อ.3-1`
+
+✓ Teacher identity displayed correctly
+
+✓ Current Room Stock displayed as `962 กล่อง`
+
+✓ Pending queue count displayed as `0 รายการ`
+
+✓ Online badge displayed correctly
+
+✓ Teacher shell made exactly four visible read requests
+
+✓ Today's Attendance `data.json` returned HTTP 200
+
+✓ `settings.json` returned HTTP 200
+
+✓ Authenticated Room Stock returned HTTP 200
+
+✓ `updatedAt.json` returned HTTP 200
+
+✓ Teacher core transfer measured approximately 1.6 KB
+
+✓ No failed application request visible
+
+✓ No Firebase write request visible
+
+✓ No full `rooms.json` request during Teacher shell rendering
+
+✓ No room-history Attendance request
+
+✓ No deferred Teacher collection request
+
+✓ No Main Stock request
+
+✓ Desktop Logout returned to the login form
+
+✓ Post-Logout `settings.json` and `rooms.json` loaded successfully to rebuild the login selector
+
+✓ Post-Logout room loading is documented as expected and separate from Teacher core refresh
+
+---
+
+Pending Final Desktop Gate
 
 □ Admin Login remains unchanged after Sprint 4.1 role routing
 
-□ Desktop Teacher Login outside Device Toolbar
+□ Admin Logout returns to the login form
 
 □ DevTools Offline mode changes the badge to `ออฟไลน์`
 
 □ Returning Online restores the badge to `ออนไลน์`
 
-□ No failed application Fetch/XHR requests
+□ Desktop Console clean for Admin Login
 
-□ No unexpected Firebase write request from shell rendering
+□ Desktop Console clean for Teacher Login
 
-□ No additional full `rooms.json` request after Teacher login
-
-□ No room-history Attendance request during normal shell refresh
-
-□ No deferred Teacher collection request during normal shell refresh
-
-□ No Main Stock request from the Teacher shell
-
-□ Desktop Logout returns to the login form
-
-□ Desktop Console clean
+□ Desktop Console clean after Logout
 
 ---
 
