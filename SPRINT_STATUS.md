@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-85% — Attendance View, responsive form foundation, date-scoped loading, authenticated-room students, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock result feedback, partial-save feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, current-date rendering, existing-date restoration, one-key Attendance Network evidence, Console, Logout, branch synchronization, and clean working tree passed; 820 x 1180 Attendance interaction and approved isolated create/edit/delete validation remain pending
+90% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, Logout, Console, branch synchronization, clean working tree, and upper/middle 820 x 1180 Attendance interaction passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
 
 ---
 
@@ -64,7 +64,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added date selector defaulting to the current local date
 
-✓ Added date-scoped load through `AttendanceManager.loadDay(date)`
+✓ Added one-date loading through `AttendanceManager.loadDay(date)`
 
 ✓ Added authenticated-room student list from the existing Teacher snapshot
 
@@ -100,7 +100,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Kept Main Stock out of the Attendance View
 
-✓ Added responsive Attendance form markup and CSS to `index-v2.html`
+✓ Added responsive Attendance markup and CSS to `index-v2.html`
 
 ✓ Initialized AttendanceView after TeacherView
 
@@ -166,9 +166,9 @@ Desktop Browser Read-Only Gate Passed
 
 ✓ Authenticated room displayed 26 students
 
-✓ Current date displayed as 2026-07-28 in the date control
+✓ Current date displayed as 2026-07-28
 
-✓ Current date showed 3 checked, 3 present, 0 absent, and 23 unchecked
+✓ Current date restored partial existing selections without error
 
 ✓ Existing date 2026-07-15 restored 26 checked and 26 present
 
@@ -178,7 +178,7 @@ Desktop Browser Read-Only Gate Passed
 
 ✓ Logout returned to the login form
 
-✓ No visible JavaScript error or warning in the supplied Console captures
+✓ No visible JavaScript error or warning
 
 ---
 
@@ -194,35 +194,49 @@ Desktop Network Evidence Passed with Scope Note
 
 ✓ No Main Stock request was visible
 
-✓ No PUT, PATCH, POST, or DELETE request was visible during the read-only test
+✓ No PUT, PATCH, POST, or DELETE request was visible during read-only testing
 
 Scope note:
 
-- the supplied Network panel retained earlier Login and shell requests, including `settings.json` and `rooms.json`;
-- therefore the capture proves the selected-date load used one exact Attendance key, but it is not used to measure fresh Login request counts;
-- DevTools displayed an Issues count, but the Issues details were not supplied and are not classified as application JavaScript errors by this evidence.
+- the supplied Network panel retained earlier Login and shell reads, including `settings.json` and `rooms.json`
+- the capture proves the selected-date load used one exact Attendance key but is not used to measure fresh Login request counts
+- the historical record size may include preserved legacy media fields
 
 ---
 
-Responsive Interaction Gate Pending
+Responsive Interaction Gate — Partial Pass
 
 Chrome Device Toolbar at 820 x 1180:
 
-□ Student rows readable
+✓ Teacher header and read-only metrics remained contained
 
-□ Present/absent controls usable
+✓ Attendance date and load controls remained visible
 
-□ Notes input usable
+✓ Totals remained visible and readable
 
-□ Totals visible
+✓ Student rows remained readable
 
-□ Save and delete controls reachable
+✓ Present/absent controls were usable
 
-□ Status feedback readable
+✓ Two absent selections updated totals to 2 checked, 0 present, 2 absent, and 24 unchecked
 
-□ No abnormal horizontal overflow
+✓ Notes inputs remained visible for the displayed rows
 
-□ Console clean
+✓ No abnormal horizontal overflow was visible
+
+✓ Visible Network reads returned HTTP 200
+
+✓ No write request was visible
+
+Still pending:
+
+□ Scroll to the bottom and confirm Save and Delete controls remain reachable
+
+□ Confirm status and error feedback areas remain readable
+
+□ Open Console and confirm no application error or warning
+
+□ Logout from the responsive Attendance page and confirm the login form returns cleanly
 
 ---
 
@@ -233,8 +247,8 @@ Do not write development Attendance against normal classroom data.
 Allowed targets:
 
 - mocked automated tests
-- a dedicated isolated Firebase project
-- an approved disposable room and date
+- dedicated isolated Firebase project
+- approved disposable room and date
 
 Required evidence:
 
@@ -258,38 +272,11 @@ Required evidence:
 
 □ Verify partial-save queue feedback when deliberately simulated
 
-□ Verify no duplicate Attendance or Room Stock mutation during retry
-
 ---
 
-Out of Scope
+Current Merge Decision
 
-- pending milk
-- retroactive milk
-- vacation milk
-- photo and signature input
-- printing
-- history-range views
-- Report UI
-- Admin operational UI
-- XLSX parsing
-- Firebase schema changes
-- replacement or removal of `teacher.html`
-- production deployment
-
----
-
-Current Production Blockers
-
-- Operational Admin UI remains in `index.html`.
-- Pending, retroactive, vacation, media, signature, print, and full-history Teacher workflows remain in `teacher.html`.
-- Report browser-local adapter is not implemented.
-- XLSX binary parsing remains in the protected legacy flow.
-- Real isolated Firebase multi-writer evidence is not recorded.
-- Real sanitized legacy queue evidence is not recorded.
-- Backup export and isolated restore rehearsal are not recorded.
-- Physical iPad evidence remains deferred.
-- Explicit production approval is not granted.
+Sprint 4.2 is not ready to merge into `develop` until responsive bottom controls/Console evidence passes and approved isolated create/edit/delete validation is recorded.
 
 ---
 
@@ -297,14 +284,13 @@ Protected Business Rules
 
 - Main Stock decreases only on classroom distribution.
 - Classroom distribution increases Room Stock.
-- Teacher, Attendance, Pending, Retroactive, Vacation, and Sync operations change Room Stock only.
-- Attendance edits change Room Stock by the present-count difference only.
+- Teacher and Attendance operations change Room Stock only.
+- Attendance edits change Room Stock by the difference only.
 - Attendance deletion restores previously consumed Room Stock.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
 - Offline retries preserve the original Attendance baseline.
 - Audit-only retries never repeat a successful Room Stock mutation.
-- Reports remain read-only.
-- Firebase paths and Attendance keys remain compatible.
-- Room IDs remain stable.
+- Attendance keys remain compatible.
+- Teacher access remains limited to the authenticated room.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
