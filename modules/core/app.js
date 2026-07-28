@@ -1,6 +1,10 @@
 class MilkSchoolApplication {
-    constructor(loginManager = window.LoginManager) {
+    constructor(
+        loginManager = window.LoginManager,
+        teacherView = window.TeacherView
+    ) {
         this.loginManager = loginManager;
+        this.teacherView = teacherView;
         this.started = false;
     }
 
@@ -14,8 +18,12 @@ class MilkSchoolApplication {
         }
 
         await this.loginManager.initialize();
-        this.started = true;
 
+        if (this.teacherView?.initialize) {
+            await this.teacherView.initialize();
+        }
+
+        this.started = true;
         console.log("MilkSchoolSystem V2 Started");
     }
 }
