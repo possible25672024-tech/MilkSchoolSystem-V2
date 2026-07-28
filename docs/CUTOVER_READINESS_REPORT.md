@@ -2,13 +2,19 @@
 
 Date started: 2026-07-28
 
+Last updated: 2026-07-28
+
 Branch: `feature/sprint-4.0-cutover-readiness`
 
 Overall status: NOT READY FOR PRODUCTION CUTOVER
 
 ## Executive Summary
 
-The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console. Production cutover remains blocked by direct Logout evidence, responsive and physical-device evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
+The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console.
+
+Physical iPad testing was explicitly deferred by the user/product owner on 2026-07-28. It is removed from the Sprint 4.0 feature-to-`develop` merge gate, but it is not recorded as PASS. A later production decision must either add physical-device evidence or explicitly accept the remaining device risk.
+
+Production cutover remains blocked by direct Logout evidence, Admin/Logout Console evidence, responsive viewport evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
 
 Legacy `index.html` and `teacher.html` remain the operational rollback path.
 
@@ -113,6 +119,8 @@ Required evidence:
 
 Status: BLOCKED
 
+This browser-emulated viewport test remains separate from physical-device testing.
+
 Required viewport evidence:
 
 - approximately 820 x 1180 CSS pixels
@@ -125,9 +133,14 @@ Required viewport evidence:
 
 ### Physical iPad
 
-Status: BLOCKED
+Status: DEFERRED BY PRODUCT OWNER
 
-Physical-device validation remains required when the device is available, especially for touch, Local Storage persistence, reconnect behavior, photos, and signatures.
+Decision recorded on 2026-07-28:
+
+- physical iPad testing is skipped for the current Sprint 4.0 feature-to-`develop` merge gate
+- the deferred result must not be reported as PASS
+- no physical-device claim is made for touch behavior, Local Storage persistence, reconnect behavior, photos, or signatures
+- before production approval, the project must either collect physical-device evidence or explicitly accept the remaining device risk
 
 ## Data and Concurrency Readiness
 
@@ -147,12 +160,13 @@ Still required:
 
 - real Firebase multi-writer conflict validation
 - actual legacy-produced queue fixture replay
-- browser/device offline and reconnect evidence
+- browser offline and reconnect evidence
 
 ## Remaining Production Blockers
 
 - direct Logout evidence incomplete
 - clean Admin-login and Logout Console evidence incomplete
+- responsive mobile and iPad-class viewport evidence incomplete
 - operational Admin forms not integrated in V2
 - operational Teacher forms not integrated in V2
 - photos and signatures not integrated
@@ -161,9 +175,14 @@ Still required:
 - XLSX parser remains legacy
 - backup and isolated restore rehearsal incomplete
 - production rollback plan incomplete
-- responsive and physical iPad evidence incomplete
 - explicit cutover approval not granted
+
+## Deferred Production Risk
+
+- physical iPad evidence is intentionally deferred
+- the current Sprint may proceed without that physical-device test
+- production approval requires either later device evidence or documented risk acceptance
 
 ## Decision
 
-Production cutover remains BLOCKED. Sprint 4.0 may continue on its feature branch. No merge to `main`, production traffic switch, or legacy-file removal is authorized.
+Production cutover remains BLOCKED. Sprint 4.0 may continue on its feature branch and may be merged to `develop` after the remaining Sprint readiness gate passes. No merge to `main`, production traffic switch, or legacy-file removal is authorized.
