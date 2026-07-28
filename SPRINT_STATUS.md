@@ -26,7 +26,7 @@ Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-10% — Sprint plan initialized from the completed Sprint 4.0 cutover-readiness foundation; runtime Teacher View implementation, shell tests, browser validation, and responsive validation have not started
+65% — modular Teacher View, responsive read-only shell, role routing, App initialization, restored-session handling, queue/connection display, Logout delegation, and deterministic shell tests implemented; local automated regression, desktop browser, Network, offline/online, responsive, and clean-tree gates remain pending
 
 ---
 
@@ -52,97 +52,85 @@ Completed Foundation
 
 ✓ ETag Room Stock protection and recovery foundations available
 
-✓ Desktop and 820 x 1180 Login/Logout shell evidence recorded
+✓ Desktop and 820 x 1180 Login/Logout cutover evidence recorded
 
 ✓ Production decisions, Teacher UI integration plan, and rollback plan documented
 
 ✓ Protected `index.html` and `teacher.html` remain operational
 
----
-
-Sprint 4.1 Goal
-
-Create the first modular Teacher interface in `index-v2.html` as a read-only shell without changing verified Attendance, stock, queue, Firebase, or protected legacy behavior.
+✓ Physical iPad remains deferred and must not be represented as PASS
 
 ---
 
-Sprint 4.1 In Scope
+Sprint 4.1 Implemented
 
-□ Teacher session header
+✓ Added `modules/teacher/teacherView.js`
 
-□ School name
+✓ Added responsive Teacher shell markup to `index-v2.html`
 
-□ Room name
+✓ Added separate Admin and Teacher shell containers
 
-□ Teacher name
+✓ Added school, room, and teacher identity display
 
-□ Current Room Stock display
+✓ Added read-only current Room Stock display
 
-□ Online/offline connection state
+✓ Added online/offline connection badge
 
-□ Pending queue count
+✓ Added persistent queue-count display through `SyncManager.getStatus()`
 
-□ Logout action
+✓ Added Teacher Logout action delegated to `LoginManager.logout()`
 
-□ Event-driven View boundary
+✓ Added restored Teacher session rendering during App startup
 
-□ Desktop browser validation
+✓ Added `milkapp:login-success` activation
 
-□ Chrome Device Toolbar validation at 820 x 1180
+✓ Added `milkapp:logout` cleanup
+
+✓ Added Teacher refresh event rendering
+
+✓ Added Sync and browser network event rendering
+
+✓ Added Admin session rejection from the Teacher View
+
+✓ Preserved zero and negative Room Stock values without clamping
+
+✓ Kept Firebase, Repository, Local Storage, Session Storage, and stock calculations out of the View
+
+✓ Updated LoginManager role routing without changing credential rules
+
+✓ Updated App to initialize TeacherView after LoginManager
+
+✓ Added `tests/teacher-ui-shell-check.mjs`
+
+✓ Updated Cutover documentation regression checks for the active Sprint
+
+✓ Preserved completed Sprint 4.0 marker required by the existing performance regression
+
+✓ `index.html` unchanged
+
+✓ `teacher.html` unchanged
 
 ---
 
 Sprint 4.1 Architecture Rules
 
-- View owns DOM rendering and interaction only.
-- View calls Managers and subscribes to browser events.
-- View must not access Firebase directly.
-- View must not access Repositories directly.
-- View must not calculate Main Stock or Room Stock.
-- Room Stock is display-only in this Sprint.
+- View owns DOM rendering and browser interaction only.
+- View calls Managers and subscribes to events.
+- View does not access Firebase directly.
+- View does not access Repositories directly.
+- View does not call `fetch()`.
+- View does not own Local Storage or Session Storage.
+- View does not calculate Main Stock or Room Stock deltas.
+- Room Stock is display-only.
 - Negative Room Stock remains visible.
-- Queue count comes from the existing persistent Sync/Queue boundary.
-- Logout delegates through the existing Auth/Login boundary.
+- Queue count comes from the existing persistent queue boundary.
+- Logout delegates through the existing Login/Auth boundary.
 - Teacher data remains limited to the authenticated room.
-- Normal Teacher refresh remains date-scoped and does not load full room history.
+- Normal Teacher refresh remains date-scoped and excludes full history and deferred collections.
 
 ---
 
-Planned Runtime File
-
-□ `modules/teacher/teacherView.js`
-
-Optional only when justified by the current shell structure:
-
-□ `modules/teacher/teacherShellRenderer.js`
-
-Do not create new Service or Repository modules for display-only concerns.
-
----
-
-Planned Test
-
-□ `tests/teacher-ui-shell-check.mjs`
-
-Required coverage:
-
-- valid JavaScript
-- dependency order
-- no direct Firebase access
-- no `fetch()` in the View
-- no direct Repository access
-- no stock calculations in the View
-- Teacher identity rendering
-- Room Stock zero, positive, and negative rendering
-- queue count rendering
-- online/offline rendering
-- Logout delegation
-- Admin session rejection
-- shell clearing after Logout
-
----
-
-Automated Regression Gate
+Pending Automated Gate
 
 □ `node tests/login-foundation-check.mjs`
 
@@ -172,21 +160,29 @@ Automated Regression Gate
 
 □ `node tests/teacher-ui-shell-check.mjs`
 
+□ Working tree clean
+
 ---
 
-Browser Gate
-
-Desktop Chrome:
+Pending Desktop Browser Gate
 
 □ Admin Login remains unchanged
 
 □ Teacher Login renders the modular Teacher shell
 
-□ School, room, teacher, and Room Stock display correctly
+□ School name displays correctly
 
-□ Queue count displays correctly
+□ Room and teacher identity display correctly
 
-□ Online/offline state displays correctly
+□ Current Room Stock displays correctly
+
+□ Pending queue count displays correctly
+
+□ Online badge displays correctly
+
+□ DevTools Offline mode changes the badge to Offline
+
+□ Returning Online restores the badge
 
 □ Logout returns to the login form
 
@@ -194,11 +190,27 @@ Desktop Chrome:
 
 □ No failed application Fetch/XHR requests
 
+□ No unexpected Firebase write request from shell rendering
+
+□ No full rooms request after Teacher login
+
+□ No room-history Attendance request during normal shell refresh
+
+---
+
+Pending Responsive Browser Gate
+
 Chrome Device Toolbar at 820 x 1180:
 
 □ Teacher shell remains contained
 
-□ Room Stock and queue count remain visible
+□ Header and identity cards remain readable
+
+□ Room Stock remains visible
+
+□ Queue count remains visible
+
+□ Connection badge remains visible
 
 □ Logout remains usable
 
@@ -232,7 +244,7 @@ Out of Scope
 Current Production Blockers
 
 - Operational Admin UI remains in `index.html`.
-- Operational Teacher workflows remain in `teacher.html`.
+- Operational Teacher write workflows remain in `teacher.html`.
 - Report browser-local adapter is not implemented.
 - XLSX binary parsing remains in the protected legacy flow.
 - Real isolated Firebase multi-writer evidence is not recorded.
