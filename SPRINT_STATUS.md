@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-92% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Teacher and post-Logout Console evidence, current Sprint 4.0 shell text, browser Network evidence, initial 820 x 1180 responsive-layout evidence, explicit cutover decisions, operational Teacher UI plan, and production rollback plan completed; latest documentation test, responsive Teacher login/Logout interaction, final clean branch gate, and Sprint closeout remain pending
+96% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Teacher and post-Logout Console evidence, current Sprint 4.0 shell text, browser Network evidence, complete 820 x 1180 responsive Teacher login/Logout evidence, explicit cutover decisions, operational Teacher UI plan, and production rollback plan completed; latest automated/documentation test run, final clean branch gate, Sprint closeout, and fast-forward merge remain pending
 
 ---
 
@@ -116,7 +116,15 @@ Sprint 4.0 Browser Evidence
 
 ✓ Room selector, password field, login button, reload button, and room status remained visible
 
-✓ Emulated viewport Console showed no visible application error
+✓ Teacher login completed successfully inside the 820 x 1180 emulated viewport
+
+✓ Responsive successful-login panel remained contained and displayed the correct room/teacher identity
+
+✓ Logout completed successfully inside the 820 x 1180 emulated viewport
+
+✓ Responsive Logout returned to the login form without layout breakage
+
+✓ Emulated viewport Console showed only `MilkSchoolSystem V2 Started` with no visible application error before and after Logout
 
 ---
 
@@ -163,12 +171,6 @@ Pending Final Sprint 4.0 Branch Gate
 □ Run all existing automated tests
 
 □ Run `node tests/cutover-documentation-check.mjs`
-
-□ Interact with the room selector and complete one Teacher login at 820 x 1180 in Chrome Device Toolbar
-
-□ Press Logout at 820 x 1180 and confirm the login form returns without layout breakage
-
-□ Confirm the Console remains clean
 
 □ Confirm working tree clean
 
