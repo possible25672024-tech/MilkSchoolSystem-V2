@@ -19,9 +19,9 @@ Status values:
 | Area | Legacy source | V2 source | Status | Evidence required | Current gap / decision |
 |---|---|---|---|---|---|
 | Admin login | `index.html` | Login modules | PASS | automated test + browser login | desktop Chrome evidence recorded |
-| Teacher login | `teacher.html` | Login and Teacher modules | PASS | automated test + browser login | desktop Chrome evidence recorded; physical iPad validation deferred under D-01 |
-| Logout | legacy pages | Auth/Login modules | PASS | direct browser logout evidence | login form restored, selection reset, and 83-room status displayed |
-| Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | desktop Chrome evidence recorded; physical iPad validation deferred under D-01 |
+| Teacher login | `teacher.html` | Login and Teacher modules | PASS | automated test + browser login | desktop and 820 x 1180 browser evidence recorded; physical iPad validation deferred under D-01 |
+| Logout | legacy pages | Auth/Login modules | PASS | direct browser logout evidence | desktop and 820 x 1180 Logout restored the login form |
+| Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | desktop and responsive browser evidence recorded; physical iPad validation deferred under D-01 |
 | Room creation/edit | `index.html` | Room modules | PARTIAL | operational form parity | V2 operational UI deferred under D-05; blocks production, not `develop` integration |
 | Student import | `index.html` XLSX parser | RoomService parsed-data boundary | PARTIAL | import fixture + Room ID preservation | keep binary parser in legacy flow under D-03; V2-only import remains blocked |
 | Main Stock receive | `index.html` | Stock modules | PARTIAL | end-to-end operational UI test | V2 operational Admin UI deferred under D-05 |
@@ -50,8 +50,7 @@ Status values:
 | Restore | legacy Admin workflow | documented rollback process | BLOCKED | isolated restore rehearsal | plan complete; isolated rehearsal required under D-09 before production |
 | Desktop performance | legacy/V2 comparison | Sprint 3.9 | PASS | Network evidence | observed 4 requests / approximately 1.6 KB core refresh |
 | Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PASS | Admin, Teacher, Logout, Console | recorded desktop flow passes |
-| Responsive mobile | legacy/V2 comparison | V2 | PARTIAL | recorded viewport test | 820 x 1180 layout/Console pass; one Teacher login/Logout interaction remains under D-08 |
-| iPad-class browser viewport | legacy/V2 comparison | V2 | PARTIAL | approximately 820 x 1180 CSS-pixel test | layout containment passes; interaction/login/logout remains under D-08 |
+| Responsive 820 x 1180 shell | legacy/V2 comparison | V2 | PASS | layout, Teacher login, Logout, Console | full shell workflow passes in Chrome Device Toolbar; narrower phone viewport optional |
 | Physical iPad | legacy/V2 comparison | V2 | DEFERRED | recorded device test or explicit production risk acceptance | skipped by product owner under D-01; not required for feature-to-`develop` merge and not PASS |
 
 ## Cutover Rule
