@@ -2,6 +2,69 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-28 — Sprint 4.0 Cutover Readiness and Compatibility
+
+### Added
+
+- `docs/SPRINT_4_0_PLAN.md`
+- `docs/CUTOVER_PARITY_MATRIX.md`
+- `docs/CUTOVER_READINESS_REPORT.md`
+- `docs/CUTOVER_DECISIONS.md`
+- `docs/TEACHER_UI_INTEGRATION_PLAN.md`
+- `docs/PRODUCTION_ROLLBACK_PLAN.md`
+- `tests/cutover-concurrency-check.mjs`
+- `tests/audit-recovery-check.mjs`
+- `tests/cutover-documentation-check.mjs`
+
+### Changed
+
+- Added Firebase ETag reads using `X-Firebase-ETag: true`.
+- Added conditional Room Stock writes using `If-Match`.
+- Exposed HTTP 412 as a retryable conflict result.
+- Added latest-value Room Stock recalculation and bounded ETag retry.
+- Preserved Attendance-first save behavior.
+- Converted partial Attendance saves into persistent Room Stock-only retries.
+- Added persistent `attendanceAudit` recovery entries.
+- Added audit-only replay without repeating successful Attendance or Room Stock mutations.
+- Preserved Main Stock isolation for Attendance and Sync workflows.
+- Recorded explicit production decisions for physical iPad, Report local adapter, XLSX parser, operational UIs, real Firebase concurrency, legacy queue evidence, and backup/restore.
+- Added a phased operational Teacher UI integration plan.
+- Added a production backup, deployment, smoke-test, and rollback procedure.
+- Updated the V2 shell text to Sprint 4.0.
+- Defined Sprint 4.1 as Teacher UI Shell and Read-Only State.
+
+### Validation
+
+- Login foundation checks passed.
+- Stock module checks passed.
+- Report module checks passed.
+- Room module checks passed.
+- Teacher module checks passed.
+- Attendance module checks passed.
+- Sync module checks passed.
+- Firebase request-header checks passed.
+- Performance module checks passed.
+- Teacher core payload checks passed.
+- Cutover concurrency checks passed.
+- Audit recovery checks passed.
+- Cutover documentation checks passed.
+- Desktop Admin Login passed.
+- Desktop Teacher Login passed.
+- Direct Logout passed.
+- Desktop Console evidence clean.
+- 820 x 1180 Teacher Login and Logout passed.
+- Responsive Console evidence clean.
+- Feature branch synchronized with origin.
+- Working tree clean.
+
+### Integration Decision
+
+- Approved for fast-forward merge into `develop`.
+- Not approved for merge or deployment to `main`.
+- Production traffic switching remains blocked.
+- `index.html` and `teacher.html` remain protected operational rollback paths.
+- Physical iPad testing is deferred and is not represented as PASS.
+
 ## 2026-07-28 — Sprint 3.9 Performance and Payload Optimization
 
 ### Added
@@ -127,7 +190,7 @@ These results describe the captured environment and are not universal production
 
 ### Changed
 
-- Added room-scoped attendance reads using the `{roomId}_` through `{roomId}_` Firebase key-prefix query.
+- Added room-scoped attendance reads using the Firebase key-prefix range from `{roomId}_` through the high Unicode sentinel.
 - Preserved attendance keys as `{roomId}_{YYYY-MM-DD}`.
 - Added authenticated-room-only attendance read, save, edit, and delete boundaries.
 - Added present and absent validation while preserving legacy attendance record fields.
