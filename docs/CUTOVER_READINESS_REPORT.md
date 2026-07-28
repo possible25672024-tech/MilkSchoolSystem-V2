@@ -8,24 +8,24 @@ Branch: `feature/sprint-4.0-cutover-readiness`
 
 Overall status: NOT READY FOR PRODUCTION CUTOVER
 
-Develop integration status: NEAR READY — final responsive interaction and latest test gate pending
+Develop integration status: READY PENDING FINAL AUTOMATED AND CLEAN-BRANCH GATE
 
 ## Executive Summary
 
 The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests previously run by the user. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, direct Logout back to the login form, the corrected Sprint 4.0 shell text, and clean Teacher-session and post-Logout Console captures.
 
-Browser device-toolbar evidence at 820 x 1180 CSS pixels confirms that the login panel remains contained in the viewport, the form controls remain visible, no abnormal horizontal overflow is visible, and the Console has no visible application error. One Teacher login and Logout interaction inside that emulated viewport remain pending.
+Browser device-toolbar evidence at 820 x 1180 CSS pixels now confirms the complete responsive shell workflow: the login form remains contained, the room selector is usable, Teacher login succeeds, the successful-login panel remains contained, Logout succeeds, the login form returns without layout breakage, and the Console remains clean.
 
 Physical iPad testing was explicitly deferred by the user/product owner on 2026-07-28. It is removed from the Sprint 4.0 feature-to-`develop` merge gate, but it is not recorded as PASS. A later production decision must either add physical-device evidence or explicitly accept the remaining device risk.
 
-Sprint 4.0 now includes:
+Sprint 4.0 includes:
 
 - an explicit decision register for every unresolved production category;
 - an operational Teacher UI integration plan;
 - a complete production backup and rollback procedure;
 - a static documentation test protecting those decisions.
 
-Production cutover remains blocked by operational UI parity, isolated real Firebase multi-writer validation, report/local-data adapter implementation, V2 XLSX import, backup/restore rehearsal, responsive interaction evidence, and explicit production approval.
+Production cutover remains blocked by operational UI parity, isolated real Firebase multi-writer validation, report/local-data adapter implementation, V2 XLSX import, backup/restore rehearsal, and explicit production approval.
 
 Legacy `index.html` and `teacher.html` remain the operational rollback path.
 
@@ -52,7 +52,7 @@ Latest documentation gate added after that run:
 
 - `tests/cutover-documentation-check.mjs`
 
-This new test must pass locally before Sprint closeout.
+All tests, including the new documentation gate, must pass locally before Sprint closeout.
 
 ## Desktop Browser Evidence
 
@@ -119,28 +119,28 @@ Observed:
 
 ### 820 × 1180 Browser-Emulated Viewport
 
-Status: PARTIAL PASS
+Status: PASS FOR THE CURRENT V2 SHELL WORKFLOW
 
 Recorded evidence:
 
 - browser device toolbar configured to 820 x 1180 CSS pixels
 - login panel remains inside the viewport
 - no abnormal horizontal overflow is visible
-- room selector remains visible
+- room selector remains visible and was used for Teacher login
 - password field remains visible
 - login and reload buttons remain visible
 - 83-room connection status remains visible
-- Console displays only `MilkSchoolSystem V2 Started`
-- no visible application error
+- Teacher login completed successfully
+- successful-login panel remained contained inside the viewport
+- room and teacher identity displayed correctly after login
+- Sprint 4.0 shell text remained visible
+- Logout completed successfully
+- login form returned without layout breakage
+- room/role selector returned to the unselected state after Logout
+- Console displayed only `MilkSchoolSystem V2 Started`
+- no visible application error before or after Logout
 
-Still required for a complete responsive workflow PASS:
-
-- interact with the room selector in the emulated viewport
-- complete one Teacher login in the emulated viewport
-- press Logout in the emulated viewport
-- confirm the login form returns without layout breakage
-
-A narrower mobile-phone viewport is optional unless mobile-phone support becomes an explicit production requirement.
+A narrower mobile-phone viewport remains optional unless mobile-phone support becomes an explicit production requirement.
 
 ### Physical iPad
 
@@ -204,7 +204,7 @@ No operational Teacher screen is claimed complete in Sprint 4.0.
 
 ## Backup and Rollback Readiness
 
-`docs/PRODUCTION_ROLLBACK_PLAN.md` now defines:
+`docs/PRODUCTION_ROLLBACK_PLAN.md` defines:
 
 - role and approval responsibilities
 - source/deployment snapshot
@@ -231,9 +231,9 @@ Before merge to `develop`:
 - pull the latest branch
 - run all existing automated tests
 - run `node tests/cutover-documentation-check.mjs`
-- complete one Teacher login and Logout at 820 x 1180 in Chrome Device Toolbar
-- confirm clean Console
 - confirm working tree clean
+- close Sprint 4.0 documentation
+- fast-forward merge into `develop`
 
 ## Remaining Production Blockers
 
@@ -251,4 +251,4 @@ Before merge to `develop`:
 
 ## Decision
 
-Production cutover remains BLOCKED. Sprint 4.0 may merge to `develop` after the remaining branch gate passes. No merge to `main`, production traffic switch, Firebase schema change, database restore, or legacy-file removal is authorized.
+Production cutover remains BLOCKED. Sprint 4.0 is ready for final automated and clean-branch validation before merge to `develop`. No merge to `main`, production traffic switch, Firebase schema change, database restore, or legacy-file removal is authorized.
