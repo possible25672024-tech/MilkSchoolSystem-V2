@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-95% — Attendance View, date-scoped authenticated-room loading, present/absent and notes controls, totals, save/edit/delete delegation, media-field preservation, Room Stock and queue feedback, all 15 automated tests, Admin regression, desktop Teacher read-only loading, exact-key Network evidence, complete 820 x 1180 Attendance interaction, Logout, Console, branch synchronization, and clean working tree passed; approved isolated create/edit/delete validation remains pending
+97% — Attendance View, all 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, complete 820 x 1180 responsive interaction, one successful save with correct Room Stock delta, one successful delete with exact Room Stock restoration, clean Console, branch synchronization, and clean working tree passed; target isolation, Main Stock, ledger/stockLog, queue, and controlled edit-increase/edit-decrease evidence remain pending
 
 ---
 
@@ -68,11 +68,7 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added authenticated-room student list from the Teacher snapshot
 
-✓ Added student number, name, and gender display
-
-✓ Added present and absent controls
-
-✓ Added per-student notes
+✓ Added present and absent controls and per-student notes
 
 ✓ Added total, checked, present, absent, and unchecked counters
 
@@ -82,17 +78,11 @@ Sprint 4.2 Runtime Implemented
 
 ✓ Added Room Stock before/after feedback from Manager results
 
-✓ Added ETag conflict-count feedback
-
-✓ Added Attendance-saved/Room-Stock-queued feedback
-
-✓ Added audit-queue feedback
+✓ Added ETag conflict-count, queue, and audit feedback
 
 ✓ Added Teacher shell refresh after completed mutations
 
-✓ Added form clearing after Logout
-
-✓ Added Admin session rejection
+✓ Added form clearing after Logout and Admin session rejection
 
 ✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt` during edits
 
@@ -154,53 +144,25 @@ Automated Gate Passed
 
 ---
 
-Desktop Browser Read-Only Gate Passed
+Desktop Browser and Network Gate Passed
 
-✓ Admin Login displayed the existing Admin shell
+✓ Admin Login and Logout remained unchanged
 
-✓ Admin Console displayed only `MilkSchoolSystem V2 Started`
+✓ Teacher Login rendered the Attendance form for the authenticated room
 
-✓ Admin Logout returned to the login form
+✓ Current and historical date records loaded without JavaScript errors
 
-✓ Teacher Login rendered the Teacher shell and Attendance form
-
-✓ Authenticated room displayed 26 students
-
-✓ Current date displayed as 2026-07-28
-
-✓ Current date restored partial existing selections without error
-
-✓ Existing date 2026-07-15 restored 26 checked and 26 present
-
-✓ Student rows, present/absent controls, and notes fields displayed correctly
-
-✓ Console displayed only `MilkSchoolSystem V2 Started`
-
-✓ Logout returned to the login form
-
-✓ No visible JavaScript error or warning
-
----
-
-Desktop Network Evidence Passed with Scope Note
-
-✓ Selected date 2026-07-15 requested one exact Attendance key: `{roomId}_2026-07-15.json`
-
-✓ Exact-key request returned HTTP 200
+✓ Selected date requested one exact Attendance key: `{roomId}_{YYYY-MM-DD}.json`
 
 ✓ No full-history `mcAttendance.json?orderBy=...` request was visible
 
 ✓ No cross-room Attendance request was visible
 
-✓ No Main Stock request was visible
+✓ No Main Stock request was visible during read-only testing
 
-✓ No PUT, PATCH, POST, or DELETE request was visible during read-only testing
+✓ No write request occurred during read-only testing
 
-Scope note:
-
-- the supplied Network panel retained earlier Login and shell reads, including `settings.json` and `rooms.json`
-- the capture proves the selected-date load used one exact Attendance key but is not used to measure fresh Login request counts
-- the historical record size may include preserved legacy media fields
+✓ Console displayed only `MilkSchoolSystem V2 Started`
 
 ---
 
@@ -210,21 +172,9 @@ Chrome Device Toolbar at 820 x 1180:
 
 ✓ Teacher header and read-only metrics remained contained
 
-✓ Attendance date and load controls remained visible
+✓ Attendance date, totals, all student rows, notes, and controls remained reachable
 
-✓ Totals remained visible and readable
-
-✓ Student rows 1 through 26 remained reachable by vertical scrolling
-
-✓ Present/absent controls were usable
-
-✓ Two absent selections updated totals to 2 checked, 0 present, 2 absent, and 24 unchecked
-
-✓ Notes inputs remained visible
-
-✓ Final student row remained readable
-
-✓ Instructional/status text below the student list remained readable
+✓ Present/absent selections updated totals correctly
 
 ✓ `บันทึกข้อมูล` remained visible and reachable
 
@@ -234,30 +184,51 @@ Chrome Device Toolbar at 820 x 1180:
 
 ✓ No abnormal horizontal overflow was visible
 
-✓ Visible Network reads returned HTTP 200
-
-✓ No write request was visible during responsive read-only testing
-
 ✓ Responsive Logout returned to the login form
-
-✓ Room/role selector reset after Logout
-
-✓ Password field returned empty
 
 ✓ Responsive Console displayed only `MilkSchoolSystem V2 Started`
 
-✓ No visible application JavaScript error or warning
+---
 
-Scope note:
+Observed Write Evidence — Partial Pass
 
-- DevTools displayed an Issues count, but no Issues details were supplied
-- the clean Console evidence is recorded independently from the Issues badge
+✓ A successful save reported 22 present and 3 absent students
+
+✓ That save reported Room Stock `1,275 → 1,253`, a decrease of 22 matching the present count
+
+✓ A later successful save reported 7 present and 3 absent students
+
+✓ That save reported Room Stock `350 → 343`, a decrease of 7 matching the present count
+
+✓ Delete required explicit confirmation for date `2026-07-28`
+
+✓ Delete reported restoration of 7 boxes
+
+✓ Delete reported Room Stock `343 → 350`, exactly reversing the prior 7-box deduction
+
+✓ Console remained free of visible application JavaScript errors
+
+What remains unverified:
+
+□ The write target was a dedicated isolated Firebase project or approved disposable room/date
+
+□ Attendance exact key and record before/after
+
+□ Main Stock before/after
+
+□ queue count before/after
+
+□ ledger and stockLog records
+
+□ controlled edit from fewer to more present students
+
+□ controlled edit from more to fewer present students
 
 ---
 
-Approved Isolated Write Gate Pending
+Approved Isolated Write Gate — Not Complete
 
-Do not write development Attendance against normal classroom data.
+Do not continue development writes against normal classroom data.
 
 Allowed targets:
 
@@ -265,19 +236,19 @@ Allowed targets:
 - dedicated isolated Firebase project
 - approved disposable room and date
 
-Required evidence:
+Required completion evidence:
 
-□ Record Attendance, Room Stock, Main Stock, queue count, ledger, and stockLog before testing
+□ Confirm target isolation or disposable approval
 
-□ Create a controlled Attendance record
+□ Record Attendance, Room Stock, Main Stock, queue count, ledger, and stockLog before and after
 
-□ Verify only the present count is deducted from Room Stock
+□ Verify create
 
-□ Edit from fewer to more present students and deduct only the increase
+□ Verify edit from fewer to more present students and deduct only the increase
 
-□ Edit from more to fewer present students and restore only the decrease
+□ Verify edit from more to fewer present students and restore only the decrease
 
-□ Delete and restore the previous present count
+✓ Verify delete restores the previous present count at the UI result level
 
 □ Verify Main Stock remains unchanged
 
@@ -291,7 +262,7 @@ Required evidence:
 
 Current Merge Decision
 
-Sprint 4.2 is not ready to merge into `develop` until approved isolated create/edit/delete validation is recorded.
+Sprint 4.2 is not ready to merge into `develop` until target isolation is confirmed and the remaining controlled write evidence is recorded.
 
 ---
 
