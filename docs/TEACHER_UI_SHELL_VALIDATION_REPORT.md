@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Overall status: PARTIAL PASS — automated, responsive, desktop Teacher shell, desktop Logout, Teacher Network, explicit Offline/Online transition, Teacher Console, and post-Logout Console gates passed; desktop Admin regression remains pending
+Overall status: PASS — all automated, desktop, responsive, network, connection-state, Console, Logout, and clean-working-tree gates passed
 
 ## Automated Gate
 
@@ -33,7 +33,7 @@ Result: PASS
 
 ## Responsive Browser Gate
 
-Environment recorded from supplied screenshots:
+Environment:
 
 - Browser: Chrome desktop
 - Host: Live Server at `127.0.0.1:5500/index-v2.html`
@@ -75,7 +75,7 @@ Observed:
 
 ## Desktop Teacher Shell and Network Gate
 
-Environment recorded from supplied screenshots:
+Environment:
 
 - Browser: Chrome desktop
 - Device Toolbar: disabled
@@ -127,7 +127,7 @@ Not visible during Teacher shell rendering:
 - no `stockTransactions.json`
 - no Main Stock `stock.json` request
 
-### Desktop Logout Network
+### Desktop Teacher Logout
 
 Result: PASS
 
@@ -136,7 +136,6 @@ Observed:
 - Teacher shell cleared and login form returned
 - room/role selector returned to the unselected state
 - password field returned empty
-- the previous four Teacher read requests remained visible in Network history
 - `settings.json` and full `rooms.json` loaded after Logout to rebuild the login form and 83-room selector
 - all visible requests returned HTTP 200
 - no write request was visible
@@ -145,46 +144,48 @@ The post-Logout `rooms.json` request is expected for the login form and does not
 
 ## Offline and Online Connection-State Gate
 
-Environment recorded from supplied screenshots:
-
-- Browser: Chrome desktop
-- Teacher room: `อ.3-1`
-- Room Stock: `962 กล่อง`
-- queue count: `0 รายการ`
-- Date observed: 2026-07-28
-
-### Offline Transition
-
 Result: PASS
 
 Observed:
 
 - DevTools Network throttling changed to `Offline`
-- Teacher shell remained visible and readable
 - connection badge changed from green `ออนไลน์` to orange `ออฟไลน์`
+- Teacher shell remained visible and readable
 - room identity, Room Stock, and queue count remained unchanged
 - no page reload or write operation was required
-
-### Online Recovery
-
-Result: PASS
-
-Observed:
-
-- DevTools Network throttling returned to `No throttling`
-- connection badge changed back to green `ออนไลน์`
+- returning to `No throttling` changed the badge back to green `ออนไลน์`
 - Teacher shell remained stable
 - no visible application error occurred
 
-## Desktop Console and Logout Gate
+## Desktop Teacher Console Gate
 
-Result: PASS FOR TEACHER FLOW
+Result: PASS
 
 Observed:
 
 - Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
 - no visible JavaScript error or application warning
 - Logout returned to the login form
+- post-Logout Console remained clean with only `MilkSchoolSystem V2 Started`
+
+## Desktop Admin Regression Gate
+
+Result: PASS
+
+Observed from the supplied screenshots:
+
+- Admin Login completed successfully after Sprint 4.1 role-routing changes
+- Admin shell displayed `เข้าสู่ระบบสำเร็จ`
+- school name displayed correctly
+- Sprint 4.1 shell text displayed
+- Teacher shell did not replace or overlap the Admin shell
+- Admin Logout button remained visible and usable
+- Admin-session Console displayed only `MilkSchoolSystem V2 Started`
+- no visible JavaScript error or application warning
+- Admin Logout returned to the login form
+- room/role selector returned to the unselected state
+- password field returned empty
+- connection status reported 83 rooms
 - post-Logout Console remained clean with only `MilkSchoolSystem V2 Started`
 
 ## Business and Architecture Evidence
@@ -200,15 +201,8 @@ Confirmed by automated tests and browser evidence:
 - View does not calculate or mutate stock
 - normal Teacher refresh remains date-scoped
 - online/offline state reacts to browser connection events without stock mutation
+- Admin role routing remains unchanged
 - protected `index.html` and `teacher.html` remain unchanged
-
-## Remaining Evidence Before Merge
-
-Required:
-
-- desktop Admin Login after the Sprint 4.1 role-routing changes
-- desktop Admin Logout
-- desktop Admin Console confirmation with no visible error
 
 ## Physical iPad
 
@@ -218,4 +212,13 @@ Physical iPad testing remains outside the Sprint 4.1 merge gate and must not be 
 
 ## Decision
 
-Automated, responsive, desktop Teacher, desktop Logout, Teacher Network, explicit Offline/Online transition, Teacher Console, and post-Logout Console gates passed. Sprint 4.1 is not yet ready to merge into `develop` until the desktop Admin Login, Logout, and Console regression evidence are recorded.
+Sprint 4.1 passed all defined branch gates and is approved for fast-forward integration into `develop`.
+
+This approval does not authorize:
+
+- replacement or removal of `teacher.html`
+- Attendance operational cutover
+- merge or deployment to `main`
+- production traffic switching
+- Firebase schema changes
+- legacy-file removal
