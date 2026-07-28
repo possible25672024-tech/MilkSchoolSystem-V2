@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-86% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Teacher and post-Logout Console evidence, current Sprint 4.0 shell text, browser Network evidence, and initial 820 x 1180 responsive-layout evidence completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; responsive interaction/login validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
+92% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin and Teacher login, direct Logout, clean Teacher and post-Logout Console evidence, current Sprint 4.0 shell text, browser Network evidence, initial 820 x 1180 responsive-layout evidence, explicit cutover decisions, operational Teacher UI plan, and production rollback plan completed; latest documentation test, responsive Teacher login/Logout interaction, final clean branch gate, and Sprint closeout remain pending
 
 ---
 
@@ -54,168 +54,147 @@ Completed Foundation
 
 ---
 
-Sprint 4.0 Implemented
+Sprint 4.0 Runtime and Test Foundation
 
-✓ Sprint plan created: `docs/SPRINT_4_0_PLAN.md`
+✓ FirebaseService ETag read primitive using `X-Firebase-ETag: true`
 
-✓ Parity matrix created and expanded: `docs/CUTOVER_PARITY_MATRIX.md`
+✓ FirebaseService conditional write primitive using `If-Match`
 
-✓ Initial readiness report created: `docs/CUTOVER_READINESS_REPORT.md`
+✓ HTTP 412 conflicts exposed as retryable results
 
-✓ Legacy `index.html` and `teacher.html` retained as rollback paths
+✓ AttendanceRepository versioned Room Stock read and conditional-write boundaries
 
-✓ Production deployment separated from `develop` integration
-
-✓ FirebaseService ETag read primitive added using `X-Firebase-ETag: true`
-
-✓ FirebaseService conditional write primitive added using `If-Match`
-
-✓ HTTP 412 conflicts exposed as retryable results instead of generic failures
-
-✓ AttendanceRepository versioned Room Stock read boundary added
-
-✓ AttendanceRepository conditional Room Stock write boundary added
-
-✓ AttendanceService ETag compare-and-retry implemented with six-attempt default
+✓ AttendanceService ETag compare-and-retry with six-attempt default
 
 ✓ Conflict retry recalculates against the newest Room Stock value
 
 ✓ Negative Room Stock remains visible and is not silently clamped
 
-✓ Attendance save preserves the operational legacy order: attendance first, protected Room Stock second
+✓ Attendance-first save order preserved
 
-✓ Room Stock failure after attendance save produces `ROOM_STOCK_ADJUSTMENT_REQUIRED`
+✓ Partial Attendance save converts to persistent Room Stock adjustment retry
 
-✓ AttendanceManager converts partial saves and deletes into persistent Room Stock adjustment queue entries
+✓ Persistent `attendanceAudit` queue recovery implemented
 
-✓ SyncService converts partially saved attendance queue entries into stock-only retries
-
-✓ QueueStorage supports persistent `attendanceAudit` recovery entries
-
-✓ AttendanceManager queues stable ledger and stockLog IDs when audit writes fail after Room Stock succeeds
-
-✓ SyncService replays audit-only entries without repeating Attendance or Room Stock changes
-
-✓ Room Stock adjustment replay converts to audit-only recovery if stock succeeds but audit fails
+✓ Successful Room Stock changes are not repeated during audit-only retry
 
 ✓ Sequential replay and original attendance baseline rules remain protected
 
-✓ Main Stock remains unchanged in every Attendance and Sync result
+✓ Main Stock remains unchanged in Attendance and Sync flows
 
-✓ Existing Attendance module test updated for ETag-protected flow
+✓ Deterministic concurrency test: `tests/cutover-concurrency-check.mjs`
 
-✓ Deterministic ETag test added: `tests/cutover-concurrency-check.mjs`
+✓ Persistent audit recovery test: `tests/audit-recovery-check.mjs`
 
-✓ Persistent audit recovery test added: `tests/audit-recovery-check.mjs`
+✓ All 12 runtime/regression tests passed locally on 2026-07-28 before the latest documentation-only commits
 
-✓ All 12 current automated tests passed locally on 2026-07-28
+---
 
-✓ Working tree confirmed clean after automated validation
+Sprint 4.0 Browser Evidence
 
-✓ Desktop Chrome Admin login evidence recorded
+✓ Desktop Chrome Admin login
 
-✓ Desktop Chrome Teacher login evidence recorded
+✓ Desktop Chrome Teacher login
 
-✓ Direct Logout evidence recorded: active session cleared and login form displayed again
+✓ Direct Logout restored the login form and cleared the active UI session
 
 ✓ Login form after Logout displayed the 83-room connection status
 
-✓ Firebase `settings.json` and `rooms.json` returned HTTP 200 in the supplied browser captures
+✓ Firebase `settings.json` and `rooms.json` returned HTTP 200
 
-✓ No failed Fetch/XHR request visible in the supplied browser captures
+✓ No failed Fetch/XHR request visible in supplied captures
 
-✓ Successful-login panel confirmed to display Sprint 4.0 text
+✓ Sprint 4.0 shell text displayed correctly
 
-✓ Teacher-session Console captured with only `MilkSchoolSystem V2 Started` and no visible error
+✓ Teacher-session Console displayed only `MilkSchoolSystem V2 Started`
 
-✓ Post-Logout Console captured with only `MilkSchoolSystem V2 Started` and no visible error
+✓ Post-Logout Console displayed only `MilkSchoolSystem V2 Started`
 
-✓ Admin-login-to-Logout browser sequence completed without a visible application error
+✓ Browser device toolbar recorded at 820 x 1180 CSS pixels
 
-✓ V2 shell stale Sprint 3.9 text corrected to Sprint 4.0
+✓ Login panel remained inside the emulated viewport without visible horizontal overflow
 
-✓ Performance static test updated to protect the current Sprint 4.0 shell text
+✓ Room selector, password field, login button, reload button, and room status remained visible
 
-✓ Parity matrix separates concurrency, partial-save recovery, audit-only recovery, and browser evidence status
-
-✓ Local feature branch confirmed synchronized with origin and working tree clean after the latest documentation update
-
-✓ Browser device toolbar evidence recorded at 820 x 1180 CSS pixels
-
-✓ Login panel remained contained within the emulated viewport without visible horizontal overflow
-
-✓ Room selector, password field, login button, reload button, and 83-room status remained visible in the emulated viewport
-
-✓ Emulated 820 x 1180 viewport Console captured without a visible application error
-
-✓ Physical iPad validation explicitly deferred by the user/product owner on 2026-07-28
-
-✓ Physical iPad validation is not required for the Sprint 4.0 feature-to-`develop` merge gate
-
-✓ Deferred physical iPad validation must not be represented as PASS
+✓ Emulated viewport Console showed no visible application error
 
 ---
 
-Pending Immediate Browser Validation
+Sprint 4.0 Documentation and Decisions
 
-□ Interact with the room selector and complete one Teacher login in the 820 x 1180 emulated viewport
+✓ Sprint plan: `docs/SPRINT_4_0_PLAN.md`
 
-□ Confirm Logout returns to the login form in the 820 x 1180 emulated viewport
+✓ Parity matrix: `docs/CUTOVER_PARITY_MATRIX.md`
 
-□ Optionally record a narrower mobile viewport if mobile-phone support is part of the production scope
+✓ Readiness report: `docs/CUTOVER_READINESS_REPORT.md`
 
----
+✓ Explicit decision register: `docs/CUTOVER_DECISIONS.md`
 
-Pending Cutover Work
+✓ Operational Teacher UI plan: `docs/TEACHER_UI_INTEGRATION_PLAN.md`
 
-□ Run a real Firebase multi-writer Room Stock conflict test
+✓ Production backup and rollback plan: `docs/PRODUCTION_ROLLBACK_PLAN.md`
 
-□ Inspect every remaining parity-matrix row against legacy and V2 implementations
+✓ Documentation protection test: `tests/cutover-documentation-check.mjs`
 
-□ Add representative legacy-produced queue fixtures from actual operational data
+✓ Every production BLOCKED/DEFERRED category now has an explicit decision and owner consequence
 
-□ Run queue normalization and replay compatibility tests with those fixtures
+✓ Report browser-local adapter deferred to an operational Admin/report UI sprint
 
-□ Decide and implement or defer Report local-data adapter
+✓ XLSX binary parser retained in the legacy operational flow; V2 keeps the parsed-sheet boundary
 
-□ Decide and implement or defer XLSX parser migration
+✓ Operational Admin and Teacher UIs deferred to dedicated integration sprints
 
-□ Create operational Teacher UI integration plan
+✓ Real Firebase multi-writer validation restricted to an isolated environment
 
-□ Create `docs/PRODUCTION_ROLLBACK_PLAN.md`
+✓ Real legacy queue sample must not be fabricated and remains pending until supplied
 
-□ Revisit physical iPad validation only when a device is available or record explicit production risk acceptance
+✓ Rollback plan complete as documentation; export/restore rehearsal remains pending before production
 
-□ Rehearse Firebase backup and isolated restore
+✓ Physical iPad validation explicitly deferred by the product owner
 
-□ Merge Sprint 4.0 into `develop` only after its readiness gate passes
-
-□ Deploy or merge to `main` only after explicit production approval
+✓ Physical iPad validation is not required for feature-to-`develop` merge and is not PASS
 
 ---
 
-Current Blockers to Production Cutover
+Pending Final Sprint 4.0 Branch Gate
 
-- full 820 x 1180 responsive interaction, Teacher login, and Logout evidence is not yet recorded
+□ Pull the latest `feature/sprint-4.0-cutover-readiness`
+
+□ Run all existing automated tests
+
+□ Run `node tests/cutover-documentation-check.mjs`
+
+□ Interact with the room selector and complete one Teacher login at 820 x 1180 in Chrome Device Toolbar
+
+□ Press Logout at 820 x 1180 and confirm the login form returns without layout breakage
+
+□ Confirm the Console remains clean
+
+□ Confirm working tree clean
+
+□ Close Sprint 4.0 documentation
+
+□ Fast-forward merge Sprint 4.0 into `develop`
+
+---
+
+Production Work Explicitly Deferred or Blocked
+
+- operational Admin forms are not integrated in V2
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
-- Report browser-local adapter is unresolved
-- XLSX binary parser remains legacy
-- complete-room multi-admin concurrency is unresolved
-- production backup and rollback rehearsal is not documented
+- Report browser-local adapter is not implemented
+- XLSX binary parsing remains in the legacy operational flow
+- real isolated Firebase multi-writer evidence is not recorded
+- real sanitized legacy queue sample is not replayed
+- Firebase backup export and isolated restore rehearsal are not recorded
+- physical iPad evidence is deferred without final production risk acceptance
+- explicit production approval is not granted
 
 ---
 
-Deferred Production Risk
+Merge Meaning
 
-- physical iPad validation was explicitly skipped for the current Sprint 4.0 merge gate
-- this deferral is not a PASS result
-- a future production decision must either record physical-device evidence or explicitly accept the remaining device risk
-
----
-
-Cutover Rule
-
-Legacy removal and production cutover are BLOCKED while any safety-critical parity row remains BLOCKED. Deferred rows require explicit risk acceptance before production approval.
+A Sprint 4.0 merge into `develop` preserves the modular foundation and readiness decisions for continued integration. It does not authorize a `main` merge, production traffic switch, Firebase schema change, database restore, or removal of `index.html` or `teacher.html`.
 
 ---
 
