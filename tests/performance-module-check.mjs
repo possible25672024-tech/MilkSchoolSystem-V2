@@ -30,7 +30,7 @@ for (const [name, source] of [
     assert.doesNotThrow(() => new vm.Script(source), `${name} must contain valid JavaScript`);
 }
 
-assert.ok(indexCode.includes("Sprint 3.9 Performance and Payload Optimization"), "V2 shell must identify Sprint 3.9 validation");
+assert.ok(indexCode.includes("Sprint 4.0 Cutover Readiness and Compatibility"), "V2 shell must identify the current Sprint 4.0 validation");
 assert.ok(firebaseCode.includes("inflightGets"), "FirebaseService must track identical in-flight GET requests");
 assert.ok(loginManagerCode.includes("forceReload: true"), "Manual room-option refresh must explicitly bypass the Login cache");
 assert.ok(teacherRepositoryCode.includes("loadTeacherCoreSnapshot"), "TeacherRepository must expose a core snapshot boundary");
