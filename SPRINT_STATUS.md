@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-75% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, browser Network evidence, parity documentation, and initial readiness reporting completed; direct Logout/Console evidence, responsive and physical iPad gates, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
+78% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; direct Logout evidence, Admin/Logout Console evidence, responsive and physical iPad gates, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -120,6 +120,10 @@ Sprint 4.0 Implemented
 
 ✓ No failed Fetch/XHR request visible in the supplied browser captures
 
+✓ Successful-login panel confirmed to display Sprint 4.0 text
+
+✓ Teacher-session Console captured with only `MilkSchoolSystem V2 Started` and no visible error
+
 ✓ V2 shell stale Sprint 3.9 text corrected to Sprint 4.0
 
 ✓ Performance static test updated to protect the current Sprint 4.0 shell text
@@ -130,17 +134,13 @@ Sprint 4.0 Implemented
 
 Pending Immediate Browser Validation
 
-□ Pull the latest `feature/sprint-4.0-cutover-readiness`
-
-□ Run `node tests/performance-module-check.mjs` after the shell text correction
-
-□ Confirm the successful-login panel now displays Sprint 4.0
-
 □ Capture the Login screen directly after pressing Logout
 
-□ Capture a clean Console after Admin login, Teacher login, and Logout
+□ Capture or explicitly confirm a clean Console after Admin login and Logout
 
-□ Confirm working tree clean
+□ Confirm Logout clears the active session and returns to the login form
+
+□ Confirm working tree clean after the latest documentation update
 
 ---
 
@@ -178,7 +178,8 @@ Pending Cutover Work
 
 Current Blockers to Production Cutover
 
-- direct Logout and clean Console evidence are not yet recorded for the current Sprint 4.0 shell
+- direct Logout evidence is not yet recorded for the current Sprint 4.0 shell
+- clean Admin-login and Logout Console evidence is not yet separately recorded
 - physical iPad evidence not yet recorded
 - responsive mobile and iPad-class viewport evidence not yet recorded
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
