@@ -132,6 +132,7 @@ class SyncManager {
                 processed: 0,
                 succeeded: 0,
                 failed: 0,
+                deferred: 0,
                 remaining: this.ensureSyncService().getStatus().count,
                 results: [],
                 nextRetryDelay: 0,
@@ -148,12 +149,7 @@ class SyncManager {
             return this.flushPromise;
         }
 
-        this.emit("milkapp:sync-started", {
-            reason,
-            status: this.getStatus()
-        });
-
-        this.flushPromise = this.ensureSyncService()
+        const run = this.ensureSyncService()
             .flush(this.getSession())
             .then(summary => {
                 const completed = { ...summary, reason };
@@ -175,6 +171,7 @@ class SyncManager {
                     processed: 0,
                     succeeded: 0,
                     failed: 1,
+                    deferred: 0,
                     remaining: this.ensureSyncService().getStatus().count,
                     results: [],
                     nextRetryDelay: 5000,
@@ -194,6 +191,11 @@ class SyncManager {
                 this.flushPromise = null;
             });
 
+        this.flushPromise = run;
+        this.emit("milkapp:sync-started", {
+            reason,
+            status: this.getStatus()
+        });
         return this.flushPromise;
     }
 
@@ -221,9 +223,72 @@ class SyncManager {
             flushing: Boolean(this.flushPromise),
             queueCount: queueStatus.count,
             maxAttempts: queueStatus.maxAttempts,
+            queueItems: this.summarizeQueueEntries(queueStatus.entries || []),
             lastSyncedAt: this.lastSyncedAt,
             lastSummary: this.lastSummary
         };
+    }
+
+    summarizeQueueEntries(entries = []) {
+        const resultByKey = new Map();
+        for (const result of this.lastSummary?.results || []) {
+            if (result?.key) {
+                resultByKey.set(String(result.key), result);
+            }
+            if (result?.convertedTo?.key) {
+                resultByKey.set(String(result.convertedTo.key), {
+                    ...result,
+                    key: result.convertedTo.key,
+                    status: "deferred"
+                });
+            }
+        }
+
+        return entries.map(entry => {
+            const key = String(entry?.key || "");
+            const result = resultByKey.get(key) || null;
+            const record = entry?.record && typeof entry.record === "object"
+                ? entry.record
+                : {};
+            const attempts = this.nonNegativeInteger(entry?.attempts);
+            const type = ["attendance", "roomStockAdjust", "attendanceAudit"].includes(entry?.type)
+                ? entry.type
+                : "unknown";
+
+            return {
+                key,
+                type,
+                roomId: String(entry?.roomId || record.clsId || record.roomId || ""),
+                roomName: String(entry?.roomName || record.roomName || ""),
+                date: String(entry?.date || record.date || this.dateFromAttendanceKey(key)),
+                referenceId: String(entry?.referenceId || (type === "attendance" ? key : "")),
+                attempts,
+                queuedAt: this.timestampOrZero(entry?.queuedAt),
+                nextRetryAt: this.timestampOrZero(entry?.nextRetryAt),
+                status: String(result?.status || (attempts > 0 ? "failed" : "pending")),
+                error: result?.error
+                    ? {
+                        code: String(result.error.code || "SYNC_REPLAY_FAILED"),
+                        message: String(result.error.message || "Queue replay failed.")
+                    }
+                    : null
+            };
+        });
+    }
+
+    dateFromAttendanceKey(key) {
+        const match = String(key || "").match(/_(\d{4}-\d{2}-\d{2})$/);
+        return match ? match[1] : "";
+    }
+
+    nonNegativeInteger(value, fallback = 0) {
+        const number = Number(value);
+        return Number.isInteger(number) && number >= 0 ? number : fallback;
+    }
+
+    timestampOrZero(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number > 0 ? number : 0;
     }
 
     emitQueueCount() {
