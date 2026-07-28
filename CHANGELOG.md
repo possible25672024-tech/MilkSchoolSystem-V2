@@ -2,6 +2,54 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-28 — Sprint 4.1 Teacher UI Shell and Read-Only State
+
+### Added
+
+- `modules/teacher/teacherView.js`
+- `tests/teacher-ui-shell-check.mjs`
+- `docs/SPRINT_4_1_PLAN.md`
+- `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
+
+### Changed
+
+- Added separate Admin and Teacher shell containers to `index-v2.html`.
+- Added school, room, and teacher identity to the modular Teacher shell.
+- Added read-only current Room Stock display without clamping zero or negative values.
+- Added persistent queue-count display through the existing Sync boundary.
+- Added online/offline badge driven by browser connection events.
+- Added Teacher Logout delegated through `LoginManager.logout()`.
+- Added restored Teacher-session rendering during App startup.
+- Added Login, Logout, Teacher refresh, Sync, and connection-state event handling.
+- Preserved Admin role routing after the Teacher shell integration.
+- Kept Firebase, Repository, Local Storage, Session Storage, and stock calculations out of the View.
+- Preserved the four-read Teacher core refresh and date-scoped Attendance read.
+- Defined Sprint 4.2 as Teacher Daily Attendance CRUD UI.
+
+### Validation
+
+- All 14 automated tests passed.
+- Desktop Teacher shell passed.
+- Teacher core Network gate passed at four reads and approximately 1.6 KB.
+- No full rooms, room-history Attendance, deferred collection, write, or Main Stock request was visible during Teacher shell rendering.
+- Offline mode changed the badge to `ออฟไลน์`.
+- Returning online restored the badge to `ออนไลน์`.
+- Teacher and post-Logout Console gates passed.
+- 820 x 1180 Teacher Login and Logout passed.
+- Admin Login regression passed.
+- Admin Logout and Console gates passed.
+- Feature branch synchronized with origin.
+- Working tree clean.
+- `index.html` and `teacher.html` unchanged.
+
+### Integration Decision
+
+- Approved for fast-forward merge into `develop`.
+- Does not replace `teacher.html`.
+- Does not authorize operational Attendance cutover.
+- Does not authorize merge or deployment to `main`.
+- Physical iPad testing remains deferred and is not represented as PASS.
+
 ## 2026-07-28 — Sprint 4.0 Cutover Readiness and Compatibility
 
 ### Added
