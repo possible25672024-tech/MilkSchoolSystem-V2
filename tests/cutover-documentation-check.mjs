@@ -32,7 +32,7 @@ assert.ok(decisions.includes("D-06 — Real Firebase Multi-Writer Validation"), 
 assert.ok(decisions.includes("D-08 — Responsive and Device Scope"), "Decision register must cover responsive browser validation");
 assert.ok(decisions.includes("EMULATED 820 x 1180 PASSED"), "Decision register must preserve the completed responsive result");
 assert.ok(decisions.includes("D-09 — Backup and Restore"), "Decision register must cover backup and restore");
-assert.ok(decisions.includes("D-10 — Sprint 4.1 Scope"), "Decision register must define the next Teacher UI scope");
+assert.ok(decisions.includes("D-10 — Sprint 4.1 Scope"), "Decision register must preserve the first Teacher UI scope decision");
 assert.ok(decisions.includes("BLOCKS PRODUCTION"), "Deferred decisions must state their production consequence");
 
 assert.ok(rollback.includes("index.html"), "Rollback plan must preserve the legacy Admin page");
@@ -58,8 +58,9 @@ assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report mus
 assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must include responsive shell parity");
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("Sprint 4.1 — Teacher UI Shell and Read-Only State"), "Sprint status must identify the active Teacher UI shell Sprint");
-assert.ok(sprint.includes("Sprint 4.0 Cutover Readiness and Compatibility fast-forward merged into `develop`"), "Sprint status must preserve the completed Cutover foundation");
+assert.ok(sprint.includes("Sprint 4.2 — Teacher Daily Attendance CRUD UI"), "Sprint status must identify the active Attendance UI Sprint");
+assert.ok(sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`"), "Sprint status must preserve the completed Teacher shell foundation");
+assert.ok(sprint.includes("Sprint 4.0 Cutover Readiness and Compatibility merged into `develop`"), "Sprint status must preserve the completed Cutover foundation");
 assert.ok(sprint.includes("Physical iPad remains deferred"), "Sprint status must preserve the physical iPad decision");
 
 console.log("Cutover documentation checks passed.");
