@@ -4,7 +4,7 @@ Date: 2026-07-28
 
 Branch: `feature/sprint-4.1-teacher-ui-shell`
 
-Status: 65% — Teacher View, responsive shell markup, role routing, App initialization, and deterministic shell tests implemented; local regression and browser gates remain pending
+Status: 85% — Teacher View, responsive shell markup, role routing, App initialization, all 14 automated tests, clean working tree, and complete 820 x 1180 Teacher Login/Logout evidence passed; desktop Admin, explicit Offline/Online transition, and Network inspection remain pending
 
 ## Goal
 
@@ -147,6 +147,23 @@ Reason:
 
 - preserve completed Sprint 4.0 evidence while `SPRINT_STATUS.md` advances to Sprint 4.1
 
+## Validation Report
+
+Added:
+
+- `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
+
+Recorded:
+
+- all 14 automated tests passed
+- branch synchronized with origin
+- working tree clean
+- responsive 820 x 1180 Teacher Login passed
+- school, room, teacher, Room Stock, queue count, and online badge displayed
+- responsive Logout passed
+- Console clean before and after Logout
+- physical iPad remains deferred
+
 ## Browser Gate
 
 Desktop Chrome:
@@ -163,13 +180,14 @@ Desktop Chrome:
 
 Responsive Chrome Device Toolbar at 820 x 1180:
 
-- Teacher shell remains contained
-- header fields remain readable
-- Room Stock remains visible
-- queue count remains visible
-- Logout remains usable
-- no abnormal horizontal overflow
-- Console clean
+- Teacher shell remains contained — PASS
+- header fields remain readable — PASS
+- Room Stock remains visible — PASS
+- queue count remains visible — PASS
+- online badge remains visible — PASS
+- Logout remains usable — PASS
+- no abnormal horizontal overflow — PASS
+- Console clean — PASS
 
 Physical iPad remains deferred and must not be represented as PASS.
 
@@ -183,7 +201,7 @@ Physical iPad remains deferred and must not be represented as PASS.
 
 ## Automated Regression Gate
 
-All existing tests remain mandatory:
+All 14 tests passed locally on 2026-07-28:
 
 ```powershell
 node tests/login-foundation-check.mjs
@@ -202,35 +220,41 @@ node tests/cutover-documentation-check.mjs
 node tests/teacher-ui-shell-check.mjs
 ```
 
+Result:
+
+- PASS
+- branch synchronized with origin
+- working tree clean
+
 ## Current Pending Gate
 
-- pull the latest feature branch
-- run all 14 automated tests
-- confirm working tree clean
-- run desktop Admin Login
-- run desktop Teacher Login and verify shell values
-- switch DevTools Network to Offline and verify the badge
-- return Online and verify the badge
-- verify queue count
-- Logout and confirm the login form
-- confirm Console clean
-- repeat Teacher Login and Logout at 820 x 1180
-- inspect Fetch/XHR for unexpected reads or writes
+- run desktop Admin Login after Sprint 4.1 role-routing changes
+- run desktop Teacher Login outside Device Toolbar
+- switch DevTools Network to Offline and verify badge `ออฟไลน์`
+- return Online and verify badge `ออนไลน์`
+- inspect Fetch/XHR for failed requests
+- confirm no unexpected write request from shell rendering
+- confirm no additional full `rooms.json` request after Teacher Login
+- confirm no room-history Attendance request during normal shell refresh
+- confirm no deferred Teacher collection request during normal shell refresh
+- confirm no Main Stock request from the Teacher shell
+- Logout and confirm login form
+- confirm desktop Console clean
 
 ## Merge Gate
 
 Sprint 4.1 may merge into `develop` when:
 
-- all existing and new automated tests pass
-- Teacher room identity and Room Stock display are correct
-- queue count and connection state are correct
-- Logout works
-- desktop browser gate passes
-- 820 x 1180 responsive gate passes
-- Console is clean
-- no unexpected network reads or writes occur
-- working tree is clean
-- `index.html` and `teacher.html` remain unchanged
+- all existing and new automated tests pass — PASS
+- Teacher room identity and Room Stock display are correct — RESPONSIVE PASS
+- queue count displays correctly — RESPONSIVE PASS
+- Logout works — RESPONSIVE PASS
+- desktop browser gate passes — PENDING
+- 820 x 1180 responsive gate passes — PASS
+- Console is clean — RESPONSIVE PASS; DESKTOP PENDING
+- no unexpected network reads or writes occur — PENDING
+- working tree is clean — PASS
+- `index.html` and `teacher.html` remain unchanged — PASS
 
 ## Production Meaning
 
