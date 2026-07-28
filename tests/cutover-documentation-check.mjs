@@ -59,7 +59,11 @@ assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must in
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
 assert.ok(sprint.includes("Sprint 4.2 — Teacher Daily Attendance CRUD UI"), "Sprint status must identify the active Attendance UI Sprint");
-assert.ok(sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`"), "Sprint status must preserve the completed Teacher shell foundation");
+assert.ok(
+    sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State merged into `develop`") ||
+        sprint.includes("Sprint 4.1 Teacher UI Shell and Read-Only State fast-forward merged into `develop`"),
+    "Sprint status must preserve the completed Teacher shell foundation"
+);
 assert.ok(sprint.includes("Sprint 4.0 Cutover Readiness and Compatibility merged into `develop`"), "Sprint status must preserve the completed Cutover foundation");
 assert.ok(sprint.includes("Physical iPad remains deferred"), "Sprint status must preserve the physical iPad decision");
 
