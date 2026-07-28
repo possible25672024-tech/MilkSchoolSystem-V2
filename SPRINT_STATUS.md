@@ -26,7 +26,7 @@ Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Status
 
-97% — Runtime, the original 15 automated tests, Admin regression, desktop date-scoped read, exact-key Network evidence, and complete 820 x 1180 responsive gates passed. A complete in-memory isolated create/edit/delete/queue test has now been added and awaits local execution plus the full regression suite. Real-classroom recovery remains deferred; room `อ.3-3` stays quarantined and production cutover remains blocked until that incident is reconciled.
+100% CODE COMPLETE — Runtime, all 16 automated regression checks, isolated create/edit/delete/queue validation, Admin regression, desktop exact-date Network evidence, complete 820 x 1180 responsive interaction, branch synchronization, and clean working tree passed. Approved for fast-forward merge into `develop`. The deferred real-classroom incident remains open and continues to block `main`, production cutover, and official use of the quarantined room/date.
 
 ---
 
@@ -58,35 +58,41 @@ Completed Foundation
 
 ---
 
-Sprint 4.2 Runtime Implemented
+Sprint 4.2 Runtime Completed
 
 ✓ Added `modules/attendance/attendanceView.js`
 
-✓ Added date selector and exact one-date loading through `AttendanceManager.loadDay(date)`
+✓ Added date-scoped daily Attendance form
 
-✓ Added authenticated-room student list, present/absent controls, notes, and totals
+✓ Added authenticated-room student list
 
-✓ Added save/edit delegation through `AttendanceManager.save(input)`
+✓ Added present/absent controls and per-student notes
 
-✓ Added confirmed delete delegation through `AttendanceManager.remove(input)`
+✓ Added total, checked, present, absent, and unchecked counters
 
-✓ Added Room Stock before/after, conflict, queue, and audit feedback
+✓ Added load through `AttendanceManager.loadDay(date)`
 
-✓ Preserved existing `photos`, `signature`, `year`, `term`, and `savedAt`
+✓ Added create/edit through `AttendanceManager.save(input)`
 
-✓ Kept Firebase, Repository, fetch, browser storage, stock calculation, ledger, stockLog, retry, and ETag ownership out of the View
+✓ Added confirmed delete through `AttendanceManager.remove(input)`
+
+✓ Added Room Stock before/after, ETag conflict, queue, and audit feedback
+
+✓ Preserved `photos`, `signature`, `year`, `term`, and `savedAt` during edits
+
+✓ Kept Firebase, Repository, fetch, storage, stock calculations, ledger, retry, and ETag ownership out of the View
+
+✓ Kept Main Stock isolated from Attendance UI operations
 
 ✓ Added responsive Attendance markup and CSS to `index-v2.html`
+
+✓ Initialized AttendanceView after TeacherView
 
 ✓ Added `tests/attendance-ui-check.mjs`
 
 ✓ Added `tests/attendance-isolated-write-check.mjs`
 
-✓ Added `docs/ATTENDANCE_UI_IMPLEMENTATION_REPORT.md`
-
-✓ Added `docs/ATTENDANCE_ISOLATED_WRITE_GATE.md`
-
-✓ Added and updated `docs/ATTENDANCE_REAL_DATA_TEST_INCIDENT.md`
+✓ Added Sprint implementation, isolated-write, and incident documentation
 
 ✓ `index.html` unchanged
 
@@ -94,7 +100,7 @@ Sprint 4.2 Runtime Implemented
 
 ---
 
-Original Automated Gate Passed
+Automated Regression Gate Passed
 
 ✓ Login foundation checks
 
@@ -126,147 +132,137 @@ Original Automated Gate Passed
 
 ✓ Attendance UI checks
 
+✓ Attendance isolated write checks
+
 ✓ Feature branch synchronized with origin
 
 ✓ Working tree clean
 
+The complete run initially stopped on an exact documentation-wording assertion. Only that assertion was changed to accept both valid Sprint 4.1 merge phrases. The corrected documentation test and the remaining tests then passed. All 16 checks are accepted for the Sprint 4.2 code gate.
+
 ---
 
-Desktop Browser and Network Gate Passed
+Isolated Attendance Write Gate Passed
+
+In-memory baseline:
+
+- room ID `isolated-room`
+- Room Stock 50
+- Main Stock 999
+- no Firebase connection
+- no production repository
+- empty Attendance, queue, ledger, and stockLog
+
+Verified:
+
+✓ Create 3 present: Room Stock `50 → 47`
+
+✓ Edit 3 to 5 present: deduct only 2, Room Stock `47 → 45`
+
+✓ Edit 5 to 2 present: restore only 3, Room Stock `45 → 48`
+
+✓ Delete 2-present record: restore 2, Room Stock `48 → 50`
+
+✓ Main Stock remained 999
+
+✓ Compatible Attendance key and fields preserved
+
+✓ One ledger and stockLog entry per successful operation
+
+✓ Successful CRUD created no retry queue entries
+
+✓ Deliberate stock failure after Attendance save queued exactly one Room Stock retry
+
+✓ Queue difference and Attendance reference remained exact
+
+✓ Manager emitted persistent queue feedback
+
+---
+
+Browser and Responsive Gates Passed
 
 ✓ Admin Login and Logout remained unchanged
 
 ✓ Teacher Login rendered Attendance for the authenticated room
 
-✓ Current and historical date records loaded without JavaScript errors
+✓ Current and historical dates loaded without JavaScript errors
 
-✓ Selected date requested one exact Attendance key: `{roomId}_{YYYY-MM-DD}.json`
+✓ Selected date requested one exact Attendance key
 
-✓ No full-history or cross-room Attendance request was visible
+✓ No full-history or cross-room Attendance read was visible
 
-✓ No Main Stock request or write request occurred during read-only testing
+✓ No Main Stock request occurred during read-only testing
 
-✓ Console displayed only `MilkSchoolSystem V2 Started`
+✓ Desktop Console displayed only `MilkSchoolSystem V2 Started`
 
----
-
-Responsive Interaction Gate Passed
-
-Chrome Device Toolbar at 820 x 1180:
-
-✓ Teacher header, Room Stock, queue, date, totals, all student rows, notes, and controls remained reachable
+✓ 820 x 1180 Teacher header, Room Stock, queue, date, totals, all student rows, notes, Save, Delete, and Logout remained reachable
 
 ✓ Present/absent selections updated totals correctly
 
-✓ Save, Delete, and Logout remained visible and reachable
-
 ✓ No abnormal horizontal overflow was visible
 
-✓ Responsive Logout returned to the login form
+✓ Responsive Logout returned to Login
 
-✓ Responsive Console displayed only `MilkSchoolSystem V2 Started`
-
----
-
-Isolated Automated Write Gate — Implemented / Local Run Pending
-
-File:
-
-- `tests/attendance-isolated-write-check.mjs`
-
-In-memory only:
-
-✓ Uses room `isolated-room`, Room Stock 50, and Main Stock 999 inside the Node.js process
-
-✓ Does not load FirebaseService or the production AttendanceRepository
-
-✓ Does not call the production Firebase URL
-
-Coverage awaiting local confirmation:
-
-□ Create 3 present: Room Stock `50 → 47`
-
-□ Edit 3 to 5 present: deduct only 2, Room Stock `47 → 45`
-
-□ Edit 5 to 2 present: restore only 3, Room Stock `45 → 48`
-
-□ Delete 2-present record: restore 2, Room Stock `48 → 50`
-
-□ Verify Main Stock remains 999 through all operations
-
-□ Verify compatible Attendance key and fields
-
-□ Verify one ledger and stockLog entry per successful operation
-
-□ Verify successful CRUD creates no retry queue entries
-
-□ Deliberately fail Room Stock after Attendance save and verify exactly one protected retry is queued
-
-□ Verify queue difference and reference key remain exact
-
-□ Verify Manager emits persistent queue feedback
-
-Run:
-
-```powershell
-node tests/attendance-isolated-write-check.mjs
-```
-
-Expected:
-
-```text
-Attendance isolated write checks passed.
-```
+✓ Responsive Console remained clean
 
 ---
 
 Real Classroom Data Incident — DEFERRED / OPEN
 
-The product owner requested postponement of corrective recovery so implementation can continue.
+The product owner deferred recovery so development could continue.
 
-Known quarantined discrepancy:
+Quarantined discrepancy:
 
-- room: `อ.3-3`
-- room ID: `mqn0z13eyx5b`
-- date: `2026-07-28`
-- test-created Attendance record remains with 22 present and 3 absent
-- Room Stock remains 1,253 instead of the recorded pre-test value 1,275
+- room `อ.3-3`
+- room ID `mqn0z13eyx5b`
+- date `2026-07-28`
+- test-created Attendance remains with 22 present and 3 absent
+- Room Stock remains 1,253 instead of recorded pre-test 1,275
 - known difference: -22
 
 Reconciled room:
 
-- room: `อ.3-4`
-- room ID: `mqn0z13emyrc`
+- room `อ.3-4`
+- room ID `mqn0z13emyrc`
 - Attendance is `null`
 - Room Stock is 350
 
 Quarantine rules:
 
-- do not use Room `อ.3-3` or date `2026-07-28` for further write testing
-- do not treat Room A Attendance, Room Stock, or report values as trusted operational evidence
+- do not use `อ.3-3` or `2026-07-28` for further write testing
+- do not treat the affected Attendance, Room Stock, or report values as trusted operational evidence
 - do not manually rewrite stock, ledger, stockLog, or transaction history
-- use only mocked, in-memory, isolated Firebase, or disposable targets for future write validation
+- use only mocked, in-memory, isolated Firebase, or explicitly disposable targets for future write validation
 
-The incident is not resolved. Recovery remains on the mandatory pre-production checklist.
-
----
-
-Remaining Gate
-
-□ Run `tests/attendance-isolated-write-check.mjs`
-
-□ Run the complete regression suite including all 16 tests
-
-□ Confirm feature branch synchronized with origin
-
-□ Confirm working tree clean
+Recovery remains mandatory before `main`, production cutover, or official operational acceptance.
 
 ---
 
-Current Development Decision
+Integration Decision
 
-DEVELOPMENT MAY CONTINUE
+APPROVED FOR FAST-FORWARD MERGE INTO `develop`
 
-Sprint 4.2 may proceed using automated isolated tests only. No additional real-classroom writes are permitted.
+NOT APPROVED FOR:
 
-A merge into `develop` may be considered after the isolated automated write gate and the full regression suite pass. This does not authorize merge to `main` or production cutover while the real-data incident remains open.
+- merge to `main`
+- production traffic switching
+- replacement or removal of `teacher.html`
+- official use of the quarantined room/date
+- claiming the Firebase database is fully reconciled
+
+---
+
+Protected Business Rules
+
+- Main Stock decreases only on classroom distribution.
+- Classroom distribution increases Room Stock.
+- Teacher and Attendance operations change Room Stock only.
+- Attendance edits change Room Stock by the present-count difference only.
+- Attendance deletion restores previously consumed Room Stock.
+- ETag conflicts read the latest Room Stock and recalculate before retry.
+- Offline retries preserve the original Attendance baseline.
+- Audit-only retries never repeat a successful Room Stock mutation.
+- Attendance keys remain compatible.
+- Teacher access remains limited to the authenticated room.
+- Negative Room Stock is not silently clamped.
+- Legacy files remain available until explicit production-cutover approval.
