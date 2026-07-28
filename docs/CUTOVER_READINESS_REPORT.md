@@ -10,11 +10,11 @@ Overall status: NOT READY FOR PRODUCTION CUTOVER
 
 ## Executive Summary
 
-The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console.
+The modular V2 foundation passes all automated regression, concurrency, and audit-recovery tests available in the repository. Desktop Chrome evidence confirms successful Admin and Teacher login against the current Firebase dataset, direct Logout back to the login form, the corrected Sprint 4.0 shell text, and a clean Teacher-session Console.
 
 Physical iPad testing was explicitly deferred by the user/product owner on 2026-07-28. It is removed from the Sprint 4.0 feature-to-`develop` merge gate, but it is not recorded as PASS. A later production decision must either add physical-device evidence or explicitly accept the remaining device risk.
 
-Production cutover remains blocked by direct Logout evidence, Admin/Logout Console evidence, responsive viewport evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
+Production cutover remains blocked by Admin/Logout Console evidence, responsive viewport evidence, operational UI parity, real multi-writer Firebase validation, report/local-data decisions, XLSX import, backup/restore rehearsal, and rollback approval.
 
 Legacy `index.html` and `teacher.html` remain the operational rollback path.
 
@@ -73,9 +73,18 @@ Observed:
 
 ### Logout
 
-Result: PARTIAL EVIDENCE
+Result: PASS
 
-The Admin-to-Teacher sequence is consistent with a logout and second login, but the supplied images do not directly show the login screen after pressing Logout. A direct logout capture or explicit final confirmation remains required for the Sprint browser record.
+Observed in the supplied direct Logout capture:
+
+- active successful-login panel was replaced by the login form
+- room/role selector returned to its unselected state
+- password field returned empty
+- connection status reported 83 rooms available
+- Firebase `settings.json` and `rooms.json` were visible with HTTP 200
+- no failed Fetch/XHR request was visible
+
+This confirms that Logout clears the active UI session and returns the user to the login workflow.
 
 ### Browser Console
 
@@ -164,7 +173,6 @@ Still required:
 
 ## Remaining Production Blockers
 
-- direct Logout evidence incomplete
 - clean Admin-login and Logout Console evidence incomplete
 - responsive mobile and iPad-class viewport evidence incomplete
 - operational Admin forms not integrated in V2
