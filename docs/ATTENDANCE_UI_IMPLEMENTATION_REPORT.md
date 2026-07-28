@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: AUTOMATED AND DESKTOP READ-ONLY GATES PASSED — responsive Attendance interaction and approved isolated write validation remain pending
+Overall status: PARTIAL PASS — automated, desktop read-only, exact-key Network, and upper/middle responsive interaction evidence passed; responsive bottom controls/Console and approved isolated create/edit/delete validation remain pending
 
 ## Runtime Added
 
@@ -102,7 +102,7 @@ The first local execution reported a failed strict deep comparison for two visua
 
 The test now normalizes the VM value with `Array.from(savedInput.photos)` before comparison.
 
-This correction changes only the test harness. It does not change `AttendanceView`, Attendance data, Room Stock, Main Stock, Firebase writes, or media preservation behavior.
+This correction changes only the test harness. It does not change AttendanceView, Attendance data, Room Stock, Main Stock, Firebase writes, or media preservation behavior.
 
 ## Automated Validation Result
 
@@ -160,7 +160,7 @@ Observed:
 - Teacher Login rendered the Teacher Attendance interface
 - authenticated room displayed 26 students
 - date field defaulted to 2026-07-28
-- current-date form displayed 3 checked, 3 present, 0 absent, and 23 unchecked
+- current-date form displayed 3 checked, 3 present, 0 absent, and 23 unchecked in the supplied desktop capture
 - student number, name, gender, present/absent controls, and notes fields rendered
 - Console displayed only `MilkSchoolSystem V2 Started`
 - no visible application JavaScript error or warning
@@ -201,14 +201,50 @@ Observed:
 - no full-history `mcAttendance.json?orderBy=...` request was visible
 - no cross-room Attendance request was visible
 - no Main Stock request was visible
-- no PUT, PATCH, POST, or DELETE request was visible during the read-only validation
+- no PUT, PATCH, POST, or DELETE request was visible during read-only validation
 
 Scope note:
 
-- the Network panel retained earlier Login and shell requests, including `settings.json` and `rooms.json`;
-- the capture therefore proves that the selected-date action used one exact Attendance key, but it is not used as a fresh Login request-count measurement;
-- the exact historical record was approximately 1.3 MB in the supplied capture, which is consistent with a record potentially containing legacy media fields; Sprint 4.2 intentionally preserves those fields during edits;
-- DevTools displayed an Issues count, but no Issues details were supplied. This report does not classify that count as an application JavaScript failure.
+- the Network panel retained earlier Login and shell requests, including `settings.json` and `rooms.json`
+- the capture proves that the selected-date action used one exact Attendance key, but it is not used as a fresh Login request-count measurement
+- the exact historical record was approximately 1.3 MB in the supplied capture, which is consistent with a record potentially containing legacy media fields; Sprint 4.2 intentionally preserves those fields during edits
+- DevTools displayed an Issues count, but no Issues details were supplied; this report does not classify that count as an application JavaScript failure
+
+## Responsive Attendance Interaction
+
+Environment recorded from the supplied screenshot:
+
+- Chrome Device Toolbar
+- Responsive viewport at 820 x 1180 CSS pixels
+- Teacher room displayed 26 students
+- Room Stock displayed as 1,404 boxes
+- queue count displayed as 0
+
+### Upper and Middle Form
+
+Result: PASS
+
+Observed:
+
+- Teacher header and read-only metrics remained contained
+- Attendance heading, date control, and load button remained visible
+- totals remained visible and readable
+- student rows remained readable
+- present and absent controls remained visible and usable
+- two absent selections were reflected in the totals as 2 checked, 0 present, 2 absent, and 24 unchecked
+- notes inputs remained visible for the displayed rows
+- no abnormal horizontal overflow was visible
+- the supplied Network panel showed only successful HTTP 200 reads in the visible list
+- no write request was visible in the supplied responsive capture
+
+### Responsive Evidence Still Required
+
+- scroll to the bottom and confirm Save and Delete controls remain reachable
+- confirm status and error feedback areas remain readable
+- open Console and confirm no application error or warning
+- Logout from the responsive Attendance page and confirm the login form returns cleanly
+
+The current screenshot does not show the bottom action area or Console, so those items are not yet represented as PASS.
 
 ## Compatibility Protection
 
@@ -222,25 +258,13 @@ Scope note:
 - Existing media values are preserved even though Sprint 4.2 does not add media inputs.
 - `index.html` and `teacher.html` remain unchanged and operational.
 
-## Validation Still Required
+## Approved Isolated Write Validation
 
-### Responsive Attendance Interaction
+Status: PENDING
 
-Chrome Device Toolbar at 820 x 1180:
+Do not use normal classroom Attendance for development writes.
 
-- student rows remain readable
-- present/absent controls remain usable
-- notes input remains usable
-- totals and status feedback remain visible
-- save/delete controls remain reachable
-- no abnormal horizontal overflow
-- Console clean
-
-### Approved Isolated Write Validation
-
-Do not use normal production classroom Attendance for development writes.
-
-Use only:
+Allowed targets:
 
 - mocked automated tests
 - a dedicated isolated Firebase project
@@ -260,11 +284,10 @@ Test:
 - edit from fewer to more present students
 - edit from more to fewer present students
 - delete and Room Stock restoration
-- conflict retry when an isolated multi-writer setup is available
-- partial-save/queue feedback without repeating Attendance or Room Stock changes
+- verify Main Stock remains unchanged
+- verify compatible Attendance key and fields
+- verify partial-save/queue feedback when deliberately simulated
 
 ## Current Decision
 
-Runtime implementation, all automated tests, Admin regression, desktop Teacher read-only rendering, existing-date restoration, date-scoped Network evidence, Logout, Console, branch synchronization, and clean working tree passed.
-
-Sprint 4.2 is not ready to merge into `develop` until the 820 x 1180 Attendance interaction gate and approved isolated create/edit/delete gate pass.
+Automated, desktop read-only, exact-key Network, and upper/middle responsive interaction gates passed. Sprint 4.2 is not ready to merge into `develop` until responsive bottom controls and Console evidence pass and approved isolated create/edit/delete validation is recorded.
