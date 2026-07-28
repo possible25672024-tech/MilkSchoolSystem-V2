@@ -29,6 +29,8 @@ assert.ok(decisions.includes("D-01 — Physical iPad Validation"), "Decision reg
 assert.ok(decisions.includes("D-02 — Report Browser-Local Data Adapter"), "Decision register must cover the report local-data adapter");
 assert.ok(decisions.includes("D-03 — XLSX Binary Parser"), "Decision register must cover XLSX parsing");
 assert.ok(decisions.includes("D-06 — Real Firebase Multi-Writer Validation"), "Decision register must cover real Firebase concurrency validation");
+assert.ok(decisions.includes("D-08 — Responsive and Device Scope"), "Decision register must cover responsive browser validation");
+assert.ok(decisions.includes("EMULATED 820 × 1180 PASSED"), "Decision register must preserve the completed responsive result");
 assert.ok(decisions.includes("D-09 — Backup and Restore"), "Decision register must cover backup and restore");
 assert.ok(decisions.includes("BLOCKS PRODUCTION"), "Deferred decisions must state their production consequence");
 
@@ -49,8 +51,13 @@ assert.ok(teacherPlan.includes("Offline and Sync Feedback"), "Teacher UI plan mu
 assert.ok(teacherPlan.includes("Photos and Signatures"), "Teacher UI plan must cover media workflows");
 
 assert.ok(readiness.includes("Overall status: NOT READY FOR PRODUCTION CUTOVER"), "Readiness report must not claim production readiness");
+assert.ok(readiness.includes("Status: PASS FOR THE CURRENT V2 SHELL WORKFLOW"), "Readiness report must record the responsive shell pass");
 assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report must represent physical iPad testing as deferred");
+assert.ok(parity.includes("Responsive 820 x 1180 shell"), "Parity matrix must include responsive shell parity");
+assert.ok(parity.includes("| PASS | layout, Teacher login, Logout, Console |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("physical iPad testing is explicitly deferred"), "Sprint status must record the physical iPad decision");
+assert.ok(sprint.includes("Physical iPad validation explicitly deferred"), "Sprint status must record the physical iPad decision");
+assert.ok(sprint.includes("Teacher login completed successfully inside the 820 x 1180 emulated viewport"), "Sprint status must record responsive Teacher login");
+assert.ok(sprint.includes("Logout completed successfully inside the 820 x 1180 emulated viewport"), "Sprint status must record responsive Logout");
 
 console.log("Cutover documentation checks passed.");
