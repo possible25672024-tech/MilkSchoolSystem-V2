@@ -1,10 +1,12 @@
 class MilkSchoolApplication {
     constructor(
         loginManager = window.LoginManager,
-        teacherView = window.TeacherView
+        teacherView = window.TeacherView,
+        attendanceView = window.AttendanceView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
+        this.attendanceView = attendanceView;
         this.started = false;
     }
 
@@ -21,6 +23,10 @@ class MilkSchoolApplication {
 
         if (this.teacherView?.initialize) {
             await this.teacherView.initialize();
+        }
+
+        if (this.attendanceView?.initialize) {
+            await this.attendanceView.initialize();
         }
 
         this.started = true;
