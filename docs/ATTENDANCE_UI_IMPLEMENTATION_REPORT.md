@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Overall status: PARTIAL PASS — automated, desktop read-only, exact-key Network, and complete 820 x 1180 responsive interaction, Logout, and Console gates passed; approved isolated create/edit/delete validation remains pending
+Overall status: PARTIAL PASS — automated, desktop read-only, exact-key Network, complete 820 x 1180 responsive interaction, and one successful Attendance-save/Room-Stock-delta observation passed; target isolation and the full approved create/edit/delete write sequence remain unverified
 
 ## Runtime Added
 
@@ -257,6 +257,43 @@ Observed:
 
 DevTools displayed an Issues count, but the Issues details were not supplied. This evidence records the Console as clean and does not classify the Issues badge itself as an application failure.
 
+## Observed Attendance Save and Room Stock Delta
+
+Status: PARTIAL EVIDENCE — NOT YET COUNTED AS THE APPROVED ISOLATED WRITE GATE
+
+Observed in the supplied responsive screenshot:
+
+- the interface reported a successful Attendance save
+- the reported result contained 22 present students and 3 absent students
+- Room Stock changed from 1,275 to 1,253 boxes
+- the Room Stock difference was -22, matching the reported present count
+- no queue or application-error message was visible in the status line
+- Console displayed only `MilkSchoolSystem V2 Started`
+- Logout returned to the login form cleanly after the save
+
+What this proves:
+
+- one browser save reached a successful result
+- the displayed Room Stock delta matched the present count for that save
+- the responsive status feedback and post-save Logout path worked
+
+What the screenshots do not prove:
+
+- that the target was a dedicated isolated Firebase project or an explicitly approved disposable room/date
+- the Attendance record and exact key before and after
+- Main Stock before and after
+- queue count before and after
+- ledger and stockLog records
+- create versus edit baseline
+- edit from fewer to more present students
+- edit from more to fewer present students
+- delete and Room Stock restoration
+
+Decision:
+
+- do not continue additional live writes until the test target is confirmed as isolated or disposable
+- this evidence may be credited toward the isolated gate only after target isolation is confirmed and the remaining before/after evidence is recorded
+
 ## Compatibility Protection
 
 - Attendance key remains `{roomId}_{YYYY-MM-DD}`.
@@ -271,7 +308,7 @@ DevTools displayed an Issues count, but the Issues details were not supplied. Th
 
 ## Approved Isolated Write Validation
 
-Status: PENDING
+Status: PARTIAL EVIDENCE / TARGET ISOLATION UNVERIFIED
 
 Do not use normal classroom Attendance for development writes.
 
@@ -301,4 +338,4 @@ Test:
 
 ## Current Decision
 
-Automated, desktop read-only, exact-key Network, and complete 820 x 1180 responsive Attendance gates passed. Sprint 4.2 is not ready to merge into `develop` until approved isolated create/edit/delete validation is recorded.
+Automated, desktop read-only, exact-key Network, complete 820 x 1180 responsive Attendance, and one successful save/Room-Stock-delta observation passed. Sprint 4.2 is not ready to merge into `develop` until target isolation is confirmed and the complete approved create/edit/delete write sequence is recorded.
