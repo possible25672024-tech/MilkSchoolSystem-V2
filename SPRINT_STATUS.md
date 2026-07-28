@@ -26,7 +26,7 @@ Sprint 4.0 — Cutover Readiness and Compatibility
 
 Status
 
-78% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; direct Logout evidence, Admin/Logout Console evidence, responsive and physical iPad gates, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
+80% — automated regression, ETag concurrency, partial-save recovery, audit-only recovery, desktop Admin login, desktop Teacher login, current Sprint 4.0 shell text, clean Teacher-session Console evidence, browser Network evidence, parity documentation, and initial readiness reporting completed; physical iPad testing is explicitly deferred and removed from the Sprint 4.0 merge-to-develop gate; direct Logout evidence, Admin/Logout Console evidence, responsive viewport validation, real Firebase conflict validation, UI parity, backup, and rollback gates remain pending
 
 ---
 
@@ -130,6 +130,14 @@ Sprint 4.0 Implemented
 
 ✓ Parity matrix separates concurrency, partial-save recovery, audit-only recovery, and browser evidence status
 
+✓ Local feature branch confirmed synchronized with origin and working tree clean after the latest documentation update
+
+✓ Physical iPad validation explicitly deferred by the user/product owner on 2026-07-28
+
+✓ Physical iPad validation is not required for the Sprint 4.0 feature-to-`develop` merge gate
+
+✓ Deferred physical iPad validation must not be represented as PASS
+
 ---
 
 Pending Immediate Browser Validation
@@ -139,8 +147,6 @@ Pending Immediate Browser Validation
 □ Capture or explicitly confirm a clean Console after Admin login and Logout
 
 □ Confirm Logout clears the active session and returns to the login form
-
-□ Confirm working tree clean after the latest documentation update
 
 ---
 
@@ -166,7 +172,7 @@ Pending Cutover Work
 
 □ Run iPad-class viewport validation at approximately 820 x 1180 CSS pixels
 
-□ Run physical iPad validation when available
+□ Revisit physical iPad validation only when a device is available or record explicit production risk acceptance
 
 □ Rehearse Firebase backup and isolated restore
 
@@ -180,7 +186,6 @@ Current Blockers to Production Cutover
 
 - direct Logout evidence is not yet recorded for the current Sprint 4.0 shell
 - clean Admin-login and Logout Console evidence is not yet separately recorded
-- physical iPad evidence not yet recorded
 - responsive mobile and iPad-class viewport evidence not yet recorded
 - operational Teacher forms, photos, signatures, printing, queue badge, and offline banner are not integrated
 - Report browser-local adapter is unresolved
@@ -190,9 +195,17 @@ Current Blockers to Production Cutover
 
 ---
 
+Deferred Production Risk
+
+- physical iPad validation was explicitly skipped for the current Sprint 4.0 merge gate
+- this deferral is not a PASS result
+- a future production decision must either record physical-device evidence or explicitly accept the remaining device risk
+
+---
+
 Cutover Rule
 
-Legacy removal and production cutover are BLOCKED while any safety-critical parity row remains BLOCKED.
+Legacy removal and production cutover are BLOCKED while any safety-critical parity row remains BLOCKED. Deferred rows require explicit risk acceptance before production approval.
 
 ---
 
