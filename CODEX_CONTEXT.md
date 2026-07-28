@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 2.8
+Version: 2.9
 Last Updated: 2026-07-28
 
 ---
@@ -30,7 +30,11 @@ Modular V2 service, repository, queue, recovery, performance, and cutover-readin
 
 ↓
 
-Operational UI integration beginning with the Teacher shell
+Teacher read-only UI shell completed
+
+↓
+
+Teacher daily Attendance CRUD UI integration is current
 
 ---
 
@@ -74,7 +78,7 @@ Production gaps: XLSX binary parsing remains legacy; complete-room multi-admin c
 - Teacher session and cross-room protection
 - dashboard and Room Stock-only command preparation
 
-### Sprint 3.7 — Attendance
+### Sprint 3.7 — Attendance Service Foundation
 
 - compatible key `{roomId}_{YYYY-MM-DD}`
 - create, edit-by-difference, delete rollback
@@ -113,51 +117,74 @@ Recorded desktop result on the 83-room dataset:
 - persistent Room Stock-only retry
 - persistent audit-only recovery
 - deterministic concurrency and audit tests
-- desktop Admin/Teacher Login and Logout evidence
-- complete 820 x 1180 Teacher Login and Logout evidence
-- clean recorded Console
-- parity matrix and readiness report
-- explicit cutover decision register
-- operational Teacher UI integration plan
-- production backup and rollback plan
-- all automated and documentation tests passed
-- clean feature branch gate passed
+- parity, decisions, Teacher UI integration, backup, and rollback documentation
+- automated, desktop, responsive, Console, and clean-tree gates passed
+
+Integration decision:
+
+- merged into `develop`
+- not approved for `main` or production cutover
+
+### Sprint 4.1 — Teacher UI Shell and Read-Only State
+
+- modular `TeacherView`
+- separate Admin and Teacher shell containers
+- school, room, and teacher identity
+- read-only current Room Stock
+- persistent queue count
+- online/offline badge
+- Logout delegation
+- restored-session rendering
+- no direct Firebase, Repository, storage, or stock calculations in the View
+- Admin role-routing regression passed
+- Teacher core Network gate passed at four reads and approximately 1.6 KB
+- desktop and 820 x 1180 Teacher Login/Logout passed
+- Offline/Online transition passed
+- Teacher, Admin, and post-Logout Console gates passed
+- all 14 automated tests and clean-tree gate passed
 
 Integration decision:
 
 - approved for fast-forward merge into `develop`
-- not approved for `main` or production cutover
+- does not replace `teacher.html`
+- does not authorize operational Attendance cutover
 
 ---
 
 Current Sprint
 
-Sprint 4.1 — Teacher UI Shell and Read-Only State
+Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
 Target branch
 
-`feature/sprint-4.1-teacher-ui-shell`
+`feature/sprint-4.2-attendance-daily-ui`
 
 Goals
 
-- render a modular Teacher session header
-- display school, room, and teacher identity
-- display current Room Stock
-- display connection state
-- display pending queue count
-- provide Logout
-- consume Managers and browser events only
-- keep Firebase access out of the view
-- pass desktop and 820 x 1180 shell tests
+- add a date-scoped daily Attendance form to the modular Teacher shell
+- render only students from the authenticated room snapshot
+- support present and absent controls
+- support per-student notes
+- load one day through `AttendanceManager.loadDay()`
+- save new and edited records through `AttendanceManager.save()`
+- delete through `AttendanceManager.remove()`
+- display present and absent totals
+- display Room Stock result after save or delete
+- show partial-save and queued Room Stock feedback
+- consume Managers and events only
+- keep Firebase, Repository, stock calculation, and queue ownership out of the View
+- use isolated test data only for write validation
+- pass desktop and 820 x 1180 gates
 - keep `teacher.html` operational and unchanged
 
 Out of scope
 
-- Attendance write UI
-- pending, retroactive, or vacation write UI
+- pending, retroactive, or vacation milk
 - photos and signatures
 - printing
+- history-range views
 - replacement or removal of `teacher.html`
+- production deployment
 
 ---
 
@@ -177,11 +204,12 @@ Never Break
 - Teacher, Attendance, Pending, Retroactive, Vacation, and Sync workflows change Room Stock only.
 - Attendance edits change Room Stock by the present-count difference only.
 - Attendance deletion restores previously consumed Room Stock.
+- Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
 - ETag conflicts read the newest Room Stock and recalculate before retry.
 - Offline retries preserve the original Attendance baseline.
 - Repeated queued edits keep the latest record without replacing the original baseline.
 - Audit-only retries never repeat a successful Room Stock mutation.
-- Attendance keys remain compatible.
+- Partial Attendance saves must surface queued Room Stock status without rewriting Attendance.
 - Reports remain read-only.
 - Firebase schema and paths remain compatible unless an approved migration includes rollback.
 - Room IDs remain stable.
@@ -230,7 +258,7 @@ Required Workflow
 7. Compare protected legacy behavior with the intended V2 boundary before editing.
 8. Work only on a `feature/*` branch.
 9. Add tests for every runtime change.
-10. Run automated, browser, responsive, and clean-tree gates.
+10. Run automated, isolated-write, browser, responsive, and clean-tree gates.
 11. Update project memory, changelog, module map, status, and active reports.
 12. Merge into `develop` only after the Sprint gate passes.
 13. Merge or deploy to `main` only with explicit production-cutover approval.
