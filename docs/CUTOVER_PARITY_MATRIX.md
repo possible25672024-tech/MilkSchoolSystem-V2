@@ -47,9 +47,9 @@ Status values:
 | Backup | legacy Admin workflow | not yet integrated | BLOCKED | Firebase export and restore rehearsal | cutover backup checklist pending |
 | Restore | legacy Admin workflow | not yet integrated | BLOCKED | isolated restore rehearsal | cutover rollback plan pending |
 | Desktop performance | legacy/V2 comparison | Sprint 3.9 | PASS | Network evidence | observed 4 requests / approximately 1.6 KB core refresh |
-| Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PARTIAL | Admin, Teacher, Logout, Console | Admin, Teacher, and Logout pass; Admin/Logout Console evidence pending |
-| Responsive mobile | legacy/V2 comparison | V2 | BLOCKED | recorded viewport test | evidence pending |
-| iPad-class browser viewport | legacy/V2 comparison | V2 | BLOCKED | approximately 820 x 1180 CSS-pixel test | browser-emulated evidence pending |
+| Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PASS | Admin, Teacher, Logout, Console | Admin, Teacher, Logout, Teacher Console, and post-Logout Console evidence recorded |
+| Responsive mobile | legacy/V2 comparison | V2 | PARTIAL | recorded viewport test | 820 x 1180 layout and clean Console recorded; interaction, Teacher login, and Logout pending |
+| iPad-class browser viewport | legacy/V2 comparison | V2 | PARTIAL | approximately 820 x 1180 CSS-pixel test | layout containment and clean Console pass; full login/logout interaction pending |
 | Physical iPad | legacy/V2 comparison | V2 | DEFERRED | recorded device test or explicit production risk acceptance | explicitly skipped by the user/product owner on 2026-07-28; not required for feature-to-`develop` merge and not a PASS result |
 
 ## Cutover Rule
