@@ -26,7 +26,7 @@ Sprint 4.1 — Teacher UI Shell and Read-Only State
 
 Status
 
-65% — modular Teacher View, responsive read-only shell, role routing, App initialization, restored-session handling, queue/connection display, Logout delegation, and deterministic shell tests implemented; local automated regression, desktop browser, Network, offline/online, responsive, and clean-tree gates remain pending
+85% — modular Teacher View, role routing, restored-session handling, read-only Room Stock, queue and connection display, Logout delegation, all 14 automated tests, clean working tree, and complete 820 x 1180 Teacher Login/Logout evidence passed; desktop Admin regression, explicit Offline/Online transition, and Fetch/XHR inspection remain pending
 
 ---
 
@@ -102,6 +102,8 @@ Sprint 4.1 Implemented
 
 ✓ Added `tests/teacher-ui-shell-check.mjs`
 
+✓ Added `docs/TEACHER_UI_SHELL_VALIDATION_REPORT.md`
+
 ✓ Updated Cutover documentation regression checks for the active Sprint
 
 ✓ Preserved completed Sprint 4.0 marker required by the existing performance regression
@@ -130,95 +132,103 @@ Sprint 4.1 Architecture Rules
 
 ---
 
-Pending Automated Gate
+Automated Gate
 
-□ `node tests/login-foundation-check.mjs`
+✓ `node tests/login-foundation-check.mjs`
 
-□ `node tests/stock-module-check.mjs`
+✓ `node tests/stock-module-check.mjs`
 
-□ `node tests/report-module-check.mjs`
+✓ `node tests/report-module-check.mjs`
 
-□ `node tests/room-module-check.mjs`
+✓ `node tests/room-module-check.mjs`
 
-□ `node tests/teacher-module-check.mjs`
+✓ `node tests/teacher-module-check.mjs`
 
-□ `node tests/attendance-module-check.mjs`
+✓ `node tests/attendance-module-check.mjs`
 
-□ `node tests/sync-module-check.mjs`
+✓ `node tests/sync-module-check.mjs`
 
-□ `node tests/firebase-request-header-check.mjs`
+✓ `node tests/firebase-request-header-check.mjs`
 
-□ `node tests/performance-module-check.mjs`
+✓ `node tests/performance-module-check.mjs`
 
-□ `node tests/teacher-core-payload-check.mjs`
+✓ `node tests/teacher-core-payload-check.mjs`
 
-□ `node tests/cutover-concurrency-check.mjs`
+✓ `node tests/cutover-concurrency-check.mjs`
 
-□ `node tests/audit-recovery-check.mjs`
+✓ `node tests/audit-recovery-check.mjs`
 
-□ `node tests/cutover-documentation-check.mjs`
+✓ `node tests/cutover-documentation-check.mjs`
 
-□ `node tests/teacher-ui-shell-check.mjs`
+✓ `node tests/teacher-ui-shell-check.mjs`
 
-□ Working tree clean
+✓ Feature branch synchronized with origin
+
+✓ Working tree clean
 
 ---
 
-Pending Desktop Browser Gate
+Responsive Browser Gate — 820 x 1180
 
-□ Admin Login remains unchanged
+✓ Teacher Login rendered the modular Teacher shell
 
-□ Teacher Login renders the modular Teacher shell
+✓ School name displayed correctly
 
-□ School name displays correctly
+✓ Room displayed as `อ.3-2`
 
-□ Room and teacher identity display correctly
+✓ Teacher identity displayed correctly
 
-□ Current Room Stock displays correctly
+✓ Current Room Stock displayed as `1,073 กล่อง`
 
-□ Pending queue count displays correctly
+✓ Pending queue count displayed as `0 รายการ`
 
-□ Online badge displays correctly
+✓ Online badge displayed correctly
 
-□ DevTools Offline mode changes the badge to Offline
+✓ Teacher shell remained contained
 
-□ Returning Online restores the badge
+✓ Header, identity cards, and metrics remained readable
 
-□ Logout returns to the login form
+✓ Logout remained visible and usable
 
-□ Console clean
+✓ Logout returned to the login form
+
+✓ Room/role selector reset after Logout
+
+✓ Password field returned empty
+
+✓ No abnormal horizontal overflow visible
+
+✓ Console displayed only `MilkSchoolSystem V2 Started`
+
+✓ No visible application error or warning
+
+---
+
+Pending Desktop and Network Gate
+
+□ Admin Login remains unchanged after Sprint 4.1 role routing
+
+□ Desktop Teacher Login outside Device Toolbar
+
+□ DevTools Offline mode changes the badge to `ออฟไลน์`
+
+□ Returning Online restores the badge to `ออนไลน์`
 
 □ No failed application Fetch/XHR requests
 
 □ No unexpected Firebase write request from shell rendering
 
-□ No full rooms request after Teacher login
+□ No additional full `rooms.json` request after Teacher login
 
 □ No room-history Attendance request during normal shell refresh
 
----
+□ No deferred Teacher collection request during normal shell refresh
 
-Pending Responsive Browser Gate
+□ No Main Stock request from the Teacher shell
 
-Chrome Device Toolbar at 820 x 1180:
+□ Desktop Logout returns to the login form
 
-□ Teacher shell remains contained
-
-□ Header and identity cards remain readable
-
-□ Room Stock remains visible
-
-□ Queue count remains visible
-
-□ Connection badge remains visible
-
-□ Logout remains usable
-
-□ No abnormal horizontal overflow
-
-□ Console clean
-
-Physical iPad remains deferred and must not be represented as PASS.
+□ Desktop Console clean
 
 ---
 
