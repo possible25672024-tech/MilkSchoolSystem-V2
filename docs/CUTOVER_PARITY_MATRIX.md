@@ -18,7 +18,7 @@ Status values:
 |---|---|---|---|---|---|
 | Admin login | `index.html` | Login modules | PASS | automated test + browser login | desktop Chrome evidence recorded |
 | Teacher login | `teacher.html` | Login and Teacher modules | PASS | automated test + browser login | desktop Chrome evidence recorded; physical iPad validation deferred |
-| Logout | legacy pages | Auth/Login modules | PARTIAL | direct browser logout evidence | Admin-to-Teacher sequence observed, but direct logout screen capture remains pending |
+| Logout | legacy pages | Auth/Login modules | PASS | direct browser logout evidence | login form restored, selection reset, and 83-room status displayed |
 | Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | desktop Chrome evidence recorded; physical iPad validation deferred |
 | Room creation/edit | `index.html` | Room modules | PARTIAL | operational form parity | V2 operational UI not integrated |
 | Student import | `index.html` XLSX parser | RoomService parsed-data boundary | PARTIAL | import fixture + Room ID preservation | binary XLSX parser remains legacy |
@@ -47,7 +47,7 @@ Status values:
 | Backup | legacy Admin workflow | not yet integrated | BLOCKED | Firebase export and restore rehearsal | cutover backup checklist pending |
 | Restore | legacy Admin workflow | not yet integrated | BLOCKED | isolated restore rehearsal | cutover rollback plan pending |
 | Desktop performance | legacy/V2 comparison | Sprint 3.9 | PASS | Network evidence | observed 4 requests / approximately 1.6 KB core refresh |
-| Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PARTIAL | Admin, Teacher, Logout, Console | Admin and Teacher pass; direct Logout and complete Console evidence pending |
+| Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PARTIAL | Admin, Teacher, Logout, Console | Admin, Teacher, and Logout pass; Admin/Logout Console evidence pending |
 | Responsive mobile | legacy/V2 comparison | V2 | BLOCKED | recorded viewport test | evidence pending |
 | iPad-class browser viewport | legacy/V2 comparison | V2 | BLOCKED | approximately 820 x 1180 CSS-pixel test | browser-emulated evidence pending |
 | Physical iPad | legacy/V2 comparison | V2 | DEFERRED | recorded device test or explicit production risk acceptance | explicitly skipped by the user/product owner on 2026-07-28; not required for feature-to-`develop` merge and not a PASS result |
