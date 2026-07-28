@@ -105,13 +105,17 @@ Owner: operator who can export a non-sensitive legacy queue sample.
 
 ## D-08 — Responsive and Device Scope
 
-Decision: EMULATED 820 × 1180 REQUIRED; PHYSICAL IPAD DEFERRED
+Decision: EMULATED 820 × 1180 PASSED; PHYSICAL IPAD DEFERRED
 
 - Layout containment and clean Console evidence at 820 × 1180 are recorded.
-- One Teacher login and Logout interaction in that emulated viewport remains the final responsive browser check.
+- Teacher login completed successfully in the emulated viewport.
+- The successful-login panel remained inside the viewport and displayed the correct room/teacher identity.
+- Logout completed successfully and returned to the login form without layout breakage.
+- The Console remained free of visible application errors before and after Logout.
 - A narrower phone viewport is optional unless phone support becomes an explicit production requirement.
+- This browser-emulated PASS does not replace physical iPad validation under D-01.
 
-Owner: local browser tester.
+Owner: responsive browser gate completed by the local browser tester; physical-device risk remains with the product owner.
 
 ## D-09 — Backup and Restore
 
