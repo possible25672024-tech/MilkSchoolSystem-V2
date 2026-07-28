@@ -6,7 +6,7 @@ Last updated: 2026-07-28
 
 Branch: `feature/sprint-4.2-attendance-daily-ui`
 
-Status: AUTOMATED GATE PASSED — browser read-only, isolated write, responsive interaction, Network, and Console validation pending
+Status: AUTOMATED AND DESKTOP READ-ONLY GATES PASSED — responsive Attendance interaction and approved isolated write validation remain pending
 
 ## Runtime Added
 
@@ -98,7 +98,7 @@ Coverage:
 
 ## Node.js 24 Test Compatibility
 
-The first local execution reported a failed `deepStrictEqual` for two visually identical photo arrays. The saved array was created inside the Node VM realm while the expected array was created in the test realm. Node.js 24 compares Array prototypes across realms during strict deep comparison.
+The first local execution reported a failed strict deep comparison for two visually identical photo arrays. The saved array was created inside the Node VM realm while the expected array was created in the test realm. Node.js 24 compares Array prototypes across realms.
 
 The test now normalizes the VM value with `Array.from(savedInput.photos)` before comparison.
 
@@ -128,6 +128,88 @@ Verified locally by the user on 2026-07-28:
 
 Result: PASS
 
+## Desktop Browser Read-Only Validation
+
+Environment:
+
+- Chrome desktop
+- Live Server at `127.0.0.1:5500/index-v2.html`
+- current connected Firebase data
+- date observed: 2026-07-28
+
+### Admin Regression
+
+Result: PASS
+
+Observed:
+
+- Admin Login succeeded
+- existing Admin shell remained visible
+- Sprint 4.2 shell text displayed
+- Console displayed only `MilkSchoolSystem V2 Started`
+- Admin Logout returned to the login form
+- room/role selector reset
+- password field returned empty
+
+### Teacher Attendance Shell
+
+Result: PASS
+
+Observed:
+
+- Teacher Login rendered the Teacher Attendance interface
+- authenticated room displayed 26 students
+- date field defaulted to 2026-07-28
+- current-date form displayed 3 checked, 3 present, 0 absent, and 23 unchecked
+- student number, name, gender, present/absent controls, and notes fields rendered
+- Console displayed only `MilkSchoolSystem V2 Started`
+- no visible application JavaScript error or warning
+
+### Existing-Date Restoration
+
+Result: PASS
+
+Observed for 2026-07-15:
+
+- 26 total students
+- 26 checked
+- 26 present
+- 0 absent
+- 0 unchecked
+- existing statuses restored in the form
+
+The supplied capture does not provide a note-bearing historical record, so historical note restoration remains protected primarily by automated coverage.
+
+### Logout
+
+Result: PASS
+
+Observed:
+
+- Teacher UI cleared
+- login form returned
+- Console remained free of visible application errors
+
+## Desktop Network Evidence
+
+Result: PASS FOR DATE-SCOPED READ
+
+Observed:
+
+- selected date 2026-07-15 requested one exact record named `{roomId}_2026-07-15.json`
+- exact-key request returned HTTP 200
+- no full-history `mcAttendance.json?orderBy=...` request was visible
+- no cross-room Attendance request was visible
+- no Main Stock request was visible
+- no PUT, PATCH, POST, or DELETE request was visible during the read-only validation
+
+Scope note:
+
+- the Network panel retained earlier Login and shell requests, including `settings.json` and `rooms.json`;
+- the capture therefore proves that the selected-date action used one exact Attendance key, but it is not used as a fresh Login request-count measurement;
+- the exact historical record was approximately 1.3 MB in the supplied capture, which is consistent with a record potentially containing legacy media fields; Sprint 4.2 intentionally preserves those fields during edits;
+- DevTools displayed an Issues count, but no Issues details were supplied. This report does not classify that count as an application JavaScript failure.
+
 ## Compatibility Protection
 
 - Attendance key remains `{roomId}_{YYYY-MM-DD}`.
@@ -142,43 +224,27 @@ Result: PASS
 
 ## Validation Still Required
 
-### Browser Read-Only
+### Responsive Attendance Interaction
 
-- Admin Login remains unchanged
-- Teacher Login renders the Attendance form
-- correct authenticated-room student list
-- current date defaults correctly
-- an empty approved test date loads without full-history access
-- an existing approved test date restores statuses and notes
-- no full room-history Attendance request
-- no cross-room request
-- no Main Stock request
-- Logout returns to login form
-- Console clean
+Chrome Device Toolbar at 820 x 1180:
 
-### Responsive and Network
-
-- 820 x 1180 student rows remain readable
+- student rows remain readable
 - present/absent controls remain usable
 - notes input remains usable
 - totals and status feedback remain visible
 - save/delete controls remain reachable
 - no abnormal horizontal overflow
-- one selected Attendance key per date load
-- no room-history request
-- no cross-room request
-- no Main Stock request or mutation
-- writes occur only during approved isolated validation
+- Console clean
 
-### Isolated Write Validation
+### Approved Isolated Write Validation
 
-Do not use production classroom Attendance for development writes.
+Do not use normal production classroom Attendance for development writes.
 
 Use only:
 
 - mocked automated tests
 - a dedicated isolated Firebase project
-- an approved disposable room/date
+- an approved disposable room and date
 
 Record before and after:
 
@@ -199,4 +265,6 @@ Test:
 
 ## Current Decision
 
-Runtime implementation and the complete automated gate passed. Sprint 4.2 is not ready to merge into `develop` until browser read-only, approved isolated write, responsive interaction, Network, and Console gates pass.
+Runtime implementation, all automated tests, Admin regression, desktop Teacher read-only rendering, existing-date restoration, date-scoped Network evidence, Logout, Console, branch synchronization, and clean working tree passed.
+
+Sprint 4.2 is not ready to merge into `develop` until the 820 x 1180 Attendance interaction gate and approved isolated create/edit/delete gate pass.
