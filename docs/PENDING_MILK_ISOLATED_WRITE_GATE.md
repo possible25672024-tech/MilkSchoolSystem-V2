@@ -4,14 +4,15 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.4-pending-milk-ui`
 
-Status: IMPLEMENTED / LOCAL EXECUTION PENDING
+Status: PASS — operational UI and isolated issue/delete/partial-save checks confirmed locally
 
 ## Purpose
 
 Validate Pending Milk issue, duplicate prevention, delete rollback, partial-save queue conversion, and Main Stock isolation without Firebase or real classroom data.
 
-## Test File
+## Test Files
 
+- `tests/pending-milk-ui-check.mjs`
 - `tests/pending-milk-isolated-write-check.mjs`
 
 ## In-Memory Baseline
@@ -25,11 +26,37 @@ Validate Pending Milk issue, duplicate prevention, delete rollback, partial-save
 - empty audit list
 - empty retry list
 
+## Operational UI Gate
+
+Confirmed locally:
+
+```text
+Pending Milk UI checks passed.
+```
+
+Verified:
+
+- programmatic Pending Milk panel creation
+- Teacher-only activation and Admin rejection
+- selected-week delegation to Manager
+- eligible and already-issued totals
+- selectable student/date pairs
+- box count equals selected pair count
+- explicit issue confirmation
+- note delegation
+- Room Stock result feedback
+- partial-save queue warning
+- recent history rendering
+- confirmed delete delegation
+- Teacher refresh after successful issue and delete
+- Logout cleanup
+- no direct Firebase, Repository, fetch, browser storage, stock, ledger, or stockLog ownership in the View
+
 ## Successful Issue Sequence
 
-The test selects two eligible student/date pairs.
+The isolated test selects two eligible student/date pairs.
 
-Expected:
+Confirmed:
 
 - one pair equals one box
 - Pending Milk record is created before Room Stock work
@@ -46,7 +73,7 @@ Expected:
 
 The test attempts to issue one of the same student/date pairs again.
 
-Expected:
+Confirmed:
 
 - Service rejects with `PENDING_SELECTION_INVALID`
 - no duplicate record is created
@@ -56,7 +83,7 @@ Expected:
 
 The test deletes the successful two-box record.
 
-Expected:
+Confirmed:
 
 - record is deleted before Room Stock restoration
 - Room Stock changes `48 → 50`
@@ -70,7 +97,7 @@ Expected:
 
 The test deliberately fails Room Stock after the compatible Pending Milk record is saved.
 
-Expected:
+Confirmed:
 
 - record remains saved
 - Room Stock remains 50 before retry
@@ -84,7 +111,7 @@ Expected:
 
 The test deliberately fails Room Stock after the Pending Milk record is deleted.
 
-Expected:
+Confirmed:
 
 - record remains deleted
 - Room Stock remains 50 before retry
@@ -104,23 +131,31 @@ The separate recovery-routing gate validates:
 - preservation of PENDING/ROLLBACK audit payloads
 - no repeated Room Stock mutation during audit-only retry
 
-## Safety Boundary
+## Local Validation
 
-The test:
+Confirmed locally:
 
-- does not load FirebaseService
-- does not instantiate a production repository
-- does not call `fetch`
-- does not use Local Storage or Session Storage
-- does not use room `อ.3-3`
-- does not use date `2026-07-28`
-- does not change `index.html` or `teacher.html`
-
-## Local Commands
-
-```powershell
-node tests/pending-milk-ui-check.mjs
-node tests/pending-milk-isolated-write-check.mjs
+```text
+Pending Milk UI checks passed.
+Pending Milk isolated write checks passed.
 ```
 
-Browser Pending Milk writes remain prohibited until both tests pass locally and the full regression gate is complete.
+The branch was synchronized with origin and the working tree was clean after both tests.
+
+## Safety Boundary
+
+The tests:
+
+- do not load FirebaseService
+- do not instantiate a production repository
+- do not call `fetch`
+- do not use Local Storage or Session Storage
+- do not use room `อ.3-3`
+- do not use date `2026-07-28`
+- do not change `index.html` or `teacher.html`
+
+## Decision
+
+The operational UI and isolated write gates are accepted for the Sprint 4.4 code gate.
+
+Browser Pending Milk writes remain prohibited. The next acceptance step is the complete 22-test regression run, followed by a read-only browser and responsive gate.
