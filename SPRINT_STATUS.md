@@ -26,7 +26,7 @@ Sprint 4.4 — Pending Milk Operational UI
 
 Status
 
-82% — Legacy `absentMilk` audit, Repository, Service, Manager, View, App integration, module gate, and typed `PENDING`/`ROLLBACK` recovery routing gate passed locally. Operational UI and complete isolated issue/delete/partial-save tests are implemented and await local execution. Full 22-test regression, browser, and responsive gates remain pending.
+94% — Legacy compatibility, Repository, Service, Manager, View, App integration, typed recovery routing, Operational UI, isolated issue/delete/partial-save validation, and all 22 automated regression checks passed locally. Desktop read-only browser, Network, Console, and 820 x 1180 responsive gates remain pending.
 
 ---
 
@@ -82,7 +82,7 @@ Confirmed:
 
 ✓ Existing issue detection uses `record.students[studentId].days`
 
-✓ Existing fields `weekStart`, `weekEnd`, `roomId`, `roomName`, `teacher`, issue `date`, `students`, `totalBoxes`, `note`, `signature`, `signatures`, `photos`, and `savedAt`
+✓ Compatible fields `weekStart`, `weekEnd`, `roomId`, `roomName`, `teacher`, issue `date`, `students`, `totalBoxes`, `note`, `signature`, `signatures`, `photos`, and `savedAt`
 
 ✓ Issue saves record first, then deducts Room Stock
 
@@ -108,7 +108,6 @@ Runtime Implemented
 - room-scoped `absentMilk` query
 - Firebase push record creation
 - exact record load/delete
-- protected legacy paths unchanged
 
 ✓ `modules/services/pendingMilkService.js`
 
@@ -116,11 +115,11 @@ Runtime Implemented
 - authenticated-room-only access
 - absent-only eligibility
 - already-issued exclusion
-- Service-level duplicate recheck immediately before save
-- legacy-compatible record construction
+- Service-level duplicate recheck before save
+- compatible record construction
 - Room Stock-only issue and rollback
 - PENDING/ROLLBACK ledger and OUT/IN stockLog construction
-- ETag stock workflow reused through the completed Attendance stock boundary
+- ETag stock workflow reused through Attendance stock boundary
 - Main Stock delta zero
 - explicit partial-save error details
 
@@ -128,7 +127,7 @@ Runtime Implemented
 
 - UI-safe week load, issue, and remove commands
 - audit queue delegation
-- typed Room Stock retry queue delegation
+- typed Room Stock retry delegation
 - duplicate delete/rollback in-flight guard
 - lifecycle events and state clear
 
@@ -136,7 +135,7 @@ Runtime Implemented
 
 - Teacher-only operational panel
 - week-date selection
-- eligible, already issued, selected, and box totals
+- eligible, already-issued, selected, and box totals
 - selectable student/date rows
 - note input
 - issue confirmation and feedback
@@ -145,7 +144,7 @@ Runtime Implemented
 - responsive layout
 - no direct Firebase, Repository, fetch, Local Storage, Session Storage, eligibility, duplicate, stock, ledger, or stockLog logic
 
-✓ App dynamically loads Repository, Service, Manager, and View after the completed Queue UI
+✓ App dynamically loads Repository, Service, Manager, and View after Queue UI
 
 ✓ `index.html` unchanged
 
@@ -153,178 +152,61 @@ Runtime Implemented
 
 ---
 
-Pending Milk Module Gate — PASS
+Sprint-Specific Gates — PASS
 
-Test:
+Module Gate:
 
-- `tests/pending-milk-module-check.mjs`
-
-Confirmed locally:
-
-✓ Runtime JavaScript syntax
-
-✓ legacy schema evidence remains present
-
-✓ room-scoped repository boundary
-
-✓ exact Attendance date reads
-
-✓ Monday–Friday range
-
-✓ absent-only eligibility
-
-✓ already-issued exclusion
-
-✓ two-student issue quantity
-
-✓ compatible record fields
-
-✓ PENDING ledger and OUT stockLog
-
-✓ duplicate issue rejection
-
-✓ delete rollback with ROLLBACK ledger and IN stockLog
-
-✓ Room Stock returns to baseline
-
-✓ Main Stock remains 999
-
-✓ cross-room rejection
-
-✓ View architecture restrictions
+✓ `tests/pending-milk-module-check.mjs`
 
 ✓ `Pending Milk module checks passed.`
 
----
+Recovery Routing Gate:
 
-Recovery Routing Gate — PASS
+✓ `tests/pending-milk-recovery-routing-check.mjs`
 
-Updated:
+✓ legacy retries default to `ATTENDANCE`
 
-- `modules/storage/queueStorage.js`
-- `modules/services/syncService.js`
-- `modules/sync/syncManager.js`
-- `modules/sync/syncView.js`
+✓ `PENDING` and `ROLLBACK` metadata persist
 
-Test:
+✓ correct ledger and stockLog types
 
-- `tests/pending-milk-recovery-routing-check.mjs`
+✓ failed audit converts to audit-only work
 
-Confirmed locally:
-
-✓ Existing queue key remains `tc_pending_saves_v1`
-
-✓ Legacy `diff` alias remains compatible
-
-✓ Existing entries without operation metadata default to `ATTENDANCE`
-
-✓ `operationType: PENDING` persists for issue retries
-
-✓ `operationType: ROLLBACK` persists for delete retries
-
-✓ Pending-specific reviewed note metadata persists
-
-✓ Attendance retries continue through the existing Attendance route
-
-✓ PENDING retries create PENDING ledger and OUT stockLog
-
-✓ ROLLBACK retries create ROLLBACK ledger and IN stockLog
-
-✓ Typed retries remain Room Stock-only
-
-✓ Main Stock delta remains zero
-
-✓ Failed audit converts to audit-only work
-
-✓ Audit-only retry preserves the original PENDING/ROLLBACK audit payload
-
-✓ Audit-only retry never repeats Room Stock mutation
-
-✓ Queue UI labels typed Pending Milk retries safely
+✓ audit-only retry never repeats Room Stock mutation
 
 ✓ `Pending Milk recovery routing checks passed.`
 
-Artifact:
+Operational UI Gate:
 
-- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
-
----
-
-Operational UI Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
-
-Test:
-
-- `tests/pending-milk-ui-check.mjs`
-
-Coverage:
-
-✓ valid View JavaScript and App integration
-
-✓ programmatic Pending Milk panel creation
-
-✓ no direct Firebase, Repository, fetch, browser-storage, stock, ledger, or stockLog ownership
+✓ `tests/pending-milk-ui-check.mjs`
 
 ✓ Teacher-only activation and Admin rejection
 
 ✓ selected-week delegation
 
-✓ eligible and already-issued totals
+✓ eligible, issued, selected, and box totals
 
-✓ selectable student/date pairs
+✓ issue confirmation and note delegation
 
-✓ box count equals selected pair count
-
-✓ explicit issue confirmation
-
-✓ note delegation
-
-✓ Room Stock result feedback
-
-✓ partial-save queue warning
+✓ partial-save warning
 
 ✓ history and confirmed delete delegation
 
-✓ Teacher refresh after successful issue/delete
-
 ✓ Logout cleanup
 
-Local command pending:
+✓ `Pending Milk UI checks passed.`
 
-```powershell
-node tests/pending-milk-ui-check.mjs
-```
+Isolated Write Gate:
 
----
-
-Isolated Write Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
-
-Test:
-
-- `tests/pending-milk-isolated-write-check.mjs`
-
-Coverage:
+✓ `tests/pending-milk-isolated-write-check.mjs`
 
 ✓ successful two-box issue changes Room Stock `50 → 48`
 
-✓ compatible Pending Milk record fields
-
-✓ PENDING ledger quantity `-2`
-
-✓ OUT stockLog
-
-✓ duplicate student/date issue is blocked
+✓ duplicate student/date issue blocked
 
 ✓ successful delete restores Room Stock `48 → 50`
 
-✓ ROLLBACK ledger quantity `2`
-
-✓ IN stockLog
-
-✓ partial issue saves record before stock failure
-
 ✓ partial issue queues typed `PENDING` difference `1`
-
-✓ partial delete removes record before stock failure
 
 ✓ partial delete queues typed `ROLLBACK` difference `-1`
 
@@ -332,62 +214,99 @@ Coverage:
 
 ✓ Main Stock remains 999 throughout
 
-✓ Manager emits success, delete, and queued-work events
+✓ `Pending Milk isolated write checks passed.`
 
-Artifact:
+Artifacts:
 
+- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
 - `docs/PENDING_MILK_ISOLATED_WRITE_GATE.md`
-
-Local command pending:
-
-```powershell
-node tests/pending-milk-isolated-write-check.mjs
-```
+- `docs/PENDING_MILK_UI_IMPLEMENTATION_REPORT.md`
 
 ---
 
-Automated Regression Gate — Pending
+Automated Regression Gate — PASS
 
 Existing Sprint 4.3 tests: 18
 
-Sprint 4.4 tests:
+Sprint 4.4 tests: 4
 
-- `tests/pending-milk-module-check.mjs`
-- `tests/pending-milk-recovery-routing-check.mjs`
-- `tests/pending-milk-ui-check.mjs`
-- `tests/pending-milk-isolated-write-check.mjs`
+Total: 22
 
-Expected final count: 22 tests.
+Confirmed locally:
+
+✓ all existing 18 regression tests passed
+
+✓ all four Sprint 4.4 tests passed
+
+✓ `ALL 22 REGRESSION CHECKS PASSED`
+
+✓ feature branch synchronized with origin
+
+✓ working tree clean
 
 ---
 
-Browser and Responsive Gates — Not Started
+Desktop Browser Gate — READY / READ-ONLY ONLY
 
-Desktop Chrome read-only gate:
+Before Teacher Login:
 
-□ Admin Login/Logout unchanged
+□ inspect `tc_pending_saves_v1`
 
-□ Teacher Pending Milk panel renders
+□ confirm no real pending queue entry exists
 
-□ Selected week loads only five authenticated-room Attendance records
+□ do not use room `อ.3-3`
+
+□ do not use date `2026-07-28`
+
+□ do not press Pending Milk issue or delete buttons
+
+Admin regression:
+
+□ Admin Login renders the existing Admin shell
+
+□ Admin Logout returns to Login
+
+□ Console clean
+
+Teacher read-only validation:
+
+□ Pending Milk panel renders
+
+□ selected week loads exactly five Attendance dates
 
 □ `absentMilk` request is room-scoped
 
-□ Eligible and already-issued states render correctly
+□ eligible and already-issued states render correctly
 
-□ No mutation during read-only validation
+□ issue button remains unused
 
-□ Console clean
+□ delete buttons remain unused
 
-Chrome Device Toolbar at 820 x 1180:
-
-□ Date, totals, student rows, history, feedback, action, and Logout remain reachable
-
-□ No abnormal horizontal overflow
+□ no `POST`, `PUT`, `PATCH`, or `DELETE` mutation appears
 
 □ Console clean
 
-Browser Pending Milk write interaction remains prohibited until the UI, isolated write, and full regression gates pass.
+---
+
+Responsive Gate at 820 x 1180 — Pending
+
+□ week selector and Load button reachable
+
+□ four summary cards readable
+
+□ student/date rows contained
+
+□ note and issue action reachable
+
+□ history and delete actions contained without being pressed
+
+□ Queue panel and Logout remain reachable
+
+□ no abnormal horizontal overflow
+
+□ Console clean
+
+Physical iPad remains deferred and must not be represented as PASS.
 
 ---
 
