@@ -254,10 +254,13 @@ class SyncManager {
             const type = ["attendance", "roomStockAdjust", "attendanceAudit"].includes(entry?.type)
                 ? entry.type
                 : "unknown";
+            const operationType = this.operationType(entry?.operationType);
 
             return {
                 key,
                 type,
+                operationType,
+                note: String(entry?.note || ""),
                 roomId: String(entry?.roomId || record.clsId || record.roomId || ""),
                 roomName: String(entry?.roomName || record.roomName || ""),
                 date: String(entry?.date || record.date || this.dateFromAttendanceKey(key)),
@@ -274,6 +277,13 @@ class SyncManager {
                     : null
             };
         });
+    }
+
+    operationType(value) {
+        const normalized = String(value || "ATTENDANCE").trim().toUpperCase();
+        return ["ATTENDANCE", "PENDING", "ROLLBACK"].includes(normalized)
+            ? normalized
+            : "ATTENDANCE";
     }
 
     dateFromAttendanceKey(key) {
