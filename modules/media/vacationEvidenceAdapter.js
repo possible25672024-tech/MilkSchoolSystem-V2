@@ -3,6 +3,7 @@ class VacationEvidenceAdapter {
         this.window = options.window || window;
         this.installed = false;
         this.loginReplayBound = false;
+        this.teacherRefreshBound = false;
     }
 
     install() {
@@ -15,6 +16,7 @@ class VacationEvidenceAdapter {
         this.patchService(vacationMilkService);
         this.patchManager(vacationMilkManager, evidenceManager);
         this.bindLoginReplay();
+        this.bindTeacherRefreshReplay();
         this.installed = Boolean(
             vacationMilkService.__vacationEvidencePatched &&
             vacationMilkManager.__vacationEvidencePatched
@@ -59,20 +61,39 @@ class VacationEvidenceAdapter {
         return manager;
     }
 
+    replayCurrentPreview() {
+        return Promise.resolve().then(() => this.window.VacationMilkView?.handlePreviewChange?.());
+    }
+
     bindLoginReplay() {
         if (this.loginReplayBound || typeof this.window.addEventListener !== "function") return;
         this.window.addEventListener("milkapp:login-success", event => {
             if (event?.detail?.session?.role !== "teacher") return;
-            Promise.resolve().then(() => this.window.VacationMilkView?.handlePreviewChange?.());
+            this.replayCurrentPreview();
         });
         this.loginReplayBound = true;
+    }
+
+    bindTeacherRefreshReplay() {
+        if (this.teacherRefreshBound || typeof this.window.addEventListener !== "function") return;
+        this.window.addEventListener("milkapp:teacher-refreshed", event => {
+            const session = this.window.AuthService?.getSession?.();
+            if (session?.role !== "teacher") return;
+            const sessionRoomId = String(session.roomId || session.classId || "");
+            const refreshedRoomId = String(event?.detail?.roomId || "");
+            if (sessionRoomId && refreshedRoomId && sessionRoomId !== refreshedRoomId) return;
+            this.replayCurrentPreview();
+        });
+        this.teacherRefreshBound = true;
     }
 
     getStatus() {
         return {
             installed: this.installed,
             vacationMilkService: Boolean(this.window.VacationMilkService?.__vacationEvidencePatched),
-            vacationMilkManager: Boolean(this.window.VacationMilkManager?.__vacationEvidencePatched)
+            vacationMilkManager: Boolean(this.window.VacationMilkManager?.__vacationEvidencePatched),
+            loginReplayBound: this.loginReplayBound,
+            teacherRefreshBound: this.teacherRefreshBound
         };
     }
 }
