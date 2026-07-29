@@ -128,6 +128,7 @@ class SyncView {
             .sync-item-title { margin: 0; color: #1f2937; font-weight: 800; }
             .sync-item-state { font-size: .8rem; font-weight: 800; color: #475569; }
             .sync-item-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 12px; margin-top: 8px; color: #64748b; font-size: .84rem; }
+            .sync-item-note { margin: 8px 0 0; color: #475569; font-size: .84rem; overflow-wrap: anywhere; }
             .sync-item-error { margin: 8px 0 0; color: #991b1b; font-size: .84rem; overflow-wrap: anywhere; }
             .sync-empty { margin: 0; border-radius: 10px; padding: 16px; color: #64748b; background: #f8fafc; }
             .sync-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
@@ -353,7 +354,11 @@ class SyncView {
         const nodes = items.map(item => {
             const article = this.createElement("article", "sync-item");
             const heading = this.createElement("div", "sync-item-heading");
-            heading.appendChild?.(this.createElement("p", "sync-item-title", this.typeLabel(item.type)));
+            heading.appendChild?.(this.createElement(
+                "p",
+                "sync-item-title",
+                this.typeLabel(item.type, item.operationType)
+            ));
             heading.appendChild?.(this.createElement("span", "sync-item-state", this.statusLabel(item.status)));
             article.appendChild?.(heading);
 
@@ -369,6 +374,9 @@ class SyncView {
             }
             article.appendChild?.(meta);
 
+            if (item.note) {
+                article.appendChild?.(this.createElement("p", "sync-item-note", `รายละเอียด: ${item.note}`));
+            }
             if (item.error?.code || item.error?.message) {
                 article.appendChild?.(this.createElement(
                     "p",
@@ -381,10 +389,16 @@ class SyncView {
         container.replaceChildren?.(...nodes);
     }
 
-    typeLabel(type) {
+    typeLabel(type, operationType = "ATTENDANCE") {
+        if (String(type || "") === "roomStockAdjust") {
+            return {
+                PENDING: "หักสต็อกนมค้างที่รอซิงก์",
+                ROLLBACK: "คืนสต็อกนมค้างที่รอซิงก์",
+                ATTENDANCE: "ปรับสต็อกห้องที่ค้าง"
+            }[String(operationType || "ATTENDANCE").toUpperCase()] || "ปรับสต็อกห้องที่ค้าง";
+        }
         return {
             attendance: "บันทึกเช็กดื่มนม",
-            roomStockAdjust: "ปรับสต็อกห้องที่ค้าง",
             attendanceAudit: "บันทึกประวัติที่ค้าง"
         }[String(type || "")] || "รายการซิงก์";
     }
@@ -434,7 +448,7 @@ class SyncView {
         if (!element) {
             return;
         }
-        element.textContent = `แสดงสถานะซิงก์ไม่สำเร็จ: ${error?.message || "ไม่ทราบสาเหตุ"}`;
+        element.textContent = `ซิงก์ไม่สำเร็จ: ${error?.message || "ไม่ทราบสาเหตุ"}`;
         element.hidden = false;
     }
 
@@ -447,20 +461,11 @@ class SyncView {
         element.hidden = true;
     }
 
-    getState() {
-        let status = {};
-        try {
-            status = this.syncManager?.getStatus?.() || {};
-        } catch (error) {
-            status = {};
+    setText(id, value) {
+        const element = this.element(id);
+        if (element) {
+            element.textContent = String(value ?? "");
         }
-        return {
-            active: this.activeSession?.role === "teacher",
-            session: this.activeSession ? { ...this.activeSession } : null,
-            online: status.online !== false && this.network?.onLine !== false,
-            flushing: this.syncingOverride || Boolean(status.flushing),
-            queueCount: this.nonNegativeNumber(status.queueCount)
-        };
     }
 
     createElement(tagName, className = "", text = "") {
@@ -473,15 +478,18 @@ class SyncView {
         return element;
     }
 
-    setText(id, value) {
-        const element = this.element(id);
-        if (element) {
-            element.textContent = String(value ?? "");
-        }
-    }
-
     element(id) {
         return this.document?.getElementById?.(id) || null;
+    }
+
+    getState() {
+        const status = this.syncManager?.getStatus?.() || {};
+        return {
+            active: this.activeSession?.role === "teacher",
+            queueCount: this.nonNegativeNumber(status.queueCount),
+            online: status.online !== false && this.network?.onLine !== false,
+            flushing: this.syncingOverride || Boolean(status.flushing)
+        };
     }
 }
 
