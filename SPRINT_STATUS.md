@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.6 — Vacation Milk Operational UI
 
-Status: **82% — MODULE AND RECOVERY GATES PASSED / UI AND ISOLATED TESTS IMPLEMENTED / FIREBASE INDEX BLOCKER CONFIRMED**
+Status: **92% — MODULE, RECOVERY, UI, ISOLATED WRITE, AND FIREBASE INDEX GATES PASSED / FULL REGRESSION PENDING**
 
 Sprint 4.5 Retroactive Milk Operational UI completed all automated, isolated, desktop, indexed Network, Console, and 820 x 1180 responsive gates and was fast-forward integrated into `develop` at:
 
@@ -130,11 +130,12 @@ View:
 - academic year, semester, issue date, room, and day inputs;
 - student/day/box/Room Stock summary;
 - visible student roster and per-student box count;
-- explicit Shared Media & Signature handoff;
+- Shared Media & Signature handoff;
 - optional note;
-- issue confirmation;
+- explicit issue and delete confirmations;
 - Room Stock and Queue feedback;
-- room history and confirmed rollback;
+- successful and queued result status preserved after automatic history refresh;
+- room history and rollback actions;
 - responsive layout;
 - no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership.
 
@@ -146,20 +147,17 @@ App and Sync:
 - existing `ATTENDANCE`, `PENDING`, `RETRO`, and `ROLLBACK` routing remains available;
 - protected legacy files remain unchanged.
 
-## Module, Recovery, and Documentation Gates — PASS
+## Sprint-Specific Automated Gates — PASS
 
 Confirmed locally:
 
 ```text
 Vacation Milk module checks passed.
 Vacation Milk recovery routing checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
 Cutover documentation checks passed.
 ```
-
-At the reported validation point:
-
-- feature branch synchronized with origin;
-- working tree clean.
 
 Module coverage:
 
@@ -187,30 +185,16 @@ Recovery coverage:
 - exact rollback restores Room Stock `110 → 200`;
 - Main Stock remains 999.
 
-Artifacts:
+UI and isolated coverage:
 
-- `docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md`
-
-## Operational UI and Isolated Write Gates — IMPLEMENTED / LOCAL RUN PENDING
-
-Added:
-
-```text
-tests/vacation-milk-ui-check.mjs
-tests/vacation-milk-isolated-write-check.mjs
-docs/VACATION_MILK_ISOLATED_WRITE_GATE.md
-```
-
-Coverage:
-
-- Teacher-only panel and Admin rejection;
+- Teacher-only activation and Admin rejection;
 - default 30-day vacation period;
-- visible student names and per-student quantity;
-- Shared Media & Signature handoff;
+- visible student roster and per-student quantity;
+- Media & Signature handoff;
 - student/day/box/Room Stock summaries;
-- explicit issue and delete confirmations;
 - successful issue feedback `200 → 110`;
 - successful delete feedback `110 → 200`;
+- status retained after automatic history refresh;
 - exact duplicate rejection;
 - partial issue queued as `VACATION` difference `30`;
 - partial delete queued as `ROLLBACK` difference `-30`;
@@ -219,52 +203,89 @@ Coverage:
 - no Firebase or real classroom writes;
 - Main Stock remains 999.
 
-Expected:
+Artifacts:
+
+- `docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md`
+- `docs/VACATION_MILK_ISOLATED_WRITE_GATE.md`
+
+## Firebase Realtime Database Index — PUBLISHED AND VALIDATED
+
+Published Rules preserve:
 
 ```text
-Vacation Milk UI checks passed.
-Vacation Milk isolated write checks passed.
+/milkApp/absentMilk   → .indexOn ["roomId"]
+/milkApp/retroMilk    → .indexOn ["roomId"]
+/milkApp/vacationMilk → .indexOn ["roomId"]
 ```
 
-## Firebase Realtime Database Index — CONFIRMED BLOCKER
-
-Read-only browser evidence confirms the operational preview works:
+Read-only browser evidence confirms:
 
 ```text
 16 students × 30 days = 480 boxes
 Room Stock = 476
+Method GET
+Status 200
+History records 0
 ```
 
-History loading currently returns HTTP 400:
+The UI correctly displayed:
 
 ```text
-Index not defined, add ".indexOn": "roomId", for path "/milkApp/vacationMilk"
+โหลดประวัติแล้ว 0 รายการ
+ยังไม่มีรายการนมช่วงปิดเทอม
 ```
 
-Current Firebase Rules still contain only:
+No Vacation Milk record was created or deleted during validation.
 
-```text
-/milkApp/absentMilk → .indexOn ["roomId"]
-/milkApp/retroMilk  → .indexOn ["roomId"]
-```
+The previous HTTP 400 index blocker is closed.
 
-After the UI and isolated write gates pass, preserve those indexes and add:
+Artifact:
 
-```text
-/milkApp/vacationMilk → .indexOn ["roomId"]
-```
+- `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
 
 Root-level public `.read` and `.write` remain a production-security blocker.
 
-## Remaining Gates
+## Full Regression Gate — PENDING
 
-1. Vacation Milk UI local test.
-2. Vacation Milk isolated write local test.
-3. Publish and validate the Vacation Milk room index.
-4. Complete all 30 regression checks.
-5. Desktop read-only indexed Network and Console gate.
-6. Responsive 820 x 1180 gate.
-7. Clean branch and working tree.
+Existing tests before Sprint 4.6: 26
+
+Sprint 4.6 tests: 4
+
+Required total:
+
+```text
+30
+```
+
+Pending:
+
+- remove `vacation-ui-error.txt` if it still exists;
+- run all 30 tests;
+- confirm `ALL 30 REGRESSION CHECKS PASSED`;
+- confirm branch synchronized with origin;
+- confirm working tree clean.
+
+## Final Browser Gate — PARTIAL PASS
+
+Passed:
+
+- Vacation Milk Teacher panel renders;
+- authenticated room and roster visible;
+- 30-day calculation `16 × 30 = 480`;
+- Room Stock `476` visible;
+- room-scoped history request returns HTTP 200;
+- no history record exists for the selected room;
+- no issue/delete action pressed.
+
+Remaining after full regression:
+
+- Admin Login/Logout regression evidence;
+- Queue key absent or `[]` before Teacher Login;
+- clean Console after indexed history load;
+- Network contains no `POST`, `PUT`, `PATCH`, or `DELETE`;
+- 820 x 1180 responsive layout;
+- Logout and Queue panel reachable;
+- synchronized branch and clean working tree.
 
 ## Browser Restriction
 
