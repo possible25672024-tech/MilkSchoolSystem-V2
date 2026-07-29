@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **30% — LEGACY AUDIT AND PURE MEDIA POLICY IMPLEMENTED / LOCAL VALIDATION PENDING**
+Status: **55% — POLICY, PROCESSOR, SIGNATURE, AND ROSTER GATES PASSED / LAZY STORAGE AND QUEUE REDACTION IMPLEMENTED / LOCAL VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -65,30 +65,120 @@ Artifacts:
 - `docs/VACATION_MILK_BROWSER_VALIDATION_REPORT.md`
 - `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
 
-## Sprint 4.7 Progress Record
+## Sprint 4.7 Accepted Local Gates
 
-Teacher-session roster race condition fixed and locally accepted:
+Confirmed locally:
 
 ```text
+Media policy checks passed.
+Media processor checks passed.
+Signature Pad checks passed.
 Teacher session roster fallback checks passed.
 Vacation Milk UI checks passed.
 nothing to commit, working tree clean
 ```
 
-Browser evidence after the fix:
+Teacher-session roster race condition acceptance:
 
 - authenticated room roster visible with 16 students;
 - Vacation preview calculated 16 × 30 = 480 boxes;
 - live Room Stock 1,040 visible;
 - no real evidence write performed.
 
-Current Sprint artifacts:
+## Sprint 4.7 Implemented Shared Boundaries
 
-- `docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md`
-- `modules/media/mediaPolicy.js`
-- `tests/media-policy-check.mjs`
+### Legacy and Policy
 
-The legacy field and ownership audit is complete. Generated-fixture size measurement, processor, signature pad, storage, Queue redaction, and workflow integration remain pending.
+```text
+docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md
+modules/media/mediaPolicy.js
+tests/media-policy-check.mjs
+```
+
+Policy limits:
+
+- maximum five photos per record;
+- maximum 1,000-pixel longest edge;
+- JPEG quality 0.7;
+- maximum source size 8 MB;
+- maximum processed photo size 400 KB;
+- maximum signature size 120 KB;
+- maximum aggregate evidence size 2.25 MB;
+- JPEG, PNG, and WebP source support;
+- PNG signature output.
+
+### Processor
+
+```text
+modules/media/mediaProcessor.js
+tests/media-processor-check.mjs
+docs/MEDIA_PROCESSOR_ISOLATED_GATE.md
+```
+
+Confirmed:
+
+- proportional resize;
+- no enlargement of smaller images;
+- generated thumbnail;
+- safe media ID;
+- resource cleanup;
+- safe summary without Data URL or original file name;
+- generated in-memory fixture only.
+
+### Signature Pad
+
+```text
+modules/signature/signaturePad.js
+tests/signature-pad-check.mjs
+docs/SIGNATURE_PAD_ISOLATED_GATE.md
+```
+
+Confirmed:
+
+- Pointer Events;
+- Mouse and Touch fallback;
+- clear and redraw;
+- empty-signature rejection;
+- bounded 640 x 240 canvas;
+- PNG validation;
+- safe summary without PNG payload;
+- event-listener cleanup.
+
+### Lazy Media Storage and Queue Redaction — IMPLEMENTED / LOCAL VALIDATION PENDING
+
+```text
+modules/media/mediaStore.js
+modules/media/mediaEnvelope.js
+tests/media-store-check.mjs
+tests/media-queue-redaction-check.mjs
+docs/MEDIA_STORAGE_QUEUE_REDACTION_GATE.md
+```
+
+Storage boundary:
+
+- delayed IndexedDB opening;
+- payload records stored separately by safe media ID;
+- metadata-only listing;
+- selective photo/signature hydration;
+- record-key and media-kind filtering;
+- exact remove and clear operations;
+- no Firebase, stock, Queue, report, or print ownership.
+
+Envelope boundary:
+
+- evidence validation before persistence;
+- separate persistence for every photo and signature;
+- reference-only manifests;
+- Queue-safe counts and media references;
+- Data URL, payload, blob, and source-file-name redaction;
+- sensitive-payload detection.
+
+Expected local output:
+
+```text
+Media store checks passed.
+Media Queue redaction checks passed.
+```
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -123,75 +213,35 @@ Implement one shared, safe Media and Signature workflow for:
 - Retroactive Milk recipient or student signature and photos;
 - Vacation Milk parent or recipient signature and photos.
 
-The workflow must preserve legacy-compatible `photos`, `signature`, and `signatures` fields without adding unrestricted login-blocking payloads.
+The workflow must preserve legacy-compatible `photos`, `signature`, and `signatures` behavior without adding unrestricted login-blocking payloads.
 
-## First Required Gate — Legacy and Payload Audit
+## Next Integration Sequence
 
-Completed:
+After Lazy Storage and Queue-redaction gates pass:
 
-1. inspected protected `teacher.html` evidence workflows;
-2. documented exact field shapes by workflow;
-3. identified Firebase paths and record ownership;
-4. documented legacy image-count, dimension, quality, and signature-canvas behavior;
-5. defined thumbnail, lazy-loading, replacement, cleanup, rollback, backup, restore, and Queue-redaction contracts;
-6. proved the policy boundary contains no stock mutation logic.
+1. Attendance daily photo and Teacher signature;
+2. Pending Milk evidence;
+3. Retroactive Milk evidence;
+4. Vacation Milk evidence.
 
-Still pending:
-
-1. measure generated representative image and signature payload sizes;
-2. validate final source-size, compressed-size, signature-size, and aggregate limits;
-3. run the pure Media Policy gate locally;
-4. implement and validate processor, signature pad, storage, and workflow integration.
-
-Required artifact:
-
-```text
-docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md
-```
-
-## Planned Shared Boundaries
-
-Target responsibilities:
-
-```text
-modules/media/mediaPolicy.js
-modules/media/mediaProcessor.js
-modules/media/mediaStorage.js
-modules/media/mediaManager.js
-modules/media/mediaView.js
-modules/signature/signaturePad.js
-modules/signature/signatureManager.js
-modules/signature/signatureView.js
-```
-
-Exact names may change after the audit, but policy, processing, storage, manager, and view responsibilities must remain separated.
-
-## Planned Automated Gates
-
-```text
-tests/media-policy-check.mjs
-tests/media-processor-check.mjs
-tests/signature-pad-check.mjs
-tests/media-storage-check.mjs
-tests/media-signature-integration-check.mjs
-```
-
-The first tests must be pure and isolated from Firebase.
+Each workflow requires its own UI, isolated write, recovery, browser read-only, and responsive gates.
 
 ## Queue and Payload Rules
 
 - Queue storage key remains `tc_pending_saves_v1`.
 - Queue UI must never show full photo or signature payloads.
+- Media payloads must be persisted before a reference-only record is queued.
 - Retries must not duplicate evidence.
 - Evidence retry must not repeat a successful Room Stock mutation.
 - Audit-only recovery remains audit-only.
 - Main Stock remains unchanged.
 - Teacher Login must not download all historical evidence.
 - Evidence loads only for the selected room, date, or record.
+- Existing `QueueStorage` does not own IndexedDB media payloads.
 
 ## Browser Restriction
 
-Until isolated gates pass:
+Until workflow integration and isolated write gates pass:
 
 - do not attach a real classroom photo;
 - do not save a real signature;
@@ -229,7 +279,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- Media and Signature parity;
+- Media and Signature workflow integration;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
