@@ -4,187 +4,74 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: **PARTIAL PASS / LIVE TEACHER STOCK CONSISTENCY FIX IMPLEMENTED / LOCAL RETEST PENDING**
+Status: **PARTIAL PASS — QUEUE PREFLIGHT AND PENDING EVIDENCE RENDER ACCEPTED / FINAL REGRESSION, CLEAN LOCAL DRAFT, METHOD EVIDENCE, AND REMAINING PANELS PENDING**
 
-## Preconditions
+## Accepted automated foundation
 
-Confirmed before the submitted browser evidence:
+Previously accepted on this feature branch:
 
-- complete Sprint 4.7 regression runner passed;
-- feature branch matched Origin;
-- working tree was clean;
-- protected `index.html` and `teacher.html` remained unchanged;
-- no real classroom evidence write was authorized;
-- physical iPad remained deferred.
+- Media Policy, Processor, Signature Pad, IndexedDB Media Store, and Queue redaction gates;
+- Attendance, Pending, Retroactive, and Vacation evidence integration gates;
+- recovery and duplicate-prevention gate;
+- Teacher session-roster fallback gate;
+- the original 42+ full-regression run before the live Vacation stock correction.
 
-## Submitted Browser Evidence — ACCEPTED
+The live Vacation stock correction and stable adapter-status contract are implemented at:
+
+```text
+209457c fix(media): refresh Vacation preview from live Teacher snapshot
+744bde5 fix(media): preserve Vacation adapter status contract
+4daf1b9 test(media): keep Vacation status contract stable
+```
+
+A final full-regression result after `4daf1b9` is still required as explicit test output. A clean Git tree alone does not prove that the runner passed.
+
+## Submitted browser evidence — accepted
 
 The supplied screenshots confirm:
 
-- Chrome Device Toolbar used `820 x 1180`;
-- the Teacher shell remained vertically scrollable;
-- the Vacation Milk operational panel rendered;
-- the Vacation evidence section rendered inside the panel;
-- photo input, student selector, parent or recipient field, signature canvas, and clear/use controls were visible;
-- the authenticated room roster contained 16 students;
-- Vacation preview showed 16 students, 30 days, and 480 boxes;
-- no photo was selected;
-- no signature was drawn;
-- Console showed the normal `MilkSchoolSystem V2 Started` message;
-- no JavaScript or Firebase error was visible in Console;
-- Teacher dashboard rendered with zero visible Queue items;
-- Logout returned to the login screen;
-- the branch remained synchronized with Origin and the working tree remained clean.
+- the application started normally at `127.0.0.1:5500/index-v2.html`;
+- `localStorage.getItem("tc_pending_saves_v1")` returned `null` before Teacher login;
+- Teacher dashboard rendered for a non-quarantined room;
+- the dashboard displayed live Room Stock `476` and visible Queue count `0`;
+- the Pending Milk evidence panel rendered;
+- Pending photo input, recipient selector, recipient-name field, signature canvas, local-load control, and remove control were reachable;
+- Firebase read endpoints returned HTTP 200 in Network;
+- the feature branch matched Origin and the working tree was clean at `4daf1b9`.
 
-## Browser Finding — BLOCKER FOUND
+## Browser evidence that remains partial
 
-The screenshots show inconsistent Room Stock for the same authenticated Teacher room:
+### 1. Pending local draft must be removed
+
+The Pending evidence screenshot shows:
 
 ```text
-Vacation Milk panel: 1040 boxes
-Teacher dashboard:    476 boxes
+1 / 5 รูป
 ```
 
-This prevents Browser Gate acceptance even though the responsive layout and Console evidence passed.
+and a local preview. This is an IndexedDB draft, not evidence of a Firebase write, but the Browser Gate is required to finish with no selected media.
 
-### Root cause
-
-The Vacation preview can render from the authenticated session fallback before `TeacherManager.refresh()` finishes loading the live room snapshot.
-
-`TeacherManager` emits:
+Use the visible `นำออก` control for that draft and confirm:
 
 ```text
-milkapp:teacher-refreshed
+0 / 5 รูป
+ยังไม่มีรูปถ่าย
 ```
 
-after the live snapshot is available, but the Vacation preview previously replayed only after login. The Vacation stock card could therefore retain the fallback value while the Teacher dashboard displayed the live value.
+Do not manually edit IndexedDB or Local Storage.
 
-### Runtime correction
+### 2. Network Method is not visible
 
-Implemented:
+The submitted Network table shows Firebase resources, Status `200`, and Type `fetch`, but the Method column is not enabled. The screenshot therefore does not directly prove:
 
 ```text
-modules/media/vacationEvidenceAdapter.js
-```
-
-The adapter now:
-
-- keeps the existing post-login preview replay;
-- listens for `milkapp:teacher-refreshed`;
-- confirms that the refreshed room matches the authenticated Teacher room;
-- replays `VacationMilkView.handlePreviewChange()` after the live snapshot arrives;
-- ignores refresh events for other rooms;
-- ignores refresh events outside a Teacher session;
-- keeps listener installation idempotent;
-- performs no Firebase, Queue, Room Stock, or Main Stock write.
-
-Regression check added:
-
-```text
-tests/vacation-live-stock-refresh-check.mjs
-```
-
-Expected output:
-
-```text
-Vacation live Teacher stock refresh checks passed.
-```
-
-## Evidence Still Missing
-
-The supplied screenshots do not yet prove all Browser Gate requirements.
-
-Still required after pulling the stock-refresh fix:
-
-1. Vacation stock card and Teacher dashboard show the same live Room Stock value.
-2. Desktop Attendance evidence section renders.
-3. Desktop Pending evidence section renders.
-4. Desktop Retroactive evidence section renders.
-5. Queue value is explicitly checked before and after validation with:
-
-```js
-localStorage.getItem("tc_pending_saves_v1")
-```
-
-6. Network evidence records the validation activity and confirms:
-
-```text
-GET/OPTIONS only
 POST = 0
 PUT = 0
 PATCH = 0
 DELETE = 0
 ```
 
-The submitted Network screenshot was taken after the request list had been cleared and contained no entries. It therefore does not prove the request-method acceptance criteria.
-
-## Queue Preflight
-
-Before the retest, inspect the queue without changing it:
-
-```js
-localStorage.getItem("tc_pending_saves_v1")
-```
-
-Proceed only when the result is `null`, `"[]"`, or a parsed empty array.
-
-When a non-empty Queue exists:
-
-- stop the browser gate;
-- do not clear or edit it;
-- report only the Queue count without exposing student or evidence payloads.
-
-Repeat the check after validation. The Queue must remain empty.
-
-## Safety Boundary
-
-Do not use:
-
-- room `อ.3-3`;
-- room ID `mqn0z13eyx5b`;
-- date `2026-07-28`;
-- a real classroom photo;
-- a real Teacher, parent, student, or recipient signature.
-
-Do not press:
-
-- Attendance save or delete;
-- Pending Milk issue or delete;
-- Retroactive Milk issue or delete;
-- Vacation Milk issue or delete;
-- Queue retry, replay, remove, or edit.
-
-Do not manually edit Firebase, IndexedDB, Local Storage, Room Stock, Main Stock, ledger, stockLog, or transaction history.
-
-## Read-Only Retest
-
-### Desktop
-
-Confirm all four sections:
-
-```text
-หลักฐานเช็กดื่มนมรายวัน
-รูปถ่ายและลายเซ็นผู้รับนมค้าง
-รูปถ่ายและลายเซ็นผู้รับนมย้อนหลัง
-รูปถ่ายและลายเซ็นผู้ปกครอง/ผู้รับนมช่วงปิดเทอม
-```
-
-For Vacation Milk, wait for the Teacher dashboard to finish loading and confirm that its Room Stock equals the Vacation stock card.
-
-### Responsive 820 x 1180
-
-Confirm:
-
-- all four evidence sections remain readable;
-- photo inputs do not create abnormal horizontal overflow;
-- signature canvases remain inside their panels;
-- owner selectors, receiver-name fields, and buttons remain reachable;
-- Attendance, Pending, Retroactive, Vacation, Queue, and Logout controls remain reachable;
-- Console remains clean.
-
-### Network
-
-Keep Network recording enabled before login and do not clear the request list until the final screenshot is taken.
+For final evidence, right-click the Network header row and enable `Method`. Keep recording active before login and do not clear the request list before the final screenshot.
 
 Accepted methods:
 
@@ -202,28 +89,79 @@ PATCH
 DELETE
 ```
 
-## Acceptance Criteria
+### 3. Remaining visual evidence
 
-The Browser Gate passes only when:
+Still required:
 
-- the new live-stock regression check passes;
-- the complete regression runner passes again;
-- Vacation and Teacher dashboard Room Stock values match;
-- Admin regression passes;
-- all four Teacher evidence sections render;
-- authenticated-room ownership remains visible;
-- desktop layout passes;
-- `820 x 1180` layout passes;
-- Console remains clean;
-- Network contains no POST, PUT, PATCH, or DELETE;
-- Queue remains empty;
-- no real evidence, Firebase write, stock mutation, or Queue replay occurs;
-- branch matches Origin and working tree is clean.
+- Attendance evidence section;
+- Retroactive evidence section;
+- Vacation evidence section after the live Teacher snapshot arrives;
+- Vacation Room Stock equals the Teacher dashboard value;
+- desktop layout evidence;
+- responsive `820 x 1180` evidence covering all four evidence panels;
+- clean Console after the final walkthrough;
+- Queue value after Logout remains `null`, `"[]"`, or an empty parsed array.
 
-## Current Decision
+## Final regression command
 
-Responsive Vacation evidence layout and clean Console are accepted as a partial pass.
+Run after pulling the latest branch:
 
-Sprint 4.7 remains open because the submitted evidence exposed a live-stock consistency defect and did not include complete Network, Queue, Attendance, Pending, and Retroactive evidence.
+```powershell
+git pull --ff-only origin feature/sprint-4.7-media-signature-ui
 
-This gate does not authorize merge to `main`, production deployment, replacement of `teacher.html`, real-classroom evidence capture, Firebase security sign-off, physical iPad sign-off, report/A4 parity completion, or closure of the deferred real-data incident.
+node tests/vacation-media-signature-integration-check.mjs
+if ($LASTEXITCODE -ne 0) {
+    throw "TEST FAILED: tests/vacation-media-signature-integration-check.mjs"
+}
+
+node tests/vacation-live-stock-refresh-check.mjs
+if ($LASTEXITCODE -ne 0) {
+    throw "TEST FAILED: tests/vacation-live-stock-refresh-check.mjs"
+}
+
+node tests/run-sprint-4.7-regression.mjs
+if ($LASTEXITCODE -ne 0) {
+    throw "TEST FAILED: Sprint 4.7 full regression"
+}
+
+git status
+```
+
+Required final output includes:
+
+```text
+Vacation Milk Media and Signature integration checks passed.
+Vacation live Teacher stock refresh checks passed.
+ALL 43 REGRESSION CHECKS PASSED
+nothing to commit, working tree clean
+```
+
+The regression count may be greater than 43 when additional `*-check.mjs` files exist.
+
+## Safety boundary
+
+Do not use:
+
+- room `อ.3-3`;
+- room ID `mqn0z13eyx5b`;
+- date `2026-07-28`;
+- a real classroom evidence photo;
+- a real Teacher, parent, student, or recipient signature.
+
+Do not press Attendance, Pending, Retroactive, or Vacation save/delete actions. Do not create, retry, replay, remove, or edit Queue entries. Do not manually change Firebase, Room Stock, Main Stock, ledger, stockLog, transaction history, IndexedDB, or Local Storage.
+
+## Acceptance decision
+
+Queue preflight and Pending evidence rendering are accepted as partial browser evidence.
+
+Sprint 4.7 remains open until:
+
+1. the final 43+ regression run passes after `4daf1b9`;
+2. the Pending local media draft is removed;
+3. all four evidence panels are shown;
+4. Vacation and dashboard Room Stock values match;
+5. the Network Method column proves GET/OPTIONS-only traffic;
+6. Queue remains empty after Logout;
+7. branch matches Origin and the working tree is clean.
+
+This report does not authorize merge to `main`, production deployment, replacement of `teacher.html`, real-classroom evidence capture, Firebase security sign-off, physical iPad sign-off, report/A4 parity completion, or closure of the deferred real-data incident.
