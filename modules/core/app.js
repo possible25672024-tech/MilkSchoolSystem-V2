@@ -13,7 +13,17 @@ class MilkSchoolApplication {
         this.syncView = syncView;
         this.pendingMilkView = pendingMilkView;
         this.retroactiveMilkView = retroactiveMilkView;
+        this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
         this.started = false;
+    }
+
+    async ensureRetroactiveSyncAdapter() {
+        if (!this.retroactiveSyncAdapter) {
+            await import("../sync/retroactiveSyncAdapter.js");
+            this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
+        }
+        this.retroactiveSyncAdapter?.install?.();
+        return this.retroactiveSyncAdapter;
     }
 
     async ensureSyncView() {
@@ -80,7 +90,9 @@ class MilkSchoolApplication {
             await this.attendanceView.initialize();
         }
 
+        const retroactiveSyncAdapter = await this.ensureRetroactiveSyncAdapter();
         const syncView = await this.ensureSyncView();
+        retroactiveSyncAdapter?.install?.();
         if (syncView?.initialize) {
             await syncView.initialize();
         }
