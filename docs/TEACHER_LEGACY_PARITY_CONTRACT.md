@@ -114,7 +114,7 @@ Required:
 - academic period and vacation date range;
 - student roster/recipient detail;
 - exact quantity calculation;
-- photo and signature evidence;
+- Vacation Milk photo/signature evidence;
 - issue history;
 - delete/rollback;
 - Room Stock-only behavior;
