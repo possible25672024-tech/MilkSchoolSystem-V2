@@ -26,7 +26,7 @@ Sprint 4.3 — Offline Queue Operational UI
 
 Status
 
-97% — Runtime, safe Manager summaries, App integration, Queue UI test, all 17 existing automated regression checks, empty-queue browser safety, Teacher Queue rendering, Offline/reconnect transitions, settled synchronized state, read-only Network evidence, clean Console, Teacher Logout, Admin Login/Logout regression, and 820 x 1180 responsive layout passed. The isolated non-empty restart/reconnect test is implemented and awaits local execution plus the final 18-test regression run.
+100% CODE COMPLETE — Runtime, safe Manager summaries, App integration, all 18 automated regression checks, isolated non-empty restart/reconnect validation, empty-queue browser safety, Teacher Queue rendering, Offline/reconnect transitions, settled synchronized state, read-only Network evidence, clean Console, Teacher and Admin Logout regression, and 820 x 1180 responsive layout passed. Approved for fast-forward merge into `develop`.
 
 ---
 
@@ -60,79 +60,39 @@ Completed Foundation
 
 ---
 
-Sprint 4.3 Runtime Implemented
+Sprint 4.3 Runtime Completed
 
 ✓ Added `modules/sync/syncView.js`
 
-✓ Added operational online/offline/syncing banner
+✓ Added online, offline, syncing, pending, failed, deferred, and synchronized states
 
-✓ Added persistent queue count and maximum-attempt display
+✓ Added pending count, maximum attempts, last successful sync, latest summary, and next retry display
 
-✓ Added last successful sync time
-
-✓ Added processed, succeeded, failed/deferred, and remaining summary
-
-✓ Added next retry delay display
-
-✓ Added safe item-level queue summaries
+✓ Added safe item-level summaries without student, photo, signature, ledger, or stockLog payload exposure
 
 ✓ Added manual retry through `SyncManager.flushNow("manual-ui")`
 
-✓ Disabled manual retry while offline
-
-✓ Disabled manual retry while flushing
-
-✓ Disabled manual retry when no queue item remains
-
-✓ Added Login, Logout, connection, and Sync lifecycle event rendering
+✓ Disabled manual retry while offline, flushing, or empty
 
 ✓ Added Teacher-only Sync lifecycle start/stop
 
-✓ Added Logout cleanup and Admin rejection
+✓ Added Login, Logout, online/offline, queue-count, and Sync lifecycle rendering
 
 ✓ Added responsive Queue panel styles
 
----
+✓ App initializes SyncView after Login, Teacher, and Attendance Views
 
-SyncManager Boundary Updated
+✓ View does not access QueueStorage, SyncService, Firebase, Repository, fetch, Local Storage, or Session Storage directly
 
-✓ `getStatus()` exposes safe `queueItems`
+✓ Main Stock remains unchanged by Sync workflows
 
-✓ Safe summaries include queue type, room, date/reference, attempts, queued time, next retry time, status, and safe error details
+✓ `index.html` unchanged
 
-✓ Per-student Attendance data is not exposed
-
-✓ Photos and signatures are not exposed
-
-✓ Complete ledger and stockLog payloads are not exposed
-
-✓ `milkapp:sync-started` reports `flushing: true`
-
-✓ Overlapping flushes continue to share one in-flight operation
-
-✓ Main Stock behavior remains unchanged
+✓ `teacher.html` unchanged
 
 ---
 
-App Integration Implemented
-
-✓ App dynamically loads `modules/sync/syncView.js`
-
-✓ LoginManager initializes first
-
-✓ TeacherView initializes second
-
-✓ AttendanceView initializes third
-
-✓ SyncView initializes after the existing Teacher UI foundation
-
-✓ Protected legacy files remain unchanged
-
----
-
-Automated Regression Gate — PASS FOR EXISTING 17 TESTS
-
-The first Sync UI run failed because the static test searched only for literal HTML `id="sync-panel"`, while the Runtime correctly creates the panel programmatically with `panel.id = "sync-panel"`. The test was corrected without changing Runtime behavior.
+Automated Regression Gate — PASS
 
 Confirmed locally on Node.js 24.18.0:
 
@@ -170,7 +130,9 @@ Confirmed locally on Node.js 24.18.0:
 
 ✓ Sync UI checks
 
-✓ `ALL 17 REGRESSION CHECKS PASSED`
+✓ Sync restart/reconnect isolated checks
+
+✓ `ALL 18 REGRESSION CHECKS PASSED`
 
 ✓ Feature branch synchronized with origin
 
@@ -178,89 +140,11 @@ Confirmed locally on Node.js 24.18.0:
 
 ---
 
-Browser Safety Gate — PASS
+Isolated Restart/Reconnect Gate — PASS
 
-✓ Application Local Storage filtered by `tc_pending_saves_v1`
+In-memory persistent storage and mocked services only:
 
-✓ No matching key or stored queue value was present before Teacher Login
-
-✓ No existing local queue was available for startup replay
-
-✓ Teacher Queue validation proceeded with an empty browser queue
-
----
-
-Desktop Teacher Queue Browser Gate — PASS
-
-✓ Queue panel rendered inside the Teacher shell
-
-✓ Pending count displayed 0
-
-✓ Maximum attempts displayed 0
-
-✓ Latest succeeded displayed 0
-
-✓ Failed/deferred displayed 0
-
-✓ Empty queue rendered synchronized state
-
-✓ Empty queue displayed no item details
-
-✓ Manual retry was disabled for the empty queue
-
-✓ Offline transition displayed `ออฟไลน์ · ยังไม่มีรายการค้าง`
-
-✓ Manual retry remained disabled offline
-
-✓ Returning online entered the expected transient syncing state
-
-✓ Reconnect settled back to synchronized
-
-✓ Retry button returned to disabled empty-queue state
-
-✓ Visible Network rows were GET/fetch reads only
-
-✓ No visible `PUT`, `PATCH`, or `DELETE` request appeared
-
-✓ Console contained no JavaScript error
-
-✓ Teacher Logout returned to Login and hid Queue UI
-
-✓ Admin Login rendered the existing Admin shell
-
-✓ Admin Logout returned to Login
-
-✓ Console remained clean through Teacher and Admin role transitions
-
----
-
-Responsive Gate at 820 x 1180 — PASS
-
-✓ Attendance rows remained contained
-
-✓ Save, Delete, and Logout remained reachable
-
-✓ Queue panel remained visible below Attendance
-
-✓ Queue banner and four summary cards remained readable
-
-✓ Last-sync, latest-result, retry-time, empty-detail, and retry-action areas remained contained
-
-✓ No abnormal horizontal overflow was visible
-
-✓ Console cleanliness was confirmed in the same Runtime session
-
----
-
-Isolated Restart/Reconnect Gate — IMPLEMENTED / LOCAL RUN PENDING
-
-Added:
-
-- `tests/sync-restart-reconnect-check.mjs`
-
-In-memory-only coverage:
-
-✓ Compatible key `tc_pending_saves_v1`
+✓ Queue key remains `tc_pending_saves_v1`
 
 ✓ Queue survives QueueStorage recreation
 
@@ -276,23 +160,86 @@ In-memory-only coverage:
 
 ✓ Failed Room Stock entry remains persistent
 
-✓ Failed/deferred attempts and next retry times persist
+✓ Failed/deferred attempts and next-retry times persist
 
 ✓ Failed/deferred entries survive a later restart
 
-✓ Later reconnect removes successful retained entries individually
+✓ Later reconnect removes retained entries individually after success
 
 ✓ Main Stock remains 999 throughout
 
-✓ No Firebase service, repository, or real classroom data is used
+✓ No Firebase service, repository, or real classroom data was used
 
-Pending local commands:
+---
 
-```powershell
-node tests/sync-restart-reconnect-check.mjs
-```
+Browser and Responsive Gates — PASS
 
-Then run all 18 tests.
+✓ Browser queue was empty before Teacher Login
+
+✓ No existing browser queue was available for startup replay
+
+✓ Queue panel rendered with zero pending items
+
+✓ Empty queue rendered synchronized state
+
+✓ Manual retry remained disabled for an empty queue
+
+✓ Offline banner rendered correctly
+
+✓ Reconnect entered syncing state and settled back to synchronized
+
+✓ Network evidence showed read-only GET/fetch traffic
+
+✓ No visible `PUT`, `PATCH`, or `DELETE` request appeared
+
+✓ Console contained no JavaScript error
+
+✓ Teacher Logout returned to Login and hid Queue UI
+
+✓ Admin Login rendered the existing Admin shell
+
+✓ Admin Logout returned to Login
+
+✓ 820 x 1180 Queue and Attendance layout remained contained
+
+✓ No abnormal horizontal overflow was visible
+
+---
+
+Integration Decision
+
+APPROVED FOR FAST-FORWARD MERGE INTO `develop`
+
+NOT APPROVED FOR:
+
+- merge to `main`
+- production traffic switching
+- replacement or removal of `teacher.html`
+- Firebase schema changes
+- queue storage-key migration
+- official use of the quarantined room/date
+- claiming the Firebase database is fully reconciled
+
+---
+
+Next Sprint
+
+Sprint 4.4 — Pending Milk Operational UI
+
+Planned branch:
+
+`feature/sprint-4.4-pending-milk-ui`
+
+Planned boundary:
+
+- show absent students eligible for pending milk
+- issue pending milk through a dedicated Manager/Service path
+- deduct Room Stock only
+- prevent duplicate issue for the same student/date/reference
+- preserve legacy-compatible `absentMilk` records and audit references
+- use authenticated-room-only access
+- use isolated write validation only
+- do not implement Retroactive or Vacation Milk in this Sprint
 
 ---
 
@@ -316,28 +263,11 @@ Rules:
 
 ---
 
-Out of Scope
-
-- Pending Milk operational form
-- Retroactive Milk operational form
-- Vacation Milk operational form
-- photos and signatures
-- Attendance history and printing
-- Report UI
-- Admin operational UI
-- Firebase schema changes
-- queue storage-key migration
-- replacement or removal of `teacher.html`
-- production deployment
-- real-classroom write tests
-
----
-
 Protected Business Rules
 
 - Main Stock decreases only on classroom distribution.
 - Classroom distribution increases Room Stock.
-- Teacher, Attendance, and Sync operations change Room Stock only.
+- Teacher, Attendance, Pending, Retroactive, Vacation, and Sync workflows change Room Stock only.
 - Attendance edits change Room Stock by the present-count difference only.
 - Attendance deletion restores previously consumed Room Stock.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
