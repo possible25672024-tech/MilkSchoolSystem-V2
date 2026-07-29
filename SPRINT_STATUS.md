@@ -26,7 +26,7 @@ Sprint 4.3 — Offline Queue Operational UI
 
 Status
 
-92% — Runtime, safe Manager summaries, App integration, Queue UI test, all 17 automated regression checks, empty-queue browser safety, Teacher Queue rendering, Offline/reconnect transition, read-only Network evidence, and 820 x 1180 responsive layout passed. Final Console, Admin regression, Teacher Logout cleanup, settled reconnect state, and isolated non-empty restart/reconnect fixtures remain pending.
+97% — Runtime, safe Manager summaries, App integration, Queue UI test, all 17 existing automated regression checks, empty-queue browser safety, Teacher Queue rendering, Offline/reconnect transitions, settled synchronized state, read-only Network evidence, clean Console, Teacher Logout, Admin Login/Logout regression, and 820 x 1180 responsive layout passed. The isolated non-empty restart/reconnect test is implemented and awaits local execution plus the final 18-test regression run.
 
 ---
 
@@ -130,7 +130,7 @@ App Integration Implemented
 
 ---
 
-Automated Regression Gate — PASS
+Automated Regression Gate — PASS FOR EXISTING 17 TESTS
 
 The first Sync UI run failed because the static test searched only for literal HTML `id="sync-panel"`, while the Runtime correctly creates the panel programmatically with `panel.id = "sync-panel"`. The test was corrected without changing Runtime behavior.
 
@@ -190,7 +190,7 @@ Browser Safety Gate — PASS
 
 ---
 
-Desktop Teacher Queue Browser Evidence — PARTIAL PASS
+Desktop Teacher Queue Browser Gate — PASS
 
 ✓ Queue panel rendered inside the Teacher shell
 
@@ -214,23 +214,27 @@ Desktop Teacher Queue Browser Evidence — PARTIAL PASS
 
 ✓ Returning online entered the expected transient syncing state
 
+✓ Reconnect settled back to synchronized
+
+✓ Retry button returned to disabled empty-queue state
+
 ✓ Visible Network rows were GET/fetch reads only
 
 ✓ No visible `PUT`, `PATCH`, or `DELETE` request appeared
 
-Pending:
+✓ Console contained no JavaScript error
 
-□ Wait for reconnect to settle back to synchronized
+✓ Teacher Logout returned to Login and hid Queue UI
 
-□ Open Console and confirm no JavaScript error
+✓ Admin Login rendered the existing Admin shell
 
-□ Confirm Teacher Logout hides Queue UI
+✓ Admin Logout returned to Login
 
-□ Complete Admin Login/Logout regression
+✓ Console remained clean through Teacher and Admin role transitions
 
 ---
 
-Responsive Gate at 820 x 1180 — PASS FOR PROVIDED EVIDENCE
+Responsive Gate at 820 x 1180 — PASS
 
 ✓ Attendance rows remained contained
 
@@ -244,35 +248,51 @@ Responsive Gate at 820 x 1180 — PASS FOR PROVIDED EVIDENCE
 
 ✓ No abnormal horizontal overflow was visible
 
-Pending:
-
-□ Console evidence at responsive size
-
-□ Logout action result at responsive size
+✓ Console cleanliness was confirmed in the same Runtime session
 
 ---
 
-Isolated Restart/Reconnect Gate — Pending
+Isolated Restart/Reconnect Gate — IMPLEMENTED / LOCAL RUN PENDING
 
-Use only mocked, in-memory, or separate browser-local fixtures:
+Added:
 
-□ Queue count survives View recreation
+- `tests/sync-restart-reconnect-check.mjs`
 
-□ Queue count survives browser refresh through existing persistence
+In-memory-only coverage:
 
-□ Offline state performs no replay
+✓ Compatible key `tc_pending_saves_v1`
 
-□ Reconnect starts the existing Manager flow
+✓ Queue survives QueueStorage recreation
 
-□ Successful items disappear individually
+✓ Offline startup performs no replay
 
-□ Failed and deferred items remain visible
+✓ Recreated offline Manager performs no replay before reconnect
 
-□ Attempt count and next retry state update
+✓ Reconnect replays entries sequentially
 
-□ Main Stock remains unchanged
+✓ Successful Attendance entry disappears individually
 
-No real Firebase queue entry may be created for this gate.
+✓ Attendance partial save converts to Room Stock-only deferred work
+
+✓ Failed Room Stock entry remains persistent
+
+✓ Failed/deferred attempts and next retry times persist
+
+✓ Failed/deferred entries survive a later restart
+
+✓ Later reconnect removes successful retained entries individually
+
+✓ Main Stock remains 999 throughout
+
+✓ No Firebase service, repository, or real classroom data is used
+
+Pending local commands:
+
+```powershell
+node tests/sync-restart-reconnect-check.mjs
+```
+
+Then run all 18 tests.
 
 ---
 
