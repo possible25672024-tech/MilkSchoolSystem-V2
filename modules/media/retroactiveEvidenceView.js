@@ -61,7 +61,7 @@ class RetroactiveEvidenceView {
 
     ensureStructure() {
         if (this.document.getElementById("retroactive-evidence-panel")) return;
-        const summary = this.document.getElementById("retroactive-milk-summary");
+        const summary = this.document.querySelector?.(".retroactive-milk-summary");
         if (!summary?.parentElement) throw new Error("Retroactive Milk panel is not available for evidence UI.");
         const panel = this.document.createElement("section");
         panel.id = "retroactive-evidence-panel";
