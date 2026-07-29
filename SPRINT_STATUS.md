@@ -26,7 +26,7 @@ Sprint 4.4 — Pending Milk Operational UI
 
 Status
 
-94% — Legacy compatibility, Repository, Service, Manager, View, App integration, typed recovery routing, Operational UI, isolated issue/delete/partial-save validation, and all 22 automated regression checks passed locally. Admin regression, Teacher panel rendering, exact five-day Attendance reads, read-only Network methods, and 820 x 1180 layout passed. Final browser acceptance is blocked because Firebase Realtime Database Rules do not yet define `.indexOn: ["roomId"]` at `/milkApp/absentMilk`.
+98% — Runtime, legacy compatibility, typed recovery, all 22 automated tests, Firebase `roomId` index, desktop Admin/Teacher read-only browser gate, exact five-day Attendance reads, indexed room-scoped `absentMilk` read, eligibility/history rendering, read-only Network boundary, clean Console, and prior responsive layout checks passed. One final 820 x 1180 completed-data screenshot remains before Sprint closure.
 
 ---
 
@@ -54,173 +54,77 @@ Completed Foundation
 
 ✓ Sprint 4.2 Teacher Daily Attendance CRUD UI merged into `develop`
 
-✓ Sprint 4.3 Offline Queue Operational UI fast-forward merged into `develop`
+✓ Sprint 4.3 Offline Queue Operational UI merged into `develop`
 
-✓ All 18 Sprint 4.3 regression checks passed
-
-✓ Protected `index.html` and `teacher.html` remain operational
+✓ Protected `index.html` and `teacher.html` remain unchanged and operational
 
 ✓ Physical iPad remains deferred and must not be represented as PASS
 
 ---
 
-Legacy Compatibility Audit — PASS
-
-Protected `teacher.html` was inspected read-only.
-
-Confirmed:
-
-✓ Firebase path `milkApp/absentMilk`
-
-✓ Firebase push ID record keys
-
-✓ Monday–Friday weekly eligibility
-
-✓ One absent student/date pair equals one box
-
-✓ Duplicate identity is `studentId + Attendance date`
-
-✓ Existing issue detection uses `record.students[studentId].days`
-
-✓ Compatible fields `weekStart`, `weekEnd`, `roomId`, `roomName`, `teacher`, issue `date`, `students`, `totalBoxes`, `note`, `signature`, `signatures`, `photos`, and `savedAt`
-
-✓ Issue saves record first, then deducts Room Stock
-
-✓ Delete removes record first, then restores Room Stock
-
-✓ Ledger type `PENDING` on issue
-
-✓ Ledger type `ROLLBACK` on delete
-
-✓ Main Stock remains unchanged
-
-Artifact:
-
-- `docs/PENDING_MILK_LEGACY_AUDIT.md`
-
----
-
-Runtime Implemented
+Sprint 4.4 Runtime — IMPLEMENTED
 
 ✓ `modules/repositories/pendingMilkRepository.js`
 
-- exact five Attendance child reads
-- room-scoped `absentMilk` query
-- Firebase push record creation
-- exact record load/delete
-
 ✓ `modules/services/pendingMilkService.js`
-
-- UTC-safe Monday–Friday range
-- authenticated-room-only access
-- absent-only eligibility
-- already-issued exclusion
-- Service-level duplicate recheck before save
-- compatible record construction
-- Room Stock-only issue and rollback
-- PENDING/ROLLBACK ledger and OUT/IN stockLog construction
-- ETag stock workflow reused through Attendance stock boundary
-- Main Stock delta zero
-- explicit partial-save error details
 
 ✓ `modules/pending/pendingMilkManager.js`
 
-- UI-safe week load, issue, and remove commands
-- audit queue delegation
-- typed Room Stock retry delegation
-- duplicate delete/rollback in-flight guard
-- lifecycle events and state clear
-
 ✓ `modules/pending/pendingMilkView.js`
 
-- Teacher-only operational panel
-- week-date selection
-- eligible, already-issued, selected, and box totals
-- selectable student/date rows
-- note input
-- issue confirmation and feedback
-- recent room history
-- confirmed delete and stock restoration feedback
-- responsive layout
-- no direct Firebase, Repository, fetch, Local Storage, Session Storage, eligibility, duplicate, stock, ledger, or stockLog logic
+✓ App integration after the completed Queue UI
 
-✓ App dynamically loads Repository, Service, Manager, and View after Queue UI
+✓ exact Monday–Friday Attendance reads
 
-✓ `index.html` unchanged
+✓ room-scoped `absentMilk` history query
 
-✓ `teacher.html` unchanged
+✓ one absent student/date pair equals one box
+
+✓ already-issued exclusion
+
+✓ Service-level duplicate recheck
+
+✓ compatible `absentMilk` record fields
+
+✓ Room Stock-only issue and rollback
+
+✓ `PENDING`/`ROLLBACK` ledger routing
+
+✓ `OUT`/`IN` stockLog routing
+
+✓ typed partial-save Queue recovery
+
+✓ Main Stock delta remains zero
 
 ---
 
-Sprint-Specific Gates — PASS
-
-Module Gate:
+Sprint-Specific Automated Gates — PASS
 
 ✓ `tests/pending-milk-module-check.mjs`
 
 ✓ `Pending Milk module checks passed.`
 
-Recovery Routing Gate:
-
 ✓ `tests/pending-milk-recovery-routing-check.mjs`
-
-✓ legacy retries default to `ATTENDANCE`
-
-✓ `PENDING` and `ROLLBACK` metadata persist
-
-✓ correct ledger and stockLog types
-
-✓ failed audit converts to audit-only work
-
-✓ audit-only retry never repeats Room Stock mutation
 
 ✓ `Pending Milk recovery routing checks passed.`
 
-Operational UI Gate:
-
 ✓ `tests/pending-milk-ui-check.mjs`
-
-✓ Teacher-only activation and Admin rejection
-
-✓ selected-week delegation
-
-✓ eligible, issued, selected, and box totals
-
-✓ issue confirmation and note delegation
-
-✓ partial-save warning
-
-✓ history and confirmed delete delegation
-
-✓ Logout cleanup
 
 ✓ `Pending Milk UI checks passed.`
 
-Isolated Write Gate:
-
 ✓ `tests/pending-milk-isolated-write-check.mjs`
-
-✓ successful two-box issue changes Room Stock `50 → 48`
-
-✓ duplicate student/date issue blocked
-
-✓ successful delete restores Room Stock `48 → 50`
-
-✓ partial issue queues typed `PENDING` difference `1`
-
-✓ partial delete queues typed `ROLLBACK` difference `-1`
-
-✓ failed stock operations do not mutate Room Stock before retry
-
-✓ Main Stock remains 999 throughout
 
 ✓ `Pending Milk isolated write checks passed.`
 
-Artifacts:
+Confirmed isolated behavior:
 
-- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
-- `docs/PENDING_MILK_ISOLATED_WRITE_GATE.md`
-- `docs/PENDING_MILK_UI_IMPLEMENTATION_REPORT.md`
+- successful two-box issue changes Room Stock `50 → 48`;
+- duplicate student/date issue is blocked;
+- successful delete restores Room Stock `48 → 50`;
+- partial issue queues typed `PENDING` difference `1`;
+- partial delete queues typed `ROLLBACK` difference `-1`;
+- audit-only retry never repeats Room Stock mutation;
+- Main Stock remains 999 throughout.
 
 ---
 
@@ -232,43 +136,67 @@ Sprint 4.4 tests: 4
 
 Total: 22
 
-Confirmed locally:
-
-✓ all existing 18 regression tests passed
-
-✓ all four Sprint 4.4 tests passed
-
 ✓ `ALL 22 REGRESSION CHECKS PASSED`
 
-✓ feature branch synchronized with origin
+✓ feature branch synchronized with origin at the reported test point
 
-✓ working tree clean
+✓ working tree clean at the reported test point
 
 ---
 
-Desktop Browser Gate — PARTIAL PASS / FIREBASE INDEX BLOCKED
+Firebase Realtime Database Index — PUBLISHED / VALIDATED
+
+Published under the existing Rules document:
+
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "milkApp": {
+      "absentMilk": {
+        ".indexOn": ["roomId"]
+      }
+    }
+  }
+}
+```
+
+✓ room-scoped `absentMilk` REST query changed from HTTP 400 to HTTP 200
+
+✓ existing root permissions were preserved
+
+⚠ Root-level public `.read` and `.write` remain a separate production-security blocker
+
+Artifact:
+
+- `docs/FIREBASE_RULES_PENDING_MILK_INDEX.md`
+
+---
+
+Desktop Browser Read-Only Gate — PASS
 
 Safety:
 
-✓ Queue safety was checked before Teacher validation
+✓ Queue safety checked before Teacher validation
 
-✓ Pending Milk issue button remained unused
+✓ no Pending Milk issue action pressed
 
-✓ Pending Milk delete buttons remained unused
+✓ no Pending Milk delete/rollback action pressed
 
-✓ no real Queue entry was created or replayed
+✓ no real Queue entry created or replayed
 
-✓ quarantined room/date remains excluded
+✓ quarantined room/date excluded
 
-Admin regression:
+Admin:
 
-✓ Admin Login rendered the existing Admin shell
+✓ Admin shell rendered unchanged
 
 ✓ Teacher Queue and Pending Milk panels did not activate for Admin
 
-✓ Console showed no JavaScript error
+✓ no JavaScript Console error
 
-Teacher read-only validation:
+Teacher:
 
 ✓ Pending Milk panel rendered
 
@@ -280,89 +208,59 @@ Teacher read-only validation:
 
 ✓ selected week issued exactly five date-scoped Attendance reads
 
-✓ a second week also issued exactly five date-scoped Attendance reads
+✓ room-scoped `absentMilk` query returned HTTP 200
 
-✓ `absentMilk` request used `orderBy="roomId"` and `equalTo=<authenticated-room-id>`
+✓ UI rendered `มีสิทธิ์รับ 0`, `เคยรับแล้ว 4`, `เลือกแล้ว 0`, and `กล่องที่จะหัก 0`
 
-✓ no `POST`, `PUT`, `PATCH`, or `DELETE` mutation appeared
+✓ correct no-eligible-item message rendered
 
-Blocked:
+✓ room history rendered an existing four-box record
 
-✗ Firebase returned HTTP 400 for the room-scoped `absentMilk` read
+✓ issue action remained disabled/unpressed
 
-✗ error: `Index not defined, add ".indexOn": "roomId", for path "/milkApp/absentMilk", to the rules`
+✓ visible delete/rollback action remained unpressed
 
-✗ eligible, already-issued, and history rendering could not complete
+✓ no `POST`, `PUT`, `PATCH`, or `DELETE` appeared
 
-✗ final no-error UI and clean-Console gate must be repeated after index publish
+✓ Console contained only the normal startup message
 
-Required Rules merge:
+Artifact:
 
-```json
-{
-  "rules": {
-    "milkApp": {
-      "absentMilk": {
-        ".indexOn": ["roomId"]
-      }
-    }
-  }
-}
-```
-
-Preserve all existing `.read`, `.write`, validation, and other index rules.
-
-Artifacts:
-
-- `docs/FIREBASE_RULES_PENDING_MILK_INDEX.md`
 - `docs/PENDING_MILK_BROWSER_VALIDATION_REPORT.md`
 
 ---
 
-Responsive Gate at 820 x 1180 — LAYOUT PASS / DATA RETEST PENDING
+Responsive Gate at 820 x 1180 — FINAL EVIDENCE PENDING
+
+Previously passed:
 
 ✓ week selector and Load button reachable
 
 ✓ four summary cards readable
 
-✓ Attendance and Pending Milk areas remained contained
+✓ Attendance and Pending Milk areas contained
 
 ✓ note and disabled issue action reachable
 
 ✓ history area and Logout contained
 
-✓ Queue panel remained reachable
+✓ Queue panel reachable
 
-✓ no abnormal horizontal overflow visible
+✓ no abnormal horizontal overflow
 
-✓ Firebase index error remained readable and contained
+Final evidence required after successful indexed data load:
 
-Pending after Rules publish:
+□ loaded summary and empty state remain contained
 
-□ successful room-scoped `absentMilk` response
+□ rendered history record and unpressed delete action remain contained
 
-□ completed eligibility/history or correct empty-state rendering
+□ Queue panel and Logout remain reachable
 
-□ no Firebase error UI
+□ Console remains clean
 
-□ Console clean
+□ no mutation request appears
 
 Physical iPad remains deferred and must not be represented as PASS.
-
----
-
-Out of Scope
-
-- Retroactive Milk
-- Vacation Milk
-- photos and signatures capture
-- Attendance history and printing
-- Report UI
-- Admin operational UI
-- Firebase schema migration
-- replacement or removal of `teacher.html`
-- production deployment
-- real-classroom write tests
 
 ---
 
@@ -379,10 +277,26 @@ Quarantined:
 
 Rules:
 
-- do not use the quarantined room/date for Pending Milk or Queue tests
-- do not use its values as trusted operational evidence
-- do not manually edit Attendance, Room Stock, Main Stock, queue, ledger, stockLog, or transaction history
-- recovery remains mandatory before `main` or production cutover
+- do not use the quarantined room/date for Pending Milk or Queue tests;
+- do not use its values as trusted operational evidence;
+- do not manually edit Attendance, Room Stock, Main Stock, queue, ledger, stockLog, or transaction history;
+- recovery remains mandatory before `main` or production cutover.
+
+---
+
+Out of Scope / Not Authorized
+
+- Retroactive Milk UI
+- Vacation Milk UI
+- photos and signatures capture
+- Attendance history and printing
+- Report UI
+- Admin operational UI
+- Firebase schema migration
+- replacement or removal of `teacher.html`
+- merge to `main`
+- production deployment
+- real-classroom write tests
 
 ---
 
