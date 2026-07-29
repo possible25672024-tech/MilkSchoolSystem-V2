@@ -2,369 +2,220 @@
 
 Date: 2026-07-28
 
+Completed: 2026-07-29
+
 Branch: `feature/sprint-4.3-offline-queue-ui`
 
-Status: 10% — plan initialized; runtime implementation not started
+Status: 100% CODE COMPLETE — approved for fast-forward merge into `develop`
 
 ## Goal
 
-Add an operational Offline Queue interface to the modular Teacher shell without changing the verified QueueStorage, SyncService, SyncManager, Attendance, Room Stock, Main Stock, Firebase, or protected legacy behavior.
+Add an operational Offline Queue interface to the modular Teacher shell without changing verified QueueStorage, SyncService, SyncManager, Attendance, Room Stock, Main Stock, Firebase, or protected legacy behavior.
 
-Sprint 4.3 implements Teacher-facing queue visibility and retry controls. It does not redesign queue persistence and does not replace `teacher.html`.
+Sprint 4.3 adds Teacher-facing queue visibility and retry controls. It does not redesign queue persistence and does not replace `teacher.html`.
 
 ## Protected Legacy Files
 
 - `index.html`
 - `teacher.html`
 
-Both files remain unchanged, operational, and available as rollback paths.
+Both remained unchanged, operational, and available as rollback paths.
 
-## Existing Sync Boundary
+## Runtime Completed
 
-Sprint 4.3 must consume the existing behavior rather than duplicating it.
+### Sync View
 
-### SyncManager
-
-Available state and commands:
-
-- `start()` and `stop()`
-- `getStatus()`
-- `flushNow(reason)`
-- online/offline detection
-- overlapping-flush protection
-- startup, reconnect, periodic, and retry scheduling
-- `lastSyncedAt`
-- `lastSummary`
-
-Available events:
-
-- `milkapp:sync-online`
-- `milkapp:sync-offline`
-- `milkapp:sync-started`
-- `milkapp:sync-completed`
-- `milkapp:sync-failed`
-- `milkapp:sync-queue-count`
-
-### SyncService
-
-Available queue state:
-
-- total count
-- queue entries
-- maximum attempts
-- successful, failed, and deferred replay results
-- next retry delay
-- `attendance`
-- `roomStockAdjust`
-- `attendanceAudit`
-
-### Queue Compatibility
-
-Must preserve:
-
-- storage key `tc_pending_saves_v1`
-- legacy `rec` normalization
-- legacy `diff` normalization
-- corrupt-entry filtering
-- latest Attendance record with original `baselinePresent`
-- original `queuedAt` on repeated edits
-- individual success removal
-- failed-entry retention
-- bounded retry backoff
-- sequential replay
-- Room Stock-only conversion after Attendance-first partial save
-- audit-only conversion without repeating Room Stock
-
-## In Scope
-
-### Offline Banner
-
-Display:
-
-- online
-- offline
-- syncing
-- retry scheduled
-- failed
-- deferred audit/stock work
-- synchronized/no pending work
-
-The banner must react to SyncManager and browser connection events.
-
-### Queue Summary
-
-Display:
-
-- pending item count
-- maximum attempt count
-- last successful sync time
-- last processed, succeeded, failed, deferred, and remaining totals
-- next retry delay when available
-
-### Queue Item Summary
-
-Display safe metadata only:
-
-- queue type
-- room name or room ID
-- Attendance date or reference
-- attempts
-- queued time
-- next retry time
-- current status
-- safe error code and message
-
-Do not display:
-
-- student names
-- full Attendance records
-- photos
-- signatures
-- encoded media
-- Firebase credentials
-- session secrets
-- complete ledger or stockLog payloads
-
-### Manual Retry
-
-Add one Teacher action that delegates to:
-
-```js
-SyncManager.flushNow("manual-ui")
-```
-
-Requirements:
-
-- disabled while offline
-- disabled while a flush is active
-- repeated clicks must reuse overlapping-flush protection
-- result status must come from SyncManager events/results
-- View must not replay entries directly
-- View must not remove or edit queue entries directly
-
-### Restart and Reconnect State
-
-Verify:
-
-- queue count survives View recreation
-- queue count survives browser refresh through existing persistence
-- startup status renders from existing queue state
-- offline state does not attempt network replay
-- reconnect triggers the existing Manager flow
-- successful items disappear individually
-- failed/deferred items remain visible
-
-## Planned Runtime File
+Added:
 
 - `modules/sync/syncView.js`
 
-Do not create new QueueStorage, Service, or Repository modules unless a measured missing boundary is identified.
+Implemented:
 
-A small read-only Manager helper may be added only when safe queue summaries cannot be produced through the existing `SyncManager.getStatus()` boundary.
+- online, offline, syncing, pending, failed, deferred, and synchronized banners
+- persistent pending count
+- maximum attempt count
+- last successful sync time
+- processed, succeeded, failed/deferred, and remaining summary
+- next retry display
+- safe queue-item cards
+- manual retry through `SyncManager.flushNow("manual-ui")`
+- disabled retry while offline, flushing, or empty
+- Login, Logout, online/offline, queue-count, and Sync lifecycle rendering
+- Teacher-only Sync lifecycle start/stop
+- Admin rejection and Logout cleanup
+- responsive desktop, tablet, and narrow-layout styling
 
-## Architecture Rules
+The View does not access QueueStorage, SyncService, FirebaseService, repositories, fetch, Local Storage, Session Storage, Attendance calculations, stock calculations, ledger construction, or replay logic directly.
 
-The View may:
+### Safe Manager Boundary
 
-- render queue status
-- format timestamps and retry durations
-- call `SyncManager.getStatus()`
-- call `SyncManager.flushNow("manual-ui")`
-- subscribe to SyncManager and browser events
-- emit UI-only interaction events
+Updated:
 
-The View must not:
+- `modules/sync/syncManager.js`
 
-- access QueueStorage directly
-- access SyncService directly when SyncManager already exposes the needed command/state
-- access FirebaseService or any Repository
-- call `fetch()`
-- access Local Storage or Session Storage
-- mutate queue entries
-- replay queue items
-- calculate Attendance or stock differences
-- build ledger or stockLog records
-- change Main Stock
-- expose sensitive payload data
+Added:
+
+- safe `queueItems` in `getStatus()`
+- queue type, room, date/reference, attempts, queued time, next retry time, replay status, and safe error details
+- Attendance date extraction from compatible keys
+- active `flushing: true` status in `milkapp:sync-started`
+- explicit deferred count in generic summaries
+
+Excluded from View-facing summaries:
+
+- student names and Attendance data
+- photos and signatures
+- encoded media
+- complete ledger and stockLog payloads
+- authentication or Firebase secrets
+
+### App Integration
+
+Updated:
+
+- `modules/core/app.js`
+
+Initialization order:
+
+1. LoginManager
+2. TeacherView
+3. AttendanceView
+4. SyncView
+
+SyncView is loaded dynamically after the existing Teacher UI foundation.
+
+## Tests Added
+
+- `tests/sync-ui-check.mjs`
+- `tests/sync-restart-reconnect-check.mjs`
+
+### UI Test Coverage
+
+- valid SyncView and SyncManager JavaScript
+- dependency and App initialization boundary
+- no direct queue persistence, Firebase, Repository, fetch, or browser-storage access from the View
+- safe summaries exclude student/media payloads
+- compatible date/reference display
+- manual retry delegation
+- overlapping retry protection
+- online/offline, pending, failed, deferred, syncing, and synchronized states
+- queue count and item rendering
+- restored Teacher session startup
+- Logout cleanup
+- Admin rejection
+
+### Restart/Reconnect Test Coverage
+
+Uses only in-memory persistent storage and mocked services:
+
+- compatible `tc_pending_saves_v1` key
+- QueueStorage recreation persistence
+- offline startup performs no replay
+- recreated Manager performs no replay before reconnect
+- sequential reconnect replay
+- successful entry removal individually
+- Attendance partial save conversion to `roomStockAdjust`
+- failed and deferred entry retention
+- attempt and next-retry persistence
+- later restart persistence
+- later reconnect success removes retained entries individually
+- Main Stock remains 999
+- no Firebase service, repository, or real classroom data
+
+## Automated Gate
+
+Confirmed locally on Node.js 24.18.0:
+
+```text
+Sync UI checks passed.
+Sync restart/reconnect isolated checks passed.
+ALL 18 REGRESSION CHECKS PASSED
+```
+
+All foundation, stock, report, room, Teacher, Attendance, Sync, concurrency, audit, documentation, UI, isolated Attendance, and restart/reconnect tests passed.
+
+Feature branch synchronized with origin and working tree clean.
+
+## Browser Gate
+
+Desktop Chrome passed:
+
+- browser queue empty before Teacher Login
+- Queue panel rendered with zero pending entries
+- synchronized empty state
+- retry disabled for empty queue
+- Offline transition
+- reconnect syncing transition
+- reconnect settled back to synchronized
+- GET/fetch read-only Network evidence
+- no visible PUT, PATCH, or DELETE
+- clean Console
+- Teacher Logout hides Queue UI
+- Admin Login and Logout unchanged
+
+## Responsive Gate
+
+Chrome Device Toolbar at 820 x 1180 passed:
+
+- Attendance and Queue sections remained contained
+- Queue banner and summary cards remained readable
+- Save, Delete, Retry, and Logout remained reachable
+- no abnormal horizontal overflow
+- Console remained clean
+
+Physical iPad remains deferred and must not be represented as PASS.
 
 ## Business Protection
 
 - Main Stock remains unchanged by all Sync operations.
-- Room Stock-only retries stay Room Stock-only.
-- Attendance-first partial saves must not rewrite successful Attendance during retry.
-- Audit-only retries must not repeat successful Room Stock mutation.
-- Repeated queued edits preserve the original baseline present count.
+- Room Stock-only retries remain Room Stock-only.
+- Attendance-first partial saves do not rewrite successful Attendance during retry.
+- Audit-only retries do not repeat successful Room Stock mutation.
+- Repeated queued edits preserve original `baselinePresent` and `queuedAt`.
 - Failed and deferred entries remain persistent.
 - Successful entries are removed individually.
-- Queue item replay remains authenticated-room-only.
+- Queue replay remains authenticated-room-only.
 - Negative Room Stock remains visible and is not clamped.
+- Queue storage key remains `tc_pending_saves_v1`.
+- Legacy `rec` and `diff` compatibility remains intact.
 
 ## Real-Data Incident Quarantine
 
 Room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined.
 
-Sprint 4.3 must not:
+Sprint 4.3 created no real classroom queue fixture and performed no real queue replay. Recovery remains mandatory before `main`, production cutover, or official use of the affected room/date.
 
-- create or replay real writes for the quarantined room/date
-- use the quarantined values as trusted queue or report evidence
-- manually edit its Room Stock, Attendance, ledger, stockLog, or queue
+## Merge Decision
 
-All Sprint 4.3 mutation validation must use mocked or in-memory queue data.
+Approved for fast-forward merge into `develop`.
 
-## Planned Test File
+This approval does not authorize:
 
-- `tests/sync-ui-check.mjs`
-
-Required coverage:
-
-- valid JavaScript
-- dependency order in `index-v2.html`
-- no direct QueueStorage access
-- no direct Firebase or Repository access
-- no `fetch()`
-- no Local Storage or Session Storage access
-- no direct queue mutation or replay
-- online/offline rendering
-- queue count rendering
-- last-sync rendering
-- retrying, failed, deferred, and synchronized states
-- safe item summaries without media/student payload exposure
-- manual retry delegation
-- manual retry disabled offline
-- manual retry disabled while flushing
-- overlapping calls remain protected by SyncManager
-- Admin session rejection
-- shell cleanup after Logout
-
-## Isolated Queue Fixtures
-
-Use only in-memory fixtures:
-
-- one legacy Attendance entry using `rec`
-- one legacy Room Stock entry using `diff`
-- repeated Attendance edits with original `baselinePresent`
-- one corrupt entry mixed with valid entries
-- one successful entry
-- one failed entry with attempts and next retry time
-- one Attendance-first partial save converted to `roomStockAdjust`
-- one successful Room Stock update converted to `attendanceAudit`
-- queue state before and after View recreation
-
-No production Firebase or real classroom queue writes are allowed.
-
-## Automated Regression Gate
-
-Existing 16 tests remain mandatory:
-
-```powershell
-node tests/login-foundation-check.mjs
-node tests/stock-module-check.mjs
-node tests/report-module-check.mjs
-node tests/room-module-check.mjs
-node tests/teacher-module-check.mjs
-node tests/attendance-module-check.mjs
-node tests/sync-module-check.mjs
-node tests/firebase-request-header-check.mjs
-node tests/performance-module-check.mjs
-node tests/teacher-core-payload-check.mjs
-node tests/cutover-concurrency-check.mjs
-node tests/audit-recovery-check.mjs
-node tests/cutover-documentation-check.mjs
-node tests/teacher-ui-shell-check.mjs
-node tests/attendance-ui-check.mjs
-node tests/attendance-isolated-write-check.mjs
-```
-
-New Sprint test:
-
-```powershell
-node tests/sync-ui-check.mjs
-```
-
-## Browser Gate
-
-Desktop Chrome:
-
-- Admin Login remains unchanged
-- Teacher Login renders Queue UI
-- online/offline banner is correct
-- queue count agrees with SyncManager status
-- manual retry is disabled offline
-- manual retry is disabled while syncing
-- manual retry delegates through SyncManager
-- success/failure/deferred summaries render
-- Logout clears Queue UI
-- Console clean
-- no unexpected Firebase write caused by rendering
-
-Chrome Device Toolbar at 820 x 1180:
-
-- banner remains readable
-- queue count and last-sync time remain visible
-- manual retry remains reachable
-- item summaries remain contained
-- no sensitive payload is exposed
-- no abnormal horizontal overflow
-- Logout remains reachable
-- Console clean
-
-Physical iPad remains deferred and must not be represented as PASS.
-
-## Restart and Reconnect Gate
-
-Using in-memory/mock or approved browser-local fixtures only:
-
-- render pending queue
-- recreate/reload the View
-- confirm persisted count/status returns
-- switch offline and confirm no replay
-- return online and confirm existing reconnect flow starts
-- successful items disappear individually
-- failed/deferred entries remain
-- attempt and next retry state update
-- Main Stock remains unchanged
-
-## Out of Scope
-
-- Pending Milk operational form
-- Retroactive Milk operational form
-- Vacation Milk operational form
-- photos and signatures
-- Attendance history and printing
-- Report UI
-- Admin operational UI
-- Firebase schema changes
-- queue storage-key migration
-- replacement or removal of `teacher.html`
-- production deployment
-- real-classroom write tests
-
-## Merge Gate
-
-Sprint 4.3 may merge into `develop` when:
-
-- Sync View uses Manager/events only
-- no direct QueueStorage, Firebase, Repository, or storage access exists in the View
-- online/offline, pending, syncing, failed, deferred, and completed states render correctly
-- manual retry delegates safely
-- safe item summaries expose no sensitive payloads
-- restart and reconnect fixtures pass
-- all 17 automated tests pass
-- desktop browser gate passes
-- 820 x 1180 responsive gate passes
-- Console is clean
-- working tree is clean
-- `index.html` and `teacher.html` remain unchanged
-
-## Production Meaning
-
-A Sprint 4.3 merge into `develop` does not authorize:
-
-- replacement of `teacher.html`
-- pending, retroactive, vacation, media, or printing cutover
 - merge to `main`
 - production traffic switching
+- replacement of `teacher.html`
 - Firebase schema changes
 - queue storage-key migration
 - legacy-file removal
 - closure of the deferred real-data incident
+
+## Next Sprint
+
+Sprint 4.4 — Pending Milk Operational UI
+
+Planned branch:
+
+`feature/sprint-4.4-pending-milk-ui`
+
+Planned scope:
+
+- absent-student eligibility
+- pending milk issue command
+- Room Stock-only deduction
+- duplicate prevention
+- legacy-compatible `absentMilk` records
+- transaction and audit references
+- authenticated-room-only access
+- isolated write validation only
+
+Retroactive Milk and Vacation Milk remain out of scope for Sprint 4.4.
