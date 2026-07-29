@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **96% — ALL EVIDENCE AND RECOVERY GATES PASSED / COMPLETE 42+ CHECK REGRESSION RUNNER IMPLEMENTED / LOCAL FULL REGRESSION PENDING**
+Status: **98% — ALL EVIDENCE, RECOVERY, AND 42+ FULL REGRESSION GATES PASSED / DESKTOP AND 820 X 1180 READ-ONLY BROWSER VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -62,8 +62,11 @@ Vacation Milk UI checks passed.
 Vacation Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
+Complete Sprint 4.7 regression runner passed with at least 42 checks.
 nothing to commit, working tree clean
 ```
+
+Full-regression local acceptance was recorded at branch head `9cb1008` before the browser-validation documentation commits.
 
 ## Shared Media Policy and Processor — PASS
 
@@ -204,32 +207,44 @@ Confirmed:
 - adapter patch markers remain idempotent;
 - no stock, Firebase, network, or real Queue ownership.
 
-## Complete Sprint 4.7 Regression — RUNNER IMPLEMENTED / LOCAL TEST PENDING
-
-Added:
+## Complete Sprint 4.7 Regression — PASS
 
 ```text
 tests/run-sprint-4.7-regression.mjs
 docs/SPRINT_4_7_FULL_REGRESSION_GATE.md
 ```
 
-The runner:
+Confirmed:
 
-- discovers every `tests/*-check.mjs` file;
-- requires at least 42 checks from the accepted 30-check baseline plus 12 Sprint 4.7 checks;
-- explicitly requires all Sprint 4.7 checks;
-- runs each check in an isolated Node process;
-- stops on the first failure;
-- reports the actual passed-check count;
-- automatically includes future `*-check.mjs` files.
+- every `tests/*-check.mjs` file was discovered automatically;
+- the accepted 30-check baseline and all 12 required Sprint 4.7 checks were present;
+- at least 42 checks ran in isolated Node processes;
+- the runner did not enter its failure path;
+- the branch matched Origin;
+- the working tree was clean.
 
-Expected final output:
+## Browser Read-Only Validation — STAGED / LOCAL EVIDENCE PENDING
+
+Artifact:
 
 ```text
-ALL 42 REGRESSION CHECKS PASSED
+docs/SPRINT_4_7_BROWSER_VALIDATION_REPORT.md
 ```
 
-The reported count may be higher than 42 when more checks exist.
+Required acceptance:
+
+- Admin regression remains clean;
+- Attendance evidence controls render;
+- Pending evidence controls render;
+- Retroactive evidence controls render;
+- Vacation evidence controls render after Teacher login;
+- authenticated-room ownership remains visible;
+- desktop layout passes;
+- Chrome `820 x 1180` layout passes;
+- Console remains clean;
+- Network contains no POST, PUT, PATCH, or DELETE;
+- `tc_pending_saves_v1` remains empty;
+- no real photo, signature, Firebase write, stock mutation, or Queue replay occurs.
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -256,10 +271,11 @@ Artifact:
 
 ## Remaining Sprint 4.7 Work
 
-1. pass the complete 42+ check full regression suite;
-2. validate desktop read-only rendering;
-3. validate 820 x 1180 responsive read-only rendering;
-4. synchronize the branch and confirm a clean working tree.
+1. validate desktop read-only rendering;
+2. validate 820 x 1180 responsive read-only rendering;
+3. record clean Console, GET/OPTIONS-only Network, and empty Queue evidence;
+4. rerun the complete regression suite after final documentation updates;
+5. synchronize the branch and confirm a clean working tree.
 
 ## Queue and Payload Rules
 
@@ -274,15 +290,14 @@ Artifact:
 
 ## Browser Restriction
 
-Until the full regression suite passes:
+The browser gate is strictly read-only:
 
 - do not attach a real classroom photo;
-- do not save a real Teacher, parent, student, or recipient signature;
-- do not press Attendance, Pending, Retroactive, or Vacation issue/delete for evidence testing;
-- do not create or replay a browser Queue containing evidence;
-- do not manually change Firebase evidence fields.
-
-The following browser gate must remain read-only even after regression passes.
+- do not draw or save a real Teacher, parent, student, or recipient signature;
+- do not press Attendance, Pending, Retroactive, or Vacation issue/delete;
+- do not create, retry, replay, remove, or edit a browser Queue entry;
+- do not manually change Firebase evidence fields;
+- do not edit IndexedDB or Local Storage.
 
 ## Safety Boundary
 
@@ -300,7 +315,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- Sprint 4.7 full regression and read-only browser validation;
+- Sprint 4.7 desktop and responsive read-only browser validation;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
