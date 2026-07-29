@@ -21,7 +21,10 @@ assert.ok(
 );
 assert.ok(appCode.includes('import("../sync/syncView.js")'), "App must load SyncView from the Sync module boundary");
 assert.ok(appCode.includes("syncView.initialize"), "App must initialize SyncView after the Teacher Attendance UI");
-assert.ok(viewCode.includes('id="sync-panel"'), "SyncView must create the operational queue panel");
+assert.ok(
+    viewCode.includes('panel.id = "sync-panel"') || viewCode.includes('id="sync-panel"'),
+    "SyncView must create the operational queue panel"
+);
 assert.ok(viewCode.includes('id="sync-retry-button"'), "SyncView must create the manual retry action");
 assert.ok(viewCode.includes('flushNow("manual-ui")'), "Manual retry must delegate to SyncManager");
 assert.ok(managerCode.includes("summarizeQueueEntries"), "SyncManager must expose safe queue summaries");
