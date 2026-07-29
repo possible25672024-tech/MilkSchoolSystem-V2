@@ -197,6 +197,7 @@ class MilkSchoolApplication {
         if (vacationMilkView?.initialize) await vacationMilkView.initialize();
         const vacationEvidenceView = await this.ensureVacationEvidenceView();
         if (vacationEvidenceView?.initialize) await vacationEvidenceView.initialize();
+        vacationMilkView?.handlePreviewChange?.();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");
