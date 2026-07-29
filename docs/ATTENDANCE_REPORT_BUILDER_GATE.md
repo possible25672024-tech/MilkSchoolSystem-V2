@@ -4,11 +4,11 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-4.8-report-print-ui`
 
-Status: **IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **PASS — LOCAL ISOLATED VALIDATION AND REGRESSION COMPLETE**
 
 ## Purpose
 
-Convert the authenticated-room, evidence-free Attendance history result into deterministic daily, range, and per-student report models without giving the report layer ownership of network access, browser storage, Queue state, Attendance writes, or stock arithmetic.
+Convert the authenticated-room, evidence-free Attendance history result into deterministic daily, selected-range, and per-student report models without network access, browser storage, Queue ownership, Attendance writes, or stock arithmetic.
 
 ## Implemented files
 
@@ -26,54 +26,31 @@ AttendanceHistoryService normalized result
     -> pure report model
 ```
 
-## Input contract
+## Accepted local result
 
-`AttendanceReportBuilder.build(history, context)` accepts:
+The submitted PowerShell sequence completed through the remaining checks, `git status`, and `git log` without entering a failure `throw`.
 
-```js
-{
-  roomId,
-  roomName,
-  teacher,
-  startDate,
-  endDate,
-  requestedDays,
-  records: [
-    {
-      key,
-      clsId,
-      roomName,
-      date,
-      year,
-      term,
-      teacher,
-      data,
-      notes,
-      savedAt,
-      evidence
-    }
-  ]
-}
+Accepted result:
+
+```text
+Attendance report builder checks passed.
+Attendance history query checks passed.
+Sprint 4.8 plan checks passed.
+Cutover documentation checks passed.
+ALL 46 REGRESSION CHECKS PASSED
+On branch feature/sprint-4.8-report-print-ui
+Your branch is up to date with 'origin/feature/sprint-4.8-report-print-ui'.
+nothing to commit, working tree clean
+HEAD 729347c
 ```
 
-Optional context may contain:
+The reported regression count may be greater than 46 when additional checks exist.
 
-```js
-{
-  schoolName,
-  year,
-  term,
-  students,
-  room,
-  settings
-}
-```
+## Input and roster contract
 
-The preferred roster source is the authenticated Teacher snapshot. Attendance-only student IDs that are absent from the current roster are retained after roster students so historical facts are not silently discarded.
+`AttendanceReportBuilder.build(history, context)` consumes only in-memory normalized history and optional authenticated-room context.
 
-## Student normalization and ordering
-
-Roster students support the existing normalized and legacy-compatible fields:
+Roster students support:
 
 ```text
 id / studentId / รหัส / รหัสประจำตัว
@@ -82,9 +59,11 @@ name / ชื่อ-นามสกุล / ชื่อ + นามสกุล
 gender / sex / เพศ
 ```
 
+Attendance-only student IDs that are absent from the current roster remain in the report after roster students so historical facts are not silently discarded.
+
 Output sorting is deterministic:
 
-1. current-roster students before Attendance-only IDs;
+1. current-roster students;
 2. numeric student number;
 3. textual student number;
 4. student name;
@@ -92,153 +71,77 @@ Output sorting is deterministic:
 
 Duplicate roster IDs are represented once.
 
-## Status rules
+## Status and total rules
 
-Recognized Attendance values:
+Recognized values:
 
 ```text
 present
 absent
 ```
 
-A missing or unsupported value is counted as:
+Missing or unsupported values are counted as:
 
 ```text
 unchecked
 ```
 
-This preserves incomplete-record visibility instead of silently converting unknown values to present or absent.
+The model reports:
 
-## Output model
+- school days represented by existing Attendance records;
+- complete and incomplete days;
+- represented students and student rows;
+- present, absent, unchecked, and checked totals;
+- daily totals;
+- per-student totals and note counts;
+- attendance rate calculated as `present / checked`;
+- school, room, Teacher, date range, year, and semester metadata.
 
-The builder returns:
+Unchecked rows remain visible and are not converted to absences.
 
-```js
-{
-  metadata: {
-    schoolName,
-    roomId,
-    roomName,
-    teacher,
-    startDate,
-    endDate,
-    year,
-    term,
-    yearValues,
-    termValues
-  },
-  totals: {
-    requestedDays,
-    schoolDays,
-    completeDays,
-    incompleteDays,
-    students,
-    studentRows,
-    present,
-    absent,
-    unchecked,
-    checked,
-    attendanceRate
-  },
-  daily: [
-    {
-      key,
-      date,
-      year,
-      term,
-      present,
-      absent,
-      unchecked,
-      checked,
-      totalStudents,
-      complete,
-      attendanceRate,
-      savedAt,
-      evidence
-    }
-  ],
-  students: [
-    {
-      id,
-      num,
-      name,
-      gender,
-      roster,
-      present,
-      absent,
-      unchecked,
-      checked,
-      totalDays,
-      notesCount,
-      attendanceRate
-    }
-  ],
-  source: {
-    requestedDays,
-    recordCount,
-    evidenceHydrated
-  }
-}
-```
-
-`schoolDays` counts existing Attendance records in the selected range. `studentRows` is `schoolDays × represented students`. `attendanceRate` uses `present / checked`; unchecked rows are reported separately rather than treated as absences.
-
-When records contain more than one academic year or semester and no explicit context override exists, the corresponding metadata value is `mixed`, while `yearValues` and `termValues` preserve the actual sorted values.
+When source records contain multiple academic years or semesters without an explicit override, the metadata value is `mixed` while the source values remain available in sorted arrays.
 
 ## Purity and payload boundary
 
 The builder:
 
 - performs no network request;
-- reads no browser storage;
+- reads no Local Storage, Session Storage, or IndexedDB;
 - creates or replays no Queue item;
-- mutates no Attendance source record;
-- recalculates or repairs no stock value;
+- mutates no history, roster, or context input;
+- recalculates or repairs no Room Stock or Main Stock;
 - emits no browser event;
 - includes no photo or signature Data URL;
-- derives only report facts from supplied in-memory values.
+- hydrates no historical evidence.
 
-Historical evidence metadata may remain `loaded: false` with unknown count flags. The builder does not hydrate evidence.
+## Accepted isolated checks
 
-## Isolated checks
-
-`tests/attendance-report-builder-check.mjs` verifies:
+The passing gate verifies:
 
 - browser-safe syntax;
 - prohibited ownership is absent;
-- deterministic date ordering;
-- deterministic roster and Attendance-only student ordering;
+- deterministic date and student ordering;
 - duplicate roster handling;
-- daily present, absent, unchecked, and checked totals;
-- selected-range totals;
+- daily and selected-range totals;
 - per-student totals and note counts;
-- attendance rate calculation;
-- incomplete-day handling;
-- mixed academic year and semester metadata;
-- explicit metadata override;
+- attendance-rate calculation;
+- incomplete-record handling;
+- mixed metadata and explicit override behavior;
 - empty-history behavior;
-- no evidence payload exposure;
-- history and context inputs remain unchanged;
-- Node VM cross-realm output is compared through plain JSON values.
-
-Expected output:
-
-```text
-Attendance report builder checks passed.
-```
+- evidence payload exclusion;
+- input immutability;
+- Node VM cross-realm output normalization.
 
 ## Safety boundary
 
-This gate uses generated in-memory fixtures only. It does not load a real classroom, request Firebase data, write Attendance, change Room Stock or Main Stock, create or replay Queue entries, or modify protected `index.html` and `teacher.html`.
+This gate used generated in-memory fixtures only. It did not load a real classroom, request Firebase data, write Attendance, change Room Stock or Main Stock, create or replay Queue entries, or modify protected `index.html` and `teacher.html`.
 
 Do not use quarantined room `อ.3-3`, room ID `mqn0z13eyx5b`, or date `2026-07-28` in later browser validation.
 
 ## Next gate
 
-After local validation passes:
-
 ```text
-Gate C — A4 Print Model
+Gate C — A4 Attendance Print Model
 ```
 
-The print model must consume this already-built report model and must not trigger another history read or automatic evidence download.
+The print model consumes the already-built report model and must not trigger another history read or automatic evidence download.
