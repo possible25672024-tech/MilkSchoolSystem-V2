@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.6-vacation-milk-ui`
 
-Status: ACTIVE / MODULE AND RECOVERY GATES PASSED / UI AND ISOLATED VALIDATION PENDING
+Status: ACTIVE / MODULE, RECOVERY, UI, ISOLATED, AND FIREBASE INDEX GATES PASSED / FULL REGRESSION PENDING
 
 ## Objective
 
@@ -98,6 +98,7 @@ View:
 - optional note;
 - issue confirmation;
 - Room Stock and Queue feedback;
+- result status preserved after automatic history refresh;
 - room history and confirmed rollback;
 - responsive layout;
 - no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership.
@@ -131,13 +132,10 @@ Confirmed locally:
 ```text
 Vacation Milk module checks passed.
 Vacation Milk recovery routing checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
 Cutover documentation checks passed.
 ```
-
-At the reported validation point:
-
-- branch synchronized with origin;
-- working tree clean.
 
 ### Module Gate
 
@@ -175,22 +173,7 @@ Artifact:
 
 - `docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md`
 
-## UI and Isolated Write Gates — IMPLEMENTED / LOCAL RUN PENDING
-
-Added:
-
-```text
-tests/vacation-milk-ui-check.mjs
-tests/vacation-milk-isolated-write-check.mjs
-docs/VACATION_MILK_ISOLATED_WRITE_GATE.md
-```
-
-Expected local output:
-
-```text
-Vacation Milk UI checks passed.
-Vacation Milk isolated write checks passed.
-```
+### UI and Isolated Write Gates — PASS
 
 Coverage includes:
 
@@ -199,6 +182,7 @@ Coverage includes:
 - visible student roster and per-student quantity;
 - Media & Signature handoff;
 - Room Stock preview and result feedback;
+- successful and queued result status preserved after history refresh;
 - history and rollback action;
 - successful issue `200 → 110`;
 - successful delete `110 → 200`;
@@ -208,45 +192,46 @@ Coverage includes:
 - no Firebase or real classroom writes;
 - Main Stock remains 999.
 
-## Firebase Query Index — CONFIRMED BLOCKER / NOT YET PUBLISHED
+Artifact:
 
-The read-only browser preview renders correctly, including:
+- `docs/VACATION_MILK_ISOLATED_WRITE_GATE.md`
+
+## Firebase Query Index — PUBLISHED AND VALIDATED
+
+The product owner preserved existing indexes and published:
+
+```text
+/milkApp/absentMilk   → .indexOn ["roomId"]
+/milkApp/retroMilk    → .indexOn ["roomId"]
+/milkApp/vacationMilk → .indexOn ["roomId"]
+```
+
+Read-only browser validation confirmed:
 
 ```text
 16 students × 30 days = 480 boxes
 Room Stock = 476
+Method GET
+Status 200
+History records 0
 ```
 
-History loading currently returns HTTP 400 with:
+The previous HTTP 400 index blocker is closed.
 
-```text
-Index not defined, add ".indexOn": "roomId", for path "/milkApp/vacationMilk"
-```
+Artifact:
 
-After the UI and isolated gates pass, preserve existing indexes and add:
-
-```text
-/milkApp/vacationMilk → .indexOn ["roomId"]
-```
-
-Do not alter or remove:
-
-```text
-/milkApp/absentMilk → .indexOn ["roomId"]
-/milkApp/retroMilk  → .indexOn ["roomId"]
-```
+- `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
 
 Root-level public `.read` and `.write` remain a production-security blocker.
 
 ## Remaining Gates
 
-1. Vacation Milk UI test.
-2. Vacation Milk isolated issue/delete/partial-save test.
-3. Publish and validate the Vacation Milk room index.
-4. Complete 30-test regression run.
-5. Desktop read-only indexed Network and Console gate.
-6. Responsive 820 x 1180 gate.
-7. Clean branch and working tree.
+1. Remove the diagnostic `vacation-ui-error.txt` if it still exists.
+2. Complete all 30 regression checks.
+3. Confirm synchronized branch and clean working tree.
+4. Desktop read-only Console gate.
+5. Responsive 820 x 1180 read-only gate.
+6. Confirm no write methods or real mutation actions.
 
 ## Media, Signature, Report, and Print Parity
 
