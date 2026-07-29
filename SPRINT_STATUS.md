@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **98% — ALL EVIDENCE, RECOVERY, AND 42+ FULL REGRESSION GATES PASSED / DESKTOP AND 820 X 1180 READ-ONLY BROWSER VALIDATION PENDING**
+Status: **100% IMPLEMENTED AND BROWSER-ACCEPTED / FINAL CLOSING REGRESSION AND DEVELOP FAST-FORWARD PENDING**
 
 ## Completed Foundation
 
@@ -36,7 +36,85 @@ Protected `index.html` and `teacher.html` remain unchanged and operational.
 
 Physical iPad remains deferred and must not be represented as PASS.
 
-## Sprint 4.7 Accepted Local Gates
+## Sprint 4.7 Delivered Scope — PASS
+
+Implemented:
+
+```text
+modules/media/mediaPolicy.js
+modules/media/mediaProcessor.js
+modules/media/mediaStore.js
+modules/media/mediaEnvelope.js
+modules/signature/signaturePad.js
+modules/media/attendanceEvidenceManager.js
+modules/media/attendanceEvidenceView.js
+modules/media/attendanceEvidenceAdapter.js
+modules/media/pendingEvidenceManager.js
+modules/media/pendingEvidenceView.js
+modules/media/pendingEvidenceAdapter.js
+modules/media/retroactiveEvidenceManager.js
+modules/media/retroactiveEvidenceView.js
+modules/media/retroactiveEvidenceAdapter.js
+modules/media/vacationEvidenceManager.js
+modules/media/vacationEvidenceView.js
+modules/media/vacationEvidenceAdapter.js
+```
+
+Confirmed:
+
+- maximum five photos per record;
+- JPEG, PNG, and WebP source support;
+- 8 MB source limit;
+- longest edge 1,000 px;
+- JPEG quality 0.7;
+- 400 KB processed-photo limit;
+- 120 KB signature limit;
+- 2.25 MB aggregate evidence limit;
+- 320-pixel thumbnails;
+- Pointer, Touch, and Mouse signature input;
+- empty-signature rejection;
+- lazy IndexedDB payload storage;
+- reference-only manifests;
+- Data URL, blob, payload, source-file-name, and receiver-identity redaction from safe Queue state;
+- Queue key remains `tc_pending_saves_v1`;
+- no Media layer ownership of Firebase stock arithmetic.
+
+## Workflow Integration — PASS
+
+### Attendance
+
+- daily photos and Teacher signature;
+- unchanged room/date preserves the active draft;
+- online save hydrates legacy `photos` and `signature` fields;
+- Queue keeps references only and hydrates before Attendance Service;
+- Main Stock remains unchanged.
+
+### Pending Milk
+
+- weekly photos and exact `studentId_absentDate` recipient signatures;
+- receiver-name compatibility at the protected write boundary;
+- safe state and Queue exclude receiver identity and payloads;
+- stock-retry Queue remains stock-only;
+- Main Stock remains unchanged.
+
+### Retroactive Milk
+
+- selected-range photos and one signature per student ID;
+- unchanged range preserves the active draft;
+- legacy `photos`, `signature`, and `signatures` compatibility;
+- stock-retry Queue remains stock-only;
+- Main Stock remains unchanged.
+
+### Vacation Milk
+
+- selected-record photos and one parent/recipient signature per student ID;
+- Login replay republishes the preview after Evidence View activation;
+- `milkapp:teacher-refreshed` redraws the Vacation preview from the live Teacher snapshot;
+- another-room and non-Teacher refreshes are ignored;
+- public adapter status contract remains stable;
+- Main Stock remains unchanged.
+
+## Accepted Automated Gates
 
 Confirmed locally:
 
@@ -52,6 +130,7 @@ Pending Milk Media and Signature integration checks passed.
 Retroactive Milk Media and Signature integration checks passed.
 Vacation Milk Media and Signature integration checks passed.
 Vacation evidence login replay checks passed.
+Vacation live Teacher stock refresh checks passed.
 Media evidence recovery and duplicate prevention checks passed.
 Attendance UI checks passed.
 Pending Milk UI checks passed.
@@ -62,168 +141,12 @@ Vacation Milk UI checks passed.
 Vacation Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
-Complete Sprint 4.7 regression runner passed with at least 42 checks.
-nothing to commit, working tree clean
+ALL 43 REGRESSION CHECKS PASSED (6.2s)
 ```
 
-Full-regression local acceptance was recorded at branch head `9cb1008` before the browser-validation documentation commits.
+The automatic runner discovers every `tests/*-check.mjs` file and rejects any failure.
 
-## Shared Media Policy and Processor — PASS
-
-Implemented:
-
-```text
-modules/media/mediaPolicy.js
-modules/media/mediaProcessor.js
-modules/media/mediaStore.js
-modules/media/mediaEnvelope.js
-modules/signature/signaturePad.js
-```
-
-Confirmed:
-
-- maximum five photos per record;
-- JPEG, PNG, and WebP source support;
-- 8 MB source limit;
-- longest edge 1,000 px;
-- JPEG quality 0.7;
-- 400 KB processed-photo limit;
-- 120 KB signature limit;
-- 2.25 MB aggregate evidence limit;
-- generated 320-pixel thumbnails;
-- Pointer, Touch, and Mouse signature input;
-- empty-signature rejection;
-- lazy IndexedDB payload storage;
-- reference-only manifests;
-- Data URL, blob, payload, and source-file-name redaction;
-- Queue key remains `tc_pending_saves_v1`;
-- no Firebase or stock ownership.
-
-## Attendance Daily Photo and Teacher Signature — PASS
-
-```text
-modules/media/attendanceEvidenceManager.js
-modules/media/attendanceEvidenceView.js
-modules/media/attendanceEvidenceAdapter.js
-tests/attendance-media-signature-integration-check.mjs
-docs/ATTENDANCE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
-```
-
-Confirmed:
-
-- selected-date photo and Teacher-signature draft;
-- unchanged room/date context preserves the active draft;
-- local draft does not write Firebase;
-- online save hydrates protected `photos` and `signature` fields;
-- Queue keeps references only;
-- replay hydrates immediately before Attendance Service;
-- legacy inline evidence is blocked from Queue;
-- deletion cleanup does not own stock mutation;
-- Main Stock remains unchanged.
-
-## Pending Milk Photos and Recipient Signatures — PASS
-
-```text
-modules/media/pendingEvidenceManager.js
-modules/media/pendingEvidenceAdapter.js
-modules/media/pendingEvidenceView.js
-tests/pending-media-signature-integration-check.mjs
-docs/PENDING_MEDIA_SIGNATURE_INTEGRATION_GATE.md
-```
-
-Confirmed:
-
-- weekly photo draft and previews;
-- one signature for each exact `studentId_absentDate` entitlement;
-- receiver-name compatibility at the protected write boundary;
-- safe state and Queue exclude receiver identity;
-- protected `photos`, `signature`, and `signatures` fields;
-- partial-stock Queue entries remain stock-only;
-- Queue excludes evidence payloads and source file names;
-- Main Stock remains unchanged.
-
-## Retroactive Milk Photos and Recipient Signatures — PASS
-
-```text
-modules/media/retroactiveEvidenceManager.js
-modules/media/retroactiveEvidenceAdapter.js
-modules/media/retroactiveEvidenceView.js
-tests/retroactive-media-signature-integration-check.mjs
-docs/RETROACTIVE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
-```
-
-Confirmed:
-
-- selected-range photo draft and lazy previews;
-- authenticated-room student selector;
-- one signature per student ID;
-- receiver-name compatibility;
-- unchanged range preserves the active draft;
-- protected `photos`, `signature`, and `signatures` fields;
-- partial-stock Queue remains stock-only;
-- Queue excludes evidence payloads and receiver identity;
-- Main Stock remains unchanged.
-
-## Vacation Milk Photos and Parent/Recipient Signatures — PASS
-
-```text
-modules/media/vacationEvidenceManager.js
-modules/media/vacationEvidenceAdapter.js
-modules/media/vacationEvidenceView.js
-tests/vacation-media-signature-integration-check.mjs
-tests/vacation-evidence-login-replay-check.mjs
-docs/VACATION_MEDIA_SIGNATURE_INTEGRATION_GATE.md
-```
-
-Confirmed:
-
-- selected-record photo draft and lazy previews;
-- authenticated-room student selector;
-- one signature per student ID;
-- parent or recipient name compatibility;
-- unchanged record identity preserves the active draft;
-- Login replay republishes the active preview after Evidence View activation;
-- protected `photos`, `signature`, and `signatures` fields;
-- partial-stock Queue remains stock-only;
-- Queue excludes evidence payloads and receiver identity;
-- Main Stock remains unchanged.
-
-## Evidence Recovery and Duplicate Prevention — PASS
-
-```text
-tests/media-evidence-recovery-duplicate-check.mjs
-docs/MEDIA_EVIDENCE_RECOVERY_DUPLICATE_GATE.md
-```
-
-Confirmed:
-
-- repeated context events do not silently clear valid drafts;
-- signature replacement removes the previous draft exactly once;
-- context changes remove each unsaved payload exactly once;
-- removing a Pending owner removes only that owner's draft signature;
-- successful-save ownership is not treated as an unsaved draft;
-- Retroactive and Vacation unchanged contexts preserve evidence;
-- receiver identity is redacted from safe state;
-- adapter patch markers remain idempotent;
-- no stock, Firebase, network, or real Queue ownership.
-
-## Complete Sprint 4.7 Regression — PASS
-
-```text
-tests/run-sprint-4.7-regression.mjs
-docs/SPRINT_4_7_FULL_REGRESSION_GATE.md
-```
-
-Confirmed:
-
-- every `tests/*-check.mjs` file was discovered automatically;
-- the accepted 30-check baseline and all 12 required Sprint 4.7 checks were present;
-- at least 42 checks ran in isolated Node processes;
-- the runner did not enter its failure path;
-- the branch matched Origin;
-- the working tree was clean.
-
-## Browser Read-Only Validation — STAGED / LOCAL EVIDENCE PENDING
+## Browser Read-Only Validation — PASS
 
 Artifact:
 
@@ -231,20 +154,43 @@ Artifact:
 docs/SPRINT_4_7_BROWSER_VALIDATION_REPORT.md
 ```
 
-Required acceptance:
+Accepted:
 
-- Admin regression remains clean;
-- Attendance evidence controls render;
-- Pending evidence controls render;
-- Retroactive evidence controls render;
-- Vacation evidence controls render after Teacher login;
-- authenticated-room ownership remains visible;
-- desktop layout passes;
-- Chrome `820 x 1180` layout passes;
-- Console remains clean;
-- Network contains no POST, PUT, PATCH, or DELETE;
-- `tc_pending_saves_v1` remains empty;
-- no real photo, signature, Firebase write, stock mutation, or Queue replay occurs.
+- Admin responsive shell;
+- Teacher dashboard and authenticated-room ownership;
+- Attendance evidence controls with `0 / 5 รูป`;
+- Pending evidence controls with the earlier local draft removed and `0 / 5 รูป`;
+- Retroactive evidence controls with `0 / 5 รูป`;
+- Vacation evidence controls with `0 / 5 รูป`;
+- desktop and Chrome `820 x 1180` layouts;
+- clean Console;
+- visible Network methods were GET-only;
+- no visible POST, PUT, PATCH, or DELETE;
+- Queue was `null` before login and after Logout;
+- no real evidence, Firebase write, stock mutation, or Queue replay.
+
+Live stock consistency accepted:
+
+```text
+Teacher dashboard Room Stock = 476
+Vacation Milk Room Stock     = 476
+Vacation preview             = 16 students x 30 days = 480 boxes
+```
+
+The Vacation warning state is expected because the preview requires four more boxes than the live Room Stock.
+
+## Evidence Recovery and Duplicate Prevention — PASS
+
+Confirmed:
+
+- repeated context events do not silently clear valid drafts;
+- signature replacement removes the previous draft once;
+- context changes remove each unsaved payload once;
+- removing a Pending owner removes only that owner's signature draft;
+- successful saves are not treated as unsaved drafts;
+- safe state excludes payloads and receiver identity;
+- adapter patch markers and replay listeners remain idempotent;
+- no stock, Firebase, network, or real Queue ownership.
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -267,15 +213,19 @@ Photos, signatures, visible and printable student detail, history, summaries, pr
 
 Artifact:
 
-- `docs/TEACHER_LEGACY_PARITY_CONTRACT.md`
+```text
+docs/TEACHER_LEGACY_PARITY_CONTRACT.md
+```
 
-## Remaining Sprint 4.7 Work
+## Final Sprint 4.7 Closure Steps
 
-1. validate desktop read-only rendering;
-2. validate 820 x 1180 responsive read-only rendering;
-3. record clean Console, GET/OPTIONS-only Network, and empty Queue evidence;
-4. rerun the complete regression suite after final documentation updates;
-5. synchronize the branch and confirm a clean working tree.
+1. pull the closing documentation commits;
+2. run `node tests/run-sprint-4.7-regression.mjs` again;
+3. confirm the feature branch matches Origin and the working tree is clean;
+4. fast-forward `develop` to the accepted Sprint 4.7 head;
+5. create the next feature branch from the integrated `develop` head.
+
+No merge to `main` is authorized.
 
 ## Queue and Payload Rules
 
@@ -288,17 +238,6 @@ Artifact:
 - Teacher Login must not download historical evidence.
 - Evidence loads only for the selected room, date, week, range, or record.
 
-## Browser Restriction
-
-The browser gate is strictly read-only:
-
-- do not attach a real classroom photo;
-- do not draw or save a real Teacher, parent, student, or recipient signature;
-- do not press Attendance, Pending, Retroactive, or Vacation issue/delete;
-- do not create, retry, replay, remove, or edit a browser Queue entry;
-- do not manually change Firebase evidence fields;
-- do not edit IndexedDB or Local Storage.
-
 ## Safety Boundary
 
 Do not use:
@@ -306,7 +245,7 @@ Do not use:
 - room `อ.3-3`;
 - room ID `mqn0z13eyx5b`;
 - date `2026-07-28`;
-- any real-classroom write;
+- a real-classroom write;
 - direct Firebase Console mutation of operational records;
 - manual Queue, Room Stock, Main Stock, ledger, stockLog, or transaction-history repair.
 
@@ -315,7 +254,6 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- Sprint 4.7 desktop and responsive read-only browser validation;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
