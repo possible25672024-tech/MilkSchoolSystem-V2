@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.6-vacation-milk-ui`
 
-Status: ACTIVE / LEGACY AUDIT PASSED / MODULE VALIDATION PENDING
+Status: ACTIVE / LEGACY AND MODULE GATES PASSED / TYPED RECOVERY VALIDATION PENDING
 
 ## Objective
 
@@ -17,6 +17,7 @@ modules/repositories/vacationMilkRepository.js
 modules/services/vacationMilkService.js
 modules/vacation/vacationMilkManager.js
 modules/vacation/vacationMilkView.js
+modules/sync/vacationSyncAdapter.js
 ```
 
 Integrated through:
@@ -99,6 +100,18 @@ View:
 - responsive layout;
 - no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership.
 
+Sync:
+
+- typed `VACATION` Queue metadata;
+- reviewed safe Queue note and label;
+- `VACATION` ledger with negative quantity;
+- `OUT` stockLog with absolute quantity;
+- exact shared `ROLLBACK` restoration;
+- audit-only conversion after successful stock mutation;
+- Main Stock delta zero;
+- adapter installation before Queue startup replay;
+- existing `RETRO`, `PENDING`, `ROLLBACK`, and legacy `ATTENDANCE` routing preserved.
+
 ## Duplicate Identity
 
 Sprint 4.6 blocks only an exact duplicate:
@@ -109,15 +122,21 @@ roomId + academicYear + semester + issueDate + days
 
 A genuinely different issue date or day count remains possible.
 
-## Automated Gates
+## Module Gate — PASS
 
-Added:
+Confirmed locally:
 
 ```text
-tests/vacation-milk-module-check.mjs
+Vacation Milk module checks passed.
+Cutover documentation checks passed.
 ```
 
-The module test covers:
+At the reported validation point:
+
+- branch synchronized with origin;
+- working tree clean.
+
+Coverage includes:
 
 - protected legacy evidence;
 - room-scoped Repository path;
@@ -135,19 +154,45 @@ The module test covers:
 - App integration;
 - View ownership boundary.
 
-Local execution is pending.
+## Typed Recovery Gate — IMPLEMENTED / LOCAL RUN PENDING
+
+Added:
+
+```text
+tests/vacation-milk-recovery-routing-check.mjs
+docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md
+```
+
+Expected:
+
+```text
+Vacation Milk recovery routing checks passed.
+```
+
+The test verifies:
+
+- Queue startup ordering;
+- legacy `ATTENDANCE` fallback;
+- preservation of existing `RETRO` routing;
+- `VACATION` persistence and safe display;
+- Room Stock `200 → 110` exactly once;
+- ledger `VACATION` quantity `-90`;
+- stockLog `OUT` quantity `90`;
+- audit-only conversion;
+- no repeated stock mutation during audit retry;
+- `ROLLBACK` restoration `110 → 200`;
+- Main Stock remains 999.
 
 ## Next Gates
 
-1. Module Gate.
-2. Typed `VACATION` recovery-routing gate.
-3. Operational UI gate.
-4. Isolated issue/delete/partial-save gate.
-5. Complete regression run.
-6. Publish `/milkApp/vacationMilk → .indexOn ["roomId"]` if not already present.
-7. Desktop read-only indexed Network and Console gate.
-8. Responsive 820 x 1180 gate.
-9. Clean branch and working tree.
+1. Typed `VACATION` recovery-routing gate.
+2. Operational UI gate.
+3. Isolated issue/delete/partial-save gate.
+4. Complete regression run.
+5. Publish `/milkApp/vacationMilk → .indexOn ["roomId"]` after automated gates pass.
+6. Desktop read-only indexed Network and Console gate.
+7. Responsive 820 x 1180 gate.
+8. Clean branch and working tree.
 
 ## Media, Signature, Report, and Print Parity
 
