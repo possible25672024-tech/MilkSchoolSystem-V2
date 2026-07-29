@@ -4,7 +4,7 @@
 
 Last Update
 
-2026-07-28
+2026-07-29
 
 ---
 
@@ -26,7 +26,7 @@ Sprint 4.3 — Offline Queue Operational UI
 
 Status
 
-85% — Runtime, safe Manager summaries, App integration, Queue UI test, Cutover documentation compatibility, and all 17 automated regression checks passed. Isolated browser queue-state, restart/reconnect, desktop, and 820 x 1180 responsive gates remain pending.
+92% — Runtime, safe Manager summaries, App integration, Queue UI test, all 17 automated regression checks, empty-queue browser safety, Teacher Queue rendering, Offline/reconnect transition, read-only Network evidence, and 820 x 1180 responsive layout passed. Final Console, Admin regression, Teacher Logout cleanup, settled reconnect state, and isolated non-empty restart/reconnect fixtures remain pending.
 
 ---
 
@@ -178,63 +178,77 @@ Confirmed locally on Node.js 24.18.0:
 
 ---
 
-Browser Safety Gate — Ready to Start
+Browser Safety Gate — PASS
 
-Automated prerequisites are complete.
+✓ Application Local Storage filtered by `tc_pending_saves_v1`
 
-Before opening the Teacher Queue UI:
+✓ No matching key or stored queue value was present before Teacher Login
 
-□ Inspect the browser queue key `tc_pending_saves_v1` without logging in as Teacher
+✓ No existing local queue was available for startup replay
 
-□ Confirm the queue is empty or use a separate browser profile with empty site data
-
-□ Do not use the quarantined room/date
-
-□ Do not press Attendance Save or Delete during Queue UI validation
-
-□ Do not run manual retry, reconnect replay, or startup replay against real pending classroom entries
-
-Activating a Teacher Sync session can invoke the existing startup replay when a pending browser queue exists.
+✓ Teacher Queue validation proceeded with an empty browser queue
 
 ---
 
-Browser Gate — Pending
+Desktop Teacher Queue Browser Evidence — PARTIAL PASS
 
-Desktop Chrome:
+✓ Queue panel rendered inside the Teacher shell
 
-□ Admin Login remains unchanged
+✓ Pending count displayed 0
 
-□ Teacher Login renders Queue UI on an empty/isolated queue
+✓ Maximum attempts displayed 0
 
-□ Online/offline banner is accurate
+✓ Latest succeeded displayed 0
 
-□ Queue count agrees with SyncManager
+✓ Failed/deferred displayed 0
 
-□ Empty queue renders synchronized state
+✓ Empty queue rendered synchronized state
 
-□ Manual retry is disabled when the queue is empty
+✓ Empty queue displayed no item details
 
-□ Manual retry is disabled offline and while flushing
+✓ Manual retry was disabled for the empty queue
 
-□ Logout clears Queue UI
+✓ Offline transition displayed `ออฟไลน์ · ยังไม่มีรายการค้าง`
 
-□ Console clean
+✓ Manual retry remained disabled offline
 
-□ Rendering causes no unexpected Firebase write
+✓ Returning online entered the expected transient syncing state
 
-Chrome Device Toolbar at 820 x 1180:
+✓ Visible Network rows were GET/fetch reads only
 
-□ Banner, count, last sync, retry, and item summaries remain readable
+✓ No visible `PUT`, `PATCH`, or `DELETE` request appeared
 
-□ No sensitive payload is exposed
+Pending:
 
-□ No abnormal horizontal overflow
+□ Wait for reconnect to settle back to synchronized
 
-□ Logout remains reachable
+□ Open Console and confirm no JavaScript error
 
-□ Console clean
+□ Confirm Teacher Logout hides Queue UI
 
-Physical iPad remains deferred and must not be represented as PASS.
+□ Complete Admin Login/Logout regression
+
+---
+
+Responsive Gate at 820 x 1180 — PASS FOR PROVIDED EVIDENCE
+
+✓ Attendance rows remained contained
+
+✓ Save, Delete, and Logout remained reachable
+
+✓ Queue panel remained visible below Attendance
+
+✓ Queue banner and four summary cards remained readable
+
+✓ Last-sync, latest-result, retry-time, empty-detail, and retry-action areas remained contained
+
+✓ No abnormal horizontal overflow was visible
+
+Pending:
+
+□ Console evidence at responsive size
+
+□ Logout action result at responsive size
 
 ---
 
@@ -257,6 +271,8 @@ Use only mocked, in-memory, or separate browser-local fixtures:
 □ Attempt count and next retry state update
 
 □ Main Stock remains unchanged
+
+No real Firebase queue entry may be created for this gate.
 
 ---
 
