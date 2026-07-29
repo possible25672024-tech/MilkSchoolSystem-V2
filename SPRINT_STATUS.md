@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **80% — SHARED, ATTENDANCE, AND PENDING EVIDENCE GATES PASSED / RETROACTIVE MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **88% — SHARED, ATTENDANCE, PENDING, AND RETROACTIVE EVIDENCE GATES PASSED / VACATION MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -49,9 +49,12 @@ Media Queue redaction checks passed.
 Teacher session roster fallback checks passed.
 Attendance Media and Signature integration checks passed.
 Pending Milk Media and Signature integration checks passed.
+Retroactive Milk Media and Signature integration checks passed.
 Attendance UI checks passed.
 Pending Milk UI checks passed.
 Pending Milk isolated write checks passed.
+Retroactive Milk UI checks passed.
+Retroactive Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
 nothing to commit, working tree clean
@@ -90,8 +93,6 @@ Confirmed:
 
 ## Attendance Daily Photo and Teacher Signature — PASS
 
-Implemented:
-
 ```text
 modules/media/attendanceEvidenceManager.js
 modules/media/attendanceEvidenceView.js
@@ -113,8 +114,6 @@ Confirmed:
 
 ## Pending Milk Photos and Recipient Signatures — PASS
 
-Implemented:
-
 ```text
 modules/media/pendingEvidenceManager.js
 modules/media/pendingEvidenceAdapter.js
@@ -133,9 +132,7 @@ Confirmed:
 - Queue excludes evidence payloads and receiver identity;
 - Main Stock remains unchanged.
 
-## Retroactive Milk Photos and Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
-
-Added:
+## Retroactive Milk Photos and Recipient Signatures — PASS
 
 ```text
 modules/media/retroactiveEvidenceManager.js
@@ -145,12 +142,36 @@ tests/retroactive-media-signature-integration-check.mjs
 docs/RETROACTIVE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
 ```
 
-UI capability:
+Confirmed:
 
 - selected-range photo draft and lazy previews;
+- authenticated-room student selector;
+- one signature per student ID;
+- receiver-name compatibility;
+- unchanged range preserves the active draft;
+- protected `photos`, `signature`, and `signatures` fields;
+- partial-stock Queue remains stock-only;
+- Queue excludes evidence payloads and receiver identity;
+- Main Stock remains unchanged.
+
+## Vacation Milk Photos and Parent/Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
+
+Added:
+
+```text
+modules/media/vacationEvidenceManager.js
+modules/media/vacationEvidenceAdapter.js
+modules/media/vacationEvidenceView.js
+tests/vacation-media-signature-integration-check.mjs
+docs/VACATION_MEDIA_SIGNATURE_INTEGRATION_GATE.md
+```
+
+UI capability:
+
+- selected-record photo draft and lazy previews;
 - maximum five photos;
 - authenticated-room student selector;
-- receiver or parent name input;
+- parent or recipient name input;
 - one signature per student ID;
 - signature count and draft feedback;
 - responsive layout;
@@ -171,12 +192,12 @@ Protected record fields:
 }
 ```
 
-The Retroactive partial-stock Queue remains stock-only and must not contain evidence payloads, receiver identity, or source file names.
+The Vacation partial-stock Queue remains stock-only and must not contain evidence payloads, receiver identity, or source file names.
 
 Expected local output:
 
 ```text
-Retroactive Milk Media and Signature integration checks passed.
+Vacation Milk Media and Signature integration checks passed.
 ```
 
 ## Teacher Legacy Parity Contract — BINDING
@@ -204,12 +225,11 @@ Artifact:
 
 ## Remaining Sprint 4.7 Work
 
-1. pass Retroactive Milk evidence isolated integration test;
-2. integrate Vacation Milk parent or recipient signatures and photos;
-3. validate evidence recovery and duplicate prevention;
-4. run the expanded regression suite;
-5. desktop and 820 x 1180 browser gates;
-6. branch synchronized and working tree clean.
+1. pass Vacation Milk evidence isolated integration test;
+2. validate evidence recovery and duplicate prevention;
+3. run the expanded regression suite;
+4. desktop and 820 x 1180 browser gates;
+5. branch synchronized and working tree clean.
 
 ## Queue and Payload Rules
 
@@ -248,7 +268,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- remaining Media and Signature workflow integration;
+- Vacation evidence validation and recovery gates;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
