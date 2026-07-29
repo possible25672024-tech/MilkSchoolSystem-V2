@@ -26,7 +26,7 @@ Sprint 4.5 — Retroactive Milk Operational UI
 
 Status
 
-82% — Legacy audit, Repository, Service, Manager, Teacher View, App integration, Firebase room index, binding Teacher parity contract, Module Gate, Cutover Documentation Gate, and typed RETRO Recovery Gate passed. Operational UI and isolated issue/delete/partial-save tests are implemented and await local execution. Browser issue/delete actions remain prohibited.
+90% — Legacy audit, Repository, Service, Manager, Teacher View, App integration, Firebase room index, binding Teacher legacy parity contract, Module Gate, typed RETRO Recovery Gate, Operational UI Gate, Isolated Write Gate, and Cutover Documentation Gate passed locally. The complete 26-test regression run and final read-only desktop/Network/Console/820 x 1180 browser gates remain. Browser issue/delete actions remain prohibited.
 
 ---
 
@@ -189,21 +189,43 @@ App and Sync:
 
 ---
 
-Confirmed Local Gates — PASS
+Sprint-Specific Gates — PASS
+
+Confirmed locally:
 
 ```text
 Retroactive Milk module checks passed.
 Retroactive Milk recovery routing checks passed.
+Retroactive Milk UI checks passed.
+Retroactive Milk isolated write checks passed.
 Cutover documentation checks passed.
 ```
 
 At the reported validation point:
 
-✓ branch synchronized with origin
+✓ feature branch synchronized with origin
 
 ✓ working tree clean
 
-Recovery coverage:
+Module Gate:
+
+✓ weekday calculation across a weekend
+
+✓ reversed and weekend-only range rejection
+
+✓ three students × two weekdays = six boxes
+
+✓ compatible debt record
+
+✓ exact duplicate range protection
+
+✓ issue changes Room Stock `100 → 94`
+
+✓ delete restores Room Stock `94 → 100`
+
+✓ Main Stock remains 999
+
+Recovery Routing Gate:
 
 ✓ legacy Queue entries default to `ATTENDANCE`
 
@@ -221,28 +243,11 @@ Recovery coverage:
 
 ✓ Main Stock remains 999
 
-Artifacts:
-
-- `docs/RETROACTIVE_MILK_RECOVERY_ROUTING_GATE.md`
-- `tests/retroactive-milk-recovery-routing-check.mjs`
-
----
-
-Operational UI and Isolated Write Gates — IMPLEMENTED / LOCAL RUN PENDING
-
-Added:
-
-- `tests/retroactive-milk-ui-check.mjs`
-- `tests/retroactive-milk-isolated-write-check.mjs`
-- `docs/RETROACTIVE_MILK_ISOLATED_WRITE_GATE.md`
-
-UI coverage:
+Operational UI Gate:
 
 ✓ Teacher-only activation and Admin rejection
 
 ✓ authenticated room and form fields
-
-✓ three students × two weekdays = six boxes
 
 ✓ student/day/box/debt summaries
 
@@ -258,7 +263,7 @@ UI coverage:
 
 ✓ parity contract retains future roster/photo/signature work
 
-Isolated write coverage:
+Isolated Write Gate:
 
 ✓ successful six-box issue
 
@@ -276,19 +281,11 @@ Isolated write coverage:
 
 ✓ Main Stock remains 999
 
-Pending local commands:
+Artifacts:
 
-```powershell
-node tests/retroactive-milk-ui-check.mjs
-node tests/retroactive-milk-isolated-write-check.mjs
-```
-
-Expected:
-
-```text
-Retroactive Milk UI checks passed.
-Retroactive Milk isolated write checks passed.
-```
+- `docs/RETROACTIVE_MILK_RECOVERY_ROUTING_GATE.md`
+- `docs/RETROACTIVE_MILK_ISOLATED_WRITE_GATE.md`
+- `docs/RETROACTIVE_MILK_UI_IMPLEMENTATION_REPORT.md`
 
 ---
 
@@ -305,37 +302,53 @@ Root-level public `.read` and `.write` remain a production-security blocker.
 
 ---
 
-Automated Regression Target
+Automated Regression Gate — PENDING
 
 Existing tests before Sprint 4.5: 22
 
 Sprint 4.5 tests: 4
 
-Expected final total:
+Required total:
 
 ```text
 26
 ```
 
-After the two new tests pass, run all 26 regression checks.
+Pending:
+
+□ run all 26 tests
+
+□ confirm `ALL 26 REGRESSION CHECKS PASSED`
+
+□ confirm branch synchronized with origin
+
+□ confirm working tree clean
 
 ---
 
 Browser Gate — NOT STARTED
 
-Read-only only after all automated and isolated gates pass.
+Read-only only after all 26 automated tests pass.
 
 Required:
 
-- Queue key absent or `[]` before Teacher Login
-- Admin Login/Logout unchanged
-- Retroactive Milk panel renders for Teacher only
-- room-scoped history request returns HTTP 200
-- no `POST`, `PUT`, `PATCH`, or `DELETE`
-- no real issue or delete action pressed
-- Console clean
-- 820 x 1180 layout contained
-- Logout and Queue panel reachable
+□ Queue key absent or `[]` before Teacher Login
+
+□ Admin Login/Logout unchanged
+
+□ Retroactive Milk panel renders for Teacher only
+
+□ room-scoped indexed history request returns HTTP 200
+
+□ no `POST`, `PUT`, `PATCH`, or `DELETE`
+
+□ no real issue or delete action pressed
+
+□ Console clean
+
+□ 820 x 1180 layout contained
+
+□ Logout and Queue panel reachable
 
 ---
 
