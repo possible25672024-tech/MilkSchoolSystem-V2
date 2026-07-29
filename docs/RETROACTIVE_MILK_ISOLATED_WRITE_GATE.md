@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.5-retroactive-milk-ui`
 
-Status: IMPLEMENTED / LOCAL VALIDATION PENDING
+Status: PASS — operational UI and isolated issue/delete/partial-save checks confirmed locally
 
 ## Purpose
 
@@ -15,9 +15,18 @@ Validate the operational Teacher UI, successful issue/delete behavior, duplicate
 - `tests/retroactive-milk-ui-check.mjs`
 - `tests/retroactive-milk-isolated-write-check.mjs`
 
-## Operational UI Coverage
+## Confirmed Local Output
 
-The UI test verifies:
+```text
+Retroactive Milk UI checks passed.
+Retroactive Milk isolated write checks passed.
+```
+
+The feature branch was synchronized with origin and the working tree was clean after both tests.
+
+## Operational UI Gate — PASS
+
+Verified:
 
 - programmatic Retroactive Milk panel creation;
 - Teacher-only activation and Admin rejection;
@@ -38,7 +47,7 @@ The UI test verifies:
 - no direct Firebase, Repository, browser storage, QueueStorage, stock, ledger, or stockLog ownership in the View;
 - future roster/photo/signature parity remains protected by the binding contract.
 
-## Isolated Successful Issue
+## Isolated Successful Issue — PASS
 
 In-memory baseline:
 
@@ -49,7 +58,7 @@ In-memory baseline:
 - Room Stock: 100;
 - Main Stock: 999.
 
-Expected:
+Confirmed:
 
 - quantity: 6 boxes;
 - compatible debt record saved first;
@@ -64,19 +73,19 @@ Expected:
 - stockLog type `OUT`, quantity `6`;
 - Main Stock remains 999.
 
-## Duplicate Protection
+## Duplicate Protection — PASS
 
-An exact duplicate academic year, semester, start date, and end date must be rejected with:
+An exact duplicate academic year, semester, start date, and end date was rejected with:
 
 ```text
 RETRO_DUPLICATE_RANGE
 ```
 
-No additional record or Room Stock mutation may occur.
+No additional record or Room Stock mutation occurred.
 
-## Successful Delete and Rollback
+## Successful Delete and Rollback — PASS
 
-Expected:
+Confirmed:
 
 - record deleted before Room Stock restoration;
 - Room Stock `94 → 100`;
@@ -84,57 +93,52 @@ Expected:
 - stockLog type `IN`, quantity `6`;
 - Main Stock remains 999.
 
-## Partial Issue
+## Partial Issue — PASS
 
-The test deliberately fails Room Stock after the compatible Retroactive Milk record is saved.
+The isolated test deliberately failed Room Stock after the compatible Retroactive Milk record was saved.
 
-Expected:
+Confirmed:
 
-- record remains saved;
-- Room Stock remains 100 before retry;
-- Manager returns `stockQueued: true`;
-- difference is `3` for three students × one weekday;
-- operation type is `RETRO`;
-- safe Retroactive Milk note is preserved;
-- Main Stock remains 999.
+- record remained saved;
+- Room Stock remained 100 before retry;
+- Manager returned `stockQueued: true`;
+- difference was `3` for three students × one weekday;
+- operation type was `RETRO`;
+- safe Retroactive Milk note was preserved;
+- Main Stock remained 999.
 
-## Partial Delete
+## Partial Delete — PASS
 
-The test deliberately fails Room Stock after the record is deleted.
+The isolated test deliberately failed Room Stock after the record was deleted.
 
-Expected:
+Confirmed:
 
-- record remains deleted;
-- Room Stock remains 100 before retry;
-- Manager returns `stockQueued: true`;
-- difference is `-3`;
-- operation type is `ROLLBACK`;
-- safe rollback note is preserved;
-- Main Stock remains 999.
+- record remained deleted;
+- Room Stock remained 100 before retry;
+- Manager returned `stockQueued: true`;
+- difference was `-3`;
+- operation type was `ROLLBACK`;
+- safe rollback note was preserved;
+- Main Stock remained 999.
 
 ## Safety Boundary
 
 The tests:
 
-- do not load FirebaseService;
-- do not instantiate a production Repository;
-- do not call `fetch`;
-- do not use Local Storage or Session Storage;
-- do not use room `อ.3-3`;
-- do not use date `2026-07-28`;
-- do not change `index.html` or `teacher.html`;
-- do not implement or discard deferred photo/signature/report parity.
+- did not load FirebaseService;
+- did not instantiate a production Repository;
+- did not call `fetch`;
+- did not use Local Storage or Session Storage;
+- did not use room `อ.3-3`;
+- did not use date `2026-07-28`;
+- did not change `index.html` or `teacher.html`;
+- did not implement or discard deferred photo/signature/report parity.
 
-## Expected Local Output
+## Decision
 
-```text
-Retroactive Milk UI checks passed.
-Retroactive Milk isolated write checks passed.
-```
+The Retroactive Milk Operational UI and isolated write gates are accepted for the Sprint 4.5 code gate.
 
-## Decision Boundary
-
-Browser issue and delete actions remain prohibited until both tests and the complete 26-test regression gate pass.
+Browser issue and delete actions remain prohibited. The next acceptance step is the complete 26-test regression run, followed by a read-only browser, Network, Console, and 820 x 1180 responsive gate.
 
 The later Media and Signature Sprint remains mandatory under:
 
