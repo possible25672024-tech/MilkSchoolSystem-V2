@@ -201,49 +201,18 @@ class AttendanceEvidenceManager {
         };
     }
 
-    async buildQueueSafeRecord(record = {}) {
-        const next = { ...record };
-        next.photos = this.photoReferences.map(reference => ({ ...reference }));
-        next.signature = this.signatureReference ? { ...this.signatureReference } : "";
-        next.evidence = this.buildQueueSafeEvidence();
+    buildQueueSafeRecordSync(record = {}) {
         if (this.legacyPhotos.length || this.legacySignature) {
-            const legacy = await this.persistLegacyEvidence();
-            next.photos = legacy.photos;
-            next.signature = legacy.signature;
-            next.evidence = this.buildQueueSafeEvidence();
-        }
-        return next;
-    }
-
-    async persistLegacyEvidence() {
-        for (const dataUrl of [...this.legacyPhotos]) {
-            const id = this.mediaStore.buildId("attendance-photo", `${this.recordKey}:${dataUrl.slice(0, 80)}`);
-            const reference = await this.mediaStore.put({
-                id,
-                kind: "photo",
-                dataUrl,
-                recordKey: this.recordKey,
-                ownerKey: "attendance"
-            });
-            this.photoReferences.push(reference);
-            this.draftMediaIds.add(reference.mediaId);
-        }
-        this.legacyPhotos = [];
-        if (this.legacySignature) {
-            const id = this.mediaStore.buildId("attendance-signature", `${this.recordKey}:${this.legacySignature.slice(0, 80)}`);
-            this.signatureReference = await this.mediaStore.put({
-                id,
-                kind: "signature",
-                dataUrl: this.legacySignature,
-                recordKey: this.recordKey,
-                ownerKey: "teacher"
-            });
-            this.draftMediaIds.add(this.signatureReference.mediaId);
-            this.legacySignature = "";
+            throw this.error(
+                "MEDIA_LEGACY_QUEUE_REQUIRES_ONLINE",
+                "หลักฐานรูปแบบเดิมต้องบันทึกขณะออนไลน์ก่อน จึงจะนำเข้าคิวแบบไม่เปิดเผยข้อมูลได้"
+            );
         }
         return {
+            ...record,
             photos: this.photoReferences.map(reference => ({ ...reference })),
-            signature: this.signatureReference ? { ...this.signatureReference } : ""
+            signature: this.signatureReference ? { ...this.signatureReference } : "",
+            evidence: this.buildQueueSafeEvidence()
         };
     }
 
@@ -294,10 +263,14 @@ class AttendanceEvidenceManager {
         this.photoPreviewCache.clear();
     }
 
-    acceptSavedRecord(record = {}) {
+    markSaved() {
         this.draftMediaIds.clear();
         this.dirty = false;
-        return this.setRecordContext({ roomId: record.clsId || record.roomId || this.roomId, date: record.date || this.date, record });
+        return this.getState();
+    }
+
+    acceptSavedRecord() {
+        return this.markSaved();
     }
 
     resetState() {
