@@ -2,6 +2,59 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-29 — Sprint 4.3 Offline Queue Operational UI
+
+### Added
+
+- `modules/sync/syncView.js`
+- `tests/sync-ui-check.mjs`
+- `tests/sync-restart-reconnect-check.mjs`
+- `docs/SPRINT_4_3_PLAN.md`
+- `docs/SYNC_UI_IMPLEMENTATION_REPORT.md`
+- `docs/SYNC_UI_BROWSER_VALIDATION_REPORT.md`
+
+### Changed
+
+- Added operational online, offline, syncing, pending, failed, deferred, and synchronized states.
+- Added persistent queue count, maximum attempts, last successful sync time, latest summary, and next retry display.
+- Added safe item-level queue summaries without student, photo, signature, ledger, or stockLog payload exposure.
+- Added manual retry through `SyncManager.flushNow("manual-ui")`.
+- Disabled retry while offline, flushing, or empty.
+- Added Teacher-only Sync lifecycle start/stop and event-driven rendering.
+- Added safe `queueItems` to `SyncManager.getStatus()`.
+- Preserved overlapping-flush protection and Main Stock isolation.
+- App initializes SyncView after Login, Teacher, and Attendance Views.
+- Kept QueueStorage, SyncService, Firebase, Repository, fetch, Local Storage, and Session Storage out of the View.
+- Corrected the Sync UI test to accept programmatic `sync-panel` creation without changing Runtime.
+
+### Validation
+
+- All 18 regression checks passed on Node.js 24.18.0.
+- QueueStorage recreation persistence passed.
+- Offline startup performed no replay.
+- Reconnect replayed isolated entries sequentially.
+- Successful entries were removed individually.
+- Failed/deferred entries and retry metadata survived restart.
+- Attendance partial save converted to Room Stock-only work.
+- Main Stock remained 999 throughout isolated replay.
+- Browser queue was empty before Teacher Login.
+- Offline/reconnect transitions and settled synchronized state passed.
+- Network evidence showed read-only GET/fetch traffic with no visible PUT, PATCH, or DELETE.
+- Console remained clean.
+- Teacher Logout hid Queue UI.
+- Admin Login/Logout remained unchanged.
+- 820 x 1180 responsive layout passed.
+- Feature branch synchronized with origin and working tree clean.
+- `index.html` and `teacher.html` remained unchanged.
+
+### Integration Decision
+
+- Approved for fast-forward merge into `develop`.
+- Does not replace `teacher.html`.
+- Does not authorize merge or deployment to `main`.
+- Does not authorize production cutover while the real-data incident remains open.
+- Next Sprint: Pending Milk Operational UI.
+
 ## 2026-07-28 — Sprint 4.2 Teacher Daily Attendance CRUD UI
 
 ### Added
