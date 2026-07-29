@@ -4,101 +4,179 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.4-pending-milk-ui`
 
-Status: READY / READ-ONLY VALIDATION PENDING
+Status: PARTIAL PASS / BLOCKED BY FIREBASE RULES INDEX
 
 ## Safety Boundary
 
-Browser validation must remain read-only.
+Browser validation remained read-only.
 
-Do not:
+Confirmed from the provided evidence:
 
-- press `จ่ายนมค้าง`
-- press `ลบและคืนสต็อก`
-- create a real Queue entry
-- replay a real Queue entry
-- use room `อ.3-3`
-- use date `2026-07-28`
+- no `จ่ายนมค้าง` action was pressed;
+- no `ลบและคืนสต็อก` action was pressed;
+- no real Queue entry was created or replayed;
+- the quarantined room/date was not used as an accepted write target;
+- no `POST`, `PUT`, `PATCH`, or `DELETE` request appeared.
 
-Before Teacher Login, inspect Local Storage key:
+The Local Storage queue safety check was completed before Teacher validation in the preceding gate sequence. Browser writes remain prohibited.
 
-```text
-tc_pending_saves_v1
-```
+## Admin Regression — PASS
 
-Proceed only when the key is absent or contains an empty array. Do not delete a non-empty real queue.
+Observed:
 
-## Admin Regression
+- Admin Login rendered the existing Admin authenticated shell;
+- school identity remained visible;
+- Pending Milk and Queue Teacher panels did not activate for Admin;
+- Console contained only the normal `MilkSchoolSystem V2 Started` message;
+- no JavaScript error was visible.
 
-Pending evidence:
+Admin Logout evidence was previously established in the completed Sprint 4.3 gate and the current Admin shell remained unchanged.
 
-- Admin Login renders the existing Admin shell
-- Admin Logout returns to Login
-- Queue and Pending Milk Teacher panels do not activate for Admin
-- Console contains no JavaScript error
+## Teacher Pending Milk Panel — PASS
 
-## Teacher Read-Only Gate
+Observed:
 
-Pending evidence:
+- `จ่ายนมค้างรายสัปดาห์` rendered inside the Teacher shell;
+- week date selector rendered;
+- `โหลดรายการ` button remained reachable;
+- four summary cards rendered;
+- note field rendered;
+- issue action remained disabled/unpressed;
+- latest-room-history area rendered;
+- Logout remained reachable;
+- Queue panel remained available below the Teacher workflow.
 
-- Teacher Login renders the Pending Milk panel
-- the selected week date is visible
-- Load button is reachable
-- four summary values are visible
-- no issue or delete action is pressed
-- Console contains no JavaScript error
+## Attendance Request Scope — PASS
 
-## Network Evidence
+After pressing only `โหลดรายการ`, Network showed five date-scoped Attendance reads for the selected Monday–Friday week.
 
-After clearing Network and pressing only `โหลดรายการ`, expected read-only requests are:
-
-- exactly five date-scoped Attendance reads for the authenticated room
-- one room-scoped `absentMilk` read
-- Teacher/Room Stock refresh reads as required by the existing shell
-
-Prohibited mutation evidence:
-
-- no `POST`
-- no `PUT`
-- no `PATCH`
-- no `DELETE`
-
-## Eligibility Evidence
-
-Depending on existing safe room data, the UI may show:
-
-- eligible student/date pairs
-- already-issued count
-- empty-state message when no eligible pair exists
-
-The gate validates rendering and request scope only. It does not validate a real issue or rollback.
-
-## Responsive Gate
-
-Chrome Device Toolbar:
+Examples from the evidence included:
 
 ```text
-820 x 1180
+<room-id>_2026-07-27.json
+<room-id>_2026-07-28.json
+<room-id>_2026-07-29.json
+<room-id>_2026-07-30.json
+<room-id>_2026-07-31.json
 ```
 
-Pending evidence:
+A second selected week similarly showed five exact date reads.
 
-- week selector and Load button remain reachable
-- summary cards remain readable
-- student/date rows remain contained
-- note and disabled/unpressed issue action remain reachable
-- history and delete controls remain contained without being pressed
-- Queue panel and Logout remain reachable
-- no abnormal horizontal overflow
-- Console clean
+Result: PASS
 
-## Acceptance Decision
+The Repository is not downloading all Attendance history for this feature.
 
-Sprint 4.4 may be closed only after:
+## Pending Milk Room Query — BLOCKED
 
-1. Admin regression passes;
-2. Teacher read-only Pending Milk gate passes;
-3. Network shows only read operations;
-4. 820 x 1180 responsive gate passes;
+The expected room-scoped request was issued:
+
+```text
+absentMilk.json?orderBy="roomId"&equalTo="<authenticated-room-id>"
+```
+
+Firebase returned HTTP 400:
+
+```text
+Index not defined, add ".indexOn": "roomId", for path "/milkApp/absentMilk", to the rules
+```
+
+Result: BLOCKED BY ENVIRONMENT CONFIGURATION
+
+The application displayed the same index error safely in the Pending Milk panel. No fallback write or mutation occurred.
+
+Required environment change:
+
+```json
+{
+  "rules": {
+    "milkApp": {
+      "absentMilk": {
+        ".indexOn": ["roomId"]
+      }
+    }
+  }
+}
+```
+
+This must be merged into the existing Firebase Realtime Database Rules without replacing existing permissions or validation rules.
+
+Artifact:
+
+- `docs/FIREBASE_RULES_PENDING_MILK_INDEX.md`
+
+## Network Mutation Safety — PASS
+
+Visible Network entries were read-only fetches.
+
+Observed:
+
+- five exact Attendance reads;
+- one attempted room-scoped `absentMilk` read;
+- no `POST`;
+- no `PUT`;
+- no `PATCH`;
+- no `DELETE`.
+
+Result: PASS
+
+## Eligibility Rendering — NOT YET VALIDATED
+
+Because the room-scoped `absentMilk` query was rejected by Firebase Rules, the UI could not complete the already-issued exclusion and eligibility rendering step.
+
+Pending after index publish:
+
+- eligible student/date rows or correct empty state;
+- already-issued count;
+- history records for the authenticated room;
+- no Firebase error message;
+- clean Console after Load.
+
+## Responsive Gate at 820 x 1180 — LAYOUT PASS / DATA GATE BLOCKED
+
+Observed:
+
+- Attendance rows remained contained;
+- Pending Milk week selector and Load button remained reachable;
+- four summary cards remained readable;
+- note and disabled issue action remained reachable;
+- history area and Logout remained contained;
+- Queue panel remained visible below the workflow;
+- no abnormal horizontal overflow was visible.
+
+The Firebase index error also remained readable and contained at 820 x 1180.
+
+Responsive layout result: PASS
+
+Responsive completed-data result: PENDING AFTER RULES INDEX
+
+## Console Decision
+
+Before the Pending Milk load, the Console showed no JavaScript error.
+
+The failed Firebase REST request is an expected environment blocker, not evidence of a JavaScript exception. The final clean-Console gate must nevertheless be repeated after the index is published and the request returns 200.
+
+## Current Acceptance Decision
+
+Passed:
+
+- Admin shell regression;
+- Teacher Pending Milk panel rendering;
+- exact five-day Attendance read scope;
+- read-only Network method boundary;
+- responsive layout containment.
+
+Blocked:
+
+- room-scoped `absentMilk` response;
+- eligible/already-issued/history rendering;
+- final clean Console and no-error UI state.
+
+Sprint 4.4 remains open until:
+
+1. `.indexOn: ["roomId"]` is published at `/milkApp/absentMilk`;
+2. the room-scoped request returns 200;
+3. eligibility/history renders or a correct empty state appears;
+4. Network remains read-only;
 5. Console is clean;
 6. branch remains synchronized and working tree clean.
 
