@@ -6,7 +6,8 @@ class MilkSchoolApplication {
         syncView = window.SyncView,
         pendingMilkView = window.PendingMilkView,
         retroactiveMilkView = window.RetroactiveMilkView,
-        vacationMilkView = window.VacationMilkView
+        vacationMilkView = window.VacationMilkView,
+        attendanceEvidenceView = window.AttendanceEvidenceView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -15,9 +16,30 @@ class MilkSchoolApplication {
         this.pendingMilkView = pendingMilkView;
         this.retroactiveMilkView = retroactiveMilkView;
         this.vacationMilkView = vacationMilkView;
+        this.attendanceEvidenceView = attendanceEvidenceView;
+        this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
         this.vacationSyncAdapter = window.VacationSyncAdapter;
         this.started = false;
+    }
+
+    async ensureAttendanceEvidenceView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.MediaStore) await import("../media/mediaStore.js");
+        if (!window.MediaEnvelope) await import("../media/mediaEnvelope.js");
+        if (!window.SignaturePadClass) await import("../signature/signaturePad.js");
+        if (!window.AttendanceEvidenceManager) await import("../media/attendanceEvidenceManager.js");
+        if (!this.attendanceEvidenceAdapter) {
+            await import("../media/attendanceEvidenceAdapter.js");
+            this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
+        }
+        this.attendanceEvidenceAdapter?.install?.();
+        if (!this.attendanceEvidenceView) {
+            await import("../media/attendanceEvidenceView.js");
+            this.attendanceEvidenceView = window.AttendanceEvidenceView;
+        }
+        return this.attendanceEvidenceView;
     }
 
     async ensureRetroactiveSyncAdapter() {
@@ -85,11 +107,15 @@ class MilkSchoolApplication {
 
         await this.loginManager.initialize();
         if (this.teacherView?.initialize) await this.teacherView.initialize();
+
+        const attendanceEvidenceView = await this.ensureAttendanceEvidenceView();
         if (this.attendanceView?.initialize) await this.attendanceView.initialize();
+        if (attendanceEvidenceView?.initialize) await attendanceEvidenceView.initialize();
 
         const retroactiveSyncAdapter = await this.ensureRetroactiveSyncAdapter();
         const vacationSyncAdapter = await this.ensureVacationSyncAdapter();
         const syncView = await this.ensureSyncView();
+        this.attendanceEvidenceAdapter?.install?.();
         retroactiveSyncAdapter?.install?.();
         vacationSyncAdapter?.install?.();
         if (syncView?.initialize) await syncView.initialize();
