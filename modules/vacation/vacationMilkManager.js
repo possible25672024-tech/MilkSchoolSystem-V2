@@ -52,10 +52,17 @@ class VacationMilkManager {
     }
 
     preview(input = {}) {
-        return this.ensureService().preview(this.getSession(), {
-            ...input,
-            students: this.getStudents()
-        });
+        try {
+            const preview = this.ensureService().preview(this.getSession(), {
+                ...input,
+                students: this.getStudents()
+            });
+            this.emit("milkapp:vacation-preview-changed", preview);
+            return preview;
+        } catch (error) {
+            this.emit("milkapp:vacation-preview-changed", null);
+            throw error;
+        }
     }
 
     async loadHistory() {
