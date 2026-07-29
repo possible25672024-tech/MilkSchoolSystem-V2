@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const currentFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(currentFile), "..");
 const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf8");
+const toPlain = value => JSON.parse(JSON.stringify(value));
 
 const repositorySource = read("modules/repositories/attendanceRepository.js");
 const serviceSource = read("modules/reports/attendanceHistoryService.js");
@@ -136,10 +137,10 @@ assert.deepEqual(calls, [
 ], "History service must request only the authenticated room and selected dates");
 assert.equal(result.requestedDays, 3);
 assert.equal(result.recordCount, 2);
-assert.deepEqual(result.records.map(record => record.date), ["2026-07-01", "2026-07-03"]);
-assert.deepEqual(result.records[0].data, { s2: "absent", s1: "present" });
-assert.deepEqual(result.records[0].notes, { s2: "ลา" });
-assert.deepEqual(result.records[0].evidence, {
+assert.deepEqual(Array.from(result.records, record => record.date), ["2026-07-01", "2026-07-03"]);
+assert.deepEqual(toPlain(result.records[0].data), { s2: "absent", s1: "present" });
+assert.deepEqual(toPlain(result.records[0].notes), { s2: "ลา" });
+assert.deepEqual(toPlain(result.records[0].evidence), {
     loaded: false,
     photoCount: null,
     hasSignature: null
