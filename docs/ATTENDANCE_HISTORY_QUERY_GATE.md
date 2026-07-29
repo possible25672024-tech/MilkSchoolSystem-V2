@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-4.8-report-print-ui`
 
-Status: **IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **PASS — LOCAL ISOLATED VALIDATION ACCEPTED**
 
 ## Purpose
 
@@ -157,17 +157,31 @@ Loading and error events contain room/range metadata only. Loaded records use th
 - loading, loaded, and empty event behavior;
 - defensive Manager snapshots;
 - the production repository never requests `/photos` or `/signature`;
-- a missing Attendance day stops after one `/data` GET.
+- a missing Attendance day stops after one `/data` GET;
+- Node VM cross-realm results are normalized before strict comparison.
 
-Expected output:
+## Accepted local result
+
+The local PowerShell gate completed through the remaining regression commands, `git status`, and `git log` without entering a failure `throw`.
+
+Accepted result:
 
 ```text
 Attendance history query checks passed.
+Sprint 4.8 plan checks passed.
+Cutover documentation checks passed.
+ALL 45 REGRESSION CHECKS PASSED
+On branch feature/sprint-4.8-report-print-ui
+Your branch is up to date with 'origin/feature/sprint-4.8-report-print-ui'.
+nothing to commit, working tree clean
+HEAD a9c5394
 ```
+
+The reported regression count may be greater than 45 when additional checks exist.
 
 ## Safety boundary
 
-This gate does not:
+This gate did not:
 
 - load real classroom history in the browser;
 - write Attendance;
@@ -182,10 +196,8 @@ Do not use quarantined room `อ.3-3`, room ID `mqn0z13eyx5b`, or date `2026-07-
 
 ## Next gate
 
-After local validation passes:
-
 ```text
 Gate B — Pure Attendance Summary Builder
 ```
 
-The Summary Builder will consume only the normalized evidence-free history result and must remain pure and stock-independent.
+The Summary Builder consumes only the normalized evidence-free history result and remains pure and stock-independent.
