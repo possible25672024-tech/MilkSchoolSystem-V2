@@ -108,11 +108,14 @@ class MediaPolicy {
     }
 
     validateProcessedPhoto(photo = {}) {
-        const dataUrl = String(photo.dataUrl || photo.url || "");
-        const mime = this.normalizeMime(photo.mime || this.mimeFromDataUrl(dataUrl));
-        const size = Number.isFinite(Number(photo.size)) ? Number(photo.size) : this.dataUrlByteLength(dataUrl);
-        const width = Number(photo.width);
-        const height = Number(photo.height);
+        const inlineLegacyDataUrl = typeof photo === "string";
+        const source = inlineLegacyDataUrl ? { dataUrl: photo } : (photo || {});
+        const dataUrl = String(source.dataUrl || source.url || "");
+        const mime = this.normalizeMime(source.mime || this.mimeFromDataUrl(dataUrl));
+        const size = Number.isFinite(Number(source.size)) ? Number(source.size) : this.dataUrlByteLength(dataUrl);
+        const width = Number(source.width);
+        const height = Number(source.height);
+        const dimensionsProvided = source.width !== undefined || source.height !== undefined;
 
         if (!dataUrl.startsWith("data:")) {
             return this.result(false, "MEDIA_DATA_URL_REQUIRED", "Processed photo data is missing.");
@@ -126,18 +129,29 @@ class MediaPolicy {
                 maximum: this.limits.maxProcessedBytes
             });
         }
-        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+
+        if (dimensionsProvided) {
+            if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+                return this.result(false, "MEDIA_DIMENSIONS_INVALID", "Processed image dimensions are invalid.", { width, height });
+            }
+            if (Math.max(width, height) > this.limits.maxLongestEdge) {
+                return this.result(false, "MEDIA_DIMENSIONS_EXCEEDED", "The processed image exceeds the dimension limit.", {
+                    width,
+                    height,
+                    maximum: this.limits.maxLongestEdge
+                });
+            }
+        } else if (!inlineLegacyDataUrl) {
             return this.result(false, "MEDIA_DIMENSIONS_INVALID", "Processed image dimensions are invalid.", { width, height });
         }
-        if (Math.max(width, height) > this.limits.maxLongestEdge) {
-            return this.result(false, "MEDIA_DIMENSIONS_EXCEEDED", "The processed image exceeds the dimension limit.", {
-                width,
-                height,
-                maximum: this.limits.maxLongestEdge
-            });
-        }
 
-        return this.result(true, null, "", { mime, size, width, height });
+        return this.result(true, null, "", {
+            mime,
+            size,
+            width: dimensionsProvided ? width : null,
+            height: dimensionsProvided ? height : null,
+            legacyInline: inlineLegacyDataUrl
+        });
     }
 
     validateSignature(signature = {}) {
