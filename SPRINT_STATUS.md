@@ -12,15 +12,13 @@ Current Version: V2
 
 Sprint 4.6 — Vacation Milk Operational UI
 
-Status: **10% — ACTIVE / LEGACY AUDIT PENDING**
+Status: **55% — LEGACY AUDIT AND RUNTIME IMPLEMENTED / MODULE VALIDATION PENDING**
 
 Sprint 4.5 Retroactive Milk Operational UI completed all automated, isolated, desktop, indexed Network, Console, and 820 x 1180 responsive gates and was fast-forward integrated into `develop` at:
 
 ```text
 fd15eb2712db83c6b0b13f0eee6a8da635681337
 ```
-
-Sprint 4.6 has been opened from that exact integration point.
 
 ## Completed Foundation
 
@@ -58,11 +56,6 @@ Confirmed:
 - loaded 820 x 1180 responsive layout passed;
 - no real-classroom write occurred.
 
-Artifacts:
-
-- `docs/RETROACTIVE_MILK_UI_IMPLEMENTATION_REPORT.md`
-- `docs/RETROACTIVE_MILK_BROWSER_VALIDATION_REPORT.md`
-
 ## Teacher Legacy Parity Contract — BINDING
 
 V2 must retain every Teacher capability from protected `teacher.html`, including:
@@ -86,48 +79,178 @@ Artifact:
 
 - `docs/TEACHER_LEGACY_PARITY_CONTRACT.md`
 
-## Sprint 4.6 Objective
+## Sprint 4.6 Legacy Audit — PASS
 
-Migrate Vacation Milk into modular V2 with:
+Protected `teacher.html` was inspected read-only.
 
-- authenticated-room-only access;
-- verified legacy Firebase path and schema;
-- verified date and quantity rules;
-- duplicate prevention;
-- Room Stock-only issue/delete;
-- exact rollback;
-- typed persistent Queue recovery;
-- audit-only retry protection;
-- compatible report/media/signature fields;
-- responsive Teacher operational UI;
-- protected legacy files unchanged.
+Confirmed:
 
-Planned modules:
-
-```text
-modules/repositories/vacationMilkRepository.js
-modules/services/vacationMilkService.js
-modules/vacation/vacationMilkManager.js
-modules/vacation/vacationMilkView.js
-```
-
-## Immediate Next Gate
-
-Read-only audit of protected `teacher.html` to confirm:
-
-- Firebase path;
-- record fields;
-- quantity calculation;
-- issue/delete operation order;
-- ledger and stockLog types;
-- duplicate identity;
-- debt/status behavior;
-- report and print compatibility;
-- photo/signature compatibility.
+- Firebase path `milkApp/vacationMilk`;
+- Firebase push-ID records;
+- academic year and vacation after semester 1 or 2;
+- issue date;
+- vacation-day count defaults to 30 and has minimum 1;
+- `totalBoxes = authenticated-room student count × day count`;
+- current Room Stock display and insufficient-stock warning;
+- visible authenticated-room student roster;
+- per-student parent/recipient signatures;
+- up to five photo items in the legacy UI;
+- compatible `note`, `signature`, `signatures`, `photos`, and `savedAt` fields;
+- record saved before Room Stock deduction;
+- issue ledger type `VACATION`;
+- delete removes record before Room Stock restoration;
+- delete ledger type `ROLLBACK`;
+- history and A4 report compatibility;
+- Main Stock remains unchanged.
 
 Artifact:
 
-- `docs/SPRINT_4_6_PLAN.md`
+- `docs/VACATION_MILK_LEGACY_AUDIT.md`
+
+## Sprint 4.6 Runtime — IMPLEMENTED
+
+Repository:
+
+- `modules/repositories/vacationMilkRepository.js`;
+- room-scoped `vacationMilk` query;
+- exact record load/create/delete.
+
+Service:
+
+- `modules/services/vacationMilkService.js`;
+- authenticated Teacher-room enforcement;
+- academic year, semester, issue date, and day validation;
+- stable room roster normalization;
+- quantity preview;
+- exact duplicate guard using room, academic year, semester, issue date, and days;
+- compatible record construction;
+- record-first issue and delete;
+- Room Stock-only mutation;
+- ledger `VACATION`/`ROLLBACK`;
+- stockLog `OUT`/`IN`;
+- explicit partial-stock details;
+- Main Stock delta zero.
+
+Manager:
+
+- `modules/vacation/vacationMilkManager.js`;
+- UI-safe preview/history/issue/remove;
+- stable Teacher roster snapshot;
+- partial stock and audit-only Queue delegation;
+- overlapping delete guard;
+- lifecycle events and cleanup.
+
+View:
+
+- `modules/vacation/vacationMilkView.js`;
+- Teacher-only panel;
+- academic year, semester, issue date, room, and day inputs;
+- student/day/box/Room Stock summary;
+- visible student roster and per-student box count;
+- explicit Shared Media & Signature handoff;
+- optional note;
+- issue confirmation;
+- Room Stock and Queue feedback;
+- room history and confirmed rollback;
+- responsive layout;
+- no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership.
+
+App:
+
+- `modules/core/app.js` loads Vacation Milk after Retroactive Milk;
+- protected legacy files remain unchanged.
+
+## Module Gate — IMPLEMENTED / LOCAL RUN PENDING
+
+Added:
+
+```text
+tests/vacation-milk-module-check.mjs
+```
+
+Coverage:
+
+- protected legacy path/schema evidence;
+- room-scoped Repository boundary;
+- day validation;
+- three students × 30 days = 90 boxes;
+- compatible signatures and photos;
+- issue changes Room Stock `200 → 110`;
+- exact duplicate issue blocked;
+- history totals;
+- delete restores Room Stock `110 → 200`;
+- ledger `VACATION`/`ROLLBACK`;
+- stockLog `OUT`/`IN`;
+- cross-room rejection;
+- Main Stock remains 999;
+- App integration and View ownership boundary.
+
+Local commands:
+
+```powershell
+node tests/vacation-milk-module-check.mjs
+node tests/cutover-documentation-check.mjs
+```
+
+Expected:
+
+```text
+Vacation Milk module checks passed.
+Cutover documentation checks passed.
+```
+
+## Firebase Query Index — PENDING VALIDATION
+
+The room-scoped Repository query requires:
+
+```text
+/milkApp/vacationMilk → .indexOn ["roomId"]
+```
+
+Do not change Firebase Rules until the module and typed recovery gates pass. Existing indexes for `absentMilk` and `retroMilk` must be preserved.
+
+## Next Gates
+
+1. Module Gate.
+2. Typed `VACATION` Queue recovery.
+3. Operational UI test.
+4. Isolated issue/delete/partial-save test.
+5. Complete regression run.
+6. Firebase room index publish/validation.
+7. Desktop read-only indexed Network and Console gate.
+8. Responsive 820 x 1180 gate.
+9. Clean branch and working tree.
+
+## Browser Restriction
+
+Until typed recovery and isolated write gates pass:
+
+- do not press `บันทึกนมช่วงปิดเทอม`;
+- do not press Vacation Milk delete/rollback;
+- do not create a real Queue entry;
+- do not use a real classroom write.
+
+## Mandatory Parity Sequence After Sprint 4.6
+
+Sprint 4.7:
+
+- shared Media and Signature workflow;
+- Attendance daily photo and Teacher signature;
+- Pending, Retroactive, and Vacation Milk photo/signature evidence.
+
+Sprint 4.8:
+
+- Attendance history;
+- daily/weekly/monthly/semester summaries;
+- required 15-day mode;
+- A4 preview and printing.
+
+Sprint 4.9:
+
+- student report;
+- remaining Room Stock view;
+- Teacher settings;
+- complete navigation and final legacy parity matrix.
 
 ## Safety Boundary
 
@@ -149,3 +272,18 @@ Do not use:
 - report/print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
+
+## Protected Business Rules
+
+- Main Stock decreases only on classroom distribution.
+- Vacation Milk changes Room Stock only.
+- Delete restores Room Stock only.
+- Quantity equals authenticated-room student count multiplied by vacation-day count.
+- Exact duplicate issue is blocked by Service logic.
+- Teacher access remains limited to the authenticated room.
+- ETag conflicts read the latest Room Stock and recalculate before retry.
+- Audit-only recovery never repeats a successful Room Stock mutation.
+- Firebase path `milkApp/vacationMilk` remains compatible.
+- Queue storage key remains `tc_pending_saves_v1`.
+- Negative Room Stock is not silently clamped.
+- Legacy files remain available until explicit production-cutover approval.
