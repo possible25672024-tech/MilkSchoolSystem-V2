@@ -7,7 +7,8 @@ class MilkSchoolApplication {
         pendingMilkView = window.PendingMilkView,
         retroactiveMilkView = window.RetroactiveMilkView,
         vacationMilkView = window.VacationMilkView,
-        attendanceEvidenceView = window.AttendanceEvidenceView
+        attendanceEvidenceView = window.AttendanceEvidenceView,
+        pendingEvidenceView = window.PendingEvidenceView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -17,7 +18,9 @@ class MilkSchoolApplication {
         this.retroactiveMilkView = retroactiveMilkView;
         this.vacationMilkView = vacationMilkView;
         this.attendanceEvidenceView = attendanceEvidenceView;
+        this.pendingEvidenceView = pendingEvidenceView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
+        this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
         this.vacationSyncAdapter = window.VacationSyncAdapter;
         this.started = false;
@@ -40,6 +43,24 @@ class MilkSchoolApplication {
             this.attendanceEvidenceView = window.AttendanceEvidenceView;
         }
         return this.attendanceEvidenceView;
+    }
+
+    async ensurePendingEvidenceView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.MediaStore) await import("../media/mediaStore.js");
+        if (!window.SignaturePadClass) await import("../signature/signaturePad.js");
+        if (!window.PendingEvidenceManager) await import("../media/pendingEvidenceManager.js");
+        if (!this.pendingEvidenceAdapter) {
+            await import("../media/pendingEvidenceAdapter.js");
+            this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
+        }
+        this.pendingEvidenceAdapter?.install?.();
+        if (!this.pendingEvidenceView) {
+            await import("../media/pendingEvidenceView.js");
+            this.pendingEvidenceView = window.PendingEvidenceView;
+        }
+        return this.pendingEvidenceView;
     }
 
     async ensureRetroactiveSyncAdapter() {
@@ -122,6 +143,8 @@ class MilkSchoolApplication {
 
         const pendingMilkView = await this.ensurePendingMilkView();
         if (pendingMilkView?.initialize) await pendingMilkView.initialize();
+        const pendingEvidenceView = await this.ensurePendingEvidenceView();
+        if (pendingEvidenceView?.initialize) await pendingEvidenceView.initialize();
 
         const retroactiveMilkView = await this.ensureRetroactiveMilkView();
         if (retroactiveMilkView?.initialize) await retroactiveMilkView.initialize();
