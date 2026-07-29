@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.6 — Vacation Milk Operational UI
 
-Status: **55% — LEGACY AUDIT AND RUNTIME IMPLEMENTED / MODULE VALIDATION PENDING**
+Status: **65% — LEGACY AND MODULE GATES PASSED / TYPED RECOVERY IMPLEMENTED / LOCAL RECOVERY VALIDATION PENDING**
 
 Sprint 4.5 Retroactive Milk Operational UI completed all automated, isolated, desktop, indexed Network, Console, and 820 x 1180 responsive gates and was fast-forward integrated into `develop` at:
 
@@ -155,20 +155,28 @@ View:
 - responsive layout;
 - no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership.
 
-App:
+App and Sync:
 
-- `modules/core/app.js` loads Vacation Milk after Retroactive Milk;
+- `modules/core/app.js`;
+- `modules/sync/vacationSyncAdapter.js`;
+- Retroactive and Vacation adapters install before Queue startup replay;
 - protected legacy files remain unchanged.
 
-## Module Gate — IMPLEMENTED / LOCAL RUN PENDING
+## Module and Documentation Gates — PASS
 
-Added:
+Confirmed locally:
 
 ```text
-tests/vacation-milk-module-check.mjs
+Vacation Milk module checks passed.
+Cutover documentation checks passed.
 ```
 
-Coverage:
+At the reported validation point:
+
+- feature branch synchronized with origin;
+- working tree clean.
+
+Coverage includes:
 
 - protected legacy path/schema evidence;
 - room-scoped Repository boundary;
@@ -185,19 +193,49 @@ Coverage:
 - Main Stock remains 999;
 - App integration and View ownership boundary.
 
-Local commands:
+## Typed Recovery Routing — IMPLEMENTED / LOCAL RUN PENDING
+
+Added:
+
+```text
+modules/sync/vacationSyncAdapter.js
+tests/vacation-milk-recovery-routing-check.mjs
+docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md
+```
+
+Implemented:
+
+- QueueStorage preserves `VACATION`;
+- SyncService normalizes and replays `VACATION`;
+- SyncManager safe summaries preserve `VACATION`;
+- SyncView labels Vacation Milk retry safely;
+- App installs Vacation routing before startup Queue replay;
+- existing `RETRO`, `PENDING`, `ROLLBACK`, and legacy `ATTENDANCE` routing remains available;
+- `VACATION` retry creates ledger type `VACATION`;
+- `VACATION` retry creates stockLog type `OUT`;
+- `ROLLBACK` remains ledger `ROLLBACK` and stockLog `IN`;
+- audit failure converts to audit-only work;
+- audit-only retry never repeats Room Stock mutation;
+- Main Stock remains unchanged.
+
+Local command:
 
 ```powershell
-node tests/vacation-milk-module-check.mjs
-node tests/cutover-documentation-check.mjs
+node tests/vacation-milk-recovery-routing-check.mjs
 ```
 
 Expected:
 
 ```text
-Vacation Milk module checks passed.
-Cutover documentation checks passed.
+Vacation Milk recovery routing checks passed.
 ```
+
+Until this test passes:
+
+- do not press `บันทึกนมช่วงปิดเทอม`;
+- do not press Vacation Milk delete/rollback;
+- do not create or replay a real Queue entry;
+- use Mock/In-memory validation only.
 
 ## Firebase Query Index — PENDING VALIDATION
 
@@ -207,28 +245,18 @@ The room-scoped Repository query requires:
 /milkApp/vacationMilk → .indexOn ["roomId"]
 ```
 
-Do not change Firebase Rules until the module and typed recovery gates pass. Existing indexes for `absentMilk` and `retroMilk` must be preserved.
+Do not change Firebase Rules until the typed recovery, UI, and isolated write gates pass. Existing indexes for `absentMilk` and `retroMilk` must be preserved.
 
 ## Next Gates
 
-1. Module Gate.
-2. Typed `VACATION` Queue recovery.
-3. Operational UI test.
-4. Isolated issue/delete/partial-save test.
-5. Complete regression run.
-6. Firebase room index publish/validation.
-7. Desktop read-only indexed Network and Console gate.
-8. Responsive 820 x 1180 gate.
-9. Clean branch and working tree.
-
-## Browser Restriction
-
-Until typed recovery and isolated write gates pass:
-
-- do not press `บันทึกนมช่วงปิดเทอม`;
-- do not press Vacation Milk delete/rollback;
-- do not create a real Queue entry;
-- do not use a real classroom write.
+1. Typed `VACATION` Queue recovery test.
+2. Operational UI test.
+3. Isolated issue/delete/partial-save test.
+4. Complete regression run.
+5. Firebase room index publish/validation.
+6. Desktop read-only indexed Network and Console gate.
+7. Responsive 820 x 1180 gate.
+8. Clean branch and working tree.
 
 ## Mandatory Parity Sequence After Sprint 4.6
 
