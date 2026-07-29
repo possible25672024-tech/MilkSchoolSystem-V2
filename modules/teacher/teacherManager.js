@@ -107,8 +107,61 @@ class TeacherManager {
         return this.refresh({ includeExtras: true });
     }
 
+    buildSessionFallbackSnapshot() {
+        try {
+            this.ensureServices();
+            const session = this.authService.getSession();
+            const rawRoom = session?.roomSnapshot;
+            if (session?.role !== "teacher" || !rawRoom || typeof rawRoom !== "object") {
+                return null;
+            }
+
+            const room = typeof this.teacherService.normalizeRoom === "function"
+                ? this.teacherService.normalizeRoom({
+                    ...rawRoom,
+                    id: String(rawRoom.id || session.roomId || session.classId || "")
+                })
+                : {
+                    ...rawRoom,
+                    id: String(rawRoom.id || session.roomId || session.classId || ""),
+                    name: String(rawRoom.name || session.roomName || session.className || ""),
+                    students: Array.isArray(rawRoom.students)
+                        ? rawRoom.students.map(student => ({ ...(student || {}) }))
+                        : Object.values(rawRoom.students || {}).map(student => ({ ...(student || {}) })),
+                    stock: Number(rawRoom.stock) || 0
+                };
+
+            return {
+                settings: {},
+                session: {
+                    roomId: String(session.roomId || session.classId || room.id || ""),
+                    roomName: String(session.roomName || session.className || room.name || room.id || ""),
+                    teacher: String(session.teacher || room.teacher || "ครูประจำชั้น"),
+                    schoolName: String(session.schoolName || "โรงเรียน"),
+                    role: "teacher"
+                },
+                room,
+                students: Array.isArray(room.students) ? room.students : Object.values(room.students || {}),
+                roomStock: Number.isFinite(Number(room.stock)) ? Number(room.stock) : 0,
+                distributes: [],
+                attendance: {},
+                absentMilk: [],
+                retroMilk: [],
+                vacationMilk: [],
+                stockTransactions: [],
+                updatedAt: {},
+                extrasLoaded: false,
+                attendanceScope: null,
+                roomSource: "session-fallback",
+                degraded: true
+            };
+        } catch (error) {
+            return null;
+        }
+    }
+
     getSnapshot() {
-        return this.currentView?.snapshot || null;
+        return this.currentView?.snapshot || this.buildSessionFallbackSnapshot();
     }
 
     getDashboard() {
