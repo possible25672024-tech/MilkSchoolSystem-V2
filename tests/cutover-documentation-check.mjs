@@ -82,7 +82,12 @@ assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report mus
 assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must include responsive shell parity");
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("Sprint 4.6 — Vacation Milk Operational UI"), "Sprint status must identify the active Vacation Milk UI Sprint");
+assert.ok(sprint.includes("Sprint 4.7 — Shared Media and Signature Workflow"), "Sprint status must identify the active Media and Signature Sprint");
+assert.ok(
+    sprint.includes("Sprint 4.6 Vacation Milk Operational UI merged into `develop`") ||
+        sprint.includes("Sprint 4.6 Vacation Milk Operational UI fast-forward merged into `develop`"),
+    "Sprint status must preserve the completed Vacation Milk UI foundation"
+);
 assert.ok(sprint.includes("Sprint 4.5 Retroactive Milk Operational UI merged into `develop`"), "Sprint status must preserve the completed Retroactive Milk UI foundation");
 assert.ok(
     sprint.includes("Sprint 4.4 Pending Milk Operational UI merged into `develop`") ||
