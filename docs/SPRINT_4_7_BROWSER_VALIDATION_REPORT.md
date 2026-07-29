@@ -4,19 +4,30 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: **PARTIAL PASS — QUEUE PREFLIGHT AND PENDING EVIDENCE RENDER ACCEPTED / FINAL REGRESSION, CLEAN LOCAL DRAFT, METHOD EVIDENCE, AND REMAINING PANELS PENDING**
+Status: **PARTIAL PASS — FINAL 43-CHECK REGRESSION, GET-ONLY NETWORK, AND EMPTY QUEUE ACCEPTED / FINAL VISUAL PANELS AND CLEAN LOCAL DRAFT PENDING**
 
 ## Accepted automated foundation
 
-Previously accepted on this feature branch:
+Confirmed on the feature branch:
 
-- Media Policy, Processor, Signature Pad, IndexedDB Media Store, and Queue redaction gates;
-- Attendance, Pending, Retroactive, and Vacation evidence integration gates;
-- recovery and duplicate-prevention gate;
-- Teacher session-roster fallback gate;
-- the original 42+ full-regression run before the live Vacation stock correction.
+- Media Policy, Processor, Signature Pad, IndexedDB Media Store, and Queue-redaction gates passed;
+- Attendance, Pending, Retroactive, and Vacation evidence integration gates passed;
+- recovery and duplicate-prevention gate passed;
+- Teacher session-roster fallback gate passed;
+- Vacation live Teacher-stock refresh regression passed;
+- Vacation adapter public-status compatibility remained stable;
+- the complete automatic regression runner passed after the live-stock correction.
 
-The live Vacation stock correction and stable adapter-status contract are implemented at:
+Final reported output:
+
+```text
+ALL 43 REGRESSION CHECKS PASSED (6.2s)
+On branch feature/sprint-4.7-media-signature-ui
+Your branch is up to date with 'origin/feature/sprint-4.7-media-signature-ui'.
+nothing to commit, working tree clean
+```
+
+Relevant commits:
 
 ```text
 209457c fix(media): refresh Vacation preview from live Teacher snapshot
@@ -24,34 +35,64 @@ The live Vacation stock correction and stable adapter-status contract are implem
 4daf1b9 test(media): keep Vacation status contract stable
 ```
 
-A final full-regression result after `4daf1b9` is still required as explicit test output. A clean Git tree alone does not prove that the runner passed.
+## Accepted browser evidence
 
-## Submitted browser evidence — accepted
-
-The supplied screenshots confirm:
+The submitted screenshots and report confirm:
 
 - the application started normally at `127.0.0.1:5500/index-v2.html`;
 - `localStorage.getItem("tc_pending_saves_v1")` returned `null` before Teacher login;
+- `localStorage.getItem("tc_pending_saves_v1")` returned `null` again after Logout;
 - Teacher dashboard rendered for a non-quarantined room;
 - the dashboard displayed live Room Stock `476` and visible Queue count `0`;
 - the Pending Milk evidence panel rendered;
 - Pending photo input, recipient selector, recipient-name field, signature canvas, local-load control, and remove control were reachable;
-- Firebase read endpoints returned HTTP 200 in Network;
+- the Network `Method` column was enabled;
+- every visible Network request used `GET`;
+- Firebase read endpoints returned HTTP `200`;
+- module requests used `GET` with expected `200` or cache-validation `304` responses;
+- no visible `POST`, `PUT`, `PATCH`, or `DELETE` request appeared;
 - the feature branch matched Origin and the working tree was clean at `4daf1b9`.
 
-## Browser evidence that remains partial
+Network acceptance from the supplied evidence:
 
-### 1. Pending local draft must be removed
+```text
+GET only
+POST = 0 visible
+PUT = 0 visible
+PATCH = 0 visible
+DELETE = 0 visible
+```
 
-The Pending evidence screenshot shows:
+The WebSocket handshake shown as `GET 101` is a local development-server connection and is not an operational Firebase write.
+
+## Accepted prior responsive evidence
+
+Previously supplied screenshots confirm:
+
+- Chrome Device Toolbar used `820 x 1180`;
+- the Teacher shell remained vertically scrollable;
+- the Vacation Milk operational panel rendered;
+- the Vacation evidence section rendered inside the panel;
+- photo input, student selector, parent/recipient field, signature canvas, and clear/use controls were visible;
+- the authenticated room roster contained 16 students;
+- Vacation preview showed 16 students, 30 days, and 480 boxes;
+- Console showed the normal `MilkSchoolSystem V2 Started` message;
+- no JavaScript or Firebase error was visible;
+- Logout returned to the login screen.
+
+That earlier Vacation screenshot preceded the live-stock correction and therefore cannot by itself close the final stock-consistency visual check.
+
+## Remaining blocker 1 — Pending local draft
+
+The latest Pending evidence screenshot still shows:
 
 ```text
 1 / 5 รูป
 ```
 
-and a local preview. This is an IndexedDB draft, not evidence of a Firebase write, but the Browser Gate is required to finish with no selected media.
+and a local preview. This is an IndexedDB draft and does not indicate a Firebase write, but Sprint acceptance requires the final browser state to contain no selected evidence media.
 
-Use the visible `นำออก` control for that draft and confirm:
+Use the visible `นำออก` control, or confirm cleanup after Logout by logging in again, and capture:
 
 ```text
 0 / 5 รูป
@@ -60,85 +101,40 @@ Use the visible `นำออก` control for that draft and confirm:
 
 Do not manually edit IndexedDB or Local Storage.
 
-### 2. Network Method is not visible
-
-The submitted Network table shows Firebase resources, Status `200`, and Type `fetch`, but the Method column is not enabled. The screenshot therefore does not directly prove:
-
-```text
-POST = 0
-PUT = 0
-PATCH = 0
-DELETE = 0
-```
-
-For final evidence, right-click the Network header row and enable `Method`. Keep recording active before login and do not clear the request list before the final screenshot.
-
-Accepted methods:
-
-```text
-GET
-OPTIONS
-```
-
-Forbidden methods:
-
-```text
-POST
-PUT
-PATCH
-DELETE
-```
-
-### 3. Remaining visual evidence
+## Remaining blocker 2 — final visual panels
 
 Still required:
 
-- Attendance evidence section;
-- Retroactive evidence section;
-- Vacation evidence section after the live Teacher snapshot arrives;
-- Vacation Room Stock equals the Teacher dashboard value;
-- desktop layout evidence;
-- responsive `820 x 1180` evidence covering all four evidence panels;
-- clean Console after the final walkthrough;
-- Queue value after Logout remains `null`, `"[]"`, or an empty parsed array.
-
-## Final regression command
-
-Run after pulling the latest branch:
-
-```powershell
-git pull --ff-only origin feature/sprint-4.7-media-signature-ui
-
-node tests/vacation-media-signature-integration-check.mjs
-if ($LASTEXITCODE -ne 0) {
-    throw "TEST FAILED: tests/vacation-media-signature-integration-check.mjs"
-}
-
-node tests/vacation-live-stock-refresh-check.mjs
-if ($LASTEXITCODE -ne 0) {
-    throw "TEST FAILED: tests/vacation-live-stock-refresh-check.mjs"
-}
-
-node tests/run-sprint-4.7-regression.mjs
-if ($LASTEXITCODE -ne 0) {
-    throw "TEST FAILED: Sprint 4.7 full regression"
-}
-
-git status
-```
-
-Required final output includes:
+1. Admin authenticated shell renders normally and Teacher evidence panels remain inactive.
+2. Attendance evidence section renders:
 
 ```text
-Vacation Milk Media and Signature integration checks passed.
-Vacation live Teacher stock refresh checks passed.
-ALL 43 REGRESSION CHECKS PASSED
-nothing to commit, working tree clean
+หลักฐานเช็กดื่มนมรายวัน
 ```
 
-The regression count may be greater than 43 when additional `*-check.mjs` files exist.
+3. Pending evidence section renders again with `0 / 5 รูป`.
+4. Retroactive evidence section renders:
 
-## Safety boundary
+```text
+รูปถ่ายและลายเซ็นผู้รับนมย้อนหลัง
+```
+
+5. Vacation evidence section renders after the live Teacher snapshot arrives:
+
+```text
+รูปถ่ายและลายเซ็นผู้ปกครอง/ผู้รับนมช่วงปิดเทอม
+```
+
+6. Vacation Room Stock equals the Teacher dashboard value:
+
+```text
+476 = 476
+```
+
+7. Console remains free of JavaScript and Firebase errors during the final walkthrough.
+8. Responsive `820 x 1180` remains readable for the remaining evidence panels without abnormal horizontal overflow.
+
+## Read-only restrictions
 
 Do not use:
 
@@ -150,18 +146,20 @@ Do not use:
 
 Do not press Attendance, Pending, Retroactive, or Vacation save/delete actions. Do not create, retry, replay, remove, or edit Queue entries. Do not manually change Firebase, Room Stock, Main Stock, ledger, stockLog, transaction history, IndexedDB, or Local Storage.
 
+Removing the visible unsaved local photo by its UI `นำออก` control is allowed and required for cleanup.
+
 ## Acceptance decision
 
-Queue preflight and Pending evidence rendering are accepted as partial browser evidence.
+Accepted:
 
-Sprint 4.7 remains open until:
+- final 43-check regression run;
+- clean synchronized feature branch;
+- Queue empty before and after the walkthrough;
+- GET-only visible Network methods;
+- Pending evidence control rendering;
+- prior responsive Vacation evidence layout;
+- clean Console evidence already supplied.
 
-1. the final 43+ regression run passes after `4daf1b9`;
-2. the Pending local media draft is removed;
-3. all four evidence panels are shown;
-4. Vacation and dashboard Room Stock values match;
-5. the Network Method column proves GET/OPTIONS-only traffic;
-6. Queue remains empty after Logout;
-7. branch matches Origin and the working tree is clean.
+Sprint 4.7 remains open only for the clean Pending-draft proof and the remaining Admin, Attendance, Retroactive, and post-fix Vacation visual evidence, including `476 = 476` Room Stock consistency.
 
 This report does not authorize merge to `main`, production deployment, replacement of `teacher.html`, real-classroom evidence capture, Firebase security sign-off, physical iPad sign-off, report/A4 parity completion, or closure of the deferred real-data incident.
