@@ -68,10 +68,17 @@ class RetroactiveMilkManager {
     }
 
     preview(input = {}) {
-        return this.ensureService().preview(this.getSession(), {
-            ...input,
-            students: this.getStudents()
-        });
+        try {
+            const preview = this.ensureService().preview(this.getSession(), {
+                ...input,
+                students: this.getStudents()
+            });
+            this.emit("milkapp:retro-preview-changed", preview);
+            return preview;
+        } catch (error) {
+            this.emit("milkapp:retro-preview-changed", null);
+            throw error;
+        }
     }
 
     async loadHistory() {
