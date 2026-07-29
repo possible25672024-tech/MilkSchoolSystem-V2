@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.4-pending-milk-ui`
 
-Status: IMPLEMENTED / LOCAL EXECUTION PENDING
+Status: PASS — isolated recovery routing confirmed locally
 
 ## Purpose
 
@@ -112,7 +112,13 @@ It does not expose:
 
 - `tests/pending-milk-recovery-routing-check.mjs`
 
-Isolated coverage:
+Confirmed locally:
+
+```text
+Pending Milk recovery routing checks passed.
+```
+
+Verified:
 
 - legacy retry defaults to `ATTENDANCE`
 - legacy `diff` alias remains compatible
@@ -130,7 +136,9 @@ Isolated coverage:
 
 ## Safety Decision
 
-Browser Pending Milk writes remain prohibited until this test and the later complete isolated write gate pass locally.
+Recovery routing is accepted for the Sprint 4.4 code gate.
+
+Browser Pending Milk writes remain prohibited until the complete 22-test regression gate passes. The browser gate must remain read-only and use no real Pending Milk mutation.
 
 The quarantined room/date remains excluded:
 
