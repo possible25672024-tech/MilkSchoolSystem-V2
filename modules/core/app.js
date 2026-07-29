@@ -3,12 +3,14 @@ class MilkSchoolApplication {
         loginManager = window.LoginManager,
         teacherView = window.TeacherView,
         attendanceView = window.AttendanceView,
-        syncView = window.SyncView
+        syncView = window.SyncView,
+        pendingMilkView = window.PendingMilkView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
         this.attendanceView = attendanceView;
         this.syncView = syncView;
+        this.pendingMilkView = pendingMilkView;
         this.started = false;
     }
 
@@ -19,6 +21,24 @@ class MilkSchoolApplication {
         }
 
         return this.syncView;
+    }
+
+    async ensurePendingMilkView() {
+        if (!window.PendingMilkRepository) {
+            await import("../repositories/pendingMilkRepository.js");
+        }
+        if (!window.PendingMilkService) {
+            await import("../services/pendingMilkService.js");
+        }
+        if (!window.PendingMilkManager) {
+            await import("../pending/pendingMilkManager.js");
+        }
+        if (!this.pendingMilkView) {
+            await import("../pending/pendingMilkView.js");
+            this.pendingMilkView = window.PendingMilkView;
+        }
+
+        return this.pendingMilkView;
     }
 
     async start() {
@@ -43,6 +63,11 @@ class MilkSchoolApplication {
         const syncView = await this.ensureSyncView();
         if (syncView?.initialize) {
             await syncView.initialize();
+        }
+
+        const pendingMilkView = await this.ensurePendingMilkView();
+        if (pendingMilkView?.initialize) {
+            await pendingMilkView.initialize();
         }
 
         this.started = true;
