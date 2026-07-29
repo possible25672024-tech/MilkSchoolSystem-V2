@@ -71,8 +71,13 @@ assert.deepEqual(Object.keys(safeSummary).sort(), ["aggregateBytes", "code", "ph
 assert.ok(!JSON.stringify(safeSummary).includes("data:image"));
 assert.ok(!JSON.stringify(safeSummary).includes("ผู้รับทดสอบ"));
 
-const smallAggregatePolicy = new MediaPolicy({ maxAggregateBytes: 40 * 1024 });
+const exactAggregatePolicy = new MediaPolicy({ maxAggregateBytes: 40 * 1024 });
+const exactAggregateResult = exactAggregatePolicy.validateRecordEvidence({ photos: [validPhoto], signature: signatureDataUrl });
+assert.equal(exactAggregateResult.valid, true, "Evidence exactly at the aggregate maximum must remain valid");
+assert.equal(exactAggregateResult.details.aggregateBytes, 40 * 1024);
+
+const smallAggregatePolicy = new MediaPolicy({ maxAggregateBytes: (40 * 1024) - 1 });
 const aggregateResult = smallAggregatePolicy.validateRecordEvidence({ photos: [validPhoto], signature: signatureDataUrl });
-assert.equal(aggregateResult.code, "MEDIA_AGGREGATE_SIZE_EXCEEDED");
+assert.equal(aggregateResult.code, "MEDIA_AGGREGATE_SIZE_EXCEEDED", "Evidence one byte above the aggregate maximum must be rejected");
 
 console.log("Media policy checks passed.");
