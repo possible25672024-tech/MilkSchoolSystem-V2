@@ -177,12 +177,23 @@ class VacationMilkView {
         }
     }
 
-    async handleLoadHistory() {
+    async handleLoadHistory(options = {}) {
+        const preserveStatus = Boolean(options.preserveStatus);
+        const statusSnapshot = preserveStatus
+            ? {
+                message: this.element("vacation-milk-status")?.textContent || "",
+                state: this.element("vacation-milk-status")?.dataset?.state || "idle"
+            }
+            : null;
         this.setBusy(true, "กำลังโหลดประวัตินมช่วงปิดเทอม...");
         try {
             this.currentHistory = await this.vacationMilkManager.loadHistory();
             this.renderHistory(this.currentHistory);
-            this.setStatus(`โหลดประวัติแล้ว ${this.currentHistory.records.length} รายการ`, "success");
+            if (statusSnapshot) {
+                this.setStatus(statusSnapshot.message, statusSnapshot.state);
+            } else {
+                this.setStatus(`โหลดประวัติแล้ว ${this.currentHistory.records.length} รายการ`, "success");
+            }
         } catch (error) {
             this.renderError(error);
         } finally {
@@ -197,13 +208,14 @@ class VacationMilkView {
         this.setBusy(true, "กำลังบันทึกนมช่วงปิดเทอม...");
         try {
             const result = await this.vacationMilkManager.issue(this.formInput());
-            if (result.stockQueued) {
+            const queued = Boolean(result.stockQueued);
+            if (queued) {
                 this.setStatus("บันทึกรายการแล้ว และนำการหักสต็อกเข้าคิวซิงก์", "warning");
             } else {
                 this.setStatus(`บันทึกสำเร็จ · สต็อกห้อง ${result.roomStockBefore} → ${result.roomStockAfter}`, "success");
             }
             await this.teacherManager.refresh?.();
-            await this.handleLoadHistory();
+            await this.handleLoadHistory({ preserveStatus: queued });
         } catch (error) {
             this.renderError(error);
         } finally {
@@ -220,13 +232,14 @@ class VacationMilkView {
         this.setBusy(true, "กำลังลบและคืนสต็อก...");
         try {
             const result = await this.vacationMilkManager.remove({ recordId });
-            if (result.stockQueued) {
+            const queued = Boolean(result.stockQueued);
+            if (queued) {
                 this.setStatus("ลบรายการแล้ว และนำการคืนสต็อกเข้าคิวซิงก์", "warning");
             } else {
                 this.setStatus(`ลบสำเร็จ · สต็อกห้อง ${result.roomStockBefore} → ${result.roomStockAfter}`, "success");
             }
             await this.teacherManager.refresh?.();
-            await this.handleLoadHistory();
+            await this.handleLoadHistory({ preserveStatus: queued });
         } catch (error) {
             this.renderError(error);
         } finally {
