@@ -84,9 +84,14 @@ const secondStatus = adapter.install();
 
 assert.equal(firstStatus.installed, true, "Vacation Evidence Adapter must install");
 assert.equal(secondStatus.installed, true, "Repeated install must remain successful");
+assert.deepEqual(
+    JSON.parse(JSON.stringify(secondStatus)),
+    { installed: true, vacationMilkService: true, vacationMilkManager: true },
+    "Vacation Evidence Adapter status contract must remain backward compatible"
+);
 assert.equal(events.listeners.get("milkapp:login-success")?.length, 1, "Login replay listener must be idempotent");
 assert.equal(events.listeners.get("milkapp:teacher-refreshed")?.length, 1, "Teacher refresh listener must be idempotent");
-assert.equal(secondStatus.teacherRefreshBound, true, "Adapter status must expose Teacher refresh binding");
+assert.equal(adapter.teacherRefreshBound, true, "Teacher refresh binding must be active internally");
 
 events.dispatch("milkapp:login-success", { session });
 await Promise.resolve();
