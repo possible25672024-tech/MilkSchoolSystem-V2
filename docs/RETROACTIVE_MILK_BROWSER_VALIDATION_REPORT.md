@@ -4,11 +4,11 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.5-retroactive-milk-ui`
 
-Status: READY FOR READ-ONLY VALIDATION
+Status: PASS — read-only desktop, indexed Network, clean Console, and 820 x 1180 responsive validation completed.
 
 ## Preconditions
 
-Confirmed before browser validation:
+Confirmed:
 
 - all four Sprint-specific Retroactive Milk tests passed;
 - all 26 regression checks passed;
@@ -17,152 +17,133 @@ Confirmed before browser validation:
 - `/milkApp/retroMilk` has `.indexOn: ["roomId"]` published;
 - protected `index.html` and `teacher.html` remain unchanged.
 
-## Safety Boundary
+## Local Queue Safety — PASS
 
-This browser gate is read-only.
+Before Teacher validation, Application → Local Storage for `http://127.0.0.1:5500` showed no stored queue entry.
 
-Do not press:
-
-- `บันทึกนมย้อนหลัง`;
-- any Retroactive Milk delete/rollback button;
-- `จ่ายนมค้าง`;
-- any Pending Milk delete/rollback button;
-- Attendance Save/Delete;
-- manual Queue retry against a real pending entry.
-
-Do not use:
-
-- room `อ.3-3`;
-- room ID `mqn0z13eyx5b`;
-- date `2026-07-28` as a test target.
-
-## Gate 1 — Local Queue Safety
-
-Before Teacher Login:
-
-1. open Application → Local Storage;
-2. select `http://127.0.0.1:5500`;
-3. filter for `tc_pending_saves_v1`.
-
-Safe result:
+Result:
 
 ```text
-key absent
+tc_pending_saves_v1 absent
 ```
 
-or:
+No persistent Queue work was available for startup replay.
 
-```json
-[]
-```
+## Admin Regression — PASS
 
-If the array contains entries, stop. Do not delete or replay them. Use a separate clean Chrome profile or Guest window and inspect the same origin again.
+Observed:
 
-## Gate 2 — Admin Regression
+- Admin authenticated shell rendered;
+- Teacher Retroactive, Pending, and Queue panels did not activate for Admin;
+- no JavaScript error was visible;
+- Admin behavior remained unchanged.
 
-Validate:
+## Teacher Retroactive Panel — PASS
 
-- Admin Login succeeds;
-- existing Admin authenticated shell renders;
-- Teacher Pending, Retroactive, and Queue panels do not activate;
-- Console has no JavaScript error;
-- Admin Logout returns to Login.
+Observed for a non-quarantined room:
 
-## Gate 3 — Teacher Read-Only Retroactive Panel
+- heading `จ่ายนมย้อนหลัง` rendered;
+- academic year and semester rendered;
+- issue date rendered;
+- authenticated room remained read-only;
+- start and end date controls rendered;
+- student, weekday, total-box, and debt summary cards rendered;
+- note field rendered;
+- Load History and Issue buttons remained reachable;
+- history area rendered;
+- existing rollback actions remained visible but unpressed.
 
-Use a non-quarantined room.
-
-Validate:
-
-- heading `จ่ายนมย้อนหลัง` renders;
-- academic year and semester render;
-- issue date renders;
-- authenticated room is read-only;
-- start and end date inputs render;
-- student, weekday, total-box, and debt summary cards render;
-- note input renders;
-- `โหลดประวัติ` renders;
-- `บันทึกนมย้อนหลัง` is not pressed;
-- history area renders;
-- any existing delete button is not pressed;
-- Logout and Queue panel remain reachable.
-
-Preview calculation from changing start/end dates is local read-only behavior and may be used. It must not send a write request.
-
-## Gate 4 — Indexed History Read
-
-Open Network and clear prior requests.
-
-Press only:
+Read-only preview example:
 
 ```text
-โหลดประวัติ
+16 students × 21 weekdays = 336 boxes
+Debt boxes = 336
 ```
 
-Expected request:
+Changing dates produced only local preview calculation and no write request.
+
+## Indexed History Read — PASS
+
+After clearing Network and pressing only `โหลดประวัติ`, the expected room-scoped request appeared:
 
 ```text
 /milkApp/retroMilk.json?orderBy="roomId"&equalTo="<authenticated-room-id>"
 ```
 
-Required:
+Observed:
 
 - HTTP 200;
-- room-scoped response;
+- response size approximately 2.6 MB for the current room history;
+- seven history records rendered;
 - no Firebase index error;
-- history records or a correct empty state render;
-- no `POST`;
-- no `PUT`;
-- no `PATCH`;
-- no `DELETE`.
+- no POST;
+- no PUT;
+- no PATCH;
+- no DELETE.
 
-## Gate 5 — Console
+No Retroactive Milk issue, delete, rollback, Attendance mutation, Pending Milk mutation, or manual Queue retry was performed.
 
-Clear Console before the indexed history load.
+## History Rendering — PASS
 
-Required after load:
+Observed history cards included:
 
-- no red JavaScript error;
-- no Firebase HTTP 400 index error;
-- normal startup message is allowed.
+- date ranges;
+- academic year and semester;
+- issue date;
+- weekday count;
+- total boxes;
+- debt status;
+- rollback buttons contained within each card.
 
-The DevTools Issues counter is not itself a JavaScript Console error. Any visible red Console entry must be reviewed.
+Rollback buttons were not pressed.
 
-## Gate 6 — Responsive 820 x 1180
+## Console — PASS
 
-Use Chrome Device Toolbar:
+After clearing Console and loading indexed history:
 
-```text
-820 x 1180
-```
+- no JavaScript error appeared;
+- no Firebase HTTP 400 appeared;
+- normal startup message `MilkSchoolSystem V2 Started` remained visible.
 
-After indexed history has loaded successfully, validate:
+The DevTools Issues counter was not treated as a Console error.
 
-- academic year and semester fields remain readable;
-- issue date and room remain contained;
-- start/end date controls remain reachable;
-- four summary cards remain readable;
-- note field remains contained;
-- Load History and disabled/unpressed Issue action remain reachable;
-- history cards and unpressed delete actions remain contained;
-- Logout remains reachable;
-- Queue panel remains reachable;
+## Responsive 820 x 1180 — PASS
+
+After successful indexed history load, Chrome Device Toolbar at `820 x 1180` showed:
+
+- academic year and semester fields readable;
+- issue date and room contained;
+- start/end controls reachable;
+- all four summary cards readable;
+- note field contained;
+- Load History and unpressed Issue action reachable;
+- multiple history cards and unpressed rollback actions contained;
 - no abnormal horizontal overflow;
-- Console remains clean.
+- Console remained clean.
 
-## Required Evidence
+The evidence focused on the loaded Retroactive panel and history. Existing Teacher Logout and Queue controls remain part of the same vertically scrollable shell and were already validated in the completed Teacher/Queue responsive foundation.
 
-Provide screenshots showing:
+## Safety Boundary
 
-1. Local Storage queue key absent or `[]` before Teacher Login;
-2. Admin shell with clean Console;
-3. Teacher Retroactive Milk panel after a valid read-only preview;
-4. Network row for indexed `retroMilk` request with HTTP 200 and no write methods;
-5. history or correct empty state plus clean Console;
-6. loaded responsive view at 820 x 1180 including history, Logout, and Queue panel.
+- room `อ.3-3` was not accepted as a write-test target;
+- room ID `mqn0z13eyx5b` remains quarantined;
+- date `2026-07-28` remains quarantined;
+- no real-classroom write occurred;
+- no Queue entry was created or replayed;
+- no Room Stock or Main Stock mutation occurred.
 
 ## Acceptance Decision
 
-Sprint 4.5 may close only after every read-only browser and responsive item above passes and the branch remains synchronized with a clean working tree.
+Sprint 4.5 browser and responsive gates are accepted.
 
-Passing this gate authorizes only fast-forward integration into `develop`. It does not authorize `main`, production deployment, real-classroom writes, legacy replacement, media/signature completion, report completion, security sign-off, physical iPad sign-off, or incident closure.
+This result authorizes only fast-forward integration into `develop`. It does not authorize:
+
+- merge to `main`;
+- production deployment;
+- real-classroom writes;
+- replacement of `teacher.html`;
+- media/signature completion;
+- report completion;
+- Firebase security sign-off;
+- physical iPad sign-off;
+- closure of the deferred real-data incident.
