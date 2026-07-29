@@ -6,6 +6,7 @@ class PendingEvidenceView {
     ) {
         this.manager = manager;
         this.authService = authService;
+        this.pendingMilkView = options.pendingMilkView || window.PendingMilkView;
         this.document = options.document || window.document;
         this.eventTarget = options.eventTarget || window;
         this.initialized = false;
@@ -14,7 +15,7 @@ class PendingEvidenceView {
         this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
         this.handleLogout = this.handleLogout.bind(this);
         this.handleWeekLoaded = this.handleWeekLoaded.bind(this);
-        this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
+        this.handlePendingListChange = this.handlePendingListChange.bind(this);
         this.handleFiles = this.handleFiles.bind(this);
         this.handlePhotoRemove = this.handlePhotoRemove.bind(this);
         this.handleOwnerChange = this.handleOwnerChange.bind(this);
@@ -101,7 +102,7 @@ class PendingEvidenceView {
         this.eventTarget.addEventListener?.("milkapp:login-success", this.handleLoginSuccess);
         this.eventTarget.addEventListener?.("milkapp:logout", this.handleLogout);
         this.eventTarget.addEventListener?.("milkapp:pending-week-loaded", this.handleWeekLoaded);
-        this.eventTarget.addEventListener?.("milkapp:pending-selection-changed", this.handleSelectionChanged);
+        this.element("pending-milk-list")?.addEventListener?.("change", this.handlePendingListChange);
         this.element("pending-evidence-photo-input")?.addEventListener?.("change", this.handleFiles);
         this.element("pending-evidence-photo-list")?.addEventListener?.("click", this.handlePhotoRemove);
         this.element("pending-evidence-owner")?.addEventListener?.("change", this.handleOwnerChange);
@@ -140,9 +141,19 @@ class PendingEvidenceView {
         await this.render(false);
     }
 
-    async handleSelectionChanged(event) {
+    async handlePendingListChange() {
         if (!this.active) return;
-        await this.manager.setOwners(event?.detail?.selected || []);
+        const source = this.pendingMilkView || window.PendingMilkView;
+        const selectedKeys = source?.selectedKeys || new Set();
+        const owners = (source?.currentWeek?.eligible || [])
+            .filter(pair => selectedKeys.has(pair.key))
+            .map(pair => ({
+                key: pair.key,
+                studentId: pair.studentId,
+                date: pair.date,
+                name: pair.name
+            }));
+        await this.manager.setOwners(owners);
         await this.render(false);
     }
 
