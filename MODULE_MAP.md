@@ -2,7 +2,7 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 ## Protected Legacy Files
 
@@ -161,34 +161,50 @@ Production-confidence gap:
 
 - real multi-writer validation must run in an isolated Firebase environment under D-06
 
-### Sync and Offline Queue — Service Foundation Completed
+### Sync and Offline Queue — Service and Operational UI Completed
 
-Modules:
+Modules and artifacts:
 
 - `modules/storage/queueStorage.js`
 - `modules/services/syncService.js`
 - `modules/sync/syncManager.js`
+- `modules/sync/syncView.js`
+- `tests/sync-module-check.mjs`
+- `tests/sync-ui-check.mjs`
+- `tests/sync-restart-reconnect-check.mjs`
+- `docs/SPRINT_4_3_PLAN.md`
+- `docs/SYNC_UI_IMPLEMENTATION_REPORT.md`
+- `docs/SYNC_UI_BROWSER_VALIDATION_REPORT.md`
 
 Completed boundary:
 
 - compatible `tc_pending_saves_v1` persistence
-- legacy `rec` and `diff` alias normalization
+- legacy `rec` and `diff` normalization
 - corrupt-entry filtering
 - latest queued Attendance with original baseline preservation
-- sequential replay
-- bounded backoff
+- sequential replay and bounded backoff
 - startup, reconnect, retry, and periodic flush
-- successful-entry removal and failed-entry retention
+- successful-entry removal and failed/deferred retention
 - authenticated-room-only replay
 - overlapping-flush prevention
 - Room Stock-only retry conversion
 - persistent `attendanceAudit` recovery
 - no repeated Room Stock mutation during audit-only retry
 - no Main Stock change
+- operational online/offline/syncing banner
+- persistent queue count, attempts, last-sync time, summary, and next-retry display
+- safe item summaries without student/media/audit payload exposure
+- manual retry through SyncManager only
+- no direct QueueStorage, SyncService, Firebase, Repository, fetch, or browser storage in the View
+- complete in-memory restart/reconnect persistence and replay validation
+- desktop, Network, Console, Admin/Teacher Logout, and 820 x 1180 gates passed
+- all 18 regression checks passed
 
-Current UI gap:
+Integration meaning:
 
-- item-level operational queue status, retry state, last-sync time, and manual retry controls are not yet integrated into the V2 Teacher shell
+- approved for fast-forward merge into `develop`
+- does not replace `teacher.html`
+- does not authorize `main` or production cutover
 
 ### Performance — Completed
 
@@ -243,13 +259,8 @@ Completed boundary:
 
 - separate Admin and Teacher shell containers
 - Teacher session header
-- school, room, and teacher identity
-- read-only current Room Stock
-- online/offline connection badge
-- persistent queue count
-- Logout delegation
-- restored-session rendering
-- Manager and event-driven View boundary
+- school, room, teacher, Room Stock, queue count, and online/offline display
+- Logout delegation and restored-session rendering
 - no direct Firebase, Repository, Local Storage, Session Storage, or stock calculation in the View
 - Admin, desktop Network, Offline/Online, responsive, and Console gates passed
 
@@ -274,25 +285,18 @@ Completed boundary:
 
 - date-scoped daily Attendance form
 - authenticated-room student list
-- present and absent controls
-- per-student notes
+- present/absent controls and notes
 - totals and responsive layout
-- load one day through `AttendanceManager.loadDay()`
-- create and edit through `AttendanceManager.save()`
-- confirmed delete through `AttendanceManager.remove()`
-- Room Stock result display
-- conflict, partial-save, queue, and audit feedback
-- compatible media-field preservation during edits
-- no direct Firebase, Repository, storage, stock calculations, ledger, retry, or ETag ownership in the View
-- complete in-memory create/edit-up/edit-down/delete validation
-- Main Stock unchanged through all isolated operations
-- one protected Room Stock retry on deliberate partial save
-- all 16 regression checks accepted as passed
+- Manager-only create/edit/delete delegation
+- Room Stock result, conflict, partial-save, queue, and audit feedback
+- compatible media-field preservation
+- complete isolated create/edit/delete validation
+- Main Stock unchanged
 - desktop and 820 x 1180 validation passed
 
 Integration meaning:
 
-- approved for fast-forward merge into `develop`
+- merged into `develop`
 - does not replace `teacher.html`
 - does not authorize `main` or production cutover
 
@@ -301,31 +305,29 @@ Deferred incident:
 - room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined with Attendance 22 present / 3 absent and Room Stock discrepancy -22
 - recovery is mandatory before production acceptance
 
-### Offline Queue Operational UI — Next Sprint 4.3
+### Pending Milk Operational UI — Next Sprint 4.4
 
 Planned branch:
 
-`feature/sprint-4.3-offline-queue-ui`
+`feature/sprint-4.4-pending-milk-ui`
 
 Target boundary:
 
-- operational offline banner
-- persistent queue badge and item count
-- last successful sync time
-- retrying, failed, and deferred states
-- manual retry action
-- item-level safe error summary
-- consume `SyncManager` and events only
-- no direct QueueStorage mutation from the View
-- preserve `tc_pending_saves_v1`
-- preserve legacy `rec` and `diff` compatibility
-- preserve repeated-edit original baseline
-- restart and reconnect validation
+- show absent students eligible for pending milk
+- dedicated Repository/Service/Manager command path where needed
+- issue pending milk
+- deduct Room Stock only
+- prevent duplicate issue for the same student/date/reference
+- preserve legacy-compatible `absentMilk` fields and references
+- authenticated-room-only access
+- compatible ledger and stockLog references
+- isolated create/duplicate/rollback validation only
 - no real-classroom write tests
 
 Out of scope:
 
-- pending, retroactive, or vacation milk forms
+- Retroactive Milk
+- Vacation Milk
 - photos and signatures
 - printing and history-range views
 - replacing or removing `teacher.html`
@@ -390,7 +392,9 @@ Rebuild
 - Sprint 4.0 — Cutover Readiness — Completed
 - Sprint 4.1 — Teacher UI Shell and Read-Only State — Completed
 - Sprint 4.2 — Teacher Daily Attendance CRUD UI — Completed
-- Sprint 4.3 — Offline Queue Operational UI — Next
+- Sprint 4.3 — Offline Queue Operational UI — Completed
+- Sprint 4.4 — Pending Milk Operational UI — Next
+- Retroactive and Vacation Milk UI — Later
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
