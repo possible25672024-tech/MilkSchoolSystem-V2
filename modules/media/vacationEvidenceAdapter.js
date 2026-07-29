@@ -2,6 +2,7 @@ class VacationEvidenceAdapter {
     constructor(options = {}) {
         this.window = options.window || window;
         this.installed = false;
+        this.loginReplayBound = false;
     }
 
     install() {
@@ -13,6 +14,7 @@ class VacationEvidenceAdapter {
         }
         this.patchService(vacationMilkService);
         this.patchManager(vacationMilkManager, evidenceManager);
+        this.bindLoginReplay();
         this.installed = Boolean(
             vacationMilkService.__vacationEvidencePatched &&
             vacationMilkManager.__vacationEvidencePatched
@@ -55,6 +57,15 @@ class VacationEvidenceAdapter {
         };
         manager.__vacationEvidencePatched = true;
         return manager;
+    }
+
+    bindLoginReplay() {
+        if (this.loginReplayBound || typeof this.window.addEventListener !== "function") return;
+        this.window.addEventListener("milkapp:login-success", event => {
+            if (event?.detail?.session?.role !== "teacher") return;
+            Promise.resolve().then(() => this.window.VacationMilkView?.handlePreviewChange?.());
+        });
+        this.loginReplayBound = true;
     }
 
     getStatus() {
