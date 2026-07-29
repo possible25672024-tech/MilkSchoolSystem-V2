@@ -26,7 +26,7 @@ Sprint 4.3 — Offline Queue Operational UI
 
 Status
 
-70% — Sync View, safe Manager summaries, dynamic App integration, operational UI tests, implementation report, and Cutover documentation compatibility are implemented. Local 17-test regression, isolated restart/reconnect fixtures, desktop browser validation, and 820 x 1180 responsive validation remain pending.
+85% — Runtime, safe Manager summaries, App integration, Queue UI test, Cutover documentation compatibility, and all 17 automated regression checks passed. Isolated browser queue-state, restart/reconnect, desktop, and 820 x 1180 responsive gates remain pending.
 
 ---
 
@@ -96,7 +96,7 @@ Sprint 4.3 Runtime Implemented
 
 SyncManager Boundary Updated
 
-✓ `getStatus()` now exposes safe `queueItems`
+✓ `getStatus()` exposes safe `queueItems`
 
 ✓ Safe summaries include queue type, room, date/reference, attempts, queued time, next retry time, status, and safe error details
 
@@ -106,7 +106,7 @@ SyncManager Boundary Updated
 
 ✓ Complete ledger and stockLog payloads are not exposed
 
-✓ `milkapp:sync-started` now reports `flushing: true`
+✓ `milkapp:sync-started` reports `flushing: true`
 
 ✓ Overlapping flushes continue to share one in-flight operation
 
@@ -130,119 +130,71 @@ App Integration Implemented
 
 ---
 
-Automated Test Added
+Automated Regression Gate — PASS
 
-✓ Added `tests/sync-ui-check.mjs`
+The first Sync UI run failed because the static test searched only for literal HTML `id="sync-panel"`, while the Runtime correctly creates the panel programmatically with `panel.id = "sync-panel"`. The test was corrected without changing Runtime behavior.
 
-Coverage implemented:
+Confirmed locally on Node.js 24.18.0:
 
-✓ valid SyncView and SyncManager JavaScript
+✓ Login foundation checks
 
-✓ App loading and initialization boundary
+✓ Stock module checks
 
-✓ no direct queue persistence access from the View
+✓ Report module checks
 
-✓ no direct Firebase, Repository, fetch, Local Storage, or Session Storage access
+✓ Room module checks
 
-✓ safe summaries exclude fake student/media payloads
+✓ Teacher module checks
 
-✓ manual retry delegation
+✓ Attendance module checks
 
-✓ overlapping retry protection
+✓ Sync module checks
 
-✓ flushing state visibility
+✓ Firebase request-header checks
 
-✓ restored Teacher-session activation
+✓ Performance module checks
 
-✓ online/offline rendering
+✓ Teacher core-payload checks
 
-✓ queue count and queue-item rendering
+✓ Cutover concurrency checks
 
-✓ successful manual retry rendering
+✓ Audit recovery checks
 
-✓ Logout cleanup
+✓ Cutover documentation checks
 
-✓ Admin session rejection
+✓ Teacher UI shell checks
 
----
+✓ Attendance UI checks
 
-Cutover Documentation Compatibility
+✓ Attendance isolated write checks
 
-✓ Active Sprint assertion updated to Sprint 4.3
+✓ Sync UI checks
 
-✓ Sprint 4.2 Attendance UI foundation remains recorded
+✓ `ALL 17 REGRESSION CHECKS PASSED`
 
-✓ Sprint 4.1 Teacher shell foundation remains recorded
+✓ Feature branch synchronized with origin
 
-✓ Sprint 4.0 Cutover foundation remains recorded
-
-✓ Production readiness remains blocked
+✓ Working tree clean
 
 ---
 
-Local Automated Gate — Pending
+Browser Safety Gate — Ready to Start
 
-Run the new test first:
+Automated prerequisites are complete.
 
-```powershell
-node tests/sync-ui-check.mjs
-```
+Before opening the Teacher Queue UI:
 
-Then run the complete regression gate:
+□ Inspect the browser queue key `tc_pending_saves_v1` without logging in as Teacher
 
-□ Login foundation checks
+□ Confirm the queue is empty or use a separate browser profile with empty site data
 
-□ Stock module checks
+□ Do not use the quarantined room/date
 
-□ Report module checks
+□ Do not press Attendance Save or Delete during Queue UI validation
 
-□ Room module checks
-
-□ Teacher module checks
-
-□ Attendance module checks
-
-□ Sync module checks
-
-□ Firebase request-header checks
-
-□ Performance module checks
-
-□ Teacher core-payload checks
-
-□ Cutover concurrency checks
-
-□ Audit recovery checks
-
-□ Cutover documentation checks
-
-□ Teacher UI shell checks
-
-□ Attendance UI checks
-
-□ Attendance isolated write checks
-
-□ Sync UI checks
-
-Expected total: 17 tests.
-
----
-
-Browser Safety Gate — Not Started
-
-Do not open the new Teacher Queue UI against the connected classroom database yet.
+□ Do not run manual retry, reconnect replay, or startup replay against real pending classroom entries
 
 Activating a Teacher Sync session can invoke the existing startup replay when a pending browser queue exists.
-
-Before Browser validation:
-
-□ Automated 17-test gate passes
-
-□ Browser queue count is verified
-
-□ Use an empty queue or fully isolated browser/Firebase target
-
-□ Do not press Save, Delete, manual retry, or trigger reconnect replay against real classroom data
 
 ---
 
@@ -252,23 +204,23 @@ Desktop Chrome:
 
 □ Admin Login remains unchanged
 
-□ Teacher Login renders Queue UI
+□ Teacher Login renders Queue UI on an empty/isolated queue
 
 □ Online/offline banner is accurate
 
 □ Queue count agrees with SyncManager
 
-□ Manual retry disabled offline and while flushing
+□ Empty queue renders synchronized state
 
-□ Manual retry delegates safely in an isolated target
+□ Manual retry is disabled when the queue is empty
 
-□ Success/failure/deferred summaries render
+□ Manual retry is disabled offline and while flushing
 
 □ Logout clears Queue UI
 
 □ Console clean
 
-□ No unexpected Firebase write occurs from rendering
+□ Rendering causes no unexpected Firebase write
 
 Chrome Device Toolbar at 820 x 1180:
 
@@ -281,6 +233,30 @@ Chrome Device Toolbar at 820 x 1180:
 □ Logout remains reachable
 
 □ Console clean
+
+Physical iPad remains deferred and must not be represented as PASS.
+
+---
+
+Isolated Restart/Reconnect Gate — Pending
+
+Use only mocked, in-memory, or separate browser-local fixtures:
+
+□ Queue count survives View recreation
+
+□ Queue count survives browser refresh through existing persistence
+
+□ Offline state performs no replay
+
+□ Reconnect starts the existing Manager flow
+
+□ Successful items disappear individually
+
+□ Failed and deferred items remain visible
+
+□ Attempt count and next retry state update
+
+□ Main Stock remains unchanged
 
 ---
 
