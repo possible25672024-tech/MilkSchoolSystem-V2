@@ -16,6 +16,7 @@ class MilkSchoolApplication {
         this.retroactiveMilkView = retroactiveMilkView;
         this.vacationMilkView = vacationMilkView;
         this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
+        this.vacationSyncAdapter = window.VacationSyncAdapter;
         this.started = false;
     }
 
@@ -26,6 +27,15 @@ class MilkSchoolApplication {
         }
         this.retroactiveSyncAdapter?.install?.();
         return this.retroactiveSyncAdapter;
+    }
+
+    async ensureVacationSyncAdapter() {
+        if (!this.vacationSyncAdapter) {
+            await import("../sync/vacationSyncAdapter.js");
+            this.vacationSyncAdapter = window.VacationSyncAdapter;
+        }
+        this.vacationSyncAdapter?.install?.();
+        return this.vacationSyncAdapter;
     }
 
     async ensureSyncView() {
@@ -78,8 +88,10 @@ class MilkSchoolApplication {
         if (this.attendanceView?.initialize) await this.attendanceView.initialize();
 
         const retroactiveSyncAdapter = await this.ensureRetroactiveSyncAdapter();
+        const vacationSyncAdapter = await this.ensureVacationSyncAdapter();
         const syncView = await this.ensureSyncView();
         retroactiveSyncAdapter?.install?.();
+        vacationSyncAdapter?.install?.();
         if (syncView?.initialize) await syncView.initialize();
 
         const pendingMilkView = await this.ensurePendingMilkView();
