@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: **PARTIAL PASS — FINAL 43-CHECK REGRESSION, GET-ONLY NETWORK, AND EMPTY QUEUE ACCEPTED / FINAL VISUAL PANELS AND CLEAN LOCAL DRAFT PENDING**
+Status: **99% PARTIAL PASS — AUTOMATED, QUEUE, NETWORK, ADMIN, ATTENDANCE, AND RETROACTIVE GATES ACCEPTED / PENDING CLEAN-DRAFT AND POST-FIX VACATION STOCK VISUALS PENDING**
 
 ## Accepted automated foundation
 
@@ -35,25 +35,19 @@ Relevant commits:
 4daf1b9 test(media): keep Vacation status contract stable
 ```
 
-## Accepted browser evidence
+## Accepted Queue and Network evidence
 
-The submitted screenshots and report confirm:
+The submitted screenshots confirm:
 
-- the application started normally at `127.0.0.1:5500/index-v2.html`;
 - `localStorage.getItem("tc_pending_saves_v1")` returned `null` before Teacher login;
-- `localStorage.getItem("tc_pending_saves_v1")` returned `null` again after Logout;
-- Teacher dashboard rendered for a non-quarantined room;
-- the dashboard displayed live Room Stock `476` and visible Queue count `0`;
-- the Pending Milk evidence panel rendered;
-- Pending photo input, recipient selector, recipient-name field, signature canvas, local-load control, and remove control were reachable;
+- the same Queue key returned `null` again after Logout;
 - the Network `Method` column was enabled;
-- every visible Network request used `GET`;
+- every visible request used `GET`;
 - Firebase read endpoints returned HTTP `200`;
 - module requests used `GET` with expected `200` or cache-validation `304` responses;
-- no visible `POST`, `PUT`, `PATCH`, or `DELETE` request appeared;
-- the feature branch matched Origin and the working tree was clean at `4daf1b9`.
+- no visible `POST`, `PUT`, `PATCH`, or `DELETE` request appeared.
 
-Network acceptance from the supplied evidence:
+Accepted method result:
 
 ```text
 GET only
@@ -63,76 +57,130 @@ PATCH = 0 visible
 DELETE = 0 visible
 ```
 
-The WebSocket handshake shown as `GET 101` is a local development-server connection and is not an operational Firebase write.
+The local development-server WebSocket handshake shown as `GET 101` is not an operational Firebase write.
 
-## Accepted prior responsive evidence
+## Accepted Admin visual gate
 
-Previously supplied screenshots confirm:
+The supplied `820 x 1180` screenshot confirms:
+
+- the Admin session authenticated successfully;
+- the Admin shell remained contained and readable;
+- the Administrator and school identity remained visible;
+- Logout remained reachable;
+- Teacher evidence panels were not active in the Admin shell;
+- Console showed normal startup output without a JavaScript or Firebase error.
+
+## Accepted Teacher dashboard visual gate
+
+The supplied responsive screenshot confirms:
+
+- the authenticated room and Teacher identity rendered;
+- the roster contained 16 students;
+- the Teacher dashboard displayed live Room Stock `476`;
+- the visible Queue count was `0`;
+- the Teacher shell remained vertically scrollable;
+- Console remained clean.
+
+The dashboard value establishes the live-stock reference required for the final Vacation comparison:
+
+```text
+Teacher dashboard Room Stock = 476
+```
+
+## Accepted Attendance evidence visual gate
+
+The supplied `820 x 1180` screenshot confirms:
+
+- the authenticated-room roster rendered;
+- the Attendance evidence section rendered below the daily student list;
+- photo input was visible;
+- the photo count showed `0 / 5 รูป`;
+- the existing-evidence load control was reachable;
+- the Teacher-signature canvas fit inside its panel;
+- `ใช้ลายเซ็นนี้` and `ล้างลายเซ็น` controls were reachable;
+- no photo was selected;
+- no signature was drawn;
+- no Attendance save or delete action was pressed;
+- no abnormal horizontal overflow was visible.
+
+## Accepted Retroactive evidence visual gate
+
+Desktop and `820 x 1180` screenshots confirm:
+
+- the Retroactive evidence section rendered;
+- the heading `รูปถ่ายและลายเซ็นผู้รับนมย้อนหลัง` was visible;
+- photo input was visible;
+- the photo count showed `0 / 5 รูป`;
+- student owner selector was visible;
+- recipient or parent-name field was visible;
+- signature canvas and clear/use controls were reachable;
+- the selected-range form remained readable;
+- no photo was selected;
+- no signature was drawn;
+- no issue or delete action was pressed;
+- responsive layout did not show abnormal horizontal overflow.
+
+## Accepted prior Vacation layout evidence
+
+Previously supplied screenshots confirmed:
 
 - Chrome Device Toolbar used `820 x 1180`;
-- the Teacher shell remained vertically scrollable;
-- the Vacation Milk operational panel rendered;
-- the Vacation evidence section rendered inside the panel;
-- photo input, student selector, parent/recipient field, signature canvas, and clear/use controls were visible;
+- Vacation Milk operational and evidence panels rendered;
+- photo input, owner selector, recipient-name field, signature canvas, and controls were visible;
 - the authenticated room roster contained 16 students;
-- Vacation preview showed 16 students, 30 days, and 480 boxes;
-- Console showed the normal `MilkSchoolSystem V2 Started` message;
-- no JavaScript or Firebase error was visible;
-- Logout returned to the login screen.
+- the preview showed 16 students, 30 days, and 480 boxes;
+- Console remained clean.
 
-That earlier Vacation screenshot preceded the live-stock correction and therefore cannot by itself close the final stock-consistency visual check.
+That screenshot preceded the live-stock correction and showed the obsolete fallback Room Stock. It cannot close the final stock-consistency visual check.
 
-## Remaining blocker 1 — Pending local draft
+## Remaining blocker 1 — Pending clean-draft proof
 
-The latest Pending evidence screenshot still shows:
+An earlier Pending screenshot showed one local IndexedDB photo draft:
 
 ```text
 1 / 5 รูป
 ```
 
-and a local preview. This is an IndexedDB draft and does not indicate a Firebase write, but Sprint acceptance requires the final browser state to contain no selected evidence media.
-
-Use the visible `นำออก` control, or confirm cleanup after Logout by logging in again, and capture:
+The final Pending visual must show that the unsaved draft has been removed through the UI or cleaned by normal Logout/context cleanup:
 
 ```text
 0 / 5 รูป
 ยังไม่มีรูปถ่าย
 ```
 
+Required visible controls:
+
+- Pending heading;
+- photo input and zero count;
+- student-and-absence-date selector;
+- recipient-name field;
+- signature canvas;
+- local evidence-load control.
+
 Do not manually edit IndexedDB or Local Storage.
 
-## Remaining blocker 2 — final visual panels
+## Remaining blocker 2 — post-fix Vacation stock proof
 
-Still required:
+After Teacher login, wait for the live Teacher snapshot and capture the Vacation summary and evidence panel together.
 
-1. Admin authenticated shell renders normally and Teacher evidence panels remain inactive.
-2. Attendance evidence section renders:
-
-```text
-หลักฐานเช็กดื่มนมรายวัน
-```
-
-3. Pending evidence section renders again with `0 / 5 รูป`.
-4. Retroactive evidence section renders:
+Required result:
 
 ```text
-รูปถ่ายและลายเซ็นผู้รับนมย้อนหลัง
+Teacher dashboard Room Stock = 476
+Vacation Milk Room Stock     = 476
 ```
 
-5. Vacation evidence section renders after the live Teacher snapshot arrives:
+The screenshot must also show:
 
-```text
-รูปถ่ายและลายเซ็นผู้ปกครอง/ผู้รับนมช่วงปิดเทอม
-```
-
-6. Vacation Room Stock equals the Teacher dashboard value:
-
-```text
-476 = 476
-```
-
-7. Console remains free of JavaScript and Firebase errors during the final walkthrough.
-8. Responsive `820 x 1180` remains readable for the remaining evidence panels without abnormal horizontal overflow.
+- Vacation evidence heading;
+- photo count `0 / 5 รูป`;
+- authenticated-room student owner selector;
+- parent or recipient-name field;
+- signature canvas and controls;
+- no selected photo;
+- no drawn signature;
+- clean Console;
+- readable `820 x 1180` layout without abnormal horizontal overflow.
 
 ## Read-only restrictions
 
@@ -146,20 +194,27 @@ Do not use:
 
 Do not press Attendance, Pending, Retroactive, or Vacation save/delete actions. Do not create, retry, replay, remove, or edit Queue entries. Do not manually change Firebase, Room Stock, Main Stock, ledger, stockLog, transaction history, IndexedDB, or Local Storage.
 
-Removing the visible unsaved local photo by its UI `นำออก` control is allowed and required for cleanup.
+Removing an unsaved local evidence photo through its visible `นำออก` UI control is allowed for cleanup.
 
 ## Acceptance decision
 
 Accepted:
 
 - final 43-check regression run;
-- clean synchronized feature branch;
+- synchronized and clean feature branch at the reported test head;
 - Queue empty before and after the walkthrough;
 - GET-only visible Network methods;
-- Pending evidence control rendering;
-- prior responsive Vacation evidence layout;
-- clean Console evidence already supplied.
+- Admin responsive shell;
+- Teacher dashboard with live Room Stock `476`;
+- Attendance desktop/responsive evidence controls with `0 / 5 รูป`;
+- Retroactive desktop/responsive evidence controls with `0 / 5 รูป`;
+- clean Console evidence;
+- prior Vacation responsive layout.
 
-Sprint 4.7 remains open only for the clean Pending-draft proof and the remaining Admin, Attendance, Retroactive, and post-fix Vacation visual evidence, including `476 = 476` Room Stock consistency.
+Sprint 4.7 remains open only for:
+
+1. Pending evidence rendered with `0 / 5 รูป` and no local preview;
+2. post-fix Vacation evidence rendered with Room Stock `476`, matching the dashboard;
+3. final branch synchronization after the closing documentation commit.
 
 This report does not authorize merge to `main`, production deployment, replacement of `teacher.html`, real-classroom evidence capture, Firebase security sign-off, physical iPad sign-off, report/A4 parity completion, or closure of the deferred real-data incident.
