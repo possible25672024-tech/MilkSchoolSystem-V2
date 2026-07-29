@@ -26,7 +26,7 @@ Sprint 4.4 — Pending Milk Operational UI
 
 Status
 
-94% — Legacy compatibility, Repository, Service, Manager, View, App integration, typed recovery routing, Operational UI, isolated issue/delete/partial-save validation, and all 22 automated regression checks passed locally. Desktop read-only browser, Network, Console, and 820 x 1180 responsive gates remain pending.
+94% — Legacy compatibility, Repository, Service, Manager, View, App integration, typed recovery routing, Operational UI, isolated issue/delete/partial-save validation, and all 22 automated regression checks passed locally. Admin regression, Teacher panel rendering, exact five-day Attendance reads, read-only Network methods, and 820 x 1180 layout passed. Final browser acceptance is blocked because Firebase Realtime Database Rules do not yet define `.indexOn: ["roomId"]` at `/milkApp/absentMilk`.
 
 ---
 
@@ -246,63 +246,104 @@ Confirmed locally:
 
 ---
 
-Desktop Browser Gate — READY / READ-ONLY ONLY
+Desktop Browser Gate — PARTIAL PASS / FIREBASE INDEX BLOCKED
 
-Before Teacher Login:
+Safety:
 
-□ inspect `tc_pending_saves_v1`
+✓ Queue safety was checked before Teacher validation
 
-□ confirm no real pending queue entry exists
+✓ Pending Milk issue button remained unused
 
-□ do not use room `อ.3-3`
+✓ Pending Milk delete buttons remained unused
 
-□ do not use date `2026-07-28`
+✓ no real Queue entry was created or replayed
 
-□ do not press Pending Milk issue or delete buttons
+✓ quarantined room/date remains excluded
 
 Admin regression:
 
-□ Admin Login renders the existing Admin shell
+✓ Admin Login rendered the existing Admin shell
 
-□ Admin Logout returns to Login
+✓ Teacher Queue and Pending Milk panels did not activate for Admin
 
-□ Console clean
+✓ Console showed no JavaScript error
 
 Teacher read-only validation:
 
-□ Pending Milk panel renders
+✓ Pending Milk panel rendered
 
-□ selected week loads exactly five Attendance dates
+✓ week selector and Load button rendered
 
-□ `absentMilk` request is room-scoped
+✓ four summary cards rendered
 
-□ eligible and already-issued states render correctly
+✓ note, history, issue action, Queue panel, and Logout remained reachable
 
-□ issue button remains unused
+✓ selected week issued exactly five date-scoped Attendance reads
 
-□ delete buttons remain unused
+✓ a second week also issued exactly five date-scoped Attendance reads
 
-□ no `POST`, `PUT`, `PATCH`, or `DELETE` mutation appears
+✓ `absentMilk` request used `orderBy="roomId"` and `equalTo=<authenticated-room-id>`
 
-□ Console clean
+✓ no `POST`, `PUT`, `PATCH`, or `DELETE` mutation appeared
+
+Blocked:
+
+✗ Firebase returned HTTP 400 for the room-scoped `absentMilk` read
+
+✗ error: `Index not defined, add ".indexOn": "roomId", for path "/milkApp/absentMilk", to the rules`
+
+✗ eligible, already-issued, and history rendering could not complete
+
+✗ final no-error UI and clean-Console gate must be repeated after index publish
+
+Required Rules merge:
+
+```json
+{
+  "rules": {
+    "milkApp": {
+      "absentMilk": {
+        ".indexOn": ["roomId"]
+      }
+    }
+  }
+}
+```
+
+Preserve all existing `.read`, `.write`, validation, and other index rules.
+
+Artifacts:
+
+- `docs/FIREBASE_RULES_PENDING_MILK_INDEX.md`
+- `docs/PENDING_MILK_BROWSER_VALIDATION_REPORT.md`
 
 ---
 
-Responsive Gate at 820 x 1180 — Pending
+Responsive Gate at 820 x 1180 — LAYOUT PASS / DATA RETEST PENDING
 
-□ week selector and Load button reachable
+✓ week selector and Load button reachable
 
-□ four summary cards readable
+✓ four summary cards readable
 
-□ student/date rows contained
+✓ Attendance and Pending Milk areas remained contained
 
-□ note and issue action reachable
+✓ note and disabled issue action reachable
 
-□ history and delete actions contained without being pressed
+✓ history area and Logout contained
 
-□ Queue panel and Logout remain reachable
+✓ Queue panel remained reachable
 
-□ no abnormal horizontal overflow
+✓ no abnormal horizontal overflow visible
+
+✓ Firebase index error remained readable and contained
+
+Pending after Rules publish:
+
+□ successful room-scoped `absentMilk` response
+
+□ completed eligibility/history or correct empty-state rendering
+
+□ no Firebase error UI
 
 □ Console clean
 
