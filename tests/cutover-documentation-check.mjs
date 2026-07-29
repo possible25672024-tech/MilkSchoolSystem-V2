@@ -49,6 +49,7 @@ assert.ok(teacherPlan.includes("Attendance edits apply only the present-count di
 assert.ok(teacherPlan.includes("Queue storage key remains `tc_pending_saves_v1`"), "Teacher UI plan must preserve queue compatibility");
 assert.ok(teacherPlan.includes("teacher.html` remains available"), "Teacher UI plan must retain the rollback path");
 assert.ok(teacherPlan.includes("Offline and Sync Feedback"), "Teacher UI plan must cover queue and offline UI");
+assert.ok(teacherPlan.includes("Pending Milk"), "Teacher UI plan must cover Pending Milk");
 assert.ok(teacherPlan.includes("Photos and Signatures"), "Teacher UI plan must cover media workflows");
 
 assert.ok(readiness.includes("Overall status: NOT READY FOR PRODUCTION CUTOVER"), "Readiness report must not claim production readiness");
@@ -58,7 +59,12 @@ assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report mus
 assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must include responsive shell parity");
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("Sprint 4.3 — Offline Queue Operational UI"), "Sprint status must identify the active Offline Queue UI Sprint");
+assert.ok(sprint.includes("Sprint 4.4 — Pending Milk Operational UI"), "Sprint status must identify the active Pending Milk UI Sprint");
+assert.ok(
+    sprint.includes("Sprint 4.3 Offline Queue Operational UI merged into `develop`") ||
+        sprint.includes("Sprint 4.3 Offline Queue Operational UI fast-forward merged into `develop`"),
+    "Sprint status must preserve the completed Offline Queue UI foundation"
+);
 assert.ok(
     sprint.includes("Sprint 4.2 Teacher Daily Attendance CRUD UI merged into `develop`") ||
         sprint.includes("Sprint 4.2 Teacher Daily Attendance CRUD UI fast-forward merged into `develop`"),
