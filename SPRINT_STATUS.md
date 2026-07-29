@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **72% — SHARED MEDIA AND ATTENDANCE EVIDENCE GATES PASSED / PENDING MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **80% — SHARED, ATTENDANCE, AND PENDING EVIDENCE GATES PASSED / RETROACTIVE MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -48,7 +48,10 @@ Media store checks passed.
 Media Queue redaction checks passed.
 Teacher session roster fallback checks passed.
 Attendance Media and Signature integration checks passed.
+Pending Milk Media and Signature integration checks passed.
 Attendance UI checks passed.
+Pending Milk UI checks passed.
+Pending Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
 nothing to commit, working tree clean
@@ -108,9 +111,9 @@ Confirmed:
 - deletion cleanup does not own stock mutation;
 - Main Stock remains unchanged.
 
-## Pending Milk Photos and Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
+## Pending Milk Photos and Recipient Signatures — PASS
 
-Added:
+Implemented:
 
 ```text
 modules/media/pendingEvidenceManager.js
@@ -120,13 +123,35 @@ tests/pending-media-signature-integration-check.mjs
 docs/PENDING_MEDIA_SIGNATURE_INTEGRATION_GATE.md
 ```
 
+Confirmed:
+
+- weekly photo draft and previews;
+- one signature for each exact `studentId_absentDate` entitlement;
+- receiver-name compatibility;
+- protected `photos`, `signature`, and `signatures` fields;
+- partial-stock Queue entries remain stock-only;
+- Queue excludes evidence payloads and receiver identity;
+- Main Stock remains unchanged.
+
+## Retroactive Milk Photos and Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
+
+Added:
+
+```text
+modules/media/retroactiveEvidenceManager.js
+modules/media/retroactiveEvidenceAdapter.js
+modules/media/retroactiveEvidenceView.js
+tests/retroactive-media-signature-integration-check.mjs
+docs/RETROACTIVE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
+```
+
 UI capability:
 
-- weekly record photo selector and previews;
+- selected-range photo draft and lazy previews;
 - maximum five photos;
-- selected student-and-absence-date owner list;
-- receiver-name input;
-- one signature per exact entitlement key;
+- authenticated-room student selector;
+- receiver or parent name input;
+- one signature per student ID;
 - signature count and draft feedback;
 - responsive layout;
 - draft actions explicitly do not write Firebase.
@@ -137,7 +162,7 @@ Protected record fields:
 {
   signature: "",
   signatures: {
-    [studentId + "_" + absentDate]: {
+    [studentId]: {
       sig: dataUrl | "",
       receiverName: string
     }
@@ -146,12 +171,12 @@ Protected record fields:
 }
 ```
 
-Pending partial-stock Queue entries remain stock-only and must not contain evidence payloads, receiver identity, or source file names.
+The Retroactive partial-stock Queue remains stock-only and must not contain evidence payloads, receiver identity, or source file names.
 
 Expected local output:
 
 ```text
-Pending Milk Media and Signature integration checks passed.
+Retroactive Milk Media and Signature integration checks passed.
 ```
 
 ## Teacher Legacy Parity Contract — BINDING
@@ -179,13 +204,12 @@ Artifact:
 
 ## Remaining Sprint 4.7 Work
 
-1. pass Pending Milk evidence isolated integration test;
-2. integrate Retroactive Milk recipient signatures and photos;
-3. integrate Vacation Milk parent/recipient signatures and photos;
-4. validate evidence recovery and duplicate prevention;
-5. run the expanded regression suite;
-6. desktop and 820 x 1180 browser gates;
-7. branch synchronized and working tree clean.
+1. pass Retroactive Milk evidence isolated integration test;
+2. integrate Vacation Milk parent or recipient signatures and photos;
+3. validate evidence recovery and duplicate prevention;
+4. run the expanded regression suite;
+5. desktop and 820 x 1180 browser gates;
+6. branch synchronized and working tree clean.
 
 ## Queue and Payload Rules
 
@@ -196,7 +220,7 @@ Artifact:
 - Audit-only recovery remains audit-only.
 - Main Stock remains unchanged.
 - Teacher Login must not download historical evidence.
-- Evidence loads only for the selected room, date, week, or record.
+- Evidence loads only for the selected room, date, week, range, or record.
 
 ## Browser Restriction
 
