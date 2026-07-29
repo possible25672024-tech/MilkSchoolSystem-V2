@@ -9,7 +9,8 @@ class MilkSchoolApplication {
         vacationMilkView = window.VacationMilkView,
         attendanceEvidenceView = window.AttendanceEvidenceView,
         pendingEvidenceView = window.PendingEvidenceView,
-        retroactiveEvidenceView = window.RetroactiveEvidenceView
+        retroactiveEvidenceView = window.RetroactiveEvidenceView,
+        vacationEvidenceView = window.VacationEvidenceView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -21,9 +22,11 @@ class MilkSchoolApplication {
         this.attendanceEvidenceView = attendanceEvidenceView;
         this.pendingEvidenceView = pendingEvidenceView;
         this.retroactiveEvidenceView = retroactiveEvidenceView;
+        this.vacationEvidenceView = vacationEvidenceView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
+        this.vacationEvidenceAdapter = window.VacationEvidenceAdapter;
         this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
         this.vacationSyncAdapter = window.VacationSyncAdapter;
         this.started = false;
@@ -82,6 +85,24 @@ class MilkSchoolApplication {
             this.retroactiveEvidenceView = window.RetroactiveEvidenceView;
         }
         return this.retroactiveEvidenceView;
+    }
+
+    async ensureVacationEvidenceView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.MediaStore) await import("../media/mediaStore.js");
+        if (!window.SignaturePadClass) await import("../signature/signaturePad.js");
+        if (!window.VacationEvidenceManager) await import("../media/vacationEvidenceManager.js");
+        if (!this.vacationEvidenceAdapter) {
+            await import("../media/vacationEvidenceAdapter.js");
+            this.vacationEvidenceAdapter = window.VacationEvidenceAdapter;
+        }
+        this.vacationEvidenceAdapter?.install?.();
+        if (!this.vacationEvidenceView) {
+            await import("../media/vacationEvidenceView.js");
+            this.vacationEvidenceView = window.VacationEvidenceView;
+        }
+        return this.vacationEvidenceView;
     }
 
     async ensureRetroactiveSyncAdapter() {
@@ -174,6 +195,8 @@ class MilkSchoolApplication {
 
         const vacationMilkView = await this.ensureVacationMilkView();
         if (vacationMilkView?.initialize) await vacationMilkView.initialize();
+        const vacationEvidenceView = await this.ensureVacationEvidenceView();
+        if (vacationEvidenceView?.initialize) await vacationEvidenceView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");
