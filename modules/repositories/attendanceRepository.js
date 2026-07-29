@@ -43,6 +43,48 @@ class AttendanceRepository extends BaseRepository {
         });
     }
 
+    async loadAttendanceHistoryRecord(roomId, date) {
+        const normalizedRoomId = this.requireRoomId(roomId);
+        const normalizedDate = this.requireDate(date);
+        const key = this.attendanceKey(normalizedRoomId, normalizedDate);
+        const recordPath = this.path(`mcAttendance/${key}`);
+
+        // Read Attendance facts first. A missing data child means there is no
+        // reportable Attendance record for this room/date. Historical photo and
+        // signature children are intentionally never requested by this method.
+        const data = await this.get(`${recordPath}/data`);
+        if (data === null || data === undefined) {
+            return null;
+        }
+
+        const [notes, year, term, roomName, teacher, savedAt] = await Promise.all([
+            this.get(`${recordPath}/notes`),
+            this.get(`${recordPath}/year`),
+            this.get(`${recordPath}/term`),
+            this.get(`${recordPath}/roomName`),
+            this.get(`${recordPath}/teacher`),
+            this.get(`${recordPath}/savedAt`)
+        ]);
+
+        return {
+            key,
+            clsId: normalizedRoomId,
+            roomName: String(roomName || ""),
+            date: normalizedDate,
+            year: year ?? "",
+            term: term ?? "",
+            teacher: String(teacher || ""),
+            data: data && typeof data === "object" && !Array.isArray(data) ? data : {},
+            notes: notes && typeof notes === "object" && !Array.isArray(notes) ? notes : {},
+            savedAt: String(savedAt || ""),
+            evidence: {
+                loaded: false,
+                photoCount: null,
+                hasSignature: null
+            }
+        };
+    }
+
     saveAttendanceRecord(roomId, date, record) {
         const key = this.attendanceKey(roomId, date);
         return this.firebaseService.set(this.path(`mcAttendance/${key}`), record);
