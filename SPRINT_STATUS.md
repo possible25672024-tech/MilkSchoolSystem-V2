@@ -26,7 +26,7 @@ Sprint 4.5 — Retroactive Milk Operational UI
 
 Status
 
-90% — Legacy audit, Repository, Service, Manager, Teacher View, App integration, Firebase room index, binding Teacher legacy parity contract, Module Gate, typed RETRO Recovery Gate, Operational UI Gate, Isolated Write Gate, and Cutover Documentation Gate passed locally. The complete 26-test regression run and final read-only desktop/Network/Console/820 x 1180 browser gates remain. Browser issue/delete actions remain prohibited.
+96% — Legacy audit, Repository, Service, Manager, Teacher View, App integration, Firebase room index, binding Teacher legacy parity contract, all four Sprint-specific gates, Cutover Documentation Gate, and all 26 automated regression checks passed locally. Final read-only desktop, indexed Network, clean Console, and 820 x 1180 responsive browser gates remain. Browser issue/delete actions remain prohibited.
 
 ---
 
@@ -60,9 +60,7 @@ Completed Foundation
 
 ✓ All 22 Sprint 4.4 regression checks passed
 
-✓ Pending Milk Firebase room index published and validated
-
-✓ Pending Milk desktop, Network, Console, and 820 x 1180 responsive gates passed
+✓ Pending Milk Firebase room index and browser gates passed
 
 ✓ Protected `index.html` and `teacher.html` remain unchanged and operational
 
@@ -95,67 +93,28 @@ Artifact:
 
 ---
 
-Sprint 4.5 Legacy Compatibility Audit — PASS
-
-Confirmed from protected `teacher.html`:
-
-✓ Firebase path `milkApp/retroMilk`
-
-✓ Firebase push-ID record keys
-
-✓ authenticated Teacher room only
-
-✓ academic year, semester, issue date, and inclusive date range
-
-✓ Monday–Friday calculation
-
-✓ `totalBoxes = weekday count × authenticated-room student count`
-
-✓ `debtBoxes = totalBoxes`
-
-✓ initial status `debt`
-
-✓ compatible `note`, `signature`, `signatures`, `photos`, and `savedAt`
-
-✓ record saved before Room Stock deduction
-
-✓ issue ledger type `RETRO`, stockLog type `OUT`
-
-✓ delete removes record before Room Stock restoration
-
-✓ delete ledger type `ROLLBACK`, stockLog type `IN`
-
-✓ overlapping delete/rollback guard
-
-✓ Main Stock remains unchanged
-
-Artifact:
-
-- `docs/RETROACTIVE_MILK_LEGACY_AUDIT.md`
-
----
-
 Sprint 4.5 Runtime — IMPLEMENTED
 
 Repository:
 
 - `modules/repositories/retroactiveMilkRepository.js`
-- room-scoped indexed history query
+- authenticated-room indexed `retroMilk` history query
 - exact record load/create/delete
 
 Service:
 
 - `modules/services/retroactiveMilkService.js`
-- Teacher room enforcement
-- UTC-safe inclusive weekday calculation
-- reversed/weekend-only rejection
-- roster normalization
-- total and debt preview
-- exact duplicate range protection
+- authenticated Teacher-room enforcement
+- UTC-safe inclusive Monday–Friday calculation
+- reversed and weekend-only rejection
+- stable room roster normalization
+- `totalBoxes = student count × weekday count`
+- `debtBoxes = totalBoxes`
+- exact duplicate academic-period/range protection
 - compatible record-first issue/delete
 - Room Stock-only mutation
-- `RETRO`/`ROLLBACK` ledger routing
-- `OUT`/`IN` stockLog routing
+- ledger `RETRO` / `ROLLBACK`
+- stockLog `OUT` / `IN`
 - explicit partial-stock details
 - Main Stock delta zero
 
@@ -163,20 +122,16 @@ Manager:
 
 - `modules/retroactive/retroactiveMilkManager.js`
 - UI-safe preview/history/issue/remove
-- stable Teacher roster snapshot
 - partial stock and audit-only Queue delegation
 - overlapping delete guard
-- lifecycle events and cleanup
+- lifecycle events and Logout cleanup
 
 View:
 
 - `modules/retroactive/retroactiveMilkView.js`
 - Teacher-only panel
-- academic period, issue date, range, room, and note fields
-- student/day/box/debt summaries
+- academic period, issue date, room, date range, summary, note, history, and rollback UI
 - explicit issue/delete confirmations
-- Room Stock and Queue feedback
-- room history and rollback actions
 - responsive layout
 - no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership
 
@@ -201,12 +156,6 @@ Retroactive Milk isolated write checks passed.
 Cutover documentation checks passed.
 ```
 
-At the reported validation point:
-
-✓ feature branch synchronized with origin
-
-✓ working tree clean
-
 Module Gate:
 
 ✓ weekday calculation across a weekend
@@ -214,8 +163,6 @@ Module Gate:
 ✓ reversed and weekend-only range rejection
 
 ✓ three students × two weekdays = six boxes
-
-✓ compatible debt record
 
 ✓ exact duplicate range protection
 
@@ -261,8 +208,6 @@ Operational UI Gate:
 
 ✓ Teacher refresh and Logout cleanup
 
-✓ parity contract retains future roster/photo/signature work
-
 Isolated Write Gate:
 
 ✓ successful six-box issue
@@ -277,7 +222,7 @@ Isolated Write Gate:
 
 ✓ failed stock mutation leaves Room Stock unchanged before retry
 
-✓ compatible media/signature fields remain present
+✓ compatible `signature`, `signatures`, and `photos` fields remain present
 
 ✓ Main Stock remains 999
 
@@ -286,6 +231,24 @@ Artifacts:
 - `docs/RETROACTIVE_MILK_RECOVERY_ROUTING_GATE.md`
 - `docs/RETROACTIVE_MILK_ISOLATED_WRITE_GATE.md`
 - `docs/RETROACTIVE_MILK_UI_IMPLEMENTATION_REPORT.md`
+
+---
+
+Automated Regression Gate — PASS
+
+Existing tests before Sprint 4.5: 22
+
+Sprint 4.5 tests: 4
+
+Confirmed locally:
+
+```text
+ALL 26 REGRESSION CHECKS PASSED
+```
+
+✓ feature branch synchronized with origin
+
+✓ working tree clean
 
 ---
 
@@ -302,43 +265,25 @@ Root-level public `.read` and `.write` remain a production-security blocker.
 
 ---
 
-Automated Regression Gate — PENDING
+Browser Gate — READY / READ-ONLY
 
-Existing tests before Sprint 4.5: 22
+Artifact:
 
-Sprint 4.5 tests: 4
-
-Required total:
-
-```text
-26
-```
-
-Pending:
-
-□ run all 26 tests
-
-□ confirm `ALL 26 REGRESSION CHECKS PASSED`
-
-□ confirm branch synchronized with origin
-
-□ confirm working tree clean
-
----
-
-Browser Gate — NOT STARTED
-
-Read-only only after all 26 automated tests pass.
+- `docs/RETROACTIVE_MILK_BROWSER_VALIDATION_REPORT.md`
 
 Required:
 
 □ Queue key absent or `[]` before Teacher Login
 
-□ Admin Login/Logout unchanged
+□ Admin Login/Logout unchanged with clean Console
 
 □ Retroactive Milk panel renders for Teacher only
 
+□ valid local preview renders without a write request
+
 □ room-scoped indexed history request returns HTTP 200
+
+□ history or correct empty state renders
 
 □ no `POST`, `PUT`, `PATCH`, or `DELETE`
 
@@ -346,7 +291,7 @@ Required:
 
 □ Console clean
 
-□ 820 x 1180 layout contained
+□ loaded 820 x 1180 layout contained
 
 □ Logout and Queue panel reachable
 
