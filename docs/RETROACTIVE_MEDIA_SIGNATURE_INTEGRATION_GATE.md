@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING
+Status: PASS — LOCAL ISOLATED VALIDATION CONFIRMED
 
 ## Purpose
 
@@ -95,7 +95,7 @@ Unsaved evidence payloads are removed when:
 - Logout occurs;
 - the workflow is cleared.
 
-A successful issue marks evidence as saved and prevents draft cleanup from deleting payloads still needed by the saved record.
+An unchanged room, academic year, semester, and date range preserves the active draft. A successful issue marks evidence as saved and prevents draft cleanup from deleting payloads still owned by the completed workflow.
 
 ## Automated Gate
 
@@ -111,16 +111,20 @@ Coverage:
 - photo and signature controls;
 - preview event integration;
 - two generated photos and two generated signatures;
+- unchanged-context draft preservation;
 - safe state excludes Data URLs, original file names, and receiver identities;
 - protected `photos`, `signature`, and `signatures` hydration;
 - stock-only partial-failure Queue payload;
 - draft cleanup on clear;
 - no Firebase, network, browser storage, Room Stock, Main Stock, ledger, or stockLog ownership in Manager/View.
 
-Expected output:
+Confirmed local output:
 
 ```text
 Retroactive Milk Media and Signature integration checks passed.
+Retroactive Milk UI checks passed.
+Retroactive Milk isolated write checks passed.
+nothing to commit, working tree clean
 ```
 
 ## Current Browser Restriction
@@ -133,8 +137,8 @@ Do not yet:
 - create or replay a real evidence Queue entry;
 - manually modify Firebase evidence fields.
 
-Use generated in-memory fixtures until this gate and the regression suite pass.
+Use generated in-memory fixtures until the recovery gate and full regression suite pass.
 
 ## Next Integration
 
-After this gate passes, integrate Vacation Milk parent or recipient signatures and photos, then run evidence recovery, duplicate-prevention, full regression, desktop, and 820 x 1180 responsive gates.
+Vacation Milk parent or recipient signatures and photos are implemented and locally validated. The next gate is shared evidence recovery and duplicate prevention, followed by full regression, desktop, and 820 x 1180 responsive validation.
