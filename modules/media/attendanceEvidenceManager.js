@@ -45,6 +45,9 @@ class AttendanceEvidenceManager {
     async setRecordContext({ roomId, date, record = null } = {}) {
         this.ensureDependencies();
         const nextKey = this.contextKey(roomId, date);
+        if (this.recordKey && this.recordKey === nextKey && !record) {
+            return this.getState();
+        }
         if (this.recordKey && this.recordKey !== nextKey) await this.discardDrafts();
         this.roomId = String(roomId);
         this.date = String(date);
