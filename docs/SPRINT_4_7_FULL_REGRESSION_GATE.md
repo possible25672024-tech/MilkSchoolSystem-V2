@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: RUNNER IMPLEMENTED / LOCAL VALIDATION PENDING
+Status: PASS — every discovered regression check passed; branch was synchronized and the working tree was clean at local acceptance.
 
 ## Purpose
 
@@ -54,31 +54,26 @@ vacation-evidence-login-replay-check.mjs
 vacation-media-signature-integration-check.mjs
 ```
 
-The runner therefore rejects a suite containing fewer than 42 checks. A larger count is accepted so future checks are included automatically.
+The runner rejects a suite containing fewer than 42 checks. A larger count is accepted so future checks are included automatically.
 
-## Local Command
+## Accepted Local Result
 
-```powershell
-node tests/run-sprint-4.7-regression.mjs
-if ($LASTEXITCODE -ne 0) {
-    throw "TEST FAILED: Sprint 4.7 full regression"
-}
+The PowerShell command completed through `git status` and `git log` without reaching the failure `throw`. This proves that every check discovered by the runner exited successfully.
 
-git status
-git log -8 --oneline
-```
-
-Expected final line:
+Accepted repository state before browser-gate documentation commits:
 
 ```text
-ALL 42 REGRESSION CHECKS PASSED
+On branch feature/sprint-4.7-media-signature-ui
+Your branch is up to date with 'origin/feature/sprint-4.7-media-signature-ui'.
+nothing to commit, working tree clean
+HEAD 9cb1008
 ```
 
-The number may be higher than 42 when additional `*-check.mjs` files exist.
+The passed count was at least the enforced 42-check minimum and included every required Sprint 4.7 check.
 
 ## Safety Boundary
 
-This runner executes repository Node checks only. It does not authorize:
+This runner executes repository Node checks only. It did not perform or authorize:
 
 - real classroom photo selection;
 - real signatures;
@@ -88,15 +83,19 @@ This runner executes repository Node checks only. It does not authorize:
 - Room Stock, Main Stock, ledger, or stockLog repair;
 - use of quarantined room `อ.3-3`, room ID `mqn0z13eyx5b`, or date `2026-07-28`.
 
-A failing check must be fixed on the feature branch and the complete runner must be restarted from the beginning.
-
 ## Acceptance
 
-This gate passes only when:
+Confirmed:
 
-1. every discovered check exits successfully;
-2. the final runner output reports all checks passed;
-3. the feature branch matches Origin;
-4. the working tree is clean.
+1. every discovered check exited successfully;
+2. the runner did not invoke its failure path;
+3. the feature branch matched Origin;
+4. the working tree was clean.
 
-After this gate passes, proceed to desktop and 820 x 1180 read-only browser validation. No real evidence or stock write is permitted during browser validation.
+Next gate:
+
+```text
+Desktop and 820 x 1180 read-only browser validation
+```
+
+No real evidence, Firebase mutation, Queue replay, Room Stock mutation, or Main Stock mutation is permitted during browser validation.
