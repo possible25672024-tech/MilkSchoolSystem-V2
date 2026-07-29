@@ -26,7 +26,7 @@ Sprint 4.4 — Pending Milk Operational UI
 
 Status
 
-55% — Legacy `absentMilk` schema and behavior audit completed. Dedicated Repository, Service, Manager, View, App integration, and initial module test are implemented. Local module validation, generic queue metadata/routing for `PENDING` and `ROLLBACK`, UI test, isolated partial-save/write gate, full regression, browser, and responsive gates remain pending.
+70% — Legacy `absentMilk` audit, Repository, Service, Manager, View, App integration, module test, and typed `PENDING`/`ROLLBACK` recovery routing are implemented. The Pending Milk module test passed locally. Recovery routing local execution, UI test, complete isolated write/partial-save gate, full regression, browser, and responsive gates remain pending.
 
 ---
 
@@ -153,11 +153,13 @@ Runtime Implemented
 
 ---
 
-Initial Module Test Implemented
+Pending Milk Module Gate — PASS
+
+Test:
 
 - `tests/pending-milk-module-check.mjs`
 
-Coverage:
+Confirmed locally:
 
 ✓ Runtime JavaScript syntax
 
@@ -191,27 +193,63 @@ Coverage:
 
 ✓ View architecture restrictions
 
-Local execution remains pending.
+✓ `Pending Milk module checks passed.`
 
 ---
 
-Recovery Routing Gap — OPEN
+Recovery Routing Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
 
-The existing generic `roomStockAdjust` queue currently replays through the Attendance adjustment path.
+Updated:
 
-Before Pending Milk write acceptance, Sprint 4.4 must preserve and route:
+- `modules/storage/queueStorage.js`
+- `modules/services/syncService.js`
+- `modules/sync/syncManager.js`
+- `modules/sync/syncView.js`
 
-□ `operationType: PENDING` for issue retries
+Added:
 
-□ `operationType: ROLLBACK` for delete retries
+- `tests/pending-milk-recovery-routing-check.mjs`
+- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
 
-□ Pending-specific safe note metadata
+Implemented:
 
-□ ledger type must not become `ATTENDANCE`
+✓ Existing queue key remains `tc_pending_saves_v1`
 
-□ audit-only recovery must not repeat a successful Room Stock mutation
+✓ Legacy `diff` alias remains compatible
 
-Until this gate passes:
+✓ Existing entries without operation metadata default to `ATTENDANCE`
+
+✓ `operationType: PENDING` persists for issue retries
+
+✓ `operationType: ROLLBACK` persists for delete retries
+
+✓ Pending-specific reviewed note metadata persists
+
+✓ Attendance retries continue through the existing Attendance route
+
+✓ PENDING retries create PENDING ledger and OUT stockLog
+
+✓ ROLLBACK retries create ROLLBACK ledger and IN stockLog
+
+✓ Typed retries remain Room Stock-only
+
+✓ Main Stock delta remains zero
+
+✓ Failed audit converts to audit-only work
+
+✓ Audit-only retry preserves the original PENDING/ROLLBACK audit payload
+
+✓ Audit-only retry never repeats Room Stock mutation
+
+✓ Queue UI labels typed Pending Milk retries safely
+
+Local command pending:
+
+```powershell
+node tests/pending-milk-recovery-routing-check.mjs
+```
+
+Until this gate passes locally:
 
 - do not perform browser Pending Milk writes;
 - do not create real queue entries;
@@ -221,17 +259,15 @@ Until this gate passes:
 
 Remaining Tests
 
-□ Run `tests/pending-milk-module-check.mjs`
+□ Run `tests/pending-milk-recovery-routing-check.mjs`
 
 □ Add `tests/pending-milk-ui-check.mjs`
 
 □ Add `tests/pending-milk-isolated-write-check.mjs`
 
-□ Add isolated partial-save and audit-only queue routing coverage
+□ Run all existing 18 tests plus all Sprint 4.4 tests
 
-□ Run all existing 18 tests plus new Sprint 4.4 tests
-
-Expected final count: at least 21 tests.
+Expected final count: at least 22 tests.
 
 ---
 
@@ -261,7 +297,7 @@ Chrome Device Toolbar at 820 x 1180:
 
 □ Console clean
 
-All browser write interaction remains prohibited until isolated recovery routing passes.
+All browser write interaction remains prohibited until the complete isolated write and recovery gates pass.
 
 ---
 
@@ -312,5 +348,6 @@ Protected Business Rules
 - Audit-only recovery never repeats a successful Room Stock mutation.
 - Existing Attendance records are read-only eligibility sources.
 - Firebase path `milkApp/absentMilk` remains compatible.
+- Queue storage key remains `tc_pending_saves_v1`.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
