@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: **99% PARTIAL PASS — AUTOMATED, QUEUE, NETWORK, ADMIN, ATTENDANCE, AND RETROACTIVE GATES ACCEPTED / PENDING CLEAN-DRAFT AND POST-FIX VACATION STOCK VISUALS PENDING**
+Status: **99.5% PARTIAL PASS — ALL AUTOMATED, QUEUE, NETWORK, ADMIN, ATTENDANCE, PENDING, AND RETROACTIVE GATES ACCEPTED / POST-FIX VACATION STOCK VISUAL PENDING**
 
 ## Accepted automated foundation
 
@@ -103,6 +103,25 @@ The supplied `820 x 1180` screenshot confirms:
 - no Attendance save or delete action was pressed;
 - no abnormal horizontal overflow was visible.
 
+## Accepted Pending evidence visual gate
+
+The latest screenshots confirm:
+
+- the heading `รูปถ่ายและลายเซ็นผู้รับนมค้าง` rendered;
+- the photo input was visible;
+- the photo count showed `0 / 5 รูป`;
+- no local photo preview remained;
+- the student-and-absence-date selector was visible;
+- the recipient-name field was visible;
+- the signature canvas fit inside the panel;
+- the local evidence-load control was reachable;
+- no photo was selected;
+- no signature was drawn;
+- no Pending issue or delete action was pressed;
+- Console remained clean.
+
+This closes the earlier local IndexedDB draft blocker. The accepted browser state contains no selected Pending evidence media.
+
 ## Accepted Retroactive evidence visual gate
 
 Desktop and `820 x 1180` screenshots confirm:
@@ -133,33 +152,7 @@ Previously supplied screenshots confirmed:
 
 That screenshot preceded the live-stock correction and showed the obsolete fallback Room Stock. It cannot close the final stock-consistency visual check.
 
-## Remaining blocker 1 — Pending clean-draft proof
-
-An earlier Pending screenshot showed one local IndexedDB photo draft:
-
-```text
-1 / 5 รูป
-```
-
-The final Pending visual must show that the unsaved draft has been removed through the UI or cleaned by normal Logout/context cleanup:
-
-```text
-0 / 5 รูป
-ยังไม่มีรูปถ่าย
-```
-
-Required visible controls:
-
-- Pending heading;
-- photo input and zero count;
-- student-and-absence-date selector;
-- recipient-name field;
-- signature canvas;
-- local evidence-load control.
-
-Do not manually edit IndexedDB or Local Storage.
-
-## Remaining blocker 2 — post-fix Vacation stock proof
+## Remaining blocker — post-fix Vacation stock proof
 
 After Teacher login, wait for the live Teacher snapshot and capture the Vacation summary and evidence panel together.
 
@@ -194,8 +187,6 @@ Do not use:
 
 Do not press Attendance, Pending, Retroactive, or Vacation save/delete actions. Do not create, retry, replay, remove, or edit Queue entries. Do not manually change Firebase, Room Stock, Main Stock, ledger, stockLog, transaction history, IndexedDB, or Local Storage.
 
-Removing an unsaved local evidence photo through its visible `นำออก` UI control is allowed for cleanup.
-
 ## Acceptance decision
 
 Accepted:
@@ -207,14 +198,14 @@ Accepted:
 - Admin responsive shell;
 - Teacher dashboard with live Room Stock `476`;
 - Attendance desktop/responsive evidence controls with `0 / 5 รูป`;
+- Pending evidence controls with `0 / 5 รูป` and no local preview;
 - Retroactive desktop/responsive evidence controls with `0 / 5 รูป`;
 - clean Console evidence;
 - prior Vacation responsive layout.
 
 Sprint 4.7 remains open only for:
 
-1. Pending evidence rendered with `0 / 5 รูป` and no local preview;
-2. post-fix Vacation evidence rendered with Room Stock `476`, matching the dashboard;
-3. final branch synchronization after the closing documentation commit.
+1. post-fix Vacation evidence rendered with Room Stock `476`, matching the dashboard;
+2. final branch synchronization after the closing documentation commit.
 
 This report does not authorize merge to `main`, production deployment, replacement of `teacher.html`, real-classroom evidence capture, Firebase security sign-off, physical iPad sign-off, report/A4 parity completion, or closure of the deferred real-data incident.
