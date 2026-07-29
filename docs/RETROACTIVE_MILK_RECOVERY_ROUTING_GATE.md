@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.5-retroactive-milk-ui`
 
-Status: IMPLEMENTED / LOCAL VALIDATION PENDING
+Status: PASS — isolated typed recovery routing confirmed locally
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Prevent a Retroactive Milk partial-save retry from being normalized to Attendanc
 
 ## Startup Ordering
 
-`modules/core/app.js` now installs `modules/sync/retroactiveSyncAdapter.js` before `SyncView.initialize()` starts Queue replay.
+`modules/core/app.js` installs `modules/sync/retroactiveSyncAdapter.js` before `SyncView.initialize()` starts Queue replay.
 
 This ordering matters because an existing persistent `RETRO` entry must be recognized before startup sync reads and normalizes `tc_pending_saves_v1`.
 
@@ -91,13 +91,19 @@ It does not expose:
 - Firebase credentials;
 - complete ledger or stockLog payloads in the UI summary.
 
-## Test
+## Local Validation — PASS
 
-Added:
+Confirmed locally:
 
-- `tests/retroactive-milk-recovery-routing-check.mjs`
+```text
+Retroactive Milk module checks passed.
+Retroactive Milk recovery routing checks passed.
+Cutover documentation checks passed.
+```
 
-The isolated test verifies:
+The branch was synchronized with origin and the working tree was clean after validation.
+
+Verified:
 
 - adapter installation before Queue startup;
 - legacy operation fallback to ATTENDANCE;
@@ -111,13 +117,7 @@ The isolated test verifies:
 - audit-only replay without repeated stock mutation;
 - ROLLBACK restoration `94 → 100`;
 - Main Stock remains `999`;
-- no Firebase or real classroom data is used.
-
-Expected local output:
-
-```text
-Retroactive Milk recovery routing checks passed.
-```
+- no Firebase or real classroom data was used.
 
 ## Browser Restriction
 
@@ -127,7 +127,7 @@ Do not press:
 - Retroactive Milk delete/rollback;
 - manual Queue retry against real data.
 
-Browser work remains read-only until recovery routing, UI, isolated write, and all 26 regression checks pass.
+Browser work remains read-only until UI, isolated write, and all 26 regression checks pass.
 
 ## Legacy Parity
 
