@@ -58,6 +58,10 @@ class RetroactiveEvidenceManager {
     async setRecordContext({ roomId, academicYear, semester, retroStart, retroEnd, record = null, owners = [] } = {}) {
         this.ensureDependencies();
         const nextKey = this.contextKey(roomId, academicYear, semester, retroStart, retroEnd);
+        if (this.recordKey && this.recordKey === nextKey && !record) {
+            await this.setOwners(owners);
+            return this.getState();
+        }
         if (this.recordKey && this.recordKey !== nextKey) await this.discardDrafts();
         this.roomId = String(roomId);
         this.academicYear = String(academicYear);
