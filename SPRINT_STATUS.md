@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **93% — ALL FOUR EVIDENCE WORKFLOW GATES PASSED / RECOVERY AND DUPLICATE PREVENTION IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **96% — ALL EVIDENCE AND RECOVERY GATES PASSED / COMPLETE 42+ CHECK REGRESSION RUNNER IMPLEMENTED / LOCAL FULL REGRESSION PENDING**
 
 ## Completed Foundation
 
@@ -52,6 +52,7 @@ Pending Milk Media and Signature integration checks passed.
 Retroactive Milk Media and Signature integration checks passed.
 Vacation Milk Media and Signature integration checks passed.
 Vacation evidence login replay checks passed.
+Media evidence recovery and duplicate prevention checks passed.
 Attendance UI checks passed.
 Pending Milk UI checks passed.
 Pending Milk isolated write checks passed.
@@ -108,6 +109,7 @@ docs/ATTENDANCE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
 Confirmed:
 
 - selected-date photo and Teacher-signature draft;
+- unchanged room/date context preserves the active draft;
 - local draft does not write Firebase;
 - online save hydrates protected `photos` and `signature` fields;
 - Queue keeps references only;
@@ -183,23 +185,14 @@ Confirmed:
 - Queue excludes evidence payloads and receiver identity;
 - Main Stock remains unchanged.
 
-## Evidence Recovery and Duplicate Prevention — IMPLEMENTED / LOCAL TEST PENDING
-
-Added:
+## Evidence Recovery and Duplicate Prevention — PASS
 
 ```text
 tests/media-evidence-recovery-duplicate-check.mjs
 docs/MEDIA_EVIDENCE_RECOVERY_DUPLICATE_GATE.md
 ```
 
-Runtime corrections:
-
-- Attendance keeps the active draft when the room and selected date are unchanged;
-- a real room or date change removes only unsaved Attendance payloads;
-- Pending safe state no longer exposes `receiverName`;
-- receiver identity remains available only at the protected legacy write boundary.
-
-Gate coverage:
+Confirmed:
 
 - repeated context events do not silently clear valid drafts;
 - signature replacement removes the previous draft exactly once;
@@ -207,14 +200,36 @@ Gate coverage:
 - removing a Pending owner removes only that owner's draft signature;
 - successful-save ownership is not treated as an unsaved draft;
 - Retroactive and Vacation unchanged contexts preserve evidence;
+- receiver identity is redacted from safe state;
 - adapter patch markers remain idempotent;
 - no stock, Firebase, network, or real Queue ownership.
 
-Expected local output:
+## Complete Sprint 4.7 Regression — RUNNER IMPLEMENTED / LOCAL TEST PENDING
+
+Added:
 
 ```text
-Media evidence recovery and duplicate prevention checks passed.
+tests/run-sprint-4.7-regression.mjs
+docs/SPRINT_4_7_FULL_REGRESSION_GATE.md
 ```
+
+The runner:
+
+- discovers every `tests/*-check.mjs` file;
+- requires at least 42 checks from the accepted 30-check baseline plus 12 Sprint 4.7 checks;
+- explicitly requires all Sprint 4.7 checks;
+- runs each check in an isolated Node process;
+- stops on the first failure;
+- reports the actual passed-check count;
+- automatically includes future `*-check.mjs` files.
+
+Expected final output:
+
+```text
+ALL 42 REGRESSION CHECKS PASSED
+```
+
+The reported count may be higher than 42 when more checks exist.
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -241,11 +256,10 @@ Artifact:
 
 ## Remaining Sprint 4.7 Work
 
-1. pass the Media evidence recovery and duplicate-prevention isolated test;
-2. run the complete expanded regression suite;
-3. validate desktop read-only rendering;
-4. validate 820 x 1180 responsive read-only rendering;
-5. synchronize the branch and confirm a clean working tree.
+1. pass the complete 42+ check full regression suite;
+2. validate desktop read-only rendering;
+3. validate 820 x 1180 responsive read-only rendering;
+4. synchronize the branch and confirm a clean working tree.
 
 ## Queue and Payload Rules
 
@@ -260,13 +274,15 @@ Artifact:
 
 ## Browser Restriction
 
-Until the recovery gate and full regression suite pass:
+Until the full regression suite passes:
 
 - do not attach a real classroom photo;
 - do not save a real Teacher, parent, student, or recipient signature;
 - do not press Attendance, Pending, Retroactive, or Vacation issue/delete for evidence testing;
 - do not create or replay a browser Queue containing evidence;
 - do not manually change Firebase evidence fields.
+
+The following browser gate must remain read-only even after regression passes.
 
 ## Safety Boundary
 
@@ -284,7 +300,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- Media recovery, full regression, and browser validation gates;
+- Sprint 4.7 full regression and read-only browser validation;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
