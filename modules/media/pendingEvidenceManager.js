@@ -248,7 +248,7 @@ class PendingEvidenceManager {
             signatureCount: [...this.owners.keys()].filter(key => this.signatures.has(key) || this.legacySignatures.has(key)).length,
             activeOwnerKey: this.activeOwnerKey,
             owners: [...this.owners.values()].map(owner => ({ key: owner.key, studentId: owner.studentId, date: owner.date, name: owner.name })),
-            signatures: [...this.signatures.entries()].map(([ownerKey, entry]) => ({ ownerKey, receiverName: entry.receiverName, reference: { ...entry.reference } }))
+            signatures: [...this.signatures.entries()].map(([ownerKey, entry]) => ({ ownerKey, reference: { ...entry.reference } }))
         };
     }
 
