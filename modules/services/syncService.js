@@ -37,6 +37,21 @@ class SyncService {
         return this.attendanceService;
     }
 
+    ensureTypedStockService() {
+        const service = this.ensureAttendanceService();
+        const required = [
+            "atomicRoomStockDifference",
+            "buildLedgerEntry",
+            "buildStockLog",
+            "writeAuditWithRetry"
+        ];
+        const missing = required.find(method => !service?.[method]);
+        if (missing) {
+            throw new Error(`AttendanceService shared stock method ${missing} is not available.`);
+        }
+        return service;
+    }
+
     ensureAttendanceRepository() {
         if (!this.attendanceRepository) {
             this.attendanceRepository = window.AttendanceRepository;
@@ -108,6 +123,7 @@ class SyncService {
             throw new Error("A queue key is required for Room Stock adjustment.");
         }
 
+        const operationType = this.normalizeOperationType(input.operationType);
         return this.ensureQueueStorage().upsert({
             type: "roomStockAdjust",
             key,
@@ -116,6 +132,8 @@ class SyncService {
             referenceId,
             roomName: String(input.roomName || session?.roomName || ""),
             date: String(input.date || ""),
+            operationType,
+            note: String(input.note || this.defaultStockNote(operationType, difference)).trim(),
             queuedAt: this.timestamp(input.queuedAt),
             attempts: this.nonNegativeInteger(input.attempts),
             nextRetryAt: this.timestamp(input.nextRetryAt, 0)
@@ -173,13 +191,17 @@ class SyncService {
         }
 
         if (entry.type === "roomStockAdjust") {
-            return attendanceService.adjustRoomStock(session, {
-                roomId: entry.roomId,
-                difference: entry.difference,
-                referenceId: entry.referenceId,
-                roomName: entry.roomName,
-                date: entry.date
-            });
+            const operationType = this.normalizeOperationType(entry.operationType);
+            if (operationType === "ATTENDANCE") {
+                return attendanceService.adjustRoomStock(session, {
+                    roomId: entry.roomId,
+                    difference: entry.difference,
+                    referenceId: entry.referenceId,
+                    roomName: entry.roomName,
+                    date: entry.date
+                });
+            }
+            return this.replayTypedRoomStockAdjustment(session, entry);
         }
 
         if (entry.type === "attendanceAudit") {
@@ -200,6 +222,56 @@ class SyncService {
         throw new Error(`Unsupported queue entry type: ${entry.type}`);
     }
 
+    async replayTypedRoomStockAdjustment(session, entry) {
+        const service = this.ensureTypedStockService();
+        const operationType = this.normalizeOperationType(entry.operationType);
+        if (operationType !== "PENDING" && operationType !== "ROLLBACK") {
+            throw new Error(`Unsupported typed Room Stock operation: ${operationType}`);
+        }
+
+        const difference = Number(entry.difference);
+        const stockResult = await service.atomicRoomStockDifference(entry.roomId, difference);
+        const referenceId = String(entry.referenceId || "").trim();
+        const note = String(
+            entry.note || this.defaultStockNote(operationType, difference)
+        ).trim();
+        const ledger = service.buildLedgerEntry({
+            roomId: entry.roomId,
+            type: operationType,
+            quantity: -difference,
+            stockBefore: stockResult.roomStockBefore,
+            stockAfter: stockResult.roomStockAfter,
+            referenceId,
+            user: session?.teacher || entry.roomName || "teacher"
+        });
+        const stockLog = service.buildStockLog({
+            type: difference > 0 ? "OUT" : "IN",
+            roomId: entry.roomId,
+            roomName: String(entry.roomName || session?.roomName || entry.roomId),
+            date: String(entry.date || ""),
+            quantity: Math.abs(difference),
+            balanceAfter: stockResult.roomStockAfter,
+            note
+        });
+        const audit = await service.writeAuditWithRetry(ledger, stockLog);
+
+        return {
+            roomId: entry.roomId,
+            difference,
+            operationType,
+            note,
+            referenceId,
+            roomStockBefore: stockResult.roomStockBefore,
+            roomStockAfter: stockResult.roomStockAfter,
+            stockAttempts: stockResult.attempts,
+            stockConflictCount: stockResult.conflictCount,
+            ledger,
+            stockLog,
+            audit,
+            mainStockDelta: 0
+        };
+    }
+
     convertAttendanceToStockAdjustment(session, entry, error, attempts) {
         const details = error?.details || {};
         const storage = this.ensureQueueStorage();
@@ -212,6 +284,8 @@ class SyncService {
             referenceId,
             roomName: details.roomName || entry.record?.roomName || session?.roomName || "",
             date: details.date || entry.record?.date || "",
+            operationType: "ATTENDANCE",
+            note: this.defaultStockNote("ATTENDANCE", details.difference),
             queuedAt: entry.queuedAt,
             attempts,
             nextRetryAt: this.clock() + this.backoffForAttempts(attempts)
@@ -367,6 +441,26 @@ class SyncService {
         );
         storage.replace(next);
         return updatedEntry;
+    }
+
+    normalizeOperationType(value) {
+        const normalized = String(value || "ATTENDANCE").trim().toUpperCase();
+        return ["ATTENDANCE", "PENDING", "ROLLBACK"].includes(normalized)
+            ? normalized
+            : "ATTENDANCE";
+    }
+
+    defaultStockNote(operationType, difference) {
+        const normalized = this.normalizeOperationType(operationType);
+        if (normalized === "PENDING") {
+            return "หักสต็อกจากการจ่ายนมค้าง (ซิงก์ค้าง)";
+        }
+        if (normalized === "ROLLBACK") {
+            return "คืนสต็อกจากการลบรายการนมค้าง (ซิงก์ค้าง)";
+        }
+        return Number(difference) > 0
+            ? "หักสต็อกจากการเช็คดื่มนมรายวัน (ซิงก์ค้างจากออฟไลน์)"
+            : "คืนสต็อกจากการแก้ไขเช็คดื่มนมรายวัน (ซิงก์ค้างจากออฟไลน์)";
     }
 
     backoffForAttempts(attempts) {
