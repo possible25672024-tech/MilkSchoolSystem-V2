@@ -26,7 +26,7 @@ Sprint 4.5 — Retroactive Milk Operational UI
 
 Status
 
-70% — Sprint 4.4 is complete and merged into `develop`. Retroactive Milk legacy audit, Repository, Service, Manager, Teacher View, App integration, module gate, published Firebase room index, binding Teacher legacy parity contract, and typed `RETRO` recovery implementation are complete. The recovery-routing test is implemented and awaits local execution. Browser issue/delete actions remain prohibited.
+82% — Legacy audit, Repository, Service, Manager, Teacher View, App integration, Firebase room index, binding Teacher parity contract, Module Gate, Cutover Documentation Gate, and typed RETRO Recovery Gate passed. Operational UI and isolated issue/delete/partial-save tests are implemented and await local execution. Browser issue/delete actions remain prohibited.
 
 ---
 
@@ -72,35 +72,22 @@ Completed Foundation
 
 Teacher Legacy Parity Contract — BINDING
 
-The product owner confirmed that V2 must retain every Teacher menu and operational capability from protected `teacher.html`.
+V2 must retain every Teacher capability from protected `teacher.html`:
 
-Required capabilities include:
+- ภาพรวมการดื่มนม
+- เช็คดื่มนมรายวัน
+- ประวัติการเช็ค
+- สรุปรายงาน
+- พิมพ์รายงาน A4
+- นมค้างรายสัปดาห์
+- จ่ายนมย้อนหลัง
+- จ่ายนมช่วงปิดเทอม
+- รายงานนักเรียน
+- สต็อกนมคงเหลือ
+- ตั้งค่า
+- ออกจากระบบ
 
-✓ ภาพรวมการดื่มนม
-
-✓ เช็คดื่มนมรายวัน
-
-✓ ประวัติการเช็ค
-
-✓ สรุปรายงาน
-
-✓ พิมพ์รายงาน A4
-
-✓ นมค้างรายสัปดาห์
-
-✓ จ่ายนมย้อนหลัง
-
-✓ จ่ายนมช่วงปิดเทอม
-
-✓ รายงานนักเรียน
-
-✓ สต็อกนมคงเหลือ
-
-✓ ตั้งค่า
-
-✓ ออกจากระบบ
-
-Photos, signatures, history, summaries, printing, Vacation Milk, student reports, stock view, settings, and final navigation parity are mandatory future work. They are deferred by Sprint sequence, not removed.
+Photos, signatures, visible/printable student detail, history, summaries, printing, Vacation Milk, student reports, Room Stock view, settings, and final navigation parity are mandatory future work. They are deferred by Sprint sequence, not removed.
 
 Artifact:
 
@@ -110,9 +97,7 @@ Artifact:
 
 Sprint 4.5 Legacy Compatibility Audit — PASS
 
-Protected `teacher.html` was inspected read-only.
-
-Confirmed:
+Confirmed from protected `teacher.html`:
 
 ✓ Firebase path `milkApp/retroMilk`
 
@@ -120,11 +105,9 @@ Confirmed:
 
 ✓ authenticated Teacher room only
 
-✓ academic year and semester
+✓ academic year, semester, issue date, and inclusive date range
 
-✓ issue date and inclusive retroactive date range
-
-✓ Monday–Friday dates only
+✓ Monday–Friday calculation
 
 ✓ `totalBoxes = weekday count × authenticated-room student count`
 
@@ -136,11 +119,11 @@ Confirmed:
 
 ✓ record saved before Room Stock deduction
 
-✓ issue ledger type `RETRO`
+✓ issue ledger type `RETRO`, stockLog type `OUT`
 
 ✓ delete removes record before Room Stock restoration
 
-✓ delete ledger type `ROLLBACK`
+✓ delete ledger type `ROLLBACK`, stockLog type `IN`
 
 ✓ overlapping delete/rollback guard
 
@@ -156,216 +139,185 @@ Sprint 4.5 Runtime — IMPLEMENTED
 
 Repository:
 
-✓ `modules/repositories/retroactiveMilkRepository.js`
-
-✓ room-scoped `retroMilk` query
-
-✓ exact record load
-
-✓ Firebase push-ID create
-
-✓ exact record delete
+- `modules/repositories/retroactiveMilkRepository.js`
+- room-scoped indexed history query
+- exact record load/create/delete
 
 Service:
 
-✓ `modules/services/retroactiveMilkService.js`
-
-✓ Teacher authenticated-room enforcement
-
-✓ UTC-safe inclusive weekday calculation
-
-✓ Saturday/Sunday exclusion
-
-✓ reversed-range and zero-weekday rejection
-
-✓ academic year and semester validation
-
-✓ authenticated-room roster normalization
-
-✓ quantity and debt preview
-
-✓ exact duplicate academic-period/range protection
-
-✓ compatible debt-record construction
-
-✓ record-first issue workflow
-
-✓ Room Stock-only deduction
-
-✓ `RETRO` ledger and `OUT` stockLog
-
-✓ record-first delete workflow
-
-✓ exact Room Stock restoration
-
-✓ `ROLLBACK` ledger and `IN` stockLog
-
-✓ explicit partial-stock error details
-
-✓ Main Stock delta zero
+- `modules/services/retroactiveMilkService.js`
+- Teacher room enforcement
+- UTC-safe inclusive weekday calculation
+- reversed/weekend-only rejection
+- roster normalization
+- total and debt preview
+- exact duplicate range protection
+- compatible record-first issue/delete
+- Room Stock-only mutation
+- `RETRO`/`ROLLBACK` ledger routing
+- `OUT`/`IN` stockLog routing
+- explicit partial-stock details
+- Main Stock delta zero
 
 Manager:
 
-✓ `modules/retroactive/retroactiveMilkManager.js`
-
-✓ UI-safe preview, history, issue, and remove commands
-
-✓ stable student snapshot from TeacherManager
-
-✓ duplicate delete/rollback in-flight guard
-
-✓ partial stock Queue delegation
-
-✓ audit-only Queue delegation
-
-✓ lifecycle events and Logout cleanup
+- `modules/retroactive/retroactiveMilkManager.js`
+- UI-safe preview/history/issue/remove
+- stable Teacher roster snapshot
+- partial stock and audit-only Queue delegation
+- overlapping delete guard
+- lifecycle events and cleanup
 
 View:
 
-✓ `modules/retroactive/retroactiveMilkView.js`
+- `modules/retroactive/retroactiveMilkView.js`
+- Teacher-only panel
+- academic period, issue date, range, room, and note fields
+- student/day/box/debt summaries
+- explicit issue/delete confirmations
+- Room Stock and Queue feedback
+- room history and rollback actions
+- responsive layout
+- no direct Firebase, Repository, QueueStorage, stock, ledger, or retry ownership
 
-✓ Teacher-only operational panel
+App and Sync:
 
-✓ academic year, semester, issue date, room, and range inputs
-
-✓ student, weekday, total, and debt summary cards
-
-✓ optional note
-
-✓ explicit issue confirmation
-
-✓ Room Stock and queued-work feedback
-
-✓ authenticated-room history
-
-✓ confirmed delete/rollback action
-
-✓ responsive layout
-
-✓ no direct Firebase, Repository, browser storage, QueueStorage, stock, ledger, stockLog, or retry ownership
-
-App:
-
-✓ App loads Retroactive modules after Pending Milk
-
-✓ App installs Retroactive sync routing before SyncView starts Queue replay
-
-✓ `index.html` unchanged
-
-✓ `teacher.html` unchanged
+- `modules/core/app.js`
+- `modules/sync/retroactiveSyncAdapter.js`
+- adapter installs before startup Queue replay
+- protected legacy files unchanged
 
 ---
 
-Module and Documentation Gates — PASS
+Confirmed Local Gates — PASS
 
-Confirmed locally:
+```text
+Retroactive Milk module checks passed.
+Retroactive Milk recovery routing checks passed.
+Cutover documentation checks passed.
+```
 
-✓ `Retroactive Milk module checks passed.`
+At the reported validation point:
 
-✓ `Cutover documentation checks passed.`
+✓ branch synchronized with origin
 
-✓ feature branch synchronized with origin at the reported test point
+✓ working tree clean
 
-✓ working tree clean at the reported test point
+Recovery coverage:
 
-Module coverage includes:
+✓ legacy Queue entries default to `ATTENDANCE`
 
-- weekday calculation across a weekend;
-- reversed-range rejection;
-- weekend-only rejection;
-- three students × two weekdays = six boxes;
-- compatible debt record;
-- exact duplicate range protection;
-- issue changes Room Stock `100 → 94`;
-- delete restores Room Stock `94 → 100`;
-- `RETRO`/`ROLLBACK` ledger routing;
-- `OUT`/`IN` stockLog routing;
-- Main Stock remains 999;
-- cross-room access rejection.
+✓ QueueStorage, SyncService, SyncManager, and SyncView preserve `RETRO`
+
+✓ RETRO replay changes Room Stock once
+
+✓ ledger `RETRO` / stockLog `OUT`
+
+✓ ROLLBACK restores exact quantity
+
+✓ failed audit becomes audit-only work
+
+✓ audit-only replay never repeats Room Stock mutation
+
+✓ Main Stock remains 999
+
+Artifacts:
+
+- `docs/RETROACTIVE_MILK_RECOVERY_ROUTING_GATE.md`
+- `tests/retroactive-milk-recovery-routing-check.mjs`
 
 ---
 
-Typed Recovery Routing — IMPLEMENTED / LOCAL RUN PENDING
+Operational UI and Isolated Write Gates — IMPLEMENTED / LOCAL RUN PENDING
 
 Added:
 
-- `modules/sync/retroactiveSyncAdapter.js`
-- `tests/retroactive-milk-recovery-routing-check.mjs`
+- `tests/retroactive-milk-ui-check.mjs`
+- `tests/retroactive-milk-isolated-write-check.mjs`
+- `docs/RETROACTIVE_MILK_ISOLATED_WRITE_GATE.md`
 
-Implemented:
+UI coverage:
 
-✓ QueueStorage preserves `RETRO`
+✓ Teacher-only activation and Admin rejection
 
-✓ SyncService normalizes and replays `RETRO`
+✓ authenticated room and form fields
 
-✓ SyncManager safe summaries preserve `RETRO`
+✓ three students × two weekdays = six boxes
 
-✓ SyncView labels Retroactive Milk retry safely
+✓ student/day/box/debt summaries
 
-✓ App installs the adapter before startup Queue replay
+✓ explicit issue and delete confirmation
 
-✓ `RETRO` retry creates ledger type `RETRO`
+✓ Room Stock `100 → 94 → 100` feedback
 
-✓ `RETRO` retry creates stockLog type `OUT`
+✓ room history and debt badge
 
-✓ `ROLLBACK` remains ledger `ROLLBACK` and stockLog `IN`
+✓ partial-save Queue warning
 
-✓ audit failure converts to audit-only work
+✓ Teacher refresh and Logout cleanup
 
-✓ audit-only retry never repeats Room Stock mutation
+✓ parity contract retains future roster/photo/signature work
 
-✓ legacy Queue entries without operation metadata default to `ATTENDANCE`
+Isolated write coverage:
 
-✓ Main Stock remains unchanged
+✓ successful six-box issue
 
-Local command:
+✓ duplicate range rejection
+
+✓ successful exact rollback
+
+✓ partial issue queues `RETRO` difference `3`
+
+✓ partial delete queues `ROLLBACK` difference `-3`
+
+✓ failed stock mutation leaves Room Stock unchanged before retry
+
+✓ compatible media/signature fields remain present
+
+✓ Main Stock remains 999
+
+Pending local commands:
 
 ```powershell
-node tests/retroactive-milk-recovery-routing-check.mjs
+node tests/retroactive-milk-ui-check.mjs
+node tests/retroactive-milk-isolated-write-check.mjs
 ```
 
 Expected:
 
 ```text
-Retroactive Milk recovery routing checks passed.
+Retroactive Milk UI checks passed.
+Retroactive Milk isolated write checks passed.
 ```
-
-Until this test passes:
-
-- do not click Retroactive Milk issue;
-- do not click Retroactive Milk delete/rollback;
-- do not create a real Queue entry;
-- use Mock/In-memory validation only.
 
 ---
 
 Firebase Realtime Database Index — PUBLISHED
-
-Published under the existing Rules document:
 
 ```text
 /milkApp/absentMilk → .indexOn ["roomId"]
 /milkApp/retroMilk  → .indexOn ["roomId"]
 ```
 
-The final read-only browser gate must confirm the room-scoped Retroactive Milk history request returns HTTP 200.
+The final read-only browser gate must confirm the indexed Retroactive Milk history request returns HTTP 200.
 
-⚠ Root-level public `.read` and `.write` remain a production-security blocker.
+Root-level public `.read` and `.write` remain a production-security blocker.
 
 ---
 
-Remaining Sprint-Specific Tests
+Automated Regression Target
 
-```text
-tests/retroactive-milk-ui-check.mjs
-tests/retroactive-milk-isolated-write-check.mjs
-```
+Existing tests before Sprint 4.5: 22
 
-Expected final regression count:
+Sprint 4.5 tests: 4
+
+Expected final total:
 
 ```text
 26
 ```
+
+After the two new tests pass, run all 26 regression checks.
 
 ---
 
@@ -375,23 +327,15 @@ Read-only only after all automated and isolated gates pass.
 
 Required:
 
-□ Queue key absent or `[]` before Teacher Login
-
-□ Admin Login/Logout unchanged
-
-□ Retroactive Milk panel renders for Teacher only
-
-□ room-scoped indexed history request returns HTTP 200
-
-□ no `POST`, `PUT`, `PATCH`, or `DELETE`
-
-□ no real issue or delete action pressed
-
-□ Console clean
-
-□ 820 x 1180 layout contained
-
-□ Logout and Queue panel reachable
+- Queue key absent or `[]` before Teacher Login
+- Admin Login/Logout unchanged
+- Retroactive Milk panel renders for Teacher only
+- room-scoped history request returns HTTP 200
+- no `POST`, `PUT`, `PATCH`, or `DELETE`
+- no real issue or delete action pressed
+- Console clean
+- 820 x 1180 layout contained
+- Logout and Queue panel reachable
 
 ---
 
@@ -419,7 +363,7 @@ Sprint 4.9:
 - student report;
 - remaining Room Stock view;
 - Teacher settings;
-- complete navigation and legacy parity matrix.
+- complete navigation and final legacy parity matrix.
 
 ---
 
@@ -440,19 +384,6 @@ Rules:
 - do not use its values as trusted operational evidence;
 - do not manually edit Attendance, Room Stock, Main Stock, queue, ledger, stockLog, or transaction history;
 - recovery remains mandatory before `main` or production cutover.
-
----
-
-Production Security Blocker — OPEN
-
-Firebase Realtime Database root Rules currently retain public:
-
-```text
-.read = true
-.write = true
-```
-
-This remains acceptable only for the controlled development environment. It blocks production cutover and is not resolved by query indexes.
 
 ---
 
