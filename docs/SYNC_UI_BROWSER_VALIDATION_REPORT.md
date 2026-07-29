@@ -6,9 +6,9 @@ Branch: `feature/sprint-4.3-offline-queue-ui`
 
 Status: PASS — empty-queue safety, Teacher Queue UI, Offline/reconnect transitions, settled synchronized state, read-only Network evidence, clean Console, Teacher Logout, Admin Login/Logout regression, and 820 x 1180 responsive layout passed.
 
-## Evidence Reviewed
+## Environment
 
-Local Chrome at:
+Local Chrome:
 
 ```text
 http://127.0.0.1:5500/index-v2.html
@@ -26,13 +26,9 @@ Observed:
 
 - no matching key
 - no stored queue value
+- no existing local queue available for startup replay
 
 Result: PASS
-
-Meaning:
-
-- the browser queue was empty before Teacher Login
-- no existing local queue entry was available for startup replay
 
 ## Teacher Queue UI — Empty Queue
 
@@ -44,38 +40,26 @@ Observed after Teacher Login:
 - latest succeeded: 0
 - failed/deferred: 0
 - last successful sync: none
-- latest result: no prior sync or zero-result processing
 - next retry: none
 - no queue-item details
 - banner: synchronized
-- manual retry button disabled
+- manual retry disabled
 
 Result: PASS
 
-## Offline Transition
-
-Chrome Network throttling was changed to Offline.
-
-Observed:
-
-- banner changed to offline
-- text reported no pending queue item
-- manual retry remained disabled
-- queue metrics remained zero
-
-Result: PASS
-
-## Reconnect Transition
-
-Chrome Network throttling returned to No throttling.
+## Offline and Reconnect
 
 Observed sequence:
 
-1. banner entered active syncing state
-2. manual retry changed to active-sync text and remained disabled
-3. queue metrics remained zero
-4. reconnect settled back to synchronized
-5. manual retry returned to disabled empty-queue state
+1. Chrome Network changed to Offline.
+2. Banner changed to offline with no pending queue item.
+3. Manual retry remained disabled.
+4. Queue metrics remained zero.
+5. Network returned to No throttling.
+6. Banner entered active syncing state.
+7. Manual retry displayed active-sync text and remained disabled.
+8. Reconnect settled back to synchronized.
+9. Manual retry returned to the disabled empty-queue state.
 
 Result: PASS
 
@@ -89,23 +73,21 @@ Visible requests were read-only fetches such as:
 - room-scoped Room Stock JSON
 - `updatedAt.json`
 
-No visible `PUT`, `PATCH`, or `DELETE` request appeared in the provided Network evidence.
+No visible `PUT`, `PATCH`, or `DELETE` request appeared.
 
 Result: PASS
-
-No Queue or Attendance write was visible during the browser validation.
 
 ## Console Validation
 
 Observed:
 
-- Teacher Queue synchronized state with Console open
-- no JavaScript error in the Console
-- Login page after Teacher Logout with Console still clean
-- Admin authenticated shell with Console still clean
-- Login page after Admin Logout with Console still clean
+- Teacher synchronized state with Console open
+- no JavaScript error
+- Login page after Teacher Logout with Console clean
+- Admin authenticated shell with Console clean
+- Login page after Admin Logout with Console clean
 
-The visible DevTools issue counter is not a JavaScript Console error and no red error entry was shown.
+The visible DevTools issue counter was not a JavaScript Console error and no red error entry was shown.
 
 Result: PASS
 
@@ -113,7 +95,7 @@ Result: PASS
 
 Observed:
 
-- Teacher Logout returned to the Login page
+- Teacher Logout returned to Login
 - Queue panel was no longer visible
 - Console remained clean
 
@@ -125,12 +107,10 @@ Observed:
 
 - Admin Login rendered the existing Admin authenticated shell
 - school identity remained visible
-- Admin Logout returned to the Login page
-- Console remained clean throughout
+- Admin Logout returned to Login
+- Console remained clean
 
 Result: PASS
-
-The Admin shell text still identifies the completed Sprint 4.2 Attendance foundation. This is display copy only and did not affect the Sprint 4.3 Queue runtime or Admin role routing.
 
 ## Responsive Validation
 
@@ -143,15 +123,13 @@ Chrome Device Toolbar:
 Observed:
 
 - Attendance rows remained contained
-- Save, Delete, and Logout buttons remained reachable
+- Save, Delete, and Logout remained reachable
 - Queue panel remained visible below Attendance
-- Queue banner and four summary cards remained readable
-- last-sync, latest-result, retry-time, empty-details, and manual retry areas remained contained
+- Queue banner and summary cards remained readable
+- last-sync, latest-result, retry-time, empty-details, and retry action remained contained
 - no abnormal horizontal overflow was visible
 
 Result: PASS
-
-Console cleanliness was confirmed in the same Runtime session before and after role transitions. No dimension-dependent JavaScript error was observed.
 
 ## Safety Boundary
 
@@ -167,8 +145,8 @@ The deferred real-classroom incident remains open:
 - room ID `mqn0z13eyx5b`
 - date `2026-07-28`
 
-## Current Decision
+## Decision
 
-Browser and responsive gates are complete.
+Browser and responsive gates are complete and support fast-forward merge into `develop` after the automated and isolated restart/reconnect gates pass.
 
-Remaining Sprint 4.3 acceptance evidence is limited to the isolated non-empty restart/reconnect test. That test must use only in-memory persistent storage and mocked services and must not access Firebase or real classroom data.
+Those gates subsequently passed with all 18 regression checks.
