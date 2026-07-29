@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-29
 
-Current Branch: `feature/sprint-4.6-vacation-milk-ui`
+Current Branch: `feature/sprint-4.7-media-signature-ui`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 4.6 — Vacation Milk Operational UI
+Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **100% — COMPLETE / APPROVED FOR FAST-FORWARD INTEGRATION INTO `develop`**
+Status: **10% — PLAN OPEN / LEGACY AND PAYLOAD AUDIT PENDING**
 
 ## Completed Foundation
 
@@ -30,11 +30,40 @@ Status: **100% — COMPLETE / APPROVED FOR FAST-FORWARD INTEGRATION INTO `develo
 - Sprint 4.3 Offline Queue Operational UI merged into `develop`.
 - Sprint 4.4 Pending Milk Operational UI merged into `develop`.
 - Sprint 4.5 Retroactive Milk Operational UI merged into `develop`.
-- Sprint 4.6 Vacation Milk Operational UI completed all acceptance gates.
+- Sprint 4.6 Vacation Milk Operational UI merged into `develop` at `5e462c9bb80f0f991045ff80ccd294d4240421cd`.
 
 Protected `index.html` and `teacher.html` remain unchanged and operational.
 
 Physical iPad remains deferred and must not be represented as PASS.
+
+## Sprint 4.6 Acceptance Record
+
+Confirmed before integration:
+
+```text
+Vacation Milk module checks passed.
+Vacation Milk recovery routing checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
+Cutover documentation checks passed.
+ALL 30 REGRESSION CHECKS PASSED
+```
+
+Browser evidence passed:
+
+- indexed `vacationMilk` room GET returned HTTP 200;
+- no POST, PUT, PATCH, or DELETE during read-only validation;
+- Console clean;
+- 16 students × 30 days = 480 boxes;
+- Room Stock 476 visible;
+- desktop and 820 x 1180 responsive layouts passed;
+- working tree clean and branch synchronized with origin.
+
+Artifacts:
+
+- `docs/SPRINT_4_6_PLAN.md`
+- `docs/VACATION_MILK_BROWSER_VALIDATION_REPORT.md`
+- `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -53,176 +82,107 @@ V2 must retain every Teacher capability from protected `teacher.html`, including
 - ตั้งค่า
 - ออกจากระบบ
 
-Photos, signatures, visible and printable student detail, history, summaries, printing, student reports, Room Stock view, settings, and final navigation parity remain mandatory future work.
+Photos, signatures, visible and printable student detail, history, summaries, printing, student reports, Room Stock view, settings, and final navigation parity remain mandatory.
 
 Artifact:
 
 - `docs/TEACHER_LEGACY_PARITY_CONTRACT.md`
 
-## Sprint 4.6 Runtime — COMPLETE
+## Sprint 4.7 Objective
 
-Implemented:
+Implement one shared, safe Media and Signature workflow for:
 
-```text
-modules/repositories/vacationMilkRepository.js
-modules/services/vacationMilkService.js
-modules/vacation/vacationMilkManager.js
-modules/vacation/vacationMilkView.js
-modules/sync/vacationSyncAdapter.js
-```
+- Attendance daily photo evidence;
+- Attendance Teacher signature;
+- Pending Milk recipient or student signature and photos;
+- Retroactive Milk recipient or student signature and photos;
+- Vacation Milk parent or recipient signature and photos.
 
-Integrated through:
+The workflow must preserve legacy-compatible `photos`, `signature`, and `signatures` fields without adding unrestricted login-blocking payloads.
 
-```text
-modules/core/app.js
-```
+## First Required Gate — Legacy and Payload Audit
 
-Protected behavior:
+Before Runtime implementation:
 
-- Teacher authenticated-room enforcement;
-- room-scoped Vacation Milk history;
-- default 30-day vacation period;
-- visible student roster and per-student box count;
-- `totalBoxes = student count × vacation days`;
-- exact duplicate guard;
-- Room Stock-only issue and rollback;
-- ledger `VACATION` and `ROLLBACK`;
-- stockLog `OUT` and `IN`;
-- typed Queue recovery;
-- audit-only retry without repeated stock mutation;
-- compatible `signature`, `signatures`, and `photos` fields;
-- Main Stock delta zero;
-- no direct Firebase or stock ownership in the View.
+1. inspect protected `teacher.html` evidence workflows;
+2. document exact field shapes by workflow;
+3. identify Firebase paths and record ownership;
+4. measure representative image and signature payload sizes;
+5. define image count, source-size, compressed-size, dimension, and MIME limits;
+6. define thumbnails and lazy-loading policy;
+7. define replacement, cleanup, delete, backup, restore, and rollback behavior;
+8. define Queue-safe metadata with no full evidence payload in SyncView;
+9. prove Main Stock and existing Room Stock calculations remain unchanged.
 
-## Sprint-Specific Automated Gates — PASS
-
-Confirmed locally:
+Required artifact:
 
 ```text
-Vacation Milk module checks passed.
-Vacation Milk recovery routing checks passed.
-Vacation Milk UI checks passed.
-Vacation Milk isolated write checks passed.
-Cutover documentation checks passed.
+docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md
 ```
 
-Validated isolated behavior:
+## Planned Shared Boundaries
+
+Target responsibilities:
 
 ```text
-Issue:    Room Stock 200 → 110
-Rollback: Room Stock 110 → 200
-Main Stock remained 999
+modules/media/mediaPolicy.js
+modules/media/mediaProcessor.js
+modules/media/mediaStorage.js
+modules/media/mediaManager.js
+modules/media/mediaView.js
+modules/signature/signaturePad.js
+modules/signature/signatureManager.js
+modules/signature/signatureView.js
 ```
 
-Partial-save recovery:
+Exact names may change after the audit, but policy, processing, storage, manager, and view responsibilities must remain separated.
+
+## Planned Automated Gates
 
 ```text
-VACATION difference 30
-ROLLBACK difference -30
+tests/media-policy-check.mjs
+tests/media-processor-check.mjs
+tests/signature-pad-check.mjs
+tests/media-storage-check.mjs
+tests/media-signature-integration-check.mjs
 ```
 
-No Firebase or real-classroom write was performed by the isolated tests.
+The first tests must be pure and isolated from Firebase.
 
-## Full Regression Gate — PASS
+## Queue and Payload Rules
 
-Confirmed:
+- Queue storage key remains `tc_pending_saves_v1`.
+- Queue UI must never show full photo or signature payloads.
+- Retries must not duplicate evidence.
+- Evidence retry must not repeat a successful Room Stock mutation.
+- Audit-only recovery remains audit-only.
+- Main Stock remains unchanged.
+- Teacher Login must not download all historical evidence.
+- Evidence loads only for the selected room, date, or record.
 
-```text
-ALL 30 REGRESSION CHECKS PASSED
-```
+## Browser Restriction
 
-Repository state at acceptance:
+Until isolated gates pass:
 
-```text
-On branch feature/sprint-4.6-vacation-milk-ui
-Your branch is up to date with 'origin/feature/sprint-4.6-vacation-milk-ui'.
-nothing to commit, working tree clean
-```
+- do not attach a real classroom photo;
+- do not save a real signature;
+- do not press Attendance, Pending, Retroactive, or Vacation save/delete for evidence testing;
+- do not replay a browser Queue containing evidence;
+- do not manually change Firebase evidence records;
+- use generated in-memory fixtures only.
 
-## Firebase Realtime Database Index — PASS
+## Sprint 4.7 Non-Goals
 
-Published Rules preserve:
-
-```text
-/milkApp/absentMilk   → .indexOn ["roomId"]
-/milkApp/retroMilk    → .indexOn ["roomId"]
-/milkApp/vacationMilk → .indexOn ["roomId"]
-```
-
-Read-only browser result:
-
-```text
-Method GET
-Status 200
-16 students × 30 days = 480 boxes
-Room Stock = 476
-History records = 0
-```
-
-The previous Firebase HTTP 400 index blocker is closed.
-
-Root-level public `.read` and `.write` remain a production-security blocker.
-
-## Browser, Console, and Responsive Gates — PASS
-
-Accepted evidence:
-
-- Admin authenticated shell rendered normally;
-- Vacation Milk Teacher panel rendered for a non-quarantined room;
-- 16 student names visible;
-- 30 boxes shown for each student;
-- Shared Media & Signature handoff visible;
-- indexed room-scoped history GET returned HTTP 200;
-- no POST, PUT, PATCH, or DELETE during read-only validation;
-- Console contained no JavaScript or Firebase error;
-- normal `MilkSchoolSystem V2 Started` message remained visible;
-- desktop layout passed;
-- responsive `820 x 1180` layout passed;
-- no abnormal horizontal overflow;
-- action and Logout controls remained reachable.
-
-Artifacts:
-
-- `docs/VACATION_MILK_LEGACY_AUDIT.md`
-- `docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md`
-- `docs/VACATION_MILK_ISOLATED_WRITE_GATE.md`
-- `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
-- `docs/VACATION_MILK_BROWSER_VALIDATION_REPORT.md`
-- `docs/SPRINT_4_6_PLAN.md`
-
-## Integration Decision
-
-Sprint 4.6 is approved for fast-forward integration into `develop`.
-
-This does not authorize:
-
-- merge to `main`;
-- production deployment;
-- real-classroom writes;
-- replacement of `teacher.html`;
-- Media and Signature completion;
-- report or A4 completion;
-- Firebase security sign-off;
+- Attendance history and summaries;
+- A4 report assembly and printing;
+- student report;
+- remaining Room Stock view;
+- Teacher settings;
+- final navigation parity;
+- Firebase security hardening;
 - physical iPad sign-off;
-- closure of the deferred real-data incident.
-
-## Next Sprint
-
-Sprint 4.7 — Shared Media and Signature Workflow
-
-Planned scope:
-
-- shared photo selection and capture boundary;
-- image type, count, and size validation;
-- client-side compression and preview;
-- Teacher signature capture;
-- recipient or parent signature capture;
-- Attendance daily evidence;
-- Pending, Retroactive, and Vacation Milk evidence;
-- lazy room/date/record media loading;
-- Queue-safe metadata that does not expose or duplicate evidence payloads;
-- legacy-compatible `photos`, `signature`, and `signatures` fields;
-- isolated tests only before any browser write consideration.
+- production cutover;
+- incident recovery.
 
 ## Safety Boundary
 
@@ -253,6 +213,9 @@ Do not use:
 - Teacher access remains limited to the authenticated room.
 - ETag conflicts read the latest Room Stock and recalculate before retry.
 - Audit-only recovery never repeats a successful Room Stock mutation.
-- Queue storage key remains `tc_pending_saves_v1`.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
+
+## Sprint Plan
+
+- `docs/SPRINT_4_7_PLAN.md`
