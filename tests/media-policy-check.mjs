@@ -45,8 +45,11 @@ assert.equal(policy.mimeFromDataUrl(photoDataUrl), "image/jpeg");
 
 const validPhoto = { dataUrl: photoDataUrl, width: 1000, height: 750 };
 assert.equal(policy.validateProcessedPhoto(validPhoto).valid, true);
+assert.equal(policy.validateProcessedPhoto(photoDataUrl).valid, true, "Legacy inline photo Data URLs must remain valid after MIME and byte checks");
+assert.equal(policy.validateProcessedPhoto(photoDataUrl).details.legacyInline, true, "Legacy inline validation must be identified explicitly");
 assert.equal(policy.validateProcessedPhoto({ ...validPhoto, width: 1001 }).code, "MEDIA_DIMENSIONS_EXCEEDED");
 assert.equal(policy.validateProcessedPhoto({ dataUrl: makeDataUrl("image/jpeg", limits.maxProcessedBytes + 1), width: 1000, height: 750 }).code, "MEDIA_PROCESSED_SIZE_EXCEEDED");
+assert.equal(policy.validateProcessedPhoto({ dataUrl: photoDataUrl }).code, "MEDIA_DIMENSIONS_INVALID", "New object payloads must still provide processed dimensions");
 
 assert.equal(policy.validateSignature("").valid, true);
 assert.equal(policy.validateSignature(signatureDataUrl).valid, true);
@@ -65,6 +68,13 @@ assert.equal(validEvidence.valid, true);
 assert.equal(validEvidence.details.photoCount, 2);
 assert.equal(validEvidence.details.signatureCount, 2);
 assert.equal(validEvidence.details.aggregateBytes, (32 * 1024 * 2) + (8 * 1024 * 2));
+
+const legacyInlineEvidence = policy.validateRecordEvidence({
+    photos: [photoDataUrl],
+    signature: signatureDataUrl
+});
+assert.equal(legacyInlineEvidence.valid, true, "Legacy-compatible Attendance evidence strings must validate before online hydration");
+assert.equal(legacyInlineEvidence.details.aggregateBytes, 40 * 1024);
 
 const safeSummary = policy.buildSafeSummary(evidence);
 assert.deepEqual(Object.keys(safeSummary).sort(), ["aggregateBytes", "code", "photoCount", "signatureCount", "valid"].sort());
