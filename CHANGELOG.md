@@ -2,6 +2,68 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-29 — Sprint 4.4 Pending Milk Operational UI
+
+### Added
+
+- `modules/repositories/pendingMilkRepository.js`
+- `modules/services/pendingMilkService.js`
+- `modules/pending/pendingMilkManager.js`
+- `modules/pending/pendingMilkView.js`
+- `tests/pending-milk-module-check.mjs`
+- `tests/pending-milk-recovery-routing-check.mjs`
+- `tests/pending-milk-ui-check.mjs`
+- `tests/pending-milk-isolated-write-check.mjs`
+- `docs/PENDING_MILK_LEGACY_AUDIT.md`
+- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
+- `docs/PENDING_MILK_ISOLATED_WRITE_GATE.md`
+- `docs/PENDING_MILK_UI_IMPLEMENTATION_REPORT.md`
+- `docs/PENDING_MILK_BROWSER_VALIDATION_REPORT.md`
+- `docs/FIREBASE_RULES_PENDING_MILK_INDEX.md`
+
+### Changed
+
+- Added exact Monday–Friday Attendance reads for Pending Milk eligibility.
+- Added authenticated-room `absentMilk` query and Firebase `roomId` index.
+- Added absent-only eligibility and already-issued exclusion.
+- Added Service-level duplicate prevention for student/date pairs.
+- Preserved compatible `absentMilk` record fields and Firebase push IDs.
+- Added Room Stock-only issue and rollback.
+- Added `PENDING` and `ROLLBACK` ledger routing.
+- Added `OUT` and `IN` stockLog routing.
+- Added typed Queue recovery for partial issue and delete stock work.
+- Preserved audit-only recovery without repeating Room Stock mutation.
+- Kept Main Stock unchanged.
+- Kept `index.html` and `teacher.html` unchanged.
+
+### Validation
+
+- All four Sprint-specific tests passed.
+- All 22 regression checks passed.
+- Successful two-box issue changed Room Stock `50 → 48`.
+- Duplicate student/date issue was blocked.
+- Successful delete restored Room Stock `48 → 50`.
+- Partial issue queued typed `PENDING` difference `1`.
+- Partial delete queued typed `ROLLBACK` difference `-1`.
+- Main Stock remained 999 throughout isolated tests.
+- Admin regression passed.
+- Exactly five date-scoped Attendance reads were observed.
+- Indexed room-scoped `absentMilk` query returned HTTP 200.
+- Eligibility, already-issued, empty state, and room history rendered.
+- Network remained read-only with no POST, PUT, PATCH, or DELETE.
+- Console remained clean.
+- Completed-data 820 x 1180 responsive gate passed.
+- Feature branch, origin, and `develop` were synchronized at the integration point.
+- Working tree was clean.
+
+### Integration Decision
+
+- Approved for fast-forward merge into `develop`.
+- Does not replace `teacher.html`.
+- Does not authorize merge or deployment to `main`.
+- Does not authorize production cutover while the real-data incident and Firebase security blocker remain open.
+- Next Sprint: Retroactive Milk Operational UI.
+
 ## 2026-07-29 — Sprint 4.3 Offline Queue Operational UI
 
 ### Added
