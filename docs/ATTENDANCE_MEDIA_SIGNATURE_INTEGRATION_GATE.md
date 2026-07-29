@@ -4,55 +4,48 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING
+Status: **PASS — LOCAL ISOLATED INTEGRATION CONFIRMED**
 
 ## Purpose
 
-Integrate the first Teacher evidence workflow into modular V2:
+Integrate daily Attendance photos and one Teacher signature while preserving legacy-compatible online records, reference-only Queue storage, lazy selected-date loading, and stock ownership boundaries.
 
-- daily Attendance photos;
-- one Teacher signature for the selected Attendance date;
-- legacy-compatible online Attendance record fields;
-- reference-only persistent Queue payloads;
-- lazy selected-record evidence loading;
-- no stock arithmetic ownership in the evidence layer.
-
-## Added Runtime
+## Runtime
 
 ```text
 modules/media/attendanceEvidenceManager.js
 modules/media/attendanceEvidenceView.js
 modules/media/attendanceEvidenceAdapter.js
-```
-
-App integration:
-
-```text
 modules/core/app.js
 ```
 
-The evidence adapter installs before SyncView starts Queue replay.
+## Confirmed Local Output
 
-## Attendance UI
+```text
+Media policy checks passed.
+Attendance Media and Signature integration checks passed.
+Attendance UI checks passed.
+Sync UI checks passed.
+Cutover documentation checks passed.
+```
 
-The Attendance form receives one evidence section containing:
+At the reported validation point the feature branch was synchronized with origin and the working tree was clean.
 
-- image selector for JPEG, PNG, and WebP;
-- maximum five-photo count;
-- compressed draft previews;
-- exact photo removal from the draft;
+## UI Boundary — PASS
+
+- JPEG, PNG, and WebP selector;
+- maximum five-photo feedback;
+- compressed local previews;
+- exact draft-photo removal;
 - bounded Teacher signature canvas;
-- explicit `ใช้ลายเซ็นนี้` action;
-- clear-signature action;
-- explicit lazy load of evidence for the selected date;
-- Thai status and validation feedback;
-- responsive single-column layout below 760 px.
+- explicit use-signature and clear actions;
+- selected-date lazy evidence load;
+- responsive layout;
+- selecting or signing creates a local draft only and does not write Firebase.
 
-Selecting or signing creates only a local draft. It does not write Firebase.
+## Online Compatibility — PASS
 
-## Online Save Compatibility
-
-Before `AttendanceManager.save` reaches `AttendanceService`, the adapter hydrates local references into the existing protected record fields:
+Immediately before `AttendanceManager.save`, local references hydrate into the protected fields:
 
 ```js
 {
@@ -61,94 +54,32 @@ Before `AttendanceManager.save` reaches `AttendanceService`, the adapter hydrate
 }
 ```
 
-No new field is written to the legacy Attendance record.
-
-This preserves compatibility with:
+No new field is written to:
 
 ```text
 milkApp/mcAttendance/{roomId}_{YYYY-MM-DD}
 ```
 
-The evidence layer does not calculate present counts, Room Stock differences, ledgers, stock logs, or Main Stock changes.
+The evidence layer does not calculate Attendance counts, Room Stock differences, ledgers, stock logs, or Main Stock changes.
 
-## Queue Boundary
+## Queue Boundary — PASS
 
-When an Attendance record is queued:
-
-- `photos` contains media references only;
-- `signature` contains one media reference or an empty string;
-- an internal metadata-only `evidence` summary may exist in Queue storage;
-- Data URLs are excluded;
-- original file names are excluded;
-- full image and signature payloads remain in IndexedDB;
-- replay hydrates payloads only immediately before Attendance Service replay;
-- the internal evidence manifest is removed before the Firebase record write.
-
-Existing legacy inline evidence is not silently copied into Queue. It is blocked with:
-
-```text
-MEDIA_LEGACY_QUEUE_REQUIRES_ONLINE
-```
-
-This prevents sensitive payload leakage until a dedicated legacy-data reprocessing path is accepted.
-
-## Draft Cleanup
-
-Unsaved media drafts are removed when:
-
-- the user changes to another Attendance date;
-- Logout occurs;
-- the evidence workflow is cleared.
-
-Saved local evidence remains available for Queue replay. Attendance record deletion removes referenced local payloads without performing stock mutation.
-
-## Automated Gate
-
-Added:
-
-```text
-tests/attendance-media-signature-integration-check.mjs
-```
-
-Coverage:
-
-- runtime syntax and responsibility boundaries;
-- photo and signature controls present;
-- App loads evidence modules before Queue UI startup;
-- two generated photos and one generated signature;
-- safe state excludes Data URLs;
-- online save hydrates legacy-compatible fields;
-- Queue contains references only;
+- queued Attendance records contain media references only;
+- full payloads remain in IndexedDB;
 - Queue JSON excludes Data URLs and original file names;
-- replay hydrates payloads immediately before Attendance Service;
-- internal manifest is removed before record replay;
-- legacy inline evidence is blocked from Queue;
-- Logout removes unsaved drafts;
-- no Firebase, network, browser Local Storage, Room Stock, Main Stock, ledger, or stockLog ownership in Manager/View.
+- replay hydrates payloads only immediately before Attendance Service;
+- the internal evidence manifest is removed before Firebase write;
+- legacy inline evidence is blocked from Queue with `MEDIA_LEGACY_QUEUE_REQUIRES_ONLINE`;
+- evidence retry does not own Room Stock or audit recovery.
 
-Expected output:
+## Draft Cleanup — PASS
 
-```text
-Attendance Media and Signature integration checks passed.
-```
+Unsaved drafts are removed when the selected date changes, Logout occurs, or the workflow is cleared. Saved references remain available for replay. Attendance deletion removes referenced evidence without performing an additional stock mutation.
 
-## Current Browser Restriction
+## Safety Boundary
 
-Do not yet:
+The isolated gate used generated Data URLs and a simulated signature only. It did not use real classroom photos, real signatures, Firebase writes, real Queue replay, Room Stock mutation, Main Stock mutation, or the quarantined room/date.
 
-- choose a real classroom photo;
-- sign with a real Teacher signature;
-- press Attendance Save/Delete for evidence testing;
-- create or replay a real evidence Queue entry;
-- manually change Firebase evidence fields.
+## Decision
 
-Use generated in-memory fixtures only until the isolated gate and full regression suite pass.
-
-## Next Integration Order
-
-After this gate passes:
-
-1. Pending Milk recipient signatures and photos;
-2. Retroactive Milk recipient signatures and photos;
-3. Vacation Milk parent/recipient signatures and photos;
-4. complete evidence recovery, browser, responsive, and full-regression gates.
+Attendance media and Teacher signature integration is accepted for Sprint 4.7. The next workflow is Pending Milk recipient signatures and record photos.
