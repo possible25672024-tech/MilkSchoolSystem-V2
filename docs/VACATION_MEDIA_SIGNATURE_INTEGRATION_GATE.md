@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.7-media-signature-ui`
 
-Status: IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING
+Status: PASS — LOCAL ISOLATED VALIDATION CONFIRMED
 
 ## Purpose
 
@@ -79,6 +79,8 @@ roomId + academicYear + semester + issueDate + days
 
 Changing any record-identity field removes only unsaved local evidence belonging to the old context. A successful issue marks evidence as saved.
 
+After Teacher Login, the adapter republishes the active preview in a microtask so the Evidence View receives the authenticated roster even when Login event handlers initialize concurrently.
+
 ## Stock and Queue Boundary
 
 The evidence layer does not calculate or mutate:
@@ -101,6 +103,7 @@ Added:
 
 ```text
 tests/vacation-media-signature-integration-check.mjs
+tests/vacation-evidence-login-replay-check.mjs
 ```
 
 Coverage:
@@ -116,10 +119,14 @@ Coverage:
 - draft cleanup on clear;
 - no Firebase, network, browser storage, Room Stock, Main Stock, ledger, or stockLog ownership in Manager/View.
 
-Expected output:
+Confirmed local output:
 
 ```text
 Vacation Milk Media and Signature integration checks passed.
+Vacation evidence login replay checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
+nothing to commit, working tree clean
 ```
 
 ## Current Browser Restriction
@@ -132,14 +139,12 @@ Do not yet:
 - create or replay a real evidence Queue entry;
 - manually modify Firebase evidence fields.
 
-Use generated in-memory fixtures until this gate and the full regression suite pass.
+Use generated in-memory fixtures until the recovery gate and full regression suite pass.
 
 ## Next Gate
-
-After this gate passes:
 
 1. run evidence recovery and duplicate-prevention checks;
 2. run the complete expanded regression suite;
 3. validate desktop read-only rendering;
-4. validate 820 x 1180 responsive rendering;
+4. validate 820 x 1180 responsive read-only rendering;
 5. close Sprint 4.7 only with a synchronized branch and clean working tree.
