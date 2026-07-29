@@ -4,13 +4,15 @@ class MilkSchoolApplication {
         teacherView = window.TeacherView,
         attendanceView = window.AttendanceView,
         syncView = window.SyncView,
-        pendingMilkView = window.PendingMilkView
+        pendingMilkView = window.PendingMilkView,
+        retroactiveMilkView = window.RetroactiveMilkView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
         this.attendanceView = attendanceView;
         this.syncView = syncView;
         this.pendingMilkView = pendingMilkView;
+        this.retroactiveMilkView = retroactiveMilkView;
         this.started = false;
     }
 
@@ -41,6 +43,24 @@ class MilkSchoolApplication {
         return this.pendingMilkView;
     }
 
+    async ensureRetroactiveMilkView() {
+        if (!window.RetroactiveMilkRepository) {
+            await import("../repositories/retroactiveMilkRepository.js");
+        }
+        if (!window.RetroactiveMilkService) {
+            await import("../services/retroactiveMilkService.js");
+        }
+        if (!window.RetroactiveMilkManager) {
+            await import("../retroactive/retroactiveMilkManager.js");
+        }
+        if (!this.retroactiveMilkView) {
+            await import("../retroactive/retroactiveMilkView.js");
+            this.retroactiveMilkView = window.RetroactiveMilkView;
+        }
+
+        return this.retroactiveMilkView;
+    }
+
     async start() {
         if (this.started) {
             return;
@@ -68,6 +88,11 @@ class MilkSchoolApplication {
         const pendingMilkView = await this.ensurePendingMilkView();
         if (pendingMilkView?.initialize) {
             await pendingMilkView.initialize();
+        }
+
+        const retroactiveMilkView = await this.ensureRetroactiveMilkView();
+        if (retroactiveMilkView?.initialize) {
+            await retroactiveMilkView.initialize();
         }
 
         this.started = true;
