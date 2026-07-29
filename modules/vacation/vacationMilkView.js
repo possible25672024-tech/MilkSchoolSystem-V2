@@ -208,14 +208,13 @@ class VacationMilkView {
         this.setBusy(true, "กำลังบันทึกนมช่วงปิดเทอม...");
         try {
             const result = await this.vacationMilkManager.issue(this.formInput());
-            const queued = Boolean(result.stockQueued);
-            if (queued) {
+            if (result.stockQueued) {
                 this.setStatus("บันทึกรายการแล้ว และนำการหักสต็อกเข้าคิวซิงก์", "warning");
             } else {
                 this.setStatus(`บันทึกสำเร็จ · สต็อกห้อง ${result.roomStockBefore} → ${result.roomStockAfter}`, "success");
             }
             await this.teacherManager.refresh?.();
-            await this.handleLoadHistory({ preserveStatus: queued });
+            await this.handleLoadHistory({ preserveStatus: true });
         } catch (error) {
             this.renderError(error);
         } finally {
@@ -232,14 +231,13 @@ class VacationMilkView {
         this.setBusy(true, "กำลังลบและคืนสต็อก...");
         try {
             const result = await this.vacationMilkManager.remove({ recordId });
-            const queued = Boolean(result.stockQueued);
-            if (queued) {
+            if (result.stockQueued) {
                 this.setStatus("ลบรายการแล้ว และนำการคืนสต็อกเข้าคิวซิงก์", "warning");
             } else {
                 this.setStatus(`ลบสำเร็จ · สต็อกห้อง ${result.roomStockBefore} → ${result.roomStockAfter}`, "success");
             }
             await this.teacherManager.refresh?.();
-            await this.handleLoadHistory({ preserveStatus: queued });
+            await this.handleLoadHistory({ preserveStatus: true });
         } catch (error) {
             this.renderError(error);
         } finally {
