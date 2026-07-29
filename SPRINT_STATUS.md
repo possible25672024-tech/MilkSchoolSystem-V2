@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **88% — SHARED, ATTENDANCE, PENDING, AND RETROACTIVE EVIDENCE GATES PASSED / VACATION MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **93% — ALL FOUR EVIDENCE WORKFLOW GATES PASSED / RECOVERY AND DUPLICATE PREVENTION IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -50,11 +50,15 @@ Teacher session roster fallback checks passed.
 Attendance Media and Signature integration checks passed.
 Pending Milk Media and Signature integration checks passed.
 Retroactive Milk Media and Signature integration checks passed.
+Vacation Milk Media and Signature integration checks passed.
+Vacation evidence login replay checks passed.
 Attendance UI checks passed.
 Pending Milk UI checks passed.
 Pending Milk isolated write checks passed.
 Retroactive Milk UI checks passed.
 Retroactive Milk isolated write checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
 nothing to commit, working tree clean
@@ -126,10 +130,11 @@ Confirmed:
 
 - weekly photo draft and previews;
 - one signature for each exact `studentId_absentDate` entitlement;
-- receiver-name compatibility;
+- receiver-name compatibility at the protected write boundary;
+- safe state and Queue exclude receiver identity;
 - protected `photos`, `signature`, and `signatures` fields;
 - partial-stock Queue entries remain stock-only;
-- Queue excludes evidence payloads and receiver identity;
+- Queue excludes evidence payloads and source file names;
 - Main Stock remains unchanged.
 
 ## Retroactive Milk Photos and Recipient Signatures — PASS
@@ -154,50 +159,61 @@ Confirmed:
 - Queue excludes evidence payloads and receiver identity;
 - Main Stock remains unchanged.
 
-## Vacation Milk Photos and Parent/Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
-
-Added:
+## Vacation Milk Photos and Parent/Recipient Signatures — PASS
 
 ```text
 modules/media/vacationEvidenceManager.js
 modules/media/vacationEvidenceAdapter.js
 modules/media/vacationEvidenceView.js
 tests/vacation-media-signature-integration-check.mjs
+tests/vacation-evidence-login-replay-check.mjs
 docs/VACATION_MEDIA_SIGNATURE_INTEGRATION_GATE.md
 ```
 
-UI capability:
+Confirmed:
 
 - selected-record photo draft and lazy previews;
-- maximum five photos;
 - authenticated-room student selector;
-- parent or recipient name input;
 - one signature per student ID;
-- signature count and draft feedback;
-- responsive layout;
-- draft actions explicitly do not write Firebase.
+- parent or recipient name compatibility;
+- unchanged record identity preserves the active draft;
+- Login replay republishes the active preview after Evidence View activation;
+- protected `photos`, `signature`, and `signatures` fields;
+- partial-stock Queue remains stock-only;
+- Queue excludes evidence payloads and receiver identity;
+- Main Stock remains unchanged.
 
-Protected record fields:
+## Evidence Recovery and Duplicate Prevention — IMPLEMENTED / LOCAL TEST PENDING
 
-```js
-{
-  signature: "",
-  signatures: {
-    [studentId]: {
-      sig: dataUrl | "",
-      receiverName: string
-    }
-  },
-  photos: [dataUrl, ...]
-}
+Added:
+
+```text
+tests/media-evidence-recovery-duplicate-check.mjs
+docs/MEDIA_EVIDENCE_RECOVERY_DUPLICATE_GATE.md
 ```
 
-The Vacation partial-stock Queue remains stock-only and must not contain evidence payloads, receiver identity, or source file names.
+Runtime corrections:
+
+- Attendance keeps the active draft when the room and selected date are unchanged;
+- a real room or date change removes only unsaved Attendance payloads;
+- Pending safe state no longer exposes `receiverName`;
+- receiver identity remains available only at the protected legacy write boundary.
+
+Gate coverage:
+
+- repeated context events do not silently clear valid drafts;
+- signature replacement removes the previous draft exactly once;
+- context changes remove each unsaved payload exactly once;
+- removing a Pending owner removes only that owner's draft signature;
+- successful-save ownership is not treated as an unsaved draft;
+- Retroactive and Vacation unchanged contexts preserve evidence;
+- adapter patch markers remain idempotent;
+- no stock, Firebase, network, or real Queue ownership.
 
 Expected local output:
 
 ```text
-Vacation Milk Media and Signature integration checks passed.
+Media evidence recovery and duplicate prevention checks passed.
 ```
 
 ## Teacher Legacy Parity Contract — BINDING
@@ -225,11 +241,11 @@ Artifact:
 
 ## Remaining Sprint 4.7 Work
 
-1. pass Vacation Milk evidence isolated integration test;
-2. validate evidence recovery and duplicate prevention;
-3. run the expanded regression suite;
-4. desktop and 820 x 1180 browser gates;
-5. branch synchronized and working tree clean.
+1. pass the Media evidence recovery and duplicate-prevention isolated test;
+2. run the complete expanded regression suite;
+3. validate desktop read-only rendering;
+4. validate 820 x 1180 responsive read-only rendering;
+5. synchronize the branch and confirm a clean working tree.
 
 ## Queue and Payload Rules
 
@@ -244,7 +260,7 @@ Artifact:
 
 ## Browser Restriction
 
-Until all isolated workflow gates pass:
+Until the recovery gate and full regression suite pass:
 
 - do not attach a real classroom photo;
 - do not save a real Teacher, parent, student, or recipient signature;
@@ -268,7 +284,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- Vacation evidence validation and recovery gates;
+- Media recovery, full regression, and browser validation gates;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
