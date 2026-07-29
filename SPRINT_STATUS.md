@@ -26,7 +26,7 @@ Sprint 4.4 — Pending Milk Operational UI
 
 Status
 
-70% — Legacy `absentMilk` audit, Repository, Service, Manager, View, App integration, module test, and typed `PENDING`/`ROLLBACK` recovery routing are implemented. The Pending Milk module test passed locally. Recovery routing local execution, UI test, complete isolated write/partial-save gate, full regression, browser, and responsive gates remain pending.
+82% — Legacy `absentMilk` audit, Repository, Service, Manager, View, App integration, module gate, and typed `PENDING`/`ROLLBACK` recovery routing gate passed locally. Operational UI and complete isolated issue/delete/partial-save tests are implemented and await local execution. Full 22-test regression, browser, and responsive gates remain pending.
 
 ---
 
@@ -82,7 +82,7 @@ Confirmed:
 
 ✓ Existing issue detection uses `record.students[studentId].days`
 
-✓ Legacy fields `weekStart`, `weekEnd`, `roomId`, `roomName`, `teacher`, issue `date`, `students`, `totalBoxes`, `note`, `signature`, `signatures`, `photos`, and `savedAt`
+✓ Existing fields `weekStart`, `weekEnd`, `roomId`, `roomName`, `teacher`, issue `date`, `students`, `totalBoxes`, `note`, `signature`, `signatures`, `photos`, and `savedAt`
 
 ✓ Issue saves record first, then deducts Room Stock
 
@@ -128,7 +128,7 @@ Runtime Implemented
 
 - UI-safe week load, issue, and remove commands
 - audit queue delegation
-- Room Stock retry queue delegation
+- typed Room Stock retry queue delegation
 - duplicate delete/rollback in-flight guard
 - lifecycle events and state clear
 
@@ -177,7 +177,7 @@ Confirmed locally:
 
 ✓ two-student issue quantity
 
-✓ legacy-compatible record fields
+✓ compatible record fields
 
 ✓ PENDING ledger and OUT stockLog
 
@@ -197,7 +197,7 @@ Confirmed locally:
 
 ---
 
-Recovery Routing Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
+Recovery Routing Gate — PASS
 
 Updated:
 
@@ -206,12 +206,11 @@ Updated:
 - `modules/sync/syncManager.js`
 - `modules/sync/syncView.js`
 
-Added:
+Test:
 
 - `tests/pending-milk-recovery-routing-check.mjs`
-- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
 
-Implemented:
+Confirmed locally:
 
 ✓ Existing queue key remains `tc_pending_saves_v1`
 
@@ -243,31 +242,122 @@ Implemented:
 
 ✓ Queue UI labels typed Pending Milk retries safely
 
-Local command pending:
+✓ `Pending Milk recovery routing checks passed.`
 
-```powershell
-node tests/pending-milk-recovery-routing-check.mjs
-```
+Artifact:
 
-Until this gate passes locally:
-
-- do not perform browser Pending Milk writes;
-- do not create real queue entries;
-- use isolated/in-memory tests only.
+- `docs/PENDING_MILK_RECOVERY_ROUTING_GATE.md`
 
 ---
 
-Remaining Tests
+Operational UI Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
 
-□ Run `tests/pending-milk-recovery-routing-check.mjs`
+Test:
 
-□ Add `tests/pending-milk-ui-check.mjs`
+- `tests/pending-milk-ui-check.mjs`
 
-□ Add `tests/pending-milk-isolated-write-check.mjs`
+Coverage:
 
-□ Run all existing 18 tests plus all Sprint 4.4 tests
+✓ valid View JavaScript and App integration
 
-Expected final count: at least 22 tests.
+✓ programmatic Pending Milk panel creation
+
+✓ no direct Firebase, Repository, fetch, browser-storage, stock, ledger, or stockLog ownership
+
+✓ Teacher-only activation and Admin rejection
+
+✓ selected-week delegation
+
+✓ eligible and already-issued totals
+
+✓ selectable student/date pairs
+
+✓ box count equals selected pair count
+
+✓ explicit issue confirmation
+
+✓ note delegation
+
+✓ Room Stock result feedback
+
+✓ partial-save queue warning
+
+✓ history and confirmed delete delegation
+
+✓ Teacher refresh after successful issue/delete
+
+✓ Logout cleanup
+
+Local command pending:
+
+```powershell
+node tests/pending-milk-ui-check.mjs
+```
+
+---
+
+Isolated Write Gate — IMPLEMENTED / LOCAL EXECUTION PENDING
+
+Test:
+
+- `tests/pending-milk-isolated-write-check.mjs`
+
+Coverage:
+
+✓ successful two-box issue changes Room Stock `50 → 48`
+
+✓ compatible Pending Milk record fields
+
+✓ PENDING ledger quantity `-2`
+
+✓ OUT stockLog
+
+✓ duplicate student/date issue is blocked
+
+✓ successful delete restores Room Stock `48 → 50`
+
+✓ ROLLBACK ledger quantity `2`
+
+✓ IN stockLog
+
+✓ partial issue saves record before stock failure
+
+✓ partial issue queues typed `PENDING` difference `1`
+
+✓ partial delete removes record before stock failure
+
+✓ partial delete queues typed `ROLLBACK` difference `-1`
+
+✓ failed stock operations do not mutate Room Stock before retry
+
+✓ Main Stock remains 999 throughout
+
+✓ Manager emits success, delete, and queued-work events
+
+Artifact:
+
+- `docs/PENDING_MILK_ISOLATED_WRITE_GATE.md`
+
+Local command pending:
+
+```powershell
+node tests/pending-milk-isolated-write-check.mjs
+```
+
+---
+
+Automated Regression Gate — Pending
+
+Existing Sprint 4.3 tests: 18
+
+Sprint 4.4 tests:
+
+- `tests/pending-milk-module-check.mjs`
+- `tests/pending-milk-recovery-routing-check.mjs`
+- `tests/pending-milk-ui-check.mjs`
+- `tests/pending-milk-isolated-write-check.mjs`
+
+Expected final count: 22 tests.
 
 ---
 
@@ -297,7 +387,7 @@ Chrome Device Toolbar at 820 x 1180:
 
 □ Console clean
 
-All browser write interaction remains prohibited until the complete isolated write and recovery gates pass.
+Browser Pending Milk write interaction remains prohibited until the UI, isolated write, and full regression gates pass.
 
 ---
 
