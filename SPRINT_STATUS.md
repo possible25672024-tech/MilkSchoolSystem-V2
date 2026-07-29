@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.6 — Vacation Milk Operational UI
 
-Status: **65% — LEGACY AND MODULE GATES PASSED / TYPED RECOVERY IMPLEMENTED / LOCAL RECOVERY VALIDATION PENDING**
+Status: **82% — MODULE AND RECOVERY GATES PASSED / UI AND ISOLATED TESTS IMPLEMENTED / FIREBASE INDEX BLOCKER CONFIRMED**
 
 Sprint 4.5 Retroactive Milk Operational UI completed all automated, isolated, desktop, indexed Network, Console, and 820 x 1180 responsive gates and was fast-forward integrated into `develop` at:
 
@@ -41,21 +41,6 @@ Protected `index.html` and `teacher.html` remain unchanged and operational.
 
 Physical iPad remains deferred and must not be represented as PASS.
 
-## Sprint 4.5 Final Result — PASS
-
-Confirmed:
-
-- all 26 regression checks passed;
-- empty Queue safety passed;
-- Admin regression passed;
-- Teacher Retroactive preview passed;
-- indexed `retroMilk` history request returned HTTP 200;
-- seven history records rendered;
-- no POST, PUT, PATCH, or DELETE;
-- Console clean;
-- loaded 820 x 1180 responsive layout passed;
-- no real-classroom write occurred.
-
 ## Teacher Legacy Parity Contract — BINDING
 
 V2 must retain every Teacher capability from protected `teacher.html`, including:
@@ -81,9 +66,7 @@ Artifact:
 
 ## Sprint 4.6 Legacy Audit — PASS
 
-Protected `teacher.html` was inspected read-only.
-
-Confirmed:
+Confirmed from protected `teacher.html`:
 
 - Firebase path `milkApp/vacationMilk`;
 - Firebase push-ID records;
@@ -160,14 +143,16 @@ App and Sync:
 - `modules/core/app.js`;
 - `modules/sync/vacationSyncAdapter.js`;
 - Retroactive and Vacation adapters install before Queue startup replay;
+- existing `ATTENDANCE`, `PENDING`, `RETRO`, and `ROLLBACK` routing remains available;
 - protected legacy files remain unchanged.
 
-## Module and Documentation Gates — PASS
+## Module, Recovery, and Documentation Gates — PASS
 
 Confirmed locally:
 
 ```text
 Vacation Milk module checks passed.
+Vacation Milk recovery routing checks passed.
 Cutover documentation checks passed.
 ```
 
@@ -176,87 +161,117 @@ At the reported validation point:
 - feature branch synchronized with origin;
 - working tree clean.
 
-Coverage includes:
+Module coverage:
 
-- protected legacy path/schema evidence;
-- room-scoped Repository boundary;
-- day validation;
 - three students × 30 days = 90 boxes;
 - compatible signatures and photos;
 - issue changes Room Stock `200 → 110`;
 - exact duplicate issue blocked;
-- history totals;
 - delete restores Room Stock `110 → 200`;
 - ledger `VACATION`/`ROLLBACK`;
 - stockLog `OUT`/`IN`;
 - cross-room rejection;
-- Main Stock remains 999;
-- App integration and View ownership boundary.
+- Main Stock remains 999.
 
-## Typed Recovery Routing — IMPLEMENTED / LOCAL RUN PENDING
+Recovery coverage:
+
+- QueueStorage, SyncService, SyncManager, and SyncView preserve `VACATION`;
+- App installs Vacation routing before startup Queue replay;
+- legacy Queue entries remain `ATTENDANCE`;
+- existing `RETRO`, `PENDING`, and `ROLLBACK` remain available;
+- Vacation replay changes Room Stock exactly once;
+- ledger `VACATION` quantity `-90`;
+- stockLog `OUT` quantity `90`;
+- failed audit becomes audit-only work;
+- audit-only retry never repeats Room Stock mutation;
+- exact rollback restores Room Stock `110 → 200`;
+- Main Stock remains 999.
+
+Artifacts:
+
+- `docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md`
+
+## Operational UI and Isolated Write Gates — IMPLEMENTED / LOCAL RUN PENDING
 
 Added:
 
 ```text
-modules/sync/vacationSyncAdapter.js
-tests/vacation-milk-recovery-routing-check.mjs
-docs/VACATION_MILK_RECOVERY_ROUTING_GATE.md
+tests/vacation-milk-ui-check.mjs
+tests/vacation-milk-isolated-write-check.mjs
+docs/VACATION_MILK_ISOLATED_WRITE_GATE.md
 ```
 
-Implemented:
+Coverage:
 
-- QueueStorage preserves `VACATION`;
-- SyncService normalizes and replays `VACATION`;
-- SyncManager safe summaries preserve `VACATION`;
-- SyncView labels Vacation Milk retry safely;
-- App installs Vacation routing before startup Queue replay;
-- existing `RETRO`, `PENDING`, `ROLLBACK`, and legacy `ATTENDANCE` routing remains available;
-- `VACATION` retry creates ledger type `VACATION`;
-- `VACATION` retry creates stockLog type `OUT`;
-- `ROLLBACK` remains ledger `ROLLBACK` and stockLog `IN`;
-- audit failure converts to audit-only work;
-- audit-only retry never repeats Room Stock mutation;
-- Main Stock remains unchanged.
-
-Local command:
-
-```powershell
-node tests/vacation-milk-recovery-routing-check.mjs
-```
+- Teacher-only panel and Admin rejection;
+- default 30-day vacation period;
+- visible student names and per-student quantity;
+- Shared Media & Signature handoff;
+- student/day/box/Room Stock summaries;
+- explicit issue and delete confirmations;
+- successful issue feedback `200 → 110`;
+- successful delete feedback `110 → 200`;
+- exact duplicate rejection;
+- partial issue queued as `VACATION` difference `30`;
+- partial delete queued as `ROLLBACK` difference `-30`;
+- failed stock mutation leaves Room Stock unchanged before retry;
+- compatible `signature`, `signatures`, and `photos` fields remain present;
+- no Firebase or real classroom writes;
+- Main Stock remains 999.
 
 Expected:
 
 ```text
-Vacation Milk recovery routing checks passed.
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
 ```
 
-Until this test passes:
+## Firebase Realtime Database Index — CONFIRMED BLOCKER
 
-- do not press `บันทึกนมช่วงปิดเทอม`;
-- do not press Vacation Milk delete/rollback;
-- do not create or replay a real Queue entry;
-- use Mock/In-memory validation only.
+Read-only browser evidence confirms the operational preview works:
 
-## Firebase Query Index — PENDING VALIDATION
+```text
+16 students × 30 days = 480 boxes
+Room Stock = 476
+```
 
-The room-scoped Repository query requires:
+History loading currently returns HTTP 400:
+
+```text
+Index not defined, add ".indexOn": "roomId", for path "/milkApp/vacationMilk"
+```
+
+Current Firebase Rules still contain only:
+
+```text
+/milkApp/absentMilk → .indexOn ["roomId"]
+/milkApp/retroMilk  → .indexOn ["roomId"]
+```
+
+After the UI and isolated write gates pass, preserve those indexes and add:
 
 ```text
 /milkApp/vacationMilk → .indexOn ["roomId"]
 ```
 
-Do not change Firebase Rules until the typed recovery, UI, and isolated write gates pass. Existing indexes for `absentMilk` and `retroMilk` must be preserved.
+Root-level public `.read` and `.write` remain a production-security blocker.
 
-## Next Gates
+## Remaining Gates
 
-1. Typed `VACATION` Queue recovery test.
-2. Operational UI test.
-3. Isolated issue/delete/partial-save test.
-4. Complete regression run.
-5. Firebase room index publish/validation.
-6. Desktop read-only indexed Network and Console gate.
-7. Responsive 820 x 1180 gate.
-8. Clean branch and working tree.
+1. Vacation Milk UI local test.
+2. Vacation Milk isolated write local test.
+3. Publish and validate the Vacation Milk room index.
+4. Complete all 30 regression checks.
+5. Desktop read-only indexed Network and Console gate.
+6. Responsive 820 x 1180 gate.
+7. Clean branch and working tree.
+
+## Browser Restriction
+
+- do not press `บันทึกนมช่วงปิดเทอม`;
+- do not press Vacation Milk delete/rollback;
+- do not create or replay a real Queue entry;
+- do not use a real-classroom write.
 
 ## Mandatory Parity Sequence After Sprint 4.6
 
