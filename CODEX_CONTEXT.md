@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.1
+Version: 3.2
 Last Updated: 2026-07-29
 
 ---
@@ -30,161 +30,134 @@ Modular V2 Firebase, repository, stock, report, room, Teacher, Attendance, queue
 
 ↓
 
-Teacher shell, Attendance CRUD UI, and Offline Queue operational UI completed and approved for `develop`
+Teacher shell, Attendance CRUD UI, Offline Queue UI, and Pending Milk UI completed and approved for `develop`
 
 ↓
 
-Pending Milk operational UI is next
+Sprint 4.5 Retroactive Milk Operational UI is active
 
 Production cutover remains blocked.
 
 ---
 
-Completed Sprints
-
-### Sprint 3.4.2 — Recovery Foundation
-
-- runtime Firebase configuration
-- Firebase REST service
-- BaseRepository
-- Admin and Teacher login
-- compatible sessions
-- V2 bootstrap and dependency order
-
-### Sprint 3.4.3 — Stock
-
-- Main Stock and Room Stock separation
-- receive, distribute, rollback, rebuild, validation, and ledger rules
-
-### Sprint 3.4.4 — Report
-
-- read-only classroom, grade, and school aggregation
-- Thai grade normalization
-- print and Excel models
-
-Production gap: browser-local adapter remains deferred.
-
-### Sprint 3.5 — Room
-
-- immutable Room IDs
-- Room Stock preservation
-- duplicate validation
-- parsed-sheet import boundary
-- deletion safety
-
-Production gaps: XLSX binary parsing remains legacy; complete-room multi-admin concurrency remains unresolved.
-
-### Sprint 3.6 — Teacher Service Foundation
-
-- authenticated-room-only boundary
-- Teacher session and cross-room protection
-- dashboard and Room Stock-only command preparation
-
-### Sprint 3.7 — Attendance Service Foundation
-
-- compatible key `{roomId}_{YYYY-MM-DD}`
-- create, edit-by-difference, delete rollback
-- ledger and stockLog rules
-- Main Stock isolation
-
-### Sprint 3.8 — Offline Queue and Sync
-
-- compatible `tc_pending_saves_v1`
-- legacy `rec` and `diff` normalization
-- baseline preservation
-- sequential retry and bounded backoff
-- Room Stock-only replay
-- audit-only recovery
-
-### Sprint 3.9 — Performance
-
-- identical in-flight GET deduplication
-- GET preflight removal
-- Login context reuse
-- Teacher `roomSnapshot`
-- default four-request Teacher core refresh
-- today's Attendance `/data` child only
-- deferred history loading
-
-Recorded desktop result on the 83-room dataset:
-
-- before: approximately 20.5 MB across 5 requests
-- after: approximately 1.6 KB across 4 requests
-
-### Sprint 4.0 — Cutover Readiness and Compatibility
-
-- Firebase ETag reads
-- `If-Match` conditional Room Stock writes
-- HTTP 412 retry and latest-value recalculation
-- partial Attendance-save recovery
-- persistent Room Stock-only retry
-- persistent audit-only recovery
-- deterministic concurrency and audit tests
-- parity, decisions, Teacher UI integration, backup, and rollback documentation
-
-Integration decision:
-
-- merged into `develop`
-- not approved for `main` or production cutover
+Completed Operational Sprints
 
 ### Sprint 4.1 — Teacher UI Shell and Read-Only State
 
-- modular `TeacherView`
-- separate Admin and Teacher shell containers
-- school, room, teacher, Room Stock, queue count, and connection state
-- Logout and restored-session rendering
-- no direct Firebase, Repository, storage, or stock calculations in the View
-- Admin, Teacher, Network, desktop, responsive, Offline/Online, Console, and 14-test gates passed
-
-Integration decision:
-
+- modular Teacher shell
+- authenticated-room snapshot
+- Room Stock, queue, and connection state
+- Admin and Teacher role routing
+- desktop, responsive, Network, and Console gates passed
 - merged into `develop`
-- does not replace `teacher.html`
 
 ### Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
-- modular `AttendanceView`
 - exact one-date Attendance loading
-- authenticated-room student list
-- present/absent and notes controls
+- present/absent controls and notes
 - create/edit/delete through AttendanceManager
-- Room Stock result, conflict, queue, and audit feedback
-- complete isolated create/edit/delete validation
+- Room Stock difference adjustment and rollback
+- ETag conflict protection
+- isolated write validation
 - Main Stock unchanged
 - all 16 regression checks passed
-- desktop and 820 x 1180 browser gates passed
-
-Integration decision:
-
+- desktop and 820 x 1180 gates passed
 - merged into `develop`
-- not approved for `main` or production cutover
 
 ### Sprint 4.3 — Offline Queue Operational UI
 
-- modular `SyncView`
-- online, offline, syncing, pending, failed, deferred, and synchronized states
-- persistent queue count, attempts, last-sync time, summary, and next retry
-- safe item summaries without student/media/audit payload exposure
-- manual retry through `SyncManager.flushNow("manual-ui")`
-- retry disabled while offline, flushing, or empty
-- Teacher-only Sync lifecycle start/stop
-- safe queue summaries exposed through SyncManager
-- no direct QueueStorage, SyncService, Firebase, Repository, fetch, or browser-storage access from the View
-- complete in-memory restart/reconnect persistence and replay validation
-- successful item removal and failed/deferred retention verified
+- online/offline/syncing Queue states
+- persistent count, attempts, last-sync time, summary, and next retry
+- safe item summaries
+- manual retry through SyncManager
+- restart/reconnect persistence and replay validation
+- successful-item removal and failed/deferred retention
 - Main Stock remained 999
 - all 18 regression checks passed
-- empty-queue desktop browser gate passed
-- Offline/reconnect and settled synchronized state passed
-- clean Console and read-only Network evidence passed
-- Teacher/Admin Logout regression passed
-- 820 x 1180 responsive gate passed
+- desktop, Network, Console, Logout, and 820 x 1180 gates passed
+- merged into `develop`
+
+### Sprint 4.4 — Pending Milk Operational UI
+
+- `PendingMilkRepository`, `PendingMilkService`, `PendingMilkManager`, and `PendingMilkView`
+- exact five-day Attendance reads
+- authenticated-room `absentMilk` query
+- absent-only eligibility and already-issued exclusion
+- Service-level duplicate prevention
+- compatible Firebase push records
+- Room Stock-only issue and rollback
+- `PENDING` / `ROLLBACK` ledger routing
+- `OUT` / `IN` stockLog routing
+- typed partial-save Queue recovery
+- audit-only retry without repeated Room Stock mutation
+- Firebase `.indexOn: ["roomId"]` at `/milkApp/absentMilk`
+- all four Sprint-specific tests and all 22 regression checks passed
+- desktop read-only, indexed Network, clean Console, and completed-data 820 x 1180 gates passed
+- Main Stock remained 999 in isolated validation
 - `index.html` and `teacher.html` unchanged
-
-Integration decision:
-
 - approved for fast-forward merge into `develop`
-- not approved for `main` or production cutover
+
+---
+
+Active Sprint
+
+Sprint 4.5 — Retroactive Milk Operational UI
+
+Branch:
+
+`feature/sprint-4.5-retroactive-milk-ui`
+
+Verified protected legacy behavior:
+
+- page label `จ่ายนมย้อนหลัง`
+- Firebase path `milkApp/retroMilk`
+- Firebase push-ID record creation
+- academic year and semester
+- issue date
+- retroactive start/end dates
+- Monday–Friday calculation only
+- quantity equals weekday count multiplied by authenticated-room student count
+- `debtBoxes` starts equal to `totalBoxes`
+- status starts as `debt`
+- note, per-student signatures, photos, and `savedAt` preserved
+- record saved before Room Stock deduction
+- ledger type `RETRO` on issue
+- record deleted before Room Stock restoration
+- ledger type `ROLLBACK` on delete
+- duplicate delete/rollback guard
+- Main Stock unchanged
+
+Target architecture:
+
+- `modules/repositories/retroactiveMilkRepository.js`
+- `modules/services/retroactiveMilkService.js`
+- `modules/retroactive/retroactiveMilkManager.js`
+- `modules/retroactive/retroactiveMilkView.js`
+
+Target behavior:
+
+- authenticated-room-only history
+- valid date-range and weekday calculation
+- stable authenticated-room student snapshot
+- exact quantity calculation
+- compatible debt record creation
+- Room Stock-only issue and rollback
+- typed `RETRO` and `ROLLBACK` Queue recovery
+- audit-only retry without repeated Room Stock mutation
+- Manager in-flight delete guard
+- View contains no Firebase, Repository, browser-storage, stock, ledger, or retry ownership
+- in-memory isolated issue/delete/partial-save validation only
+- desktop read-only, Network, Console, and 820 x 1180 gates
+
+Out of scope:
+
+- Vacation Milk
+- debt settlement by local authority
+- photos/signatures capture expansion
+- printing changes
+- production deployment
+- real-classroom write tests
+- replacement or removal of `teacher.html`
 
 ---
 
@@ -197,7 +170,7 @@ Room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined:
 - recorded pre-test Room Stock: 1,275
 - known difference: -22
 
-Room `อ.3-4` / `mqn0z13emyrc` is reconciled at Attendance and Room Stock level:
+Room `อ.3-4` / `mqn0z13emyrc` remains reconciled at Attendance and Room Stock level:
 
 - Attendance: `null`
 - Room Stock: 350
@@ -208,34 +181,15 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 ---
 
-Next Sprint
+Production Blockers
 
-Sprint 4.4 — Pending Milk Operational UI
-
-Planned branch:
-
-`feature/sprint-4.4-pending-milk-ui`
-
-Goals:
-
-- show absent students eligible for pending milk
-- issue pending milk through a dedicated Manager/Service command path
-- deduct Room Stock only
-- prevent duplicate issue for the same student/date/reference
-- preserve legacy-compatible `absentMilk` fields and references
-- use authenticated-room-only access
-- expose Room Stock result and audit feedback
-- use isolated write validation only
-- preserve protected legacy files and Firebase paths
-
-Out of scope:
-
-- Retroactive Milk
-- Vacation Milk
-- photos and signatures
-- printing and Attendance history
-- replacement or removal of `teacher.html`
-- production deployment
+- Firebase root-level public `.read` and `.write` remain enabled.
+- Deferred real-data incident remains open.
+- Physical iPad validation remains deferred.
+- Backup and restore rehearsal remains pending.
+- Real multi-writer validation requires an isolated Firebase environment.
+- Operational Admin parity is incomplete.
+- Vacation Milk UI is incomplete.
 
 ---
 
@@ -244,7 +198,7 @@ Protected Legacy Files
 - `index.html`
 - `teacher.html`
 
-Do not delete, rename, replace, or silently redirect these files without explicit production-cutover approval.
+Do not delete, rename, replace, modify, or silently redirect these files without explicit production-cutover approval.
 
 ---
 
@@ -256,11 +210,12 @@ Never Break
 - Attendance edits change Room Stock by the present-count difference only.
 - Attendance deletion restores previously consumed Room Stock.
 - Attendance keys remain `{roomId}_{YYYY-MM-DD}`.
+- Retroactive quantity equals weekday count multiplied by authenticated-room student count.
+- Retroactive issue creates the compatible record before stock deduction.
+- Retroactive deletion removes the record before stock restoration.
 - ETag conflicts read the newest Room Stock and recalculate before retry.
-- Offline retries preserve the original Attendance baseline.
-- Repeated queued edits keep the latest record without replacing the original baseline.
+- Offline retries preserve original workflow metadata.
 - Audit-only retries never repeat a successful Room Stock mutation.
-- Partial Attendance saves surface queued Room Stock status without rewriting Attendance.
 - Queue storage key remains `tc_pending_saves_v1`.
 - Legacy `rec` and `diff` compatibility remains intact.
 - Reports remain read-only.
