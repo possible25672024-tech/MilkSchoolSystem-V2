@@ -10,6 +10,7 @@ const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf
 const decisions = read("docs/CUTOVER_DECISIONS.md");
 const rollback = read("docs/PRODUCTION_ROLLBACK_PLAN.md");
 const teacherPlan = read("docs/TEACHER_UI_INTEGRATION_PLAN.md");
+const teacherParity = read("docs/TEACHER_LEGACY_PARITY_CONTRACT.md");
 const readiness = read("docs/CUTOVER_READINESS_REPORT.md");
 const parity = read("docs/CUTOVER_PARITY_MATRIX.md");
 const sprint = read("SPRINT_STATUS.md");
@@ -18,6 +19,7 @@ for (const [name, source] of [
     ["CUTOVER_DECISIONS.md", decisions],
     ["PRODUCTION_ROLLBACK_PLAN.md", rollback],
     ["TEACHER_UI_INTEGRATION_PLAN.md", teacherPlan],
+    ["TEACHER_LEGACY_PARITY_CONTRACT.md", teacherParity],
     ["CUTOVER_READINESS_REPORT.md", readiness],
     ["CUTOVER_PARITY_MATRIX.md", parity],
     ["SPRINT_STATUS.md", sprint]
@@ -51,6 +53,27 @@ assert.ok(teacherPlan.includes("teacher.html` remains available"), "Teacher UI p
 assert.ok(teacherPlan.includes("Offline and Sync Feedback"), "Teacher UI plan must cover queue and offline UI");
 assert.ok(teacherPlan.includes("Pending Milk"), "Teacher UI plan must cover Pending Milk");
 assert.ok(teacherPlan.includes("Photos and Signatures"), "Teacher UI plan must cover media workflows");
+
+for (const requiredMenu of [
+    "ภาพรวมการดื่มนม",
+    "เช็คดื่มนมรายวัน",
+    "ประวัติการเช็ค",
+    "สรุปรายงาน",
+    "พิมพ์รายงาน A4",
+    "นมค้างรายสัปดาห์",
+    "จ่ายนมย้อนหลัง",
+    "จ่ายนมช่วงปิดเทอม",
+    "รายงานนักเรียน",
+    "สต็อกนมคงเหลือ",
+    "ตั้งค่า",
+    "ออกจากระบบ"
+]) {
+    assert.ok(teacherParity.includes(requiredMenu), `Teacher parity contract must retain ${requiredMenu}`);
+}
+assert.ok(teacherParity.includes("daily photo evidence"), "Teacher parity contract must retain Attendance photo evidence");
+assert.ok(teacherParity.includes("Teacher signature"), "Teacher parity contract must retain Teacher signature");
+assert.ok(teacherParity.includes("Media and Signature Boundary"), "Teacher parity contract must define safe media handling");
+assert.ok(teacherParity.includes("must not replace `teacher.html`"), "Teacher parity contract must block premature legacy replacement");
 
 assert.ok(readiness.includes("Overall status: NOT READY FOR PRODUCTION CUTOVER"), "Readiness report must not claim production readiness");
 assert.ok(readiness.includes("Develop integration status: READY"), "Readiness report must preserve the Sprint 4.0 develop-integration decision");
