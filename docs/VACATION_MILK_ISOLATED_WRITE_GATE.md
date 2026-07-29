@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.6-vacation-milk-ui`
 
-Status: IMPLEMENTED / LOCAL VALIDATION PENDING
+Status: PASS — operational UI and isolated issue/delete/partial-save checks confirmed locally
 
 ## Purpose
 
@@ -15,9 +15,20 @@ Validate the operational Teacher UI, successful issue/delete behavior, exact dup
 - `tests/vacation-milk-ui-check.mjs`
 - `tests/vacation-milk-isolated-write-check.mjs`
 
-## Operational UI Coverage
+## Confirmed Local Output
 
-The UI gate verifies:
+```text
+Vacation Milk UI checks passed.
+Vacation Milk isolated write checks passed.
+```
+
+The feature branch was synchronized with origin at the reported validation point.
+
+A diagnostic file named `vacation-ui-error.txt` was created only while investigating the failed assertion. It is not a product artifact and must remain untracked or be removed before the final clean-tree gate.
+
+## Operational UI Gate — PASS
+
+Verified:
 
 - programmatic Vacation Milk panel creation;
 - Teacher-only activation and Admin rejection;
@@ -36,17 +47,12 @@ The UI gate verifies:
 - exact delete/rollback delegation;
 - restored Room Stock feedback `110 → 200`;
 - partial-save Queue warning;
+- successful and queued result messages remain visible after automatic history refresh;
 - Teacher stock refresh after issue/delete;
 - Logout cleanup;
 - no direct Firebase, Repository, browser storage, QueueStorage, stock, ledger, stockLog, or retry ownership in the View.
 
-Expected output:
-
-```text
-Vacation Milk UI checks passed.
-```
-
-## Isolated Successful Issue
+## Isolated Successful Issue — PASS
 
 In-memory baseline:
 
@@ -56,7 +62,7 @@ In-memory baseline:
 - Room Stock: 200;
 - Main Stock: 999.
 
-Expected result:
+Confirmed:
 
 - quantity: 90 boxes;
 - compatible record saved before stock mutation;
@@ -69,25 +75,25 @@ Expected result:
 - stockLog type `OUT`, quantity `90`;
 - Main Stock remains 999.
 
-## Exact Duplicate Protection
+## Exact Duplicate Protection — PASS
 
-The same combination must be rejected:
+The same combination was rejected:
 
 ```text
 roomId + academicYear + semester + issueDate + days
 ```
 
-Expected error:
+Confirmed error:
 
 ```text
 VACATION_DUPLICATE_ISSUE
 ```
 
-No extra record or Room Stock mutation may occur.
+No extra record or Room Stock mutation occurred.
 
-## Successful Delete and Rollback
+## Successful Delete and Rollback — PASS
 
-Expected:
+Confirmed:
 
 - record deleted before stock restoration;
 - Room Stock `110 → 200`;
@@ -95,75 +101,69 @@ Expected:
 - stockLog type `IN`, quantity `90`;
 - Main Stock remains 999.
 
-## Partial Issue
+## Partial Issue — PASS
 
-The isolated gate deliberately fails Room Stock after a compatible 30-box record is saved.
+The isolated gate deliberately failed Room Stock after a compatible 30-box record was saved.
 
-Expected:
+Confirmed:
 
-- record remains saved;
-- Room Stock remains 200 before retry;
-- Manager returns `stockQueued: true`;
-- difference is `30`;
-- operation type is `VACATION`;
-- safe Vacation Milk note is preserved;
-- Main Stock remains 999.
+- record remained saved;
+- Room Stock remained 200 before retry;
+- Manager returned `stockQueued: true`;
+- difference was `30`;
+- operation type was `VACATION`;
+- safe Vacation Milk note was preserved;
+- Main Stock remained 999.
 
-## Partial Delete
+## Partial Delete — PASS
 
-The isolated gate deliberately fails Room Stock after the record is deleted.
+The isolated gate deliberately failed Room Stock after the record was deleted.
 
-Expected:
+Confirmed:
 
-- record remains deleted;
-- Room Stock remains 200 before retry;
-- Manager returns `stockQueued: true`;
-- difference is `-30`;
-- operation type is `ROLLBACK`;
-- safe rollback note is preserved;
-- Main Stock remains 999.
+- record remained deleted;
+- Room Stock remained 200 before retry;
+- Manager returned `stockQueued: true`;
+- difference was `-30`;
+- operation type was `ROLLBACK`;
+- safe rollback note was preserved;
+- Main Stock remained 999.
 
-Expected output:
+## Firebase Index Validation — PASS
 
-```text
-Vacation Milk isolated write checks passed.
-```
-
-## Safety Boundary
-
-The tests:
-
-- do not load FirebaseService;
-- do not instantiate the production Repository;
-- do not call `fetch`;
-- do not use Local Storage or Session Storage;
-- do not use room `อ.3-3`;
-- do not use room ID `mqn0z13eyx5b`;
-- do not use date `2026-07-28`;
-- do not change `index.html` or `teacher.html`;
-- do not implement or discard deferred photo/signature/report parity.
-
-## Firebase Index Blocker
-
-The read-only browser screenshot confirms that the UI preview works, while history loading currently returns:
-
-```text
-Index not defined, add ".indexOn": "roomId", for path "/milkApp/vacationMilk"
-```
-
-Do not publish the index until both local tests in this gate pass. After they pass, preserve existing indexes and add only:
+The product owner published:
 
 ```text
 /milkApp/vacationMilk → .indexOn ["roomId"]
 ```
 
+Read-only browser validation returned HTTP 200 for the room-scoped Vacation Milk history query. The previous HTTP 400 index blocker is closed.
+
+Artifact:
+
+- `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
+
+## Safety Boundary
+
+The automated tests:
+
+- did not load FirebaseService;
+- did not instantiate the production Repository;
+- did not call `fetch`;
+- did not use Local Storage or Session Storage;
+- did not use room `อ.3-3`;
+- did not use room ID `mqn0z13eyx5b`;
+- did not use date `2026-07-28`;
+- did not change `index.html` or `teacher.html`;
+- did not implement or discard deferred photo/signature/report parity.
+
+The browser index validation was read-only and did not press issue, delete, or Queue retry.
+
 ## Decision
 
-Browser issue/delete actions remain prohibited. After these two local gates pass, the next steps are:
+The Vacation Milk operational UI, isolated issue/delete/partial-save gate, and Firebase room-index gate are accepted.
 
-1. publish and validate the Vacation Milk room index;
-2. run the complete 30-test regression gate;
-3. perform desktop and responsive read-only browser validation.
+Browser issue/delete actions remain prohibited. The next acceptance step is the complete 30-test regression run, followed by final desktop Console and 820 x 1180 responsive read-only validation.
 
 The later Media and Signature Sprint remains mandatory under:
 
