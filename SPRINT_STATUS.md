@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **65% — SHARED MEDIA GATES PASSED / ATTENDANCE PHOTO AND TEACHER SIGNATURE INTEGRATION IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **72% — SHARED MEDIA AND ATTENDANCE EVIDENCE GATES PASSED / PENDING MILK EVIDENCE IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -36,27 +36,6 @@ Protected `index.html` and `teacher.html` remain unchanged and operational.
 
 Physical iPad remains deferred and must not be represented as PASS.
 
-## Sprint 4.6 Acceptance Record
-
-Confirmed before integration:
-
-```text
-Vacation Milk module checks passed.
-Vacation Milk recovery routing checks passed.
-Vacation Milk UI checks passed.
-Vacation Milk isolated write checks passed.
-Cutover documentation checks passed.
-ALL 30 REGRESSION CHECKS PASSED
-```
-
-Browser evidence passed:
-
-- indexed `vacationMilk` room GET returned HTTP 200;
-- no POST, PUT, PATCH, or DELETE during read-only validation;
-- Console clean;
-- desktop and 820 x 1180 responsive layouts passed;
-- working tree clean and branch synchronized with origin.
-
 ## Sprint 4.7 Accepted Local Gates
 
 Confirmed locally:
@@ -68,19 +47,116 @@ Signature Pad checks passed.
 Media store checks passed.
 Media Queue redaction checks passed.
 Teacher session roster fallback checks passed.
+Attendance Media and Signature integration checks passed.
+Attendance UI checks passed.
+Sync UI checks passed.
+Cutover documentation checks passed.
 nothing to commit, working tree clean
 ```
 
-Teacher-session roster race condition acceptance:
+## Shared Media Policy and Processor — PASS
 
-- authenticated room roster visible with 16 students;
-- Vacation preview calculated 16 × 30 = 480 boxes;
-- live Room Stock visible;
-- no real evidence write performed.
+Implemented:
+
+```text
+modules/media/mediaPolicy.js
+modules/media/mediaProcessor.js
+modules/media/mediaStore.js
+modules/media/mediaEnvelope.js
+modules/signature/signaturePad.js
+```
+
+Confirmed:
+
+- maximum five photos per record;
+- JPEG, PNG, and WebP source support;
+- 8 MB source limit;
+- longest edge 1,000 px;
+- JPEG quality 0.7;
+- 400 KB processed-photo limit;
+- 120 KB signature limit;
+- 2.25 MB aggregate evidence limit;
+- generated 320-pixel thumbnails;
+- Pointer, Touch, and Mouse signature input;
+- empty-signature rejection;
+- lazy IndexedDB payload storage;
+- reference-only manifests;
+- Data URL, blob, payload, and source-file-name redaction;
+- Queue key remains `tc_pending_saves_v1`;
+- no Firebase or stock ownership.
+
+## Attendance Daily Photo and Teacher Signature — PASS
+
+Implemented:
+
+```text
+modules/media/attendanceEvidenceManager.js
+modules/media/attendanceEvidenceView.js
+modules/media/attendanceEvidenceAdapter.js
+tests/attendance-media-signature-integration-check.mjs
+docs/ATTENDANCE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
+```
+
+Confirmed:
+
+- selected-date photo and Teacher-signature draft;
+- local draft does not write Firebase;
+- online save hydrates protected `photos` and `signature` fields;
+- Queue keeps references only;
+- replay hydrates immediately before Attendance Service;
+- legacy inline evidence is blocked from Queue;
+- deletion cleanup does not own stock mutation;
+- Main Stock remains unchanged.
+
+## Pending Milk Photos and Recipient Signatures — IMPLEMENTED / LOCAL TEST PENDING
+
+Added:
+
+```text
+modules/media/pendingEvidenceManager.js
+modules/media/pendingEvidenceAdapter.js
+modules/media/pendingEvidenceView.js
+tests/pending-media-signature-integration-check.mjs
+docs/PENDING_MEDIA_SIGNATURE_INTEGRATION_GATE.md
+```
+
+UI capability:
+
+- weekly record photo selector and previews;
+- maximum five photos;
+- selected student-and-absence-date owner list;
+- receiver-name input;
+- one signature per exact entitlement key;
+- signature count and draft feedback;
+- responsive layout;
+- draft actions explicitly do not write Firebase.
+
+Protected record fields:
+
+```js
+{
+  signature: "",
+  signatures: {
+    [studentId + "_" + absentDate]: {
+      sig: dataUrl | "",
+      receiverName: string
+    }
+  },
+  photos: [dataUrl, ...]
+}
+```
+
+Pending partial-stock Queue entries remain stock-only and must not contain evidence payloads, receiver identity, or source file names.
+
+Expected local output:
+
+```text
+Pending Milk Media and Signature integration checks passed.
+```
 
 ## Teacher Legacy Parity Contract — BINDING
 
-V2 must retain every Teacher capability from protected `teacher.html`, including:
+V2 must retain:
 
 - ภาพรวมการดื่มนม
 - เช็คดื่มนมรายวัน
@@ -101,160 +177,36 @@ Artifact:
 
 - `docs/TEACHER_LEGACY_PARITY_CONTRACT.md`
 
-## Shared Media Policy and Processor — PASS
-
-Implemented:
-
-```text
-docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md
-modules/media/mediaPolicy.js
-modules/media/mediaProcessor.js
-tests/media-policy-check.mjs
-tests/media-processor-check.mjs
-```
-
-Confirmed boundaries:
-
-- maximum five photos;
-- JPEG, PNG, and WebP source allowlist;
-- 8 MB source limit;
-- longest edge 1,000 px;
-- JPEG quality 0.7;
-- 400 KB processed-photo limit;
-- 320-pixel thumbnail;
-- orientation-aware decode;
-- deterministic media IDs;
-- generated fixtures only;
-- no Firebase or stock ownership.
-
-## Signature Pad — PASS
-
-Implemented:
-
-```text
-modules/signature/signaturePad.js
-tests/signature-pad-check.mjs
-docs/SIGNATURE_PAD_ISOLATED_GATE.md
-```
-
-Confirmed:
-
-- Pointer Events;
-- Mouse and Touch fallback;
-- clear and redraw;
-- empty-signature rejection;
-- bounded 640 x 240 canvas;
-- PNG validation;
-- safe summary without PNG Data URL;
-- listener cleanup.
-
-## Lazy Media Storage and Queue Redaction — PASS
-
-Implemented:
-
-```text
-modules/media/mediaStore.js
-modules/media/mediaEnvelope.js
-tests/media-store-check.mjs
-tests/media-queue-redaction-check.mjs
-docs/MEDIA_STORAGE_QUEUE_REDACTION_GATE.md
-```
-
-Confirmed:
-
-- IndexedDB opens only when evidence is used;
-- payloads are stored by safe media ID;
-- metadata lists do not load Data URLs;
-- selected-record evidence hydrates lazily;
-- Queue manifests contain references and counts only;
-- Data URLs, blobs, payload fields, and original file names are excluded;
-- Queue key remains `tc_pending_saves_v1`;
-- Main Stock remains unchanged.
-
-## Attendance Photo and Teacher Signature — IMPLEMENTED / LOCAL TEST PENDING
-
-Added:
-
-```text
-modules/media/attendanceEvidenceManager.js
-modules/media/attendanceEvidenceView.js
-modules/media/attendanceEvidenceAdapter.js
-tests/attendance-media-signature-integration-check.mjs
-docs/ATTENDANCE_MEDIA_SIGNATURE_INTEGRATION_GATE.md
-```
-
-UI capability:
-
-- JPEG/PNG/WebP daily photo selector;
-- maximum five-photo feedback;
-- compressed draft previews;
-- exact draft photo removal;
-- Teacher signature canvas;
-- explicit use-signature and clear actions;
-- selected-date lazy evidence load;
-- responsive layout;
-- status explicitly states that selecting/signing has not written Firebase.
-
-Online save boundary:
-
-```text
-IndexedDB references → hydrate immediately before AttendanceManager.save → legacy photos/signature fields
-```
-
-Queue boundary:
-
-```text
-reference-only Attendance record → QueueStorage → hydrate immediately before replay
-```
-
-Queue records exclude Data URLs and original file names. Internal evidence metadata is removed before the legacy Firebase record write.
-
-Legacy inline evidence is blocked from Queue with:
-
-```text
-MEDIA_LEGACY_QUEUE_REQUIRES_ONLINE
-```
-
-Expected isolated output:
-
-```text
-Attendance Media and Signature integration checks passed.
-```
-
 ## Remaining Sprint 4.7 Work
 
-1. pass Attendance evidence isolated integration test;
-2. integrate Pending Milk recipient signatures and photos;
-3. integrate Retroactive Milk recipient signatures and photos;
-4. integrate Vacation Milk parent or recipient signatures and photos;
-5. validate evidence recovery and duplicate prevention;
-6. run complete regression suite;
-7. desktop and 820 x 1180 browser gates;
-8. branch synchronized and working tree clean.
+1. pass Pending Milk evidence isolated integration test;
+2. integrate Retroactive Milk recipient signatures and photos;
+3. integrate Vacation Milk parent/recipient signatures and photos;
+4. validate evidence recovery and duplicate prevention;
+5. run the expanded regression suite;
+6. desktop and 820 x 1180 browser gates;
+7. branch synchronized and working tree clean.
 
 ## Queue and Payload Rules
 
-- Queue storage key remains `tc_pending_saves_v1`.
-- Queue UI must never show full photo or signature payloads.
-- New Attendance evidence is persisted before a reference-only Queue record is created.
-- Replay hydrates evidence only immediately before Attendance Service replay.
+- Queue UI must never show photo or signature payloads.
+- Media payloads must be persisted before references are used.
 - Retries must not duplicate evidence.
 - Evidence retry must not repeat a successful Room Stock mutation.
 - Audit-only recovery remains audit-only.
 - Main Stock remains unchanged.
-- Teacher Login must not download all historical evidence.
-- Evidence loads only for the selected room, date, or record.
+- Teacher Login must not download historical evidence.
+- Evidence loads only for the selected room, date, week, or record.
 
 ## Browser Restriction
 
-Until all workflow isolated gates pass:
+Until all isolated workflow gates pass:
 
 - do not attach a real classroom photo;
-- do not save a real Teacher or recipient signature;
-- do not press Attendance, Pending, Retroactive, or Vacation save/delete for evidence testing;
-- do not replay a browser Queue containing evidence;
-- do not manually change Firebase evidence fields;
-- use generated in-memory fixtures only.
+- do not save a real Teacher, parent, student, or recipient signature;
+- do not press Attendance, Pending, Retroactive, or Vacation issue/delete for evidence testing;
+- do not create or replay a browser Queue containing evidence;
+- do not manually change Firebase evidence fields.
 
 ## Safety Boundary
 
@@ -272,7 +224,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- remaining Media and Signature integrations;
+- remaining Media and Signature workflow integration;
 - report and print parity;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
@@ -282,13 +234,7 @@ Do not use:
 - Main Stock decreases only on classroom distribution.
 - Attendance, Pending, Retroactive, and Vacation Milk change Room Stock only.
 - Delete restores exactly the quantity previously deducted.
-- Evidence save/delete never performs an additional stock mutation.
 - Teacher access remains limited to the authenticated room.
-- ETag conflicts read the latest Room Stock and recalculate before retry.
-- Audit-only recovery never repeats a successful Room Stock mutation.
+- Audit-only recovery never repeats a successful stock mutation.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
-
-## Sprint Plan
-
-- `docs/SPRINT_4_7_PLAN.md`
