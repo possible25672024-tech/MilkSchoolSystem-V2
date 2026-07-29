@@ -8,7 +8,8 @@ class MilkSchoolApplication {
         retroactiveMilkView = window.RetroactiveMilkView,
         vacationMilkView = window.VacationMilkView,
         attendanceEvidenceView = window.AttendanceEvidenceView,
-        pendingEvidenceView = window.PendingEvidenceView
+        pendingEvidenceView = window.PendingEvidenceView,
+        retroactiveEvidenceView = window.RetroactiveEvidenceView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -19,8 +20,10 @@ class MilkSchoolApplication {
         this.vacationMilkView = vacationMilkView;
         this.attendanceEvidenceView = attendanceEvidenceView;
         this.pendingEvidenceView = pendingEvidenceView;
+        this.retroactiveEvidenceView = retroactiveEvidenceView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
+        this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
         this.retroactiveSyncAdapter = window.RetroactiveSyncAdapter;
         this.vacationSyncAdapter = window.VacationSyncAdapter;
         this.started = false;
@@ -61,6 +64,24 @@ class MilkSchoolApplication {
             this.pendingEvidenceView = window.PendingEvidenceView;
         }
         return this.pendingEvidenceView;
+    }
+
+    async ensureRetroactiveEvidenceView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.MediaStore) await import("../media/mediaStore.js");
+        if (!window.SignaturePadClass) await import("../signature/signaturePad.js");
+        if (!window.RetroactiveEvidenceManager) await import("../media/retroactiveEvidenceManager.js");
+        if (!this.retroactiveEvidenceAdapter) {
+            await import("../media/retroactiveEvidenceAdapter.js");
+            this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
+        }
+        this.retroactiveEvidenceAdapter?.install?.();
+        if (!this.retroactiveEvidenceView) {
+            await import("../media/retroactiveEvidenceView.js");
+            this.retroactiveEvidenceView = window.RetroactiveEvidenceView;
+        }
+        return this.retroactiveEvidenceView;
     }
 
     async ensureRetroactiveSyncAdapter() {
@@ -148,6 +169,8 @@ class MilkSchoolApplication {
 
         const retroactiveMilkView = await this.ensureRetroactiveMilkView();
         if (retroactiveMilkView?.initialize) await retroactiveMilkView.initialize();
+        const retroactiveEvidenceView = await this.ensureRetroactiveEvidenceView();
+        if (retroactiveEvidenceView?.initialize) await retroactiveEvidenceView.initialize();
 
         const vacationMilkView = await this.ensureVacationMilkView();
         if (vacationMilkView?.initialize) await vacationMilkView.initialize();
