@@ -85,6 +85,8 @@ class QueueStorage {
                 referenceId: String(entry.referenceId || "").trim(),
                 roomName: String(entry.roomName || "").trim(),
                 date: String(entry.date || "").trim(),
+                operationType: this.operationType(entry.operationType),
+                note: String(entry.note || "").trim(),
                 queuedAt,
                 attempts,
                 nextRetryAt: this.timestamp(entry.nextRetryAt, 0)
@@ -207,6 +209,13 @@ class QueueStorage {
     roomIdFromAttendanceKey(key) {
         const match = String(key || "").match(/^(.*)_\d{4}-\d{2}-\d{2}$/);
         return match ? match[1] : "";
+    }
+
+    operationType(value) {
+        const normalized = String(value || "ATTENDANCE").trim().toUpperCase();
+        return ["ATTENDANCE", "PENDING", "ROLLBACK"].includes(normalized)
+            ? normalized
+            : "ATTENDANCE";
     }
 
     nonNegativeInteger(value, fallback = 0) {
