@@ -1,8 +1,8 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.0
-Last Updated: 2026-07-28
+Version: 3.1
+Last Updated: 2026-07-29
 
 ---
 
@@ -30,15 +30,11 @@ Modular V2 Firebase, repository, stock, report, room, Teacher, Attendance, queue
 
 ↓
 
-Teacher read-only shell completed
+Teacher shell, Attendance CRUD UI, and Offline Queue operational UI completed and approved for `develop`
 
 ↓
 
-Teacher daily Attendance CRUD UI code completed and approved for `develop`
-
-↓
-
-Offline Queue operational UI is next
+Pending Milk operational UI is next
 
 Production cutover remains blocked.
 
@@ -151,17 +147,38 @@ Integration decision:
 - exact one-date Attendance loading
 - authenticated-room student list
 - present/absent and notes controls
-- totals and responsive layout
-- create/edit through `AttendanceManager.save()`
-- confirmed delete through `AttendanceManager.remove()`
+- create/edit/delete through AttendanceManager
 - Room Stock result, conflict, queue, and audit feedback
-- compatible media-field preservation during edits
-- no direct Firebase, Repository, storage, stock, ledger, retry, or ETag ownership in the View
-- complete in-memory create → edit up → edit down → delete test
-- Main Stock unchanged through all isolated operations
-- deliberate partial-save queue simulation
-- all 16 regression checks accepted as passed
+- complete isolated create/edit/delete validation
+- Main Stock unchanged
+- all 16 regression checks passed
 - desktop and 820 x 1180 browser gates passed
+
+Integration decision:
+
+- merged into `develop`
+- not approved for `main` or production cutover
+
+### Sprint 4.3 — Offline Queue Operational UI
+
+- modular `SyncView`
+- online, offline, syncing, pending, failed, deferred, and synchronized states
+- persistent queue count, attempts, last-sync time, summary, and next retry
+- safe item summaries without student/media/audit payload exposure
+- manual retry through `SyncManager.flushNow("manual-ui")`
+- retry disabled while offline, flushing, or empty
+- Teacher-only Sync lifecycle start/stop
+- safe queue summaries exposed through SyncManager
+- no direct QueueStorage, SyncService, Firebase, Repository, fetch, or browser-storage access from the View
+- complete in-memory restart/reconnect persistence and replay validation
+- successful item removal and failed/deferred retention verified
+- Main Stock remained 999
+- all 18 regression checks passed
+- empty-queue desktop browser gate passed
+- Offline/reconnect and settled synchronized state passed
+- clean Console and read-only Network evidence passed
+- Teacher/Admin Logout regression passed
+- 820 x 1180 responsive gate passed
 - `index.html` and `teacher.html` unchanged
 
 Integration decision:
@@ -185,7 +202,7 @@ Room `อ.3-4` / `mqn0z13emyrc` is reconciled at Attendance and Room Stock level
 - Attendance: `null`
 - Room Stock: 350
 
-The product owner deferred recovery so development can continue. This is not incident closure. Recovery, Main Stock review, queue/audit review, and explicit closure remain mandatory before `main`, production cutover, or official use of the affected room/date.
+This is not incident closure. Recovery, Main Stock review, queue/audit review, and explicit closure remain mandatory before `main`, production cutover, or official use of the affected room/date.
 
 Do not use the quarantined room/date for further writes or trusted report evidence.
 
@@ -193,32 +210,30 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 Next Sprint
 
-Sprint 4.3 — Offline Queue Operational UI
+Sprint 4.4 — Pending Milk Operational UI
 
 Planned branch:
 
-`feature/sprint-4.3-offline-queue-ui`
+`feature/sprint-4.4-pending-milk-ui`
 
 Goals:
 
-- operational offline banner
-- persistent queue badge and item count
-- last successful sync time
-- retrying, failed, and deferred states
-- manual retry action
-- item-level safe error summary
-- restart and reconnect validation
-- preserve `tc_pending_saves_v1`
-- preserve legacy `rec` and `diff` compatibility
-- preserve repeated-edit original baseline
-- no direct queue-storage mutation from the View
-- no additional real-classroom write tests
+- show absent students eligible for pending milk
+- issue pending milk through a dedicated Manager/Service command path
+- deduct Room Stock only
+- prevent duplicate issue for the same student/date/reference
+- preserve legacy-compatible `absentMilk` fields and references
+- use authenticated-room-only access
+- expose Room Stock result and audit feedback
+- use isolated write validation only
+- preserve protected legacy files and Firebase paths
 
 Out of scope:
 
-- pending, retroactive, or vacation milk forms
+- Retroactive Milk
+- Vacation Milk
 - photos and signatures
-- printing
+- printing and Attendance history
 - replacement or removal of `teacher.html`
 - production deployment
 
@@ -246,10 +261,12 @@ Never Break
 - Repeated queued edits keep the latest record without replacing the original baseline.
 - Audit-only retries never repeat a successful Room Stock mutation.
 - Partial Attendance saves surface queued Room Stock status without rewriting Attendance.
+- Queue storage key remains `tc_pending_saves_v1`.
+- Legacy `rec` and `diff` compatibility remains intact.
 - Reports remain read-only.
 - Firebase schema and paths remain compatible unless an approved migration includes rollback.
 - Room IDs remain stable.
-- Teacher normal refresh remains room-scoped and date-scoped by default.
+- Teacher access remains limited to the authenticated room.
 - Queue entries survive refresh and browser restart.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain deployable until production cutover is complete.
@@ -294,7 +311,7 @@ Required Workflow
 7. Compare protected legacy behavior with the intended V2 boundary before editing.
 8. Work only on a `feature/*` branch.
 9. Add tests for every runtime change.
-10. Run automated, isolated-write, browser, responsive, and clean-tree gates.
+10. Run automated, isolated-write, browser, responsive, Network, Console, and clean-tree gates.
 11. Update project memory, changelog, module map, status, and active reports.
 12. Merge into `develop` only after the Sprint gate passes.
 13. Merge or deploy to `main` only with explicit production-cutover approval.
