@@ -2,9 +2,9 @@
 
 ## Project Memory
 
-Version: 2.8
+Version: 2.9
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 ## Project Goal
 
@@ -215,8 +215,6 @@ Merged into `develop` at `c4b429d`.
 
 ### Sprint 4.1 — Teacher UI Shell and Read-Only State
 
-Runtime and evidence:
-
 - modular `TeacherView`
 - separate Admin and Teacher shell containers
 - school, room, teacher, Room Stock, queue count, and online/offline display
@@ -231,47 +229,67 @@ Merged into `develop` at `3a777db`.
 
 ### Sprint 4.2 — Teacher Daily Attendance CRUD UI
 
+- modular `AttendanceView`
+- date-scoped authenticated-room Attendance form
+- present/absent controls, notes, and totals
+- create/edit/delete through AttendanceManager
+- Room Stock result, ETag conflict, queue, and audit feedback
+- compatible media-field preservation
+- complete isolated create/edit-up/edit-down/delete validation
+- Main Stock remained unchanged
+- all 16 regression checks passed
+- desktop and 820 x 1180 browser gates passed
+- `index.html` and `teacher.html` unchanged
+
+Merged into `develop` at `cde191b`.
+
+### Sprint 4.3 — Offline Queue Operational UI
+
 Runtime:
 
-- added `modules/attendance/attendanceView.js`
-- date-scoped daily Attendance form
-- authenticated-room student list
-- present/absent controls and notes
-- checked/present/absent/unchecked totals
-- one-day loading through `AttendanceManager.loadDay()`
-- create/edit through `AttendanceManager.save()`
-- confirmed delete through `AttendanceManager.remove()`
-- Room Stock before/after, conflict, queue, and audit feedback
-- compatible `photos`, `signature`, `year`, `term`, and `savedAt` preservation
-- no direct Firebase, Repository, storage, stock calculation, ledger, retry, or ETag ownership in the View
+- added `modules/sync/syncView.js`
+- online, offline, syncing, pending, failed, deferred, and synchronized states
+- pending count, maximum attempts, last successful sync, summary, and next retry
+- safe item summaries without student/media/audit payload exposure
+- manual retry through `SyncManager.flushNow("manual-ui")`
+- retry disabled while offline, flushing, or empty
+- Teacher-only Sync lifecycle start/stop
+- safe queue summaries through SyncManager
+- no direct QueueStorage, SyncService, Firebase, Repository, fetch, Local Storage, or Session Storage in the View
 - `index.html` and `teacher.html` unchanged
 
 Automated evidence:
 
-- original 15 regression tests passed
-- complete in-memory isolated write test added
-- create 3 present changed Room Stock `50 → 47`
-- edit 3 to 5 present deducted only 2: `47 → 45`
-- edit 5 to 2 present restored only 3: `45 → 48`
-- delete restored 2: `48 → 50`
+- `tests/sync-ui-check.mjs`
+- `tests/sync-restart-reconnect-check.mjs`
+- QueueStorage recreation persistence passed
+- offline startup performed no replay
+- reconnect replayed entries sequentially
+- successful items disappeared individually
+- failed/deferred entries remained persistent
+- attempts and next-retry times survived restart
+- Attendance partial save converted to Room Stock-only work
 - Main Stock remained 999
-- compatible Attendance key and fields preserved
-- ledger and stockLog created for successful operations
-- deliberate partial-save simulation queued exactly one Room Stock retry
-- all 16 regression checks accepted as passed after correcting one exact documentation-wording assertion
+- all 18 regression checks passed on Node.js 24.18.0
 - branch synchronized with origin
 - working tree clean
 
 Browser evidence:
 
-- Admin regression passed
-- desktop date-scoped read and exact-key Network gate passed
-- no full-history, cross-room, Main Stock, or write request during read-only validation
-- complete 820 x 1180 Attendance interaction, Save/Delete reachability, Logout, and Console gates passed
+- empty queue confirmed before Teacher Login
+- Queue panel rendered with zero pending entries
+- Offline and reconnect transitions passed
+- reconnect settled back to synchronized
+- Network showed read-only GET/fetch traffic
+- no visible PUT, PATCH, or DELETE
+- Console remained clean
+- Teacher Logout hid Queue UI
+- Admin Login/Logout remained unchanged
+- 820 x 1180 responsive layout passed
 
 Integration decision:
 
-- code approved for fast-forward merge into `develop`
+- approved for fast-forward merge into `develop`
 - does not replace `teacher.html`
 - does not authorize `main` or production cutover
 
@@ -296,33 +314,31 @@ Reconciled record:
 - Attendance: `null`
 - Room Stock: 350
 
-The incident is open. Do not use the quarantined room/date for further writes or trusted report evidence. Do not manually rewrite stock, ledger, stockLog, or transaction history.
+The incident is open. Do not use the quarantined room/date for further writes or trusted report evidence. Do not manually rewrite stock, ledger, stockLog, queue, or transaction history.
 
 Recovery, Main Stock review, queue and audit review, and explicit incident closure remain mandatory before `main`, production cutover, or official operational acceptance.
 
 ## Next Phase
 
-Sprint 4.3 — Offline Queue Operational UI
+Sprint 4.4 — Pending Milk Operational UI
 
 Planned branch:
 
-`feature/sprint-4.3-offline-queue-ui`
+`feature/sprint-4.4-pending-milk-ui`
 
 Planned boundary:
 
-- operational offline banner
-- persistent queue count and status
-- last successful sync time
-- retrying, failed, and deferred states
-- manual retry action
-- safe item-level error summary
-- restart and reconnect tests
-- preserve `tc_pending_saves_v1`
-- preserve legacy `rec` and `diff` normalization
-- preserve original baseline during repeated edits
-- View consumes SyncManager and events only
-- no direct QueueStorage mutation from the View
+- show absent students eligible for pending milk
+- dedicated Manager/Service command path
+- issue pending milk
+- deduct Room Stock only
+- prevent duplicate issue for the same student/date/reference
+- preserve legacy-compatible `absentMilk` fields and transaction references
+- authenticated-room-only access
+- isolated write validation only
 - no additional real-classroom write tests
+
+Retroactive Milk and Vacation Milk remain later phases.
 
 ## Deferred Production Decisions
 
@@ -330,7 +346,6 @@ Planned boundary:
 - Report browser-local adapter moves to an operational Admin/report sprint.
 - XLSX binary parsing remains in the protected legacy flow.
 - Real Firebase concurrency validation must use an isolated environment.
-- Real operational queue evidence must not be fabricated.
 - Backup and restore rehearsal is required before production.
 - The quarantined real-data incident must be closed before production.
 - `main` merge and production cutover require explicit approval.
