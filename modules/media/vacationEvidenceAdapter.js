@@ -91,9 +91,7 @@ class VacationEvidenceAdapter {
         return {
             installed: this.installed,
             vacationMilkService: Boolean(this.window.VacationMilkService?.__vacationEvidencePatched),
-            vacationMilkManager: Boolean(this.window.VacationMilkManager?.__vacationEvidencePatched),
-            loginReplayBound: this.loginReplayBound,
-            teacherRefreshBound: this.teacherRefreshBound
+            vacationMilkManager: Boolean(this.window.VacationMilkManager?.__vacationEvidencePatched)
         };
     }
 }
