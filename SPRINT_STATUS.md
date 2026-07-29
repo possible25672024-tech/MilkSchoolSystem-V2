@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.7 — Shared Media and Signature Workflow
 
-Status: **10% — PLAN OPEN / LEGACY AND PAYLOAD AUDIT PENDING**
+Status: **30% — LEGACY AUDIT AND PURE MEDIA POLICY IMPLEMENTED / LOCAL VALIDATION PENDING**
 
 ## Completed Foundation
 
@@ -65,6 +65,31 @@ Artifacts:
 - `docs/VACATION_MILK_BROWSER_VALIDATION_REPORT.md`
 - `docs/FIREBASE_RULES_VACATION_MILK_INDEX.md`
 
+## Sprint 4.7 Progress Record
+
+Teacher-session roster race condition fixed and locally accepted:
+
+```text
+Teacher session roster fallback checks passed.
+Vacation Milk UI checks passed.
+nothing to commit, working tree clean
+```
+
+Browser evidence after the fix:
+
+- authenticated room roster visible with 16 students;
+- Vacation preview calculated 16 × 30 = 480 boxes;
+- live Room Stock 1,040 visible;
+- no real evidence write performed.
+
+Current Sprint artifacts:
+
+- `docs/MEDIA_SIGNATURE_LEGACY_AUDIT.md`
+- `modules/media/mediaPolicy.js`
+- `tests/media-policy-check.mjs`
+
+The legacy field and ownership audit is complete. Generated-fixture size measurement, processor, signature pad, storage, Queue redaction, and workflow integration remain pending.
+
 ## Teacher Legacy Parity Contract — BINDING
 
 V2 must retain every Teacher capability from protected `teacher.html`, including:
@@ -102,17 +127,21 @@ The workflow must preserve legacy-compatible `photos`, `signature`, and `signatu
 
 ## First Required Gate — Legacy and Payload Audit
 
-Before Runtime implementation:
+Completed:
 
-1. inspect protected `teacher.html` evidence workflows;
-2. document exact field shapes by workflow;
-3. identify Firebase paths and record ownership;
-4. measure representative image and signature payload sizes;
-5. define image count, source-size, compressed-size, dimension, and MIME limits;
-6. define thumbnails and lazy-loading policy;
-7. define replacement, cleanup, delete, backup, restore, and rollback behavior;
-8. define Queue-safe metadata with no full evidence payload in SyncView;
-9. prove Main Stock and existing Room Stock calculations remain unchanged.
+1. inspected protected `teacher.html` evidence workflows;
+2. documented exact field shapes by workflow;
+3. identified Firebase paths and record ownership;
+4. documented legacy image-count, dimension, quality, and signature-canvas behavior;
+5. defined thumbnail, lazy-loading, replacement, cleanup, rollback, backup, restore, and Queue-redaction contracts;
+6. proved the policy boundary contains no stock mutation logic.
+
+Still pending:
+
+1. measure generated representative image and signature payload sizes;
+2. validate final source-size, compressed-size, signature-size, and aggregate limits;
+3. run the pure Media Policy gate locally;
+4. implement and validate processor, signature pad, storage, and workflow integration.
 
 Required artifact:
 
