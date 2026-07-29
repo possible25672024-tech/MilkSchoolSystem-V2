@@ -1,10 +1,12 @@
 # Sprint 4.3 — Offline Queue UI Implementation Report
 
-Date: 2026-07-28
+Date started: 2026-07-28
+
+Completed: 2026-07-29
 
 Branch: `feature/sprint-4.3-offline-queue-ui`
 
-Status: IMPLEMENTED / AUTOMATED GATE PASSED / BROWSER VALIDATION PENDING
+Status: CODE COMPLETE / ALL GATES PASSED / DEVELOP MERGE APPROVED
 
 ## Runtime Added
 
@@ -28,7 +30,7 @@ Responsibilities:
 - clear and hide the Queue UI after Logout
 - reject Admin sessions
 
-The View does not access queue persistence, Firebase, repositories, fetch, Local Storage, Session Storage, Attendance calculations, stock calculations, ledger construction, or replay logic.
+The View does not access QueueStorage, SyncService, Firebase, repositories, fetch, Local Storage, Session Storage, Attendance calculations, stock calculations, ledger construction, or replay logic directly.
 
 ### Safe Manager Summaries
 
@@ -38,23 +40,13 @@ Updated:
 
 Added:
 
-- `queueItems` in `SyncManager.getStatus()`
-- safe queue-entry summarization
+- safe `queueItems` in `getStatus()`
 - queue type, room, date/reference, attempts, queue time, next retry time, replay status, and safe error details
-- Attendance date extraction from a compatible queue key
-- active `flushing: true` state in the `milkapp:sync-started` event
-- explicit `deferred: 0` in generic offline/failure summaries
+- Attendance date extraction from compatible queue keys
+- active `flushing: true` state in `milkapp:sync-started`
+- explicit deferred count in generic summaries
 
-The Manager deliberately excludes:
-
-- per-student Attendance data
-- student names contained inside records
-- photos
-- signatures
-- encoded media
-- complete ledger payloads
-- complete stockLog payloads
-- authentication or Firebase secrets
+The Manager excludes student data, names, photos, signatures, encoded media, full ledger/stockLog payloads, credentials, and secrets.
 
 ### App Startup
 
@@ -62,17 +54,22 @@ Updated:
 
 - `modules/core/app.js`
 
-The App loads `modules/sync/syncView.js` through a dynamic module import after the existing Login, Teacher, and Attendance Views are initialized, then initializes the Sync View.
+Initialization order:
 
-This avoids changing the protected legacy files and keeps the existing V2 dependency chain intact.
+1. LoginManager
+2. TeacherView
+3. AttendanceView
+4. SyncView
+
+The Sync View loads dynamically after the existing Teacher UI foundation.
 
 ## UI Structure
 
-The Queue panel includes:
+The Queue panel contains:
 
-- operational state banner
-- pending item count
-- maximum attempt count
+- operational status banner
+- pending count
+- maximum attempts
 - latest succeeded count
 - latest failed/deferred count
 - last successful sync time
@@ -80,52 +77,51 @@ The Queue panel includes:
 - next retry delay
 - safe queue-item cards
 - safe error code/message display
-- manual retry button
+- manual retry action
 
-Responsive rules are injected with the View and cover desktop, tablet, and narrow layouts.
+Responsive rules cover desktop, tablet, and narrow layouts.
 
-## Test Added
-
-File:
+## Tests Added
 
 - `tests/sync-ui-check.mjs`
+- `tests/sync-restart-reconnect-check.mjs`
 
-Coverage:
+### Sync UI Coverage
 
 - valid SyncView and SyncManager JavaScript
-- SyncManager loaded before App
-- dynamic SyncView loading and initialization
+- dependency order and App initialization
 - no direct persistence, Firebase, Repository, fetch, or browser-storage access from the View
 - manual retry delegation
-- safe queue summaries exclude student/media payloads
+- safe summaries exclude student/media payloads
 - compatible date/reference visibility
-- failed queue status visibility
-- one in-flight operation for overlapping retries
-- `sync-started` exposes active flushing state
-- restored Teacher session starts the existing Sync lifecycle
-- queue count and item rendering
-- offline state and disabled retry
-- online pending state and enabled retry
-- successful manual retry state
-- syncing state and disabled retry
+- failed/deferred visibility
+- overlapping-flush protection
+- restored Teacher session startup
+- online/offline, pending, syncing, failed, deferred, and synchronized rendering
 - Logout cleanup
-- Admin session rejection
+- Admin rejection
+
+### Restart/Reconnect Coverage
+
+In-memory persistent storage and mocked services only:
+
+- compatible `tc_pending_saves_v1`
+- QueueStorage recreation persistence
+- offline startup performs no replay
+- recreated Manager waits for reconnect
+- sequential replay
+- successful entry removal individually
+- Attendance partial-save conversion to Room Stock-only retry
+- failed/deferred persistence
+- attempt and next-retry persistence
+- later restart persistence
+- later reconnect success removes retained entries
+- Main Stock remains 999
+- no Firebase service, repository, or real classroom data
 
 ## Test Harness Correction
 
-The first Sync UI run failed on a static assertion that searched only for literal HTML:
-
-```text
-id="sync-panel"
-```
-
-The Runtime correctly creates the panel programmatically:
-
-```js
-panel.id = "sync-panel";
-```
-
-The test was corrected to accept both valid creation forms. Runtime, queue persistence, Sync behavior, stock behavior, and Firebase behavior were not changed.
+The first Sync UI run searched only for literal HTML `id="sync-panel"`, while Runtime correctly creates the element programmatically with `panel.id = "sync-panel"`. The assertion was corrected without changing Runtime, persistence, Sync, stock, or Firebase behavior.
 
 Correction commit:
 
@@ -137,101 +133,55 @@ Correction commit:
 
 Confirmed locally on Node.js 24.18.0:
 
-- Login foundation checks passed
-- Stock module checks passed
-- Report module checks passed
-- Room module checks passed
-- Teacher module checks passed
-- Attendance module checks passed
-- Sync module checks passed
-- Firebase request-header checks passed
-- Performance module checks passed
-- Teacher core-payload checks passed
-- Cutover concurrency checks passed
-- Audit recovery checks passed
-- Cutover documentation checks passed
-- Teacher UI shell checks passed
-- Attendance UI checks passed
+- all foundation and module tests passed
 - Attendance isolated write checks passed
 - Sync UI checks passed
-- `ALL 17 REGRESSION CHECKS PASSED`
+- Sync restart/reconnect isolated checks passed
+- `ALL 18 REGRESSION CHECKS PASSED`
 - feature branch synchronized with origin
 - working tree clean
 
-## Cutover Documentation Compatibility
+## Browser and Responsive Validation
 
-Updated:
+Passed:
 
-- `tests/cutover-documentation-check.mjs`
-
-The documentation test identifies Sprint 4.3 as active while preserving Sprint 4.2, Sprint 4.1, and Sprint 4.0 as completed integration foundations.
+- empty browser queue before Teacher Login
+- Queue panel with zero pending entries
+- synchronized state and disabled retry
+- Offline transition
+- reconnect syncing transition and settled synchronized state
+- GET/fetch-only Network evidence
+- no visible PUT, PATCH, or DELETE
+- clean Console
+- Teacher Logout hides Queue UI
+- Admin Login/Logout unchanged
+- 820 x 1180 layout contained without abnormal horizontal overflow
 
 ## Safety Boundary
 
-No production Firebase write or real classroom queue fixture was used to implement or validate the automated gate.
+- No production Firebase queue fixture was created.
+- No real pending queue was replayed.
+- No Attendance Save/Delete was performed during Queue browser validation.
+- Main Stock remained unchanged in isolated replay tests.
+- `index.html` and `teacher.html` remained unchanged.
 
-The Sync UI test uses in-memory raw entries that deliberately contain fake student/media payloads and verifies that the Manager and View never expose those fields.
-
-The quarantined real classroom record remains unchanged:
+The quarantined real classroom record remains open:
 
 - room `อ.3-3`
 - room ID `mqn0z13eyx5b`
 - date `2026-07-28`
 
-Starting a Teacher Queue session can invoke the existing startup replay when pending entries exist. Browser validation must therefore use an empty queue or a separate isolated browser profile/site-data context.
+## Integration Decision
 
-## Browser Validation Required
+Sprint 4.3 is approved for fast-forward merge into `develop`.
 
-Before Teacher Login:
+This approval does not authorize:
 
-- inspect `tc_pending_saves_v1`
-- confirm it is empty, or use a separate browser profile with empty site data
-- do not use the quarantined room/date
-- do not test Attendance Save or Delete
-- do not trigger manual retry or reconnect replay against real pending entries
-
-Desktop checks:
-
-- Admin Login regression
-- Teacher Queue panel rendering
-- empty queue count and synchronized state
-- manual retry disabled for empty queue
-- Online/Offline banner transition
-- Logout cleanup
-- clean Console
-- no unexpected Firebase write caused by rendering
-
-Responsive checks at 820 x 1180:
-
-- banner, count, timestamps, summaries, and retry action remain readable
-- no sensitive payload exposure
-- no abnormal horizontal overflow
-- Logout reachable
-- clean Console
-
-## Isolated Restart/Reconnect Validation Required
-
-Use only mocked, in-memory, or separate browser-local fixtures:
-
-- queue state survives View recreation
-- queue state survives refresh through existing persistence
-- offline state performs no replay
-- reconnect uses the existing Manager flow
-- successful items disappear individually
-- failed/deferred entries remain
-- attempts and next retry update
-- Main Stock remains unchanged
-
-## Current Decision
-
-Sprint 4.3 automated code gate passed.
-
-The branch is not yet eligible for merge into `develop` because browser, responsive, and isolated restart/reconnect gates remain pending.
-
-No authorization is given for:
-
-- real-classroom queue replay
-- `main` merge
+- merge to `main`
 - production cutover
-- replacement of `teacher.html`
+- replacement or removal of `teacher.html`
+- Firebase schema changes
+- queue storage-key migration
 - closure of the deferred real-data incident
+
+Next Sprint: Pending Milk Operational UI.
