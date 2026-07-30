@@ -82,6 +82,14 @@ class PendingMilkRepository extends BaseRepository {
         }
         return this.remove(this.path(`absentMilk/${normalizedId}`));
     }
+
+    updatePendingRecord(recordId, changes = {}) {
+        const normalizedId = String(recordId || "").trim();
+        if (!normalizedId) {
+            throw new Error("A Pending Milk record id is required.");
+        }
+        return this.update(this.path(`absentMilk/${normalizedId}`), changes);
+    }
 }
 
 window.PendingMilkRepository = new PendingMilkRepository();

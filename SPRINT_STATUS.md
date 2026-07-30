@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 5.0 — Operational Admin Report Integration
 
-Status: **85% — ADAPTER, ADMIN UI AND 57-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
+Status: **92% — ADMIN ROOM OPERATIONS AND 58-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -363,16 +363,29 @@ formulas, protected legacy pages, Firebase schema, or stock rules.
   Report Service formulas;
 - adds Admin-only classroom, grade, and whole-school views;
 - adds A4 landscape print and UTF-8 CSV export;
+- adds an Admin left menu, room selector, selected-room Dashboard, and
+  Attendance/Pending/Retroactive/Vacation history tables;
+- every Admin history row exposes View, Edit, and Delete actions;
+- Attendance Edit opens the exact date in the accepted Teacher Daily workflow;
+- Pending, Retroactive, and Vacation Edit changes only safe descriptive
+  metadata and never changes quantities or stock;
+- operational Delete delegates to the accepted Services so Room Stock rollback,
+  audit, ETag, and Queue recovery remain active;
+- Admin may open the complete Teacher workspace for the selected room and
+  return to Admin without entering credentials again;
+- delegated room access is explicit, room-scoped, and cannot broaden an
+  ordinary Teacher session;
 - performs no Firebase or Storage write, stock mutation, Queue work, ledger
-  work, stockLog repair, or media hydration;
+  work, stockLog repair, or media hydration in the read-only report path;
 - preserves protected `index.html` and `teacher.html`;
-- passes all 57 discovered regression checks.
+- passes all 58 discovered regression checks.
 
 Artifacts:
 
 ```text
 docs/SPRINT_5_0_PLAN.md
 docs/REPORT_BROWSER_LOCAL_ADAPTER_GATE.md
+docs/ADMIN_ROOM_OPERATIONS_GATE.md
 docs/SPRINT_5_0_BROWSER_ACCEPTANCE_CHECKLIST.md
 ```
 

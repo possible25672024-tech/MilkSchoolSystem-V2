@@ -2,6 +2,35 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 5.0 Admin Room Operations
+
+### Added
+
+- `modules/admin/adminRoomService.js`
+- `modules/admin/adminRoomManager.js`
+- `modules/admin/adminRoomView.js`
+- Admin room operations isolated gate
+- Admin left menu, room selector, selected-room Dashboard, and four operation
+  history tables
+
+### Changed
+
+- Admin can open the complete Teacher workspace for a selected room through an
+  explicit delegated room context and return to the original Admin session.
+- Attendance rows can be opened for full exact-date editing.
+- Pending, Retroactive, and Vacation rows support safe descriptive-note edits.
+- All four history types expose View and Delete; deletes continue through the
+  accepted Service rollback, audit, ETag, and Queue recovery paths.
+- Repository metadata updates remain room-checked and do not alter quantity,
+  Room Stock, Main Stock, ledger, or stockLog.
+- Protected `index.html` and `teacher.html` remain unchanged.
+
+### Validation
+
+- Admin room operations isolated check passed.
+- All 58 discovered regression checks passed.
+- Product-owner Live Server browser gate remains pending.
+
 ## 2026-07-30 — Sprint 4.9 Teacher Student Report and Navigation Parity
 
 ### Added

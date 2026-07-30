@@ -76,9 +76,33 @@ Completed boundary:
 - compatible ledger calculations
 - Main Stock and Room Stock separation
 
-### Report — Foundation Completed, Operational Adapter Deferred
+### Report and Admin Operations — Sprint 5.0 Active
 
 Modules:
+
+- `modules/report/browserLocalReportAdapter.js`
+- `modules/report/adminReportView.js`
+- `modules/admin/adminRoomService.js`
+- `modules/admin/adminRoomManager.js`
+- `modules/admin/adminRoomView.js`
+
+Current boundary:
+
+- read-only classroom, grade, and whole-school Admin reports;
+- browser-local Pending, Retroactive, and Vacation report normalization;
+- Admin room selector and selected-room operational Dashboard;
+- Attendance, Pending, Retroactive, and Vacation history management;
+- explicit Admin-to-room delegated context with return to the parent Admin
+  session;
+- safe note-only operation edits that do not alter quantities;
+- deletes through accepted Services with Room Stock, audit, and Queue recovery;
+- protected `index.html` and `teacher.html` unchanged.
+
+Pending gate:
+
+- product-owner Live Server desktop and Responsive validation.
+
+Existing foundation modules:
 
 - `modules/report/reportManager.js`
 - `modules/services/reportService.js`
@@ -91,9 +115,10 @@ Completed boundary:
 - print and Excel export models
 - injected `extraSources` boundary
 
-Deferred production gap:
+Resolved Sprint 5.0 gap:
 
-- browser-local pending, retroactive, and vacation adapter under cutover decision D-02
+- browser-local Pending, Retroactive, and Vacation report adapter under cutover
+  decision D-02 is implemented; local browser acceptance remains pending.
 
 ### Room — Foundation Completed, Operational Import/UI Deferred
 

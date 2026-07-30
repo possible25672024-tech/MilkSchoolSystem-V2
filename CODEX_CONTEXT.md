@@ -34,7 +34,7 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher student report, stock, settings, and navigation parity is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin report and room operations are active
 
 Production cutover remains blocked.
 

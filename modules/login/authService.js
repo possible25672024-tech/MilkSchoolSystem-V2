@@ -2,6 +2,7 @@ class AuthService {
     constructor(loginService = window.LoginService) {
         this.loginService = loginService;
         this.sessionKey = "milkApp_loginSession";
+        this.parentAdminSessionKey = "milkApp_parentAdminSession";
     }
 
     ensureLoginService() {
@@ -53,6 +54,34 @@ class AuthService {
 
     clearSession() {
         sessionStorage.removeItem(this.sessionKey);
+    }
+
+    saveParentAdminSession(session) {
+        if (session?.role !== "admin" || session?.isAdmin !== true) {
+            throw new Error("A valid Admin session is required.");
+        }
+        sessionStorage.setItem(this.parentAdminSessionKey, JSON.stringify(session));
+        return session;
+    }
+
+    getParentAdminSession() {
+        try {
+            const raw = sessionStorage.getItem(this.parentAdminSessionKey);
+            if (!raw) return null;
+            const session = JSON.parse(raw);
+            if (session?.role !== "admin" || session?.isAdmin !== true) {
+                this.clearParentAdminSession();
+                return null;
+            }
+            return session;
+        } catch {
+            this.clearParentAdminSession();
+            return null;
+        }
+    }
+
+    clearParentAdminSession() {
+        sessionStorage.removeItem(this.parentAdminSessionKey);
     }
 
     isAuthenticated() {

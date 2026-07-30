@@ -53,6 +53,10 @@ class VacationMilkRepository extends BaseRepository {
     deleteRecord(recordId) {
         return this.remove(this.path(`vacationMilk/${this.requireRecordId(recordId)}`));
     }
+
+    updateRecord(recordId, changes = {}) {
+        return this.update(this.path(`vacationMilk/${this.requireRecordId(recordId)}`), changes);
+    }
 }
 
 window.VacationMilkRepository = new VacationMilkRepository();

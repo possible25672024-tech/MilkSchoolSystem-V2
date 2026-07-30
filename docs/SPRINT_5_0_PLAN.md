@@ -40,6 +40,21 @@ report formulas, Firebase schema, protected legacy pages, or stock values.
 - desktop and Chrome Responsive `820 x 1180`;
 - clean Console and GET-only Firebase report traffic.
 
+## Gate D — Admin room operations
+
+- authenticated Admin-only room selector;
+- selected-room Dashboard for students, Room Stock, Attendance days, and milk
+  used across Attendance, Pending, Retroactive, and Vacation records;
+- separate history tables with View, Edit, and Delete actions;
+- Attendance Edit routes to the exact date in the accepted Teacher workflow;
+- operation metadata edits preserve quantities and all stock values;
+- deletes delegate to the existing operation Services and recovery Queue;
+- complete selected-room Teacher workspace is available through an explicit
+  delegated Admin context;
+- returning to Admin restores the original Admin session without another
+  credential prompt;
+- an ordinary Teacher session cannot select another room or enter Admin.
+
 ## Protected boundaries
 
 - `index.html` and `teacher.html` remain unchanged;
