@@ -325,7 +325,7 @@ Integration meaning:
 - does not replace `teacher.html`
 - does not authorize `main` or production cutover
 
-### Attendance History, Summary and A4 Print — Sprint 4.8 Active
+### Attendance History, Summary and A4 Print — Sprint 4.8 Complete
 
 Modules and artifacts:
 
@@ -340,6 +340,7 @@ Modules and artifacts:
 - `tests/attendance-report-print-ui-check.mjs`
 - `tests/run-sprint-4.8-regression.mjs`
 - `docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md`
+- `docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md`
 
 Completed automated boundary:
 
@@ -351,12 +352,9 @@ Completed automated boundary:
 - metadata-only report and print events
 - no report write, stock, Queue, ledger, or stockLog ownership
 - all 48 discovered regression checks passed
-
-Remaining gate:
-
-- local desktop and `820 x 1180` browser evidence
-- clean Console and GET/OPTIONS-only Network
-- empty Queue and A4 layout evidence
+- local desktop and `820 x 1180` browser evidence passed
+- Console remained clean and visible report Network methods were GET-only
+- one-sheet A4 preview contained all 16 student rows
 
 ### Legacy Removal — Blocked
 
@@ -422,7 +420,7 @@ Rebuild
 - Sprint 4.5 — Retroactive Milk Operational UI — Completed
 - Sprint 4.6 — Vacation Milk Operational UI — Completed
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
-- Sprint 4.8 — Attendance History, Summary and A4 Print UI — Automated gate passed, local browser gate pending
+- Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
 - Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Planned
 - Legacy Removal — Blocked pending production-cutover approval
 

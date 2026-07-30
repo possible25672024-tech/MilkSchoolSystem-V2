@@ -324,7 +324,9 @@ Current follow-up:
 - no report Firebase, Queue, stock, ledger, stockLog, or media-payload ownership
 - isolated UI check passed
 - all 48 discovered regression checks passed
-- local desktop and `820 x 1180` browser evidence pending
+- local desktop and `820 x 1180` browser evidence passed
+- visible report Network methods were GET-only and Console remained clean
+- A4 preview fit all 16 student rows on one portrait sheet
 
 ## Deferred Real-Classroom Incident
 
@@ -353,16 +355,9 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 ## Next Phase
 
-Close Sprint 4.8 with local browser acceptance:
+Sprint 4.8 is accepted for integration into `develop`.
 
-- desktop Teacher report workflow
-- Chrome `820 x 1180`
-- clean Console
-- GET/OPTIONS-only report Network
-- empty Queue
-- A4 preview and print layout
-
-Then open Sprint 4.9 for student report, remaining Room Stock view, Teacher settings, complete Teacher navigation parity, and cutover rehearsal.
+Open Sprint 4.9 for student report, remaining Room Stock view, Teacher settings, complete Teacher navigation parity, and cutover rehearsal.
 
 ## Deferred Production Decisions
 
