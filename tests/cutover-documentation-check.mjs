@@ -87,7 +87,10 @@ assert.ok(
     sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity") ||
         (
             sprint.includes("## Sprint 4.9 Goal") &&
-            sprint.includes("Sprint 5.0 — Operational Admin Report Integration")
+            (
+                sprint.includes("Sprint 5.0 — Operational Admin Report Integration") ||
+                sprint.includes("Sprint 5.1 — Large Attendance Payload Resilience")
+            )
         ),
     "Sprint status must preserve Teacher parity while identifying its approved successor"
 );

@@ -79,39 +79,68 @@ const vacationService = {
     remove: async () => ({ mainStockDelta: 0, audit: { ok: true } })
 };
 const pendingRepo = {
+    loadRoomPendingRecords: async () => ({
+        p1: { roomId: "room-1", date: "2026-07-30", totalBoxes: 1 }
+    }),
     loadPendingRecord: async () => ({ roomId: "room-1", note: "เดิม" }),
     updatePendingRecord: async (id, changes) => calls.push(["pending-update", id, changes])
+};
+const attendanceRepo = {
+    loadRoomAttendanceSummaries: async () => ({
+        "room-1_2026-07-30": {
+            clsId: "room-1",
+            date: "2026-07-30",
+            data: { s1: "present" }
+        }
+    })
+};
+const retroRepo = {
+    loadRoomRecords: async () => ({})
+};
+const vacationRepo = {
+    loadRoomRecords: async () => ({})
 };
 const service = new AdminRoomService(
     { loadLoginOptions: async () => ({ rooms: [room] }) },
     {
-        loadTeacherView: async session => ({
+        loadTeacherView: async (session, options) => {
+            calls.push(["teacher-view", session, options]);
+            return {
             snapshot: {
-                attendance: {
-                    "room-1_2026-07-30": {
-                        clsId: "room-1",
-                        date: "2026-07-30",
-                        data: { s1: "present" }
-                    }
-                },
-                absentMilk: { p1: { roomId: "room-1", date: "2026-07-30", totalBoxes: 1 } },
+                attendance: {},
+                absentMilk: {},
                 retroMilk: {},
-                vacationMilk: {}
+                vacationMilk: {},
+                students: room.students,
+                room,
+                session,
+                roomStock: 9,
+                distributes: [],
+                stockTransactions: []
             },
             dashboard: {
-                students: 1,
-                actualRoomStock: 9,
-                attendanceDays: 1,
-                usedTotal: 1,
                 delegatedRoomId: session.roomId
             }
+        };
+        },
+        buildDashboard: snapshot => ({
+            students: snapshot.students.length,
+            actualRoomStock: snapshot.roomStock,
+            attendanceDays: Object.keys(snapshot.attendance).length,
+            usedTotal: 2,
+            delegatedRoomId: snapshot.session.roomId
         })
     },
     attendanceService,
     pendingService,
     retroService,
     vacationService,
-    { pending: pendingRepo, retroactive: {}, vacation: {} }
+    {
+        attendance: attendanceRepo,
+        pending: pendingRepo,
+        retroactive: retroRepo,
+        vacation: vacationRepo
+    }
 );
 
 const admin = {
@@ -126,11 +155,14 @@ assert.equal(dashboard.delegatedSession.delegatedByAdmin, true);
 assert.equal(dashboard.records.attendance[0].present, 1);
 assert.equal(dashboard.records.pending[0].totalBoxes, 1);
 assert.equal(dashboard.dashboard.delegatedRoomId, "room-1");
+assert.equal(calls[0][2].includeExtras, false);
+assert.equal(calls[0][2].attendanceMode, "none");
 
 await service.deleteRecord(admin, "room-1", "attendance", { date: "2026-07-30" });
-assert.equal(calls[0][1].roomId, "room-1");
-assert.equal(calls[0][1].role, "teacher");
-assert.equal(calls[0][2].date, "2026-07-30");
+const attendanceDelete = calls.find(call => call[0] === "attendance-delete");
+assert.equal(attendanceDelete[1].roomId, "room-1");
+assert.equal(attendanceDelete[1].role, "teacher");
+assert.equal(attendanceDelete[2].date, "2026-07-30");
 
 const updated = await service.updateRecordNote(admin, "room-1", "pending", {
     recordId: "p1",

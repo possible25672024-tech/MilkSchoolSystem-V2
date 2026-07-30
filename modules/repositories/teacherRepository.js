@@ -83,9 +83,11 @@ class TeacherRepository extends BaseRepository {
 
     async loadTeacherCoreSnapshot(roomId, options = {}) {
         const attendanceDate = String(options?.attendanceDate || "").trim();
-        const attendancePromise = attendanceDate
-            ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
-            : this.loadAttendanceForRoom(roomId);
+        const attendancePromise = options?.attendanceMode === "none"
+            ? Promise.resolve({})
+            : attendanceDate
+                ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
+                : this.loadAttendanceForRoom(roomId);
         const roomSnapshot = options?.roomSnapshot && typeof options.roomSnapshot === "object"
             ? options.roomSnapshot
             : null;
@@ -107,9 +109,11 @@ class TeacherRepository extends BaseRepository {
             roomStock,
             attendance: attendance || {},
             updatedAt: updatedAt || {},
-            attendanceScope: attendanceDate
-                ? { mode: "date-summary", date: attendanceDate }
-                : { mode: "room-history", date: null },
+            attendanceScope: options?.attendanceMode === "none"
+                ? { mode: "deferred", date: null }
+                : attendanceDate
+                    ? { mode: "date-summary", date: attendanceDate }
+                    : { mode: "room-history", date: null },
             roomSource: roomSnapshot ? "session" : "firebase-fallback",
             extrasLoaded: false
         };

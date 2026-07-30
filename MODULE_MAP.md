@@ -76,7 +76,7 @@ Completed boundary:
 - compatible ledger calculations
 - Main Stock and Room Stock separation
 
-### Report and Admin Operations — Sprint 5.0 Active
+### Report and Admin Operations — Sprint 5.1 Scalability Gate Active
 
 Modules:
 
@@ -96,11 +96,17 @@ Current boundary:
   session;
 - safe note-only operation edits that do not alter quantities;
 - deletes through accepted Services with Room Stock, audit, and Queue recovery;
+- shallow Attendance key discovery followed by selected-room `/data` reads;
+- room-scoped Pending, Retroactive, and Vacation Admin history reads;
+- no automatic historical photo or signature hydration;
 - protected `index.html` and `teacher.html` unchanged.
 
-Pending gate:
+Pending gates:
 
-- product-owner Live Server desktop and Responsive validation.
+- complete Sprint 5.1 regression;
+- product-owner Live Server retry of the room that previously returned HTTP
+  413;
+- desktop and Responsive validation.
 
 Existing foundation modules:
 
@@ -156,6 +162,7 @@ Completed boundary:
 - Teacher session room snapshot reuse
 - default today's Attendance `/data` read
 - explicit room-history and deferred-data refresh
+- explicit no-Attendance core mode for Admin summary orchestration
 - Teacher dashboard and Room Stock-only command preparation
 - measured desktop payload optimization
 
@@ -178,6 +185,7 @@ Completed boundary:
 - no Main Stock change
 - versioned Room Stock reads
 - conditional Room Stock writes
+- shallow room-history key discovery with bounded `/data` hydration
 - latest-value recalculation after conflicts
 - bounded ETag retry
 - partial-save conversion to Room Stock-only retry

@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-5.0-admin-report-ui`
+Current Branch: `feature/sprint-5.1-attendance-scalability`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.0 — Operational Admin Report Integration
+Sprint 5.1 — Large Attendance Payload Resilience
 
-Status: **92% — ADMIN ROOM OPERATIONS AND 58-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
+Status: **94% — FIREBASE 413 FIX AND 59-CHECK REGRESSION PASS / BROWSER RETRY PENDING**
 
 ## Completed Foundation
 
@@ -396,3 +396,39 @@ Pending:
 - accepted legacy/V2 formula comparison on the same browser;
 - A4/CSV evidence;
 - clean Console and GET-only Network evidence.
+
+## Sprint 5.1 Goal
+
+Remove the observed Admin `413 Request Entity Too Large` failure by preventing
+historical Attendance photos and signatures from being hydrated during room
+history loading.
+
+## Sprint 5.1 Current Implementation
+
+- discovers Attendance record keys with `shallow=true`;
+- filters exact selected-room `{roomId}_{YYYY-MM-DD}` keys;
+- hydrates only each matching `/data` child with bounded concurrency;
+- explicitly defers Attendance in the Admin Teacher-core snapshot;
+- loads Pending, Retroactive, and Vacation histories through room-scoped
+  Repository queries;
+- keeps evidence hydration behind explicit view/edit/print actions;
+- changes no Firebase schema, stock value, Queue, ledger, or stockLog;
+- preserves protected `index.html` and `teacher.html`.
+
+Artifact:
+
+```text
+docs/SPRINT_5_1_PLAN.md
+tests/attendance-scalable-query-check.mjs
+```
+
+Pending:
+
+- product-owner Live Server retry on the previously failing room;
+- clean Console and GET-only initial-load Network evidence.
+
+Automated result:
+
+```text
+ALL 59 REGRESSION CHECKS PASSED
+```

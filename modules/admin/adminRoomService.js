@@ -15,6 +15,7 @@ class AdminRoomService {
         this.retroactiveMilkService = retroactiveMilkService;
         this.vacationMilkService = vacationMilkService;
         this.repositories = {
+            attendance: repositories.attendance || window.AttendanceRepository,
             pending: repositories.pending || window.PendingMilkRepository,
             retroactive: repositories.retroactive || window.RetroactiveMilkRepository,
             vacation: repositories.vacation || window.VacationMilkRepository
@@ -46,6 +47,7 @@ class AdminRoomService {
         this.pendingMilkService ||= window.PendingMilkService;
         this.retroactiveMilkService ||= window.RetroactiveMilkService;
         this.vacationMilkService ||= window.VacationMilkService;
+        this.repositories.attendance ||= window.AttendanceRepository;
         this.repositories.pending ||= window.PendingMilkRepository;
         this.repositories.retroactive ||= window.RetroactiveMilkRepository;
         this.repositories.vacation ||= window.VacationMilkRepository;
@@ -53,6 +55,7 @@ class AdminRoomService {
         const required = [
             [this.loginService, "loadLoginOptions"],
             [this.teacherService, "loadTeacherView"],
+            [this.teacherService, "buildDashboard"],
             [this.attendanceService, "deleteAttendance"],
             [this.pendingMilkService, "remove"],
             [this.retroactiveMilkService, "remove"],
@@ -63,6 +66,20 @@ class AdminRoomService {
             throw this.businessError(
                 "ADMIN_ROOM_DEPENDENCY_UNAVAILABLE",
                 `Admin room dependency ${missing[1]} is not available.`
+            );
+        }
+
+        const requiredRepositories = [
+            [this.repositories.attendance, "loadRoomAttendanceSummaries"],
+            [this.repositories.pending, "loadRoomPendingRecords"],
+            [this.repositories.retroactive, "loadRoomRecords"],
+            [this.repositories.vacation, "loadRoomRecords"]
+        ];
+        const missingRepository = requiredRepositories.find(([owner, method]) => !owner?.[method]);
+        if (missingRepository) {
+            throw this.businessError(
+                "ADMIN_ROOM_REPOSITORY_UNAVAILABLE",
+                `Admin room repository method ${missingRepository[1]} is not available.`
             );
         }
     }
@@ -181,16 +198,30 @@ class AdminRoomService {
     async loadRoomDashboard(adminSession, roomId, options = {}) {
         this.ensureDependencies();
         const resolved = await this.resolveRoom(adminSession, roomId, options);
-        const result = await this.teacherService.loadTeacherView(resolved.session, {
-            includeExtras: true,
-            roomSnapshot: resolved.room
-        });
-        const snapshot = result.snapshot;
+        const [result, attendance, pending, retroactive, vacation] = await Promise.all([
+            this.teacherService.loadTeacherView(resolved.session, {
+                includeExtras: false,
+                attendanceMode: "none",
+                roomSnapshot: resolved.room
+            }),
+            this.repositories.attendance.loadRoomAttendanceSummaries(resolved.room.id),
+            this.repositories.pending.loadRoomPendingRecords(resolved.room.id),
+            this.repositories.retroactive.loadRoomRecords(resolved.room.id),
+            this.repositories.vacation.loadRoomRecords(resolved.room.id)
+        ]);
+        const snapshot = {
+            ...result.snapshot,
+            attendance: attendance || {},
+            absentMilk: pending || {},
+            retroMilk: retroactive || {},
+            vacationMilk: vacation || {}
+        };
+        const dashboard = this.teacherService.buildDashboard(snapshot);
         return {
             rooms: resolved.rooms,
             room: resolved.room,
             delegatedSession: resolved.session,
-            dashboard: result.dashboard,
+            dashboard,
             records: {
                 attendance: this.normalizeAttendance(snapshot.attendance, resolved.room.id),
                 pending: this.normalizeOperations(snapshot.absentMilk),

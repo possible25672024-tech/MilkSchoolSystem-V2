@@ -52,14 +52,17 @@ assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
 assert.match(
     sprint,
-    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui)`/,
+    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability)`/,
     "Sprint status must identify the accepted 4.9 branch or its approved successor"
 );
 assert.ok(
     sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity") ||
         (
             sprint.includes("## Sprint 4.9 Goal") &&
-            sprint.includes("Sprint 5.0 — Operational Admin Report Integration")
+            (
+                sprint.includes("Sprint 5.0 — Operational Admin Report Integration") ||
+                sprint.includes("Sprint 5.1 — Large Attendance Payload Resilience")
+            )
         ),
     "Sprint status must preserve the accepted Sprint 4.9 scope"
 );

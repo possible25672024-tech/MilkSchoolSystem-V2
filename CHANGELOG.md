@@ -2,6 +2,29 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 5.1 Large Attendance Payload Resilience
+
+### Added
+
+- shallow Attendance key discovery and bounded selected-room `/data` hydration
+- Firebase 413 scalable-query regression gate
+- Sprint 5.1 plan and browser acceptance criteria
+
+### Changed
+
+- Admin room loading explicitly defers the media-bearing Attendance collection.
+- Admin Attendance history no longer downloads historical photos or signatures.
+- Pending, Retroactive, and Vacation Admin histories load through room-scoped
+  Repository queries.
+- Existing View/Edit/Delete, Room Stock rollback, audit, Queue recovery, and
+  Main Stock isolation remain unchanged.
+
+### Validation
+
+- scalable-query, Admin operations, and Performance checks passed.
+- all 59 discovered regression checks passed.
+- product-owner Live Server 413 retry remains pending.
+
 ## 2026-07-30 — Sprint 5.0 Admin Room Operations
 
 ### Added
