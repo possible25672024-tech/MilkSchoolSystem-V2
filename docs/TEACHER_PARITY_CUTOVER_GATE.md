@@ -11,8 +11,9 @@ Status: **AUTOMATED PASS / LOCAL BROWSER GATE PENDING**
 - one-student authenticated-room Attendance report;
 - selected-range present, absent, unchecked, rate, notes, and timeline;
 - deterministic A4 student-report print pages;
-- reference-style Room A4 date matrix in groups of at most five dates, with ✓ / ✕ / — status, totals, and drinking percentages;
-- daily photos and the homeroom Teacher signature appended after Room and Student report tables without forced per-date evidence pages;
+- one landscape Room A4 date matrix containing the whole selected range, with ✓ / ✕ / — status, totals, and drinking percentages;
+- Room daily photos and homeroom Teacher signatures on following evidence pages grouped at up to five dates per page;
+- Student daily photos and the homeroom Teacher signature inline after the selected-student report;
 - one photo row of at most five images per evidence date;
 - matching Pending, Retroactive, and Vacation A4 reports with student/quantity detail, photos, available receiver signatures, and Teacher approval;
 - Attendance History Edit/Delete actions with exact-date Daily Attendance routing;
@@ -91,7 +92,7 @@ Requested UI revision gates:
 - the fixed blue top header, below-header left sidebar, room/Teacher identity, groups, icons, active highlight, scrollable area, and identity footer are present;
 - daily controls, summaries, reports, student timelines, Pending rows, and A4 print use milk-consumption wording;
 - Room A4 uses the accepted date-column matrix;
-- Room/Student evidence is inline and limited to one five-photo row per date;
+- Room evidence starts on following pages grouped at five dates per page, and each Room/Student evidence date is limited to one five-photo row;
 - Pending, Retroactive, and Vacation history exposes matching A4 print actions;
 - no Attendance payload, Queue format, Firebase schema, or Room Stock calculation changed.
 

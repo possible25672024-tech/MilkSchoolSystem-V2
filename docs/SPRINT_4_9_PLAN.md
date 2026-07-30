@@ -224,8 +224,9 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - reuse of accepted operational panels;
 - student report and A4 rendering;
 - print-time daily photos and homeroom Teacher signature;
-- reference-style Room A4 matrices with at most five date columns, ✓/✕/— status, totals, and percentages;
-- inline report evidence without forced per-date evidence pages;
+- one landscape Room A4 matrix containing all selected date columns, ✓/✕/— status, totals, and percentages;
+- following Room A4 evidence pages grouped at up to five dates per page;
+- inline Student A4 evidence without forced per-date evidence pages;
 - one photo row of at most five images per evidence date;
 - shared Pending, Retroactive, and Vacation A4 report actions;
 - operational student/quantity tables, receiver signatures, and Teacher approval line;
@@ -252,8 +253,9 @@ Required local evidence after automated validation:
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;
 - Room A4 and Student A4 previews contain the available daily photos and homeroom Teacher signature;
-- Room A4 preview uses the accepted date-column matrix and splits longer ranges into groups of five dates;
-- Room A4 and Student A4 keep each date's photos directly after the report table in one row, without forced evidence pages;
+- Room A4 preview uses one landscape date-column matrix for the whole selected range;
+- Room A4 starts dated photo/signature evidence on following pages with up to five dates per page;
+- Student A4 keeps each date's photos directly after its report timeline in one row, without forced evidence pages;
 - Pending, Retroactive, and Vacation history print actions produce matching A4 tables, photos, available receiver signatures, and Teacher approval lines;
 - History Edit opens the exact selected date with statuses, notes, photos, and signature available through the existing selected-date evidence control;
 - History Delete requires confirmation and is validated only with generated/isolated data;

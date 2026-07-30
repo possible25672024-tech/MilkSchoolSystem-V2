@@ -19,7 +19,7 @@ Confirm that the completed modular Teacher navigation can be evaluated without c
 7. Run read-only Student Report and Room Stock checks.
 8. Validate device-local display settings without Firebase writes.
 9. Validate the Teacher-profile form only in an approved non-quarantined room and confirm the Network write targets only `rooms/{matchedRoomKey}/teacher`.
-10. Validate Room A4 date columns, inline one-row evidence, and the homeroom Teacher signature.
+10. Validate one landscape Room A4 matrix for all selected date columns, then evidence pages of up to five dates with one-row photos and the homeroom Teacher signature.
 11. Validate matching Pending, Retroactive, and Vacation A4 reports from already-loaded history.
 12. Confirm Console and Network evidence.
 13. Logout and verify the legacy pages remain available.

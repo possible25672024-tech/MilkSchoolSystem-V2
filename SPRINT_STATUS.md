@@ -202,9 +202,9 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
 - Room A4 and Student A4 explicitly hydrate only the already-selected dates at Print time and render available daily photos plus the homeroom Teacher signature;
-- Room A4 renders a reference-style matrix in groups of five dates with ✓/✕/— status, per-student totals, and drinking percentages;
-- Room A4 and Student A4 keep evidence directly after the report table, without a forced evidence page for every date;
-- each evidence group uses one row of at most five photos;
+- Room A4 renders the whole selected range in one landscape matrix with ✓/✕/— status, per-student totals, and drinking percentages;
+- Room A4 starts evidence on the following page and groups up to five dates on each evidence page;
+- each Room evidence date uses one row of at most five photos plus its homeroom Teacher signature, while Student A4 retains its inline evidence layout;
 - Pending, Retroactive, and Vacation history records expose matching A4 report actions through one shared read-only print renderer;
 - operational A4 reports include the student/quantity table, one-row photos, available receiver signatures, and the homeroom Teacher approval line;
 - ordinary History and report loading remains media-free;

@@ -19,8 +19,8 @@ All notable modular migration changes are recorded here.
 
 - Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
 - Added explicit Print-time daily photos and homeroom Teacher signatures to Room A4 and Student A4 reports.
-- Changed Room A4 to a five-date-per-page matrix with daily ✓/✕/— status, row totals, and drinking percentages to match the accepted Teacher report reference.
-- Kept daily evidence directly after the report table, removed forced per-date evidence pages, and limited each photo group to one row of at most five images.
+- Changed Room A4 to one landscape date-column matrix for the whole selected range, with daily ✓/✕/— status, row totals, and drinking percentages.
+- Moved Room A4 evidence to the following pages, grouped at up to five dates per page; every date retains one row of at most five photos and its homeroom Teacher signature.
 - Added matching A4 report actions to Pending Milk, Retroactive Milk, and Vacation Milk history using one shared read-only renderer.
 - Added operation-specific student/quantity tables, one-row photo evidence, receiver signatures, and the homeroom Teacher approval line.
 - Kept ordinary History and report loading media-free; evidence reads are limited to dates already selected in the report.
