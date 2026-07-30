@@ -99,15 +99,15 @@ Requested UI revision gates:
 ## Publication evidence
 
 ```text
-Draft PR:       #3
-Base:           develop
-Head:           feature/sprint-4.9-teacher-parity-cutover
-Remote commit:  e28c2576cd129660d1587911e0939844f1b6c87f
-Source tree:    3acd19b91beae241d3f96ee829aad5ce02420fc6
-State:          OPEN / DRAFT / MERGEABLE
+Draft PR:              #3
+Base:                  develop
+Head:                  feature/sprint-4.9-teacher-parity-cutover
+Implementation commit: 83de662d10eafa9ef688fc9a725618b7498f8f0b
+Validated source tree:  04593e114a594f0680652088f585d2b350613297
+State:                 OPEN / DRAFT / MERGEABLE
 ```
 
-The local and GitHub source-tree SHAs match. Publication does not authorize merge or deployment.
+The implementation commit and source tree above passed the complete local regression. Publication does not authorize merge or deployment.
 
 ## Protected files
 
