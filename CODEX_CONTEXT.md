@@ -238,7 +238,7 @@ Implemented boundary:
 - actual read-only authenticated-room Room Stock
 - safe device-local display preferences under `milkapp_teacher_preferences_v1`
 - complete 12-item Teacher navigation reusing accepted Sprint 4.1–4.8 panels
-- sticky right-side desktop menu with compact narrow-screen navigation fallback
+- reference-style dark-blue left desktop sidebar with grouped menus, active highlight, Teacher footer, and compact narrow-screen fallback
 - `ดื่มนม` / `ไม่ดื่มนม` display wording while persisted `present` / `absent` values stay unchanged
 - metadata-only events and no direct Firebase, Queue, stock, or media ownership
 - isolated Service, Store, Manager, and UI gates passed

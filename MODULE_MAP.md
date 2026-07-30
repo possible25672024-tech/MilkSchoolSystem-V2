@@ -381,7 +381,8 @@ Implemented boundary:
 - actual read-only Room Stock and compatible last-updated display
 - allowlisted room-isolated UI preferences only
 - complete 12-item Teacher navigation
-- sticky vertical Teacher navigation on the right at desktop widths
+- full-height dark-blue Teacher navigation on the left at desktop widths
+- grouped menu sections, active marker, system/school header, and Teacher/room footer
 - milk-consumption display wording without changing the compatible Attendance status keys
 - reuse of accepted Attendance, report, Queue, Pending, Retroactive, and Vacation panels
 - no Firebase schema, operational stock, Queue, ledger, stockLog, or media ownership

@@ -96,8 +96,9 @@ Navigation reuses the accepted Sprint 4.1–4.8 panels. It does not duplicate th
 
 ### 5. Teacher Menu Layout and Milk Wording
 
-- desktop widths above `1100px` show the 12-item Teacher navigation as a vertical sidebar on the right;
-- the sidebar remains sticky while the active Teacher panel scrolls;
+- desktop widths above `1100px` show the 12-item Teacher navigation as a full-height dark-blue sidebar on the left;
+- the sidebar keeps the reference layout visible while the active Teacher panel scrolls;
+- the sidebar includes a system/school header, grouped menu sections, icons, an amber active-item marker, and a Teacher/room footer;
 - widths at or below `1100px` retain the compact horizontal navigation so the content is not squeezed;
 - visible daily, history, student-report, Pending, and A4 labels use `ดื่มนม` and `ไม่ดื่มนม`;
 - visible rate labels use `อัตราดื่มนม`;
@@ -179,7 +180,8 @@ Events must not contain student names, notes, photo/signature data, credentials,
 ### Gate D — Navigation and UI
 
 - all 12 menu items;
-- right-side vertical Teacher navigation on desktop;
+- reference-style dark-blue left Teacher sidebar on desktop;
+- grouped menu sections, active marker, scrollable menu area, and Teacher identity footer;
 - compact horizontal navigation on narrower screens;
 - milk-consumption wording without changing persisted `present`/`absent` values;
 - reuse of accepted operational panels;
@@ -199,7 +201,8 @@ Required local evidence after automated validation:
 
 - Teacher login for a non-quarantined room;
 - all 12 menu controls visible and reachable;
-- the 12 controls appear in a right-side vertical sidebar on desktop;
+- the 12 controls appear in a full-height dark-blue left sidebar on desktop;
+- system/school identity, grouped menu headings, active-item highlight, and Teacher/room footer match the accepted reference structure;
 - `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` appear consistently in daily, report, student-report, Pending, and A4 views;
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;

@@ -28,13 +28,23 @@ for (const label of [
     assert.ok(viewCode.includes(label), `Teacher navigation must include ${label}`);
 }
 for (const layoutRule of [
-    "เมนูหน้าครู",
+    "ระบบบริหารจัดการ",
+    "อาหารเสริมนม",
     "@media(min-width:1101px)",
-    "grid-template-columns:minmax(0,1fr) 230px",
-    ".teacher-parity-nav{grid-column:2",
-    ".teacher-parity-nav-list{display:grid"
+    "padding:0 0 0 286px",
+    "inset:0 auto 0 0",
+    "width:286px",
+    "linear-gradient(180deg,#103650 0%,#174e70 100%)",
+    "teacher-parity-nav-group-title",
+    "teacher-sidebar-footer",
+    "border-left-color:#f59e0b",
+    ".teacher-parity-nav-list{display:flex;gap:8px;overflow-x:auto",
+    ".teacher-parity-nav-group,.teacher-parity-nav-group-items{display:contents}"
 ]) {
-    assert.ok(viewCode.includes(layoutRule), `Desktop right navigation must include ${layoutRule}`);
+    assert.ok(viewCode.includes(layoutRule), `Desktop reference sidebar must include ${layoutRule}`);
+}
+for (const group of ["หน้าหลัก", "บันทึกและรายงาน", "จ่ายนม", "ระบบ"]) {
+    assert.ok(viewCode.includes(`label: "${group}"`), `Teacher sidebar must include ${group}`);
 }
 for (const milkLabel of ["ดื่มนมวันนี้", "ไม่ดื่มนมวันนี้", "ดื่มนม", "ไม่ดื่มนม", "อัตราดื่มนม"]) {
     assert.ok(viewCode.includes(milkLabel), `Teacher parity UI must include ${milkLabel}`);
@@ -109,6 +119,9 @@ const ids = [
     "teacher-parity-view-style",
     "teacher-shell",
     "teacher-parity-nav",
+    "teacher-sidebar-school",
+    "teacher-sidebar-teacher",
+    "teacher-sidebar-room",
     "teacher-overview-panel",
     "attendance-panel",
     "attendance-report-panel",
@@ -151,7 +164,13 @@ const ids = [
     "teacher-settings-save"
 ];
 const document = new FakeDocument(ids);
-const session = { role: "teacher", roomId: "room-a", roomName: "อ.3-6" };
+const session = {
+    role: "teacher",
+    roomId: "room-a",
+    roomName: "อ.3-6",
+    teacher: "ครูทดสอบ",
+    schoolName: "โรงเรียนทดสอบ"
+};
 const snapshot = {
     session,
     room: { id: "room-a", name: "อ.3-6" },
@@ -254,6 +273,9 @@ const view = new View(manager, teacherManager, authService, {
 });
 await view.initialize();
 assert.equal(view.getState().active, true);
+assert.equal(document.getElementById("teacher-sidebar-school").textContent, "โรงเรียนทดสอบ");
+assert.equal(document.getElementById("teacher-sidebar-teacher").textContent, "ครูทดสอบ");
+assert.equal(document.getElementById("teacher-sidebar-room").textContent, "อ.3-6");
 view.showSection("student-report", false);
 assert.equal(document.getElementById("student-report-panel").hidden, false);
 assert.equal(document.getElementById("attendance-panel").hidden, true);

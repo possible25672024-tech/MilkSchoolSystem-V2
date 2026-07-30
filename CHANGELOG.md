@@ -19,7 +19,9 @@ All notable modular migration changes are recorded here.
 - Added an actual read-only Room Stock and compatible last-updated view.
 - Added safe room-isolated device preferences for default range, compact mode, and remembered navigation.
 - Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
-- Moved the 12-item Teacher menu to a sticky right-side desktop sidebar with a compact narrow-screen fallback.
+- Reworked the 12-item Teacher menu into a full-height dark-blue left desktop sidebar matching the accepted reference structure.
+- Added grouped menu headings, icons, amber active-item marker, scrollable menu area, system/school header, and Teacher/room footer.
+- Retained the compact horizontal navigation fallback on narrower screens.
 - Changed user-facing Attendance wording from `มาเรียน` / `ขาดเรียน` to `ดื่มนม` / `ไม่ดื่มนม` across daily controls, summaries, reports, Pending rows, and A4 print.
 - Preserved internal `present` / `absent` values, stock calculations, Queue compatibility, and existing data.
 - Dynamically loaded the Sprint 4.9 boundary from `MilkSchoolApplication`.
