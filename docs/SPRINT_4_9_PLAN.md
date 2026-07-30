@@ -15,6 +15,7 @@ Sprint 4.9 adds:
 - authenticated-room student report and A4 print;
 - actual remaining Room Stock and last-updated view;
 - safe device-local Teacher display settings;
+- authenticated-room homeroom Teacher name editing without replacing the room record;
 - the complete 12-item Teacher navigation shell;
 - a final parity matrix and non-destructive cutover rehearsal document.
 
@@ -75,6 +76,15 @@ The preference store:
 - stores no student, photo, signature, receiver, note, stock, Queue, credential, or Firebase payload;
 - never changes Firebase settings or schema.
 
+The same Settings screen also exposes **ข้อมูลครูประจำชั้น (แก้ไขได้)**:
+
+- room name is read-only and comes from the authenticated session;
+- Teacher name is required and limited to 120 characters;
+- save delegates through `TeacherParityManager -> TeacherManager -> TeacherService -> RoomRepository`;
+- the Repository writes only `milkApp/rooms/{matchedRoomKey}/teacher`;
+- cross-room targets are rejected before the Repository call;
+- students, Room Stock, Main Stock, Attendance, Queue, ledger, stockLog, and other room fields are not rewritten.
+
 ### 4. Complete Teacher Navigation
 
 The modular V2 navigation must expose:
@@ -97,8 +107,9 @@ Navigation reuses the accepted Sprint 4.1–4.8 panels. It does not duplicate th
 ### 5. Teacher Menu Layout and Milk Wording
 
 - desktop widths above `1100px` show the 12-item Teacher navigation as a full-height dark-blue sidebar on the left;
-- the sidebar keeps the reference layout visible while the active Teacher panel scrolls;
-- the sidebar includes a system/school header, grouped menu sections, icons, an amber active-item marker, and a Teacher/room footer;
+- a fixed blue Teacher header spans the screen above the content and sidebar;
+- the sidebar begins below the fixed header and keeps the reference layout visible while the active Teacher panel scrolls;
+- the sidebar includes room/Teacher identity, grouped menu sections, icons, an amber active-item marker, and a Teacher/room footer;
 - widths at or below `1100px` retain the compact horizontal navigation so the content is not squeezed;
 - visible daily, history, student-report, Pending, and A4 labels use `ดื่มนม` and `ไม่ดื่มนม`;
 - visible rate labels use `อัตราดื่มนม`;
@@ -114,6 +125,8 @@ TeacherParityView
         -> AttendanceHistoryManager
         -> AttendanceReportBuilder
         -> TeacherManager
+            -> TeacherService
+                -> RoomRepository
 ```
 
 Runtime files:
@@ -134,6 +147,8 @@ Only metadata-safe events are allowed:
 milkapp:student-report-built
 milkapp:teacher-room-stock-viewed
 milkapp:teacher-preferences-saved
+milkapp:teacher-profile-updated
+milkapp:teacher-profile-saved
 ```
 
 Events must not contain student names, notes, photo/signature data, credentials, Queue payloads, or Firebase records.
@@ -142,7 +157,8 @@ Events must not contain student names, notes, photo/signature data, credentials,
 
 - Main Stock decreases only when Admin distributes milk to classrooms.
 - Attendance, Pending, Retroactive, and Vacation workflows change Room Stock only.
-- Sprint 4.9 student report and stock/settings views are read-only at the Firebase boundary.
+- Sprint 4.9 student report, Room Stock, and device-display preferences remain read-only at the Firebase boundary.
+- The only new Firebase write is the authenticated room's `teacher` leaf.
 - Attendance edit/delete difference rules remain unchanged.
 - Negative Room Stock remains visible and unclamped.
 - Queue key remains `tc_pending_saves_v1`.
@@ -188,6 +204,7 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - student report and A4 rendering;
 - read-only stock display;
 - safe settings;
+- scoped homeroom Teacher-name save;
 - Teacher Logout delegation;
 - desktop and Responsive `820 x 1180`.
 
@@ -211,6 +228,7 @@ Required local evidence after automated validation:
 - desktop and Chrome Responsive `820 x 1180`;
 - clean Console;
 - report/stock traffic contains no write method;
+- saving the Teacher name performs one scoped room-teacher leaf write and no stock/Attendance/Queue write;
 - no Queue replay or operational save/delete action;
 - protected files unchanged.
 

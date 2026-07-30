@@ -239,8 +239,11 @@ Implemented boundary:
 - safe device-local display preferences under `milkapp_teacher_preferences_v1`
 - complete 12-item Teacher navigation reusing accepted Sprint 4.1–4.8 panels
 - reference-style dark-blue left desktop sidebar with grouped menus, active highlight, Teacher footer, and compact narrow-screen fallback
+- fixed blue Teacher header above the content and a dark-blue sidebar that begins below it
+- editable authenticated-room homeroom Teacher name with a teacher-leaf-only Repository write
 - `ดื่มนม` / `ไม่ดื่มนม` display wording while persisted `present` / `absent` values stay unchanged
 - metadata-only events and no direct Firebase, Queue, stock, or media ownership
+- Teacher profile events contain room ID only; report, stock, Queue, and media boundaries remain unchanged
 - isolated Service, Store, Manager, and UI gates passed
 - all 53 discovered regression checks passed
 - local browser evidence pending
@@ -277,6 +280,7 @@ Required local evidence:
 - Student Report load and A4 preview;
 - Room Stock equals the Teacher header;
 - safe settings persist on the same device;
+- Teacher name save updates the authenticated room only and survives refresh;
 - desktop and Chrome Responsive `820 x 1180`;
 - clean Console and no report/stock write method.
 

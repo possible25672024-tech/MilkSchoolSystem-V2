@@ -39,6 +39,31 @@ class RoomRepository extends BaseRepository {
         return entry ? { ...entry[1], id: String(entry[1]?.id || entry[0]) } : null;
     }
 
+    async updateRoomTeacher(roomId, teacher) {
+        this.requireRoomId(roomId);
+        const normalizedRoomId = String(roomId).trim();
+        const rooms = await this.loadRooms();
+        const entries = Array.isArray(rooms)
+            ? rooms.map((room, index) => [String(index), room])
+            : Object.entries(rooms || {});
+        const match = entries.find(([key, room]) =>
+            String(room?.id || key) === normalizedRoomId
+        );
+
+        if (!match) {
+            const error = new Error("The authenticated teacher room was not found.");
+            error.code = "TEACHER_ROOM_NOT_FOUND";
+            throw error;
+        }
+
+        const storageKey = match[0];
+        await this.set(this.path(`rooms/${storageKey}/teacher`), String(teacher));
+        return {
+            roomId: normalizedRoomId,
+            storageKey
+        };
+    }
+
     loadRoomStock(roomId) {
         this.requireRoomId(roomId);
         return this.get(this.path(`roomStock/${roomId}`));

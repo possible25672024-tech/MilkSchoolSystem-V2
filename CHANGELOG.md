@@ -21,6 +21,10 @@ All notable modular migration changes are recorded here.
 - Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
 - Reworked the 12-item Teacher menu into a full-height dark-blue left desktop sidebar matching the accepted reference structure.
 - Added grouped menu headings, icons, amber active-item marker, scrollable menu area, system/school header, and Teacher/room footer.
+- Matched the supplied Teacher reference more closely with a fixed blue top header and a left sidebar that begins below the header.
+- Moved authenticated room and Teacher identity into the upper sidebar while retaining the identity footer.
+- Added editable homeroom Teacher information in Settings: room is read-only and the Teacher name writes only the authenticated room's `teacher` leaf.
+- Added validation, session/cache refresh, and metadata-only Teacher-profile events without changing students, Attendance, Queue, Room Stock, Main Stock, ledger, or stockLog.
 - Retained the compact horizontal navigation fallback on narrower screens.
 - Changed user-facing Attendance wording from `มาเรียน` / `ขาดเรียน` to `ดื่มนม` / `ไม่ดื่มนม` across daily controls, summaries, reports, Pending rows, and A4 print.
 - Preserved internal `present` / `absent` values, stock calculations, Queue compatibility, and existing data.
@@ -33,6 +37,7 @@ All notable modular migration changes are recorded here.
 - Teacher Preference Store safety and room-isolation check passed.
 - Teacher Parity Manager and metadata-only event check passed.
 - Teacher navigation, Student Report, and A4 UI check passed.
+- Authenticated-room Teacher-profile Repository, Service, Manager, and UI checks passed.
 - All 53 discovered regression checks passed.
 - Local browser gate remains pending.
 

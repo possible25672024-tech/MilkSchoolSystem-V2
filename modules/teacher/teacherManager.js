@@ -107,6 +107,46 @@ class TeacherManager {
         return this.refresh({ includeExtras: true });
     }
 
+    async updateTeacherProfile(input = {}) {
+        const session = this.getSession();
+        if (!this.teacherService?.updateTeacherProfile) {
+            throw new Error("Teacher profile update is not available.");
+        }
+
+        const saved = await this.teacherService.updateTeacherProfile(session, {
+            roomId: session.roomId || session.classId,
+            teacher: input.teacher
+        });
+        const updatedSession = {
+            ...session,
+            teacher: saved.teacher,
+            roomSnapshot: session.roomSnapshot && typeof session.roomSnapshot === "object"
+                ? { ...session.roomSnapshot, teacher: saved.teacher }
+                : session.roomSnapshot
+        };
+
+        this.authService.saveSession?.(updatedSession);
+        if (this.currentView?.snapshot) {
+            this.currentView.snapshot.session = {
+                ...(this.currentView.snapshot.session || {}),
+                teacher: saved.teacher
+            };
+            this.currentView.snapshot.room = {
+                ...(this.currentView.snapshot.room || {}),
+                teacher: saved.teacher
+            };
+            this.currentView.dashboard = {
+                ...(this.currentView.dashboard || {}),
+                teacher: saved.teacher
+            };
+        }
+
+        this.emit("milkapp:teacher-profile-updated", {
+            roomId: saved.roomId
+        });
+        return saved;
+    }
+
     buildSessionFallbackSnapshot() {
         try {
             this.ensureServices();

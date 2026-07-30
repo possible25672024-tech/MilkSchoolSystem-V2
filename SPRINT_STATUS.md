@@ -203,6 +203,8 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
 - Room Stock view displays the actual authenticated-room balance without rebuild or mutation;
 - safe settings never write Firebase or operational data;
+- the Settings screen now separately allows an authenticated Teacher to update only their room's `teacher` leaf;
+- desktop uses a fixed blue Teacher header and a dark-blue left sidebar beginning below the header;
 - App dynamically loads and initializes the Sprint 4.9 path after accepted operational panels;
 - isolated Service, Store, Manager, and UI gates pass;
 - all 53 discovered regression checks pass;
@@ -213,10 +215,10 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 1. Teacher Parity Service — **PASS**;
 2. Preference Store safety and room isolation — **PASS**;
 3. Manager delegation and metadata-only events — **PASS**;
-4. 12-item reference-style left desktop navigation, milk wording, and Student Report A4 UI — **PASS**;
+4. 12-item reference-style top-header/left-sidebar navigation, milk wording, Teacher profile form, and Student Report A4 UI — **PASS**;
 5. complete regression suite — **PASS, 53/53**;
-6. desktop and Chrome Responsive `820 x 1180` — **PENDING**;
-7. Console and read-only Network — **PENDING LOCAL BROWSER EVIDENCE**;
+6. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
+7. Console, read-only report/stock Network, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
 8. synchronized branch and clean working tree — **PENDING PUBLICATION**.
 
 ## Read-Only Ownership Contract
