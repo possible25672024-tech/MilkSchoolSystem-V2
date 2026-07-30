@@ -98,6 +98,8 @@ Current boundary:
 - deletes through accepted Services with Room Stock, audit, and Queue recovery;
 - shallow Attendance key discovery followed by selected-room `/data` reads;
 - room-scoped Pending, Retroactive, and Vacation Admin history reads;
+- compact whole-school report reads containing formula fields only;
+- Firebase array/object normalization before Dashboard totals;
 - no automatic historical photo or signature hydration;
 - protected `index.html` and `teacher.html` unchanged.
 

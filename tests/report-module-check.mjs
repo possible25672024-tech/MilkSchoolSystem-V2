@@ -47,7 +47,10 @@ for (let position = 0; position < loadOrder.length - 1; position += 1) {
 assert.ok(repositoryCode.includes("extends BaseRepository"), "ReportRepository must use BaseRepository");
 assert.ok(repositoryCode.includes('this.appRoot = "milkApp"'), "ReportRepository must preserve the milkApp root");
 assert.ok(repositoryCode.includes('this.path("settings")'), "ReportRepository must read settings");
-assert.ok(repositoryCode.includes("loadStockSnapshot"), "ReportRepository must compose the stock report snapshot");
+assert.ok(repositoryCode.includes("loadCompactCollection"), "ReportRepository must expose media-free compact reads");
+assert.ok(repositoryCode.includes('{ shallow: true }'), "ReportRepository must discover large collection keys without hydrating evidence");
+assert.ok(repositoryCode.includes('"mcAttendance", ["data"]'), "ReportRepository must read only Attendance data for aggregation");
+assert.ok(!repositoryCode.includes("loadStockSnapshot()"), "Admin reports must not hydrate the oversized operational stock snapshot");
 assert.ok(!repositoryCode.includes(".set("), "ReportRepository must remain read-only");
 assert.ok(!repositoryCode.includes(".update("), "ReportRepository must not update Firebase");
 assert.ok(!repositoryCode.includes(".push("), "ReportRepository must not push Firebase records");

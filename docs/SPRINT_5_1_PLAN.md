@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-5.1-attendance-scalability`
 
-Status: **AUTOMATED PASS — 59/59 / PRODUCT-OWNER BROWSER RETRY PENDING**
+Status: **AUTOMATED PASS — 60/60 / PRODUCT-OWNER BROWSER RETRY PENDING**
 
 ## Trigger
 
@@ -43,7 +43,17 @@ legacy pages.
 - load full evidence only after the existing explicit view, edit, or print
   action.
 
-## Gate C — Safety and compatibility
+## Gate C — Scalable whole-school report
+
+- do not compose Admin reports from the full operational Stock snapshot;
+- discover Attendance, Pending, Retroactive, and Vacation keys with shallow
+  reads;
+- hydrate only formula and browser-local deduplication fields;
+- exclude `photos`, `signature`, and `signatures`;
+- bound field requests globally rather than per record;
+- accept both Firebase object collections and arrays in Dashboard totals.
+
+## Gate D — Safety and compatibility
 
 - no Firebase schema or security-rule change;
 - no Main Stock or Room Stock mutation during reads;
@@ -61,6 +71,8 @@ legacy pages.
 5. Attendance/Pending/Retroactive/Vacation tables render.
 6. Console contains no application error.
 7. No POST, PUT, PATCH, or DELETE occurs during initial room loading.
+8. Whole-school report renders without `(records || []).reduce is not a
+   function`.
 
 Sprint 5.1 does not authorize `main`, Production deployment, legacy
 replacement, Firebase-rule changes, or incident closure.

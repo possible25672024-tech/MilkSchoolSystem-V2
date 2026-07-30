@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 5.1 — Large Attendance Payload Resilience
 
-Status: **94% — FIREBASE 413 FIX AND 59-CHECK REGRESSION PASS / BROWSER RETRY PENDING**
+Status: **96% — ROOM/WHOLE-SCHOOL 413 FIX AND 60-CHECK REGRESSION PASS / BROWSER RETRY PENDING**
 
 ## Completed Foundation
 
@@ -411,6 +411,10 @@ history loading.
 - explicitly defers Attendance in the Admin Teacher-core snapshot;
 - loads Pending, Retroactive, and Vacation histories through room-scoped
   Repository queries;
+- builds the whole-school Admin report from compact, media-free fields rather
+  than the full Stock snapshot;
+- excludes `photos`, `signature`, and `signatures` from report aggregation;
+- normalizes Firebase object collections before Dashboard summation;
 - keeps evidence hydration behind explicit view/edit/print actions;
 - changes no Firebase schema, stock value, Queue, ledger, or stockLog;
 - preserves protected `index.html` and `teacher.html`.
@@ -430,5 +434,5 @@ Pending:
 Automated result:
 
 ```text
-ALL 59 REGRESSION CHECKS PASSED
+ALL 60 REGRESSION CHECKS PASSED
 ```

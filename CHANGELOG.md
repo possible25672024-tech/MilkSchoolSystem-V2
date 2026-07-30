@@ -16,13 +16,17 @@ All notable modular migration changes are recorded here.
 - Admin Attendance history no longer downloads historical photos or signatures.
 - Pending, Retroactive, and Vacation Admin histories load through room-scoped
   Repository queries.
+- Whole-school Admin reports no longer compose the full Stock snapshot.
+- Report aggregation reads only required compact fields and excludes photos
+  and signatures.
+- Teacher Dashboard totals normalize both Firebase objects and arrays.
 - Existing View/Edit/Delete, Room Stock rollback, audit, Queue recovery, and
   Main Stock isolation remain unchanged.
 
 ### Validation
 
 - scalable-query, Admin operations, and Performance checks passed.
-- all 59 discovered regression checks passed.
+- all 60 discovered regression checks passed.
 - product-owner Live Server 413 retry remains pending.
 
 ## 2026-07-30 — Sprint 5.0 Admin Room Operations

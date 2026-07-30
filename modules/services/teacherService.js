@@ -346,7 +346,7 @@ class TeacherService {
     }
 
     sumRecords(records, fields) {
-        return (records || []).reduce((sum, record) => {
+        return this.normalizeRecords(records).reduce((sum, record) => {
             const field = fields.find(candidate => record?.[candidate] !== undefined && record?.[candidate] !== null);
             return sum + this.numberOrZero(field ? record[field] : 0);
         }, 0);

@@ -36,6 +36,15 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed automated gates; Sprint 5.1 large Attendance payload resilience is active
 
+Current Sprint 5.1 browser finding:
+
+- selected-room shallow Attendance discovery passed;
+- the remaining whole-school full Stock snapshot caused HTTP 413 and an
+  object/array Dashboard aggregation error;
+- both paths now use compact media-free reads and normalized collections;
+- all 60 automated checks pass;
+- product-owner Live Server retry remains required.
+
 Production cutover remains blocked.
 
 ---
