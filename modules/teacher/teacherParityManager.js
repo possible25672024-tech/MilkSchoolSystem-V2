@@ -41,7 +41,11 @@ class TeacherParityManager {
         if (!this.reportBuilder?.build) {
             throw new Error("AttendanceReportBuilder is not available.");
         }
-        if (!this.teacherManager?.refresh || !this.teacherManager?.getSnapshot) {
+        if (
+            !this.teacherManager?.refresh ||
+            !this.teacherManager?.getSnapshot ||
+            !this.teacherManager?.updateTeacherProfile
+        ) {
             throw new Error("TeacherManager is not available.");
         }
         if (!this.authService?.getSession) {
@@ -157,6 +161,18 @@ class TeacherParityManager {
             updatedAt: model.updatedAt
         });
         return model;
+    }
+
+    async saveTeacherProfile(input = {}) {
+        const session = this.getSession();
+        const saved = await this.teacherManager.updateTeacherProfile({
+            roomId: session.roomId,
+            teacher: input.teacher
+        });
+        this.emit("milkapp:teacher-profile-saved", {
+            roomId: session.roomId
+        });
+        return saved;
     }
 
     logout() {

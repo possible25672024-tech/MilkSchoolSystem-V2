@@ -18,6 +18,7 @@ Confirm that the completed modular Teacher navigation can be evaluated without c
 6. Validate all 12 Teacher navigation items.
 7. Run read-only Student Report and Room Stock checks.
 8. Validate device-local display settings without Firebase writes.
+9. Validate the Teacher-profile form only in an approved non-quarantined room and confirm the Network write targets only `rooms/{matchedRoomKey}/teacher`.
 9. Confirm Console and Network evidence.
 10. Logout and verify the legacy pages remain available.
 
@@ -26,7 +27,8 @@ Confirm that the completed modular Teacher navigation can be evaluated without c
 Stop immediately if:
 
 - any Main Stock or Room Stock value changes during a read-only check;
-- a report or settings action sends `POST`, `PUT`, `PATCH`, or `DELETE`;
+- a report, Room Stock, or device-display action sends `POST`, `PUT`, `PATCH`, or `DELETE`;
+- a Teacher-profile save writes any path other than the authenticated room's `teacher` leaf;
 - a Queue entry is created, replayed, removed, or altered;
 - another room's students or records appear;
 - protected files differ;

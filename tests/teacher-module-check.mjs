@@ -166,7 +166,14 @@ const fakeRepository = {
         return structuredClone(rawSnapshot);
     }
 };
-const service = new TeacherService(fakeRepository);
+const profileWrites = [];
+const fakeRoomRepository = {
+    async updateRoomTeacher(roomId, teacher) {
+        profileWrites.push({ roomId, teacher });
+        return { roomId, storageKey: "0" };
+    }
+};
+const service = new TeacherService(fakeRepository, fakeRoomRepository);
 const teacherSession = {
     classId: "r1",
     roomId: "r1",
@@ -184,6 +191,22 @@ assert.throws(
     error => error.code === "TEACHER_CROSS_ROOM_ACCESS_DENIED",
     "TeacherService must reject cross-room access"
 );
+await assert.rejects(
+    () => service.updateTeacherProfile(teacherSession, { roomId: "r2", teacher: "ครูใหม่" }),
+    error => error.code === "TEACHER_CROSS_ROOM_ACCESS_DENIED",
+    "Teacher profile writes must reject another room"
+);
+await assert.rejects(
+    () => service.updateTeacherProfile(teacherSession, { teacher: "   " }),
+    error => error.code === "TEACHER_NAME_REQUIRED",
+    "Teacher profile writes must require a teacher name"
+);
+const profileResult = await service.updateTeacherProfile(teacherSession, {
+    roomId: "r1",
+    teacher: "  ครู   ชื่อใหม่  "
+});
+assert.deepEqual(profileWrites, [{ roomId: "r1", teacher: "ครู ชื่อใหม่" }]);
+assert.equal(profileResult.teacher, "ครู ชื่อใหม่");
 
 const sourceBefore = JSON.stringify(rawSnapshot);
 const teacherView = await service.loadTeacherView(teacherSession);
@@ -234,7 +257,10 @@ const events = [];
 const managerContext = {
     window: {
         TeacherService: service,
-        AuthService: { getSession: () => teacherSession },
+        AuthService: {
+            getSession: () => teacherSession,
+            saveSession: session => Object.assign(teacherSession, session)
+        },
         addEventListener: () => {},
         dispatchEvent: event => events.push(event)
     },
@@ -254,6 +280,13 @@ manager.initialize();
 await manager.refresh();
 assert.equal(manager.getDashboard().roomId, "r1", "TeacherManager must expose the authenticated room dashboard");
 assert.equal(manager.prepareRoomStockCommand("ATTENDANCE", 1).mainStockDelta, 0, "TeacherManager commands must preserve Main Stock isolation");
+const managerProfile = await manager.updateTeacherProfile({ teacher: "ครูบันทึกแล้ว" });
+assert.equal(managerProfile.teacher, "ครูบันทึกแล้ว");
+assert.equal(teacherSession.teacher, "ครูบันทึกแล้ว");
+assert.equal(manager.getSnapshot().room.teacher, "ครูบันทึกแล้ว");
+const profileEvent = events.find(event => event.name === "milkapp:teacher-profile-updated");
+assert.deepEqual(plain(profileEvent.detail), { roomId: "r1" });
+assert.ok(!JSON.stringify(profileEvent.detail).includes("ครูบันทึกแล้ว"), "Teacher profile events must be metadata-only");
 manager.clear();
 assert.equal(manager.getSnapshot(), null, "TeacherManager clear must remove cached teacher data");
 

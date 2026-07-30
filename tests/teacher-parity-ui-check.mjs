@@ -28,13 +28,13 @@ for (const label of [
     assert.ok(viewCode.includes(label), `Teacher navigation must include ${label}`);
 }
 for (const layoutRule of [
-    "ระบบบริหารจัดการ",
-    "อาหารเสริมนม",
+    "เช็กดื่มนม – ครูประจำชั้น",
+    "teacher-parity-topbar",
     "@media(min-width:1101px)",
     "padding:0 0 0 286px",
-    "inset:0 auto 0 0",
+    "inset:68px auto 0 0",
     "width:286px",
-    "linear-gradient(180deg,#103650 0%,#174e70 100%)",
+    "height:calc(100vh - 68px)",
     "teacher-parity-nav-group-title",
     "teacher-sidebar-footer",
     "border-left-color:#f59e0b",
@@ -42,6 +42,15 @@ for (const layoutRule of [
     ".teacher-parity-nav-group,.teacher-parity-nav-group-items{display:contents}"
 ]) {
     assert.ok(viewCode.includes(layoutRule), `Desktop reference sidebar must include ${layoutRule}`);
+}
+for (const profileRule of [
+    "ข้อมูลครูประจำชั้น (แก้ไขได้)",
+    "teacher-profile-room",
+    "teacher-profile-name",
+    "teacher-profile-save",
+    "บันทึกข้อมูลครู"
+]) {
+    assert.ok(viewCode.includes(profileRule), `Teacher settings must include ${profileRule}`);
 }
 for (const group of ["หน้าหลัก", "บันทึกและรายงาน", "จ่ายนม", "ระบบ"]) {
     assert.ok(viewCode.includes(`label: "${group}"`), `Teacher sidebar must include ${group}`);
@@ -118,10 +127,15 @@ class FakeDocument {
 const ids = [
     "teacher-parity-view-style",
     "teacher-shell",
+    "teacher-parity-topbar",
+    "teacher-topbar-school",
+    "teacher-topbar-room",
     "teacher-parity-nav",
     "teacher-sidebar-school",
     "teacher-sidebar-teacher",
     "teacher-sidebar-room",
+    "teacher-sidebar-footer-teacher",
+    "teacher-sidebar-footer-room",
     "teacher-overview-panel",
     "attendance-panel",
     "attendance-report-panel",
@@ -161,7 +175,13 @@ const ids = [
     "teacher-settings-remember",
     "teacher-settings-status",
     "teacher-settings-error",
-    "teacher-settings-save"
+    "teacher-settings-save",
+    "teacher-profile-room",
+    "teacher-profile-name",
+    "teacher-profile-status",
+    "teacher-profile-error",
+    "teacher-profile-save",
+    "teacher-name"
 ];
 const document = new FakeDocument(ids);
 const session = {
@@ -222,6 +242,13 @@ const manager = {
     savePreferences(value) {
         return value;
     },
+    async saveTeacherProfile(value) {
+        return {
+            roomId: "room-a",
+            roomName: "อ.3-6",
+            teacher: value.teacher
+        };
+    },
     logout() {},
     clear() {}
 };
@@ -276,6 +303,15 @@ assert.equal(view.getState().active, true);
 assert.equal(document.getElementById("teacher-sidebar-school").textContent, "โรงเรียนทดสอบ");
 assert.equal(document.getElementById("teacher-sidebar-teacher").textContent, "ครูทดสอบ");
 assert.equal(document.getElementById("teacher-sidebar-room").textContent, "อ.3-6");
+assert.equal(document.getElementById("teacher-topbar-school").textContent, "โรงเรียนทดสอบ");
+assert.equal(document.getElementById("teacher-topbar-room").textContent, "อ.3-6");
+assert.equal(document.getElementById("teacher-profile-room").value, "อ.3-6");
+assert.equal(document.getElementById("teacher-profile-name").value, "ครูทดสอบ");
+document.getElementById("teacher-profile-name").value = "ครูชื่อใหม่";
+await view.handleTeacherProfileSave();
+assert.equal(document.getElementById("teacher-sidebar-teacher").textContent, "ครูชื่อใหม่");
+assert.equal(document.getElementById("teacher-name").textContent, "ครูชื่อใหม่");
+assert.equal(document.getElementById("teacher-profile-status").dataset.state, "success");
 view.showSection("student-report", false);
 assert.equal(document.getElementById("student-report-panel").hidden, false);
 assert.equal(document.getElementById("attendance-panel").hidden, true);

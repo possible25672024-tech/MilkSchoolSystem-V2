@@ -139,6 +139,17 @@ const teacherManager = {
     async refresh(input) {
         refreshInput = input;
         snapshot.roomStock = 101;
+    },
+    async updateTeacherProfile(input) {
+        assert.equal(input.roomId, "room-a");
+        assert.equal(input.teacher, "ครูชื่อใหม่");
+        snapshot.session.teacher = input.teacher;
+        snapshot.room.teacher = input.teacher;
+        return {
+            roomId: "room-a",
+            roomName: "อ.3-6",
+            teacher: input.teacher
+        };
     }
 };
 let logoutCount = 0;
@@ -210,6 +221,15 @@ assert.deepEqual(JSON.parse(JSON.stringify(refreshInput)), {
 });
 assert.equal(stock.balance, 101);
 assert.equal(stock.readOnly, true);
+
+const profile = await manager.saveTeacherProfile({ teacher: "ครูชื่อใหม่" });
+assert.equal(profile.teacher, "ครูชื่อใหม่");
+const profileEvent = events.find(event => event.type === "milkapp:teacher-profile-saved");
+assert.deepEqual(JSON.parse(JSON.stringify(profileEvent.detail)), { roomId: "room-a" });
+assert.ok(
+    !JSON.stringify(profileEvent.detail).includes("ครูชื่อใหม่"),
+    "Teacher profile event must not expose the teacher name"
+);
 manager.logout();
 assert.equal(logoutCount, 1);
 

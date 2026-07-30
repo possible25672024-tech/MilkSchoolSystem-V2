@@ -143,6 +143,7 @@ Current modular status:
 - authenticated-room Student Report, selected-range timeline/notes/totals, and A4 print implemented in Sprint 4.9;
 - actual remaining Room Stock and compatible last-updated state implemented as read-only;
 - safe device-local Teacher display settings implemented without Firebase writes;
+- authenticated-room homeroom Teacher-name editing implemented as a scoped `rooms/{matchedRoomKey}/teacher` write;
 - all 12 Teacher navigation items implemented;
 - isolated automated gates passed; local Sprint 4.9 browser evidence remains pending.
 

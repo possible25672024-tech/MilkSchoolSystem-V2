@@ -39,13 +39,18 @@ class TeacherParityView {
         this.handleStudentReportPrint = this.handleStudentReportPrint.bind(this);
         this.handleRoomStockRefresh = this.handleRoomStockRefresh.bind(this);
         this.handleSettingsSave = this.handleSettingsSave.bind(this);
+        this.handleTeacherProfileSave = this.handleTeacherProfileSave.bind(this);
     }
 
     ensureDependencies() {
         this.manager ||= window.TeacherParityManager;
         this.teacherManager ||= window.TeacherManager;
         this.authService ||= window.AuthService;
-        if (!this.manager?.loadStudentReport || !this.manager?.refreshRoomStock) {
+        if (
+            !this.manager?.loadStudentReport ||
+            !this.manager?.refreshRoomStock ||
+            !this.manager?.saveTeacherProfile
+        ) {
             throw new Error("TeacherParityManager is not available.");
         }
         if (!this.teacherManager?.getSnapshot) {
@@ -82,7 +87,11 @@ class TeacherParityView {
         const style = this.document.createElement("style");
         style.id = "teacher-parity-view-style";
         style.textContent = `
-            .teacher-parity-nav{position:sticky;top:0;z-index:20;margin:22px 0 8px;padding:10px;border:1px solid #dbe5ef;border-radius:14px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(15,46,68,.08)}
+            .teacher-parity-topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:64px;margin:-28px -34px 18px;padding:10px 22px;color:#fff;background:linear-gradient(90deg,#174e70 0%,#2b7eae 100%);box-shadow:0 4px 14px rgba(15,46,68,.18)}
+            .teacher-parity-topbar-copy{min-width:0}.teacher-parity-topbar h1{margin:0;color:#fff;font-size:1.02rem}.teacher-parity-topbar p{margin:2px 0 0;color:#d9edf8;font-size:.72rem}
+            .teacher-parity-topbar-actions{display:flex;align-items:center;gap:12px}.teacher-parity-home{width:auto;min-height:38px;margin:0;padding:7px 12px;border:0;color:#fff;background:transparent}.teacher-parity-room-badge{display:inline-flex;align-items:center;gap:7px;max-width:240px;padding:7px 13px;border:1px solid rgba(255,255,255,.3);border-radius:999px;color:#fff;background:rgba(255,255,255,.12);font-size:.82rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+            .teacher-parity-room-badge::before{content:"";width:9px;height:9px;border-radius:50%;background:#2dd47e;box-shadow:0 0 0 3px rgba(45,212,126,.18)}
+            .teacher-parity-nav{position:sticky;top:64px;z-index:20;margin:0 0 8px;padding:10px;border:1px solid #dbe5ef;border-radius:14px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(15,46,68,.08)}
             .teacher-sidebar-brand,.teacher-sidebar-footer,.teacher-parity-nav-group-title{display:none}
             .teacher-parity-nav-list{display:flex;gap:8px;overflow-x:auto;padding:2px;scrollbar-width:thin}
             .teacher-parity-nav-group,.teacher-parity-nav-group-items{display:contents}
@@ -109,20 +118,28 @@ class TeacherParityView {
             .teacher-settings-option{border:1px solid #dbe5ef;border-radius:12px;padding:14px;background:#f8fafc}
             .teacher-settings-option label{display:flex;align-items:center;gap:10px;margin:0}
             .teacher-settings-option input[type=checkbox]{width:20px;min-height:20px}
+            .teacher-settings-surface{margin-top:18px;padding:20px;border:1px solid #dbe5ef;border-radius:14px;background:#fff;box-shadow:0 8px 22px rgba(15,46,68,.06)}
+            .teacher-settings-surface h4{margin:0;color:#153d5c;font-size:1.05rem}.teacher-settings-surface .teacher-parity-intro{margin-top:8px}
+            .teacher-profile-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:18px}.teacher-profile-grid label{margin:0 0 6px}
+            .teacher-profile-grid input[readonly]{color:#475569;background:#eef3f8}
+            .teacher-profile-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}.teacher-profile-actions button{width:auto;min-width:190px;margin:0;background:#22a85a}
             .teacher-compact-mode .teacher-parity-card,.teacher-compact-mode .info-card,.teacher-compact-mode .metric-card{padding:10px}
             .teacher-compact-mode .teacher-parity-panel,.teacher-compact-mode .attendance-panel,.teacher-compact-mode .attendance-report-panel{margin-top:18px;padding-top:18px}
-            #student-report-status[data-state=success],#room-stock-detail-status[data-state=success],#teacher-settings-status[data-state=success]{color:#166534}
-            #student-report-status[data-state=error],#room-stock-detail-status[data-state=error],#teacher-settings-status[data-state=error]{color:#991b1b}
+            #student-report-status[data-state=success],#room-stock-detail-status[data-state=success],#teacher-settings-status[data-state=success],#teacher-profile-status[data-state=success]{color:#166534}
+            #student-report-status[data-state=error],#room-stock-detail-status[data-state=error],#teacher-settings-status[data-state=error],#teacher-profile-status[data-state=error]{color:#991b1b}
             @media(min-width:1101px){
                 body:has(#teacher-shell:not([hidden])){display:block;padding:0;background:#eef3f8}
                 body:has(#teacher-shell:not([hidden])) main{width:100%;max-width:none}
                 #app-panel:has(#teacher-shell:not([hidden])){min-height:100vh;margin:0;padding:0 0 0 286px;border-radius:0;background:#eef3f8;box-shadow:none}
-                #teacher-shell{min-height:100vh;padding:28px 34px 42px}
-                .teacher-parity-nav{position:fixed;inset:0 auto 0 0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:286px;height:100vh;margin:0;padding:0;border:0;border-radius:0;color:#e2edf5;background:linear-gradient(180deg,#103650 0%,#174e70 100%);box-shadow:8px 0 28px rgba(15,46,68,.2);overflow:hidden}
-                .teacher-sidebar-brand{display:block;padding:26px 22px 22px;text-align:center;background:rgba(4,35,55,.3)}
-                .teacher-sidebar-mark{display:grid;place-items:center;width:70px;height:70px;margin:0 auto 14px;border:3px solid rgba(255,255,255,.82);border-radius:50%;color:#0f4669;background:#fff;font-size:2rem;box-shadow:0 6px 18px rgba(0,0,0,.18)}
-                .teacher-sidebar-title{margin:0;color:#fff;font-size:1.02rem;font-weight:800;line-height:1.45}
-                .teacher-sidebar-school{margin:7px 0 0;color:#a9c0d0;font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
+                #teacher-shell{min-height:100vh;padding:96px 34px 42px}
+                #teacher-shell>.teacher-header,#teacher-shell>.teacher-identity-grid,#teacher-shell>.teacher-metrics{display:none}
+                .teacher-parity-topbar{position:fixed;inset:0 0 auto 0;min-height:68px;margin:0;padding:10px 18px;z-index:45}
+                .teacher-parity-nav{position:fixed;inset:68px auto 0 0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:286px;height:calc(100vh - 68px);margin:0;padding:0;border:0;border-radius:0;color:#e2edf5;background:linear-gradient(180deg,#102d40 0%,#173f58 100%);box-shadow:8px 0 28px rgba(15,46,68,.2);overflow:hidden}
+                .teacher-sidebar-brand{display:block;padding:18px 18px 16px;text-align:left;background:rgba(4,35,55,.28);border-bottom:1px solid rgba(255,255,255,.1)}
+                .teacher-sidebar-mark{display:grid;place-items:center;width:70px;height:52px;margin:0 0 10px;border-radius:12px;color:#0f4669;background:#fff;font-size:1.7rem;box-shadow:0 5px 14px rgba(0,0,0,.16)}
+                .teacher-sidebar-title{margin:0;color:#fff;font-size:.98rem;font-weight:800;line-height:1.4}
+                .teacher-sidebar-teacher{margin:4px 0 0;color:#cfe1ec;font-size:.76rem;font-weight:700;overflow-wrap:anywhere}
+                .teacher-sidebar-school{margin:4px 0 0;color:#8faebe;font-size:.68rem;font-weight:700;overflow-wrap:anywhere}
                 .teacher-parity-nav-list{display:block;padding:12px 0 18px;overflow-x:hidden;overflow-y:auto;scrollbar-color:#9bb2c1 transparent;scrollbar-width:thin}
                 .teacher-parity-nav-group{display:block;margin:0 0 8px}
                 .teacher-parity-nav-group-items{display:block}
@@ -139,7 +156,8 @@ class TeacherParityView {
                 .teacher-sidebar-footer strong{font-size:.8rem}
                 .teacher-sidebar-footer small{margin-top:2px;color:#9fbbcc;font-size:.7rem}
             }
-            @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid{grid-template-columns:1fr}}
+            @media(max-width:1100px){.teacher-parity-topbar{margin:-28px -34px 18px}}
+            @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid,.teacher-profile-grid{grid-template-columns:1fr}.teacher-parity-home{display:none}}
             @media(max-width:600px){.teacher-parity-grid,.teacher-parity-toolbar{grid-template-columns:1fr}.teacher-parity-actions{flex-direction:column}.teacher-parity-actions button{width:100%}}
         `;
         this.document.head?.appendChild?.(style);
@@ -150,11 +168,34 @@ class TeacherParityView {
         if (!shell) {
             throw new Error("Teacher shell is not available for Sprint 4.9 parity.");
         }
+        this.ensureTopbar(shell);
         this.ensureNavigation(shell);
         this.ensureOverviewPanel(shell);
         this.ensureStudentReportPanel(shell);
         this.ensureRoomStockPanel(shell);
         this.ensureSettingsPanel(shell);
+    }
+
+    ensureTopbar(shell) {
+        if (this.element("teacher-parity-topbar")) {
+            return;
+        }
+        const header = this.document.createElement("header");
+        header.id = "teacher-parity-topbar";
+        header.className = "teacher-parity-topbar";
+        header.hidden = true;
+        header.innerHTML = `
+            <div class="teacher-parity-topbar-copy">
+                <h1>🥛 เช็กดื่มนม – ครูประจำชั้น</h1>
+                <p id="teacher-topbar-school">โรงเรียน</p>
+            </div>
+            <div class="teacher-parity-topbar-actions">
+                <button class="teacher-parity-home" type="button" data-teacher-section="overview">🏠 หน้าหลัก</button>
+                <span id="teacher-topbar-room" class="teacher-parity-room-badge">ห้องเรียน</span>
+            </div>`;
+        shell.insertBefore
+            ? shell.insertBefore(header, shell.firstChild || null)
+            : shell.appendChild(header);
     }
 
     ensureNavigation(shell) {
@@ -168,7 +209,8 @@ class TeacherParityView {
         nav.hidden = true;
         nav.innerHTML = `<header class="teacher-sidebar-brand">
             <div class="teacher-sidebar-mark" aria-hidden="true">🥛</div>
-            <p class="teacher-sidebar-title">ระบบบริหารจัดการ<br>อาหารเสริมนม</p>
+            <p id="teacher-sidebar-room" class="teacher-sidebar-title">ห้องเรียน</p>
+            <p id="teacher-sidebar-teacher" class="teacher-sidebar-teacher">ครูประจำชั้น</p>
             <p id="teacher-sidebar-school" class="teacher-sidebar-school">โรงเรียน</p>
         </header>
         <div class="teacher-parity-nav-list" role="list">
@@ -185,7 +227,7 @@ class TeacherParityView {
         </div>
         <footer class="teacher-sidebar-footer">
             <span class="teacher-sidebar-footer-icon" aria-hidden="true">👩‍🏫</span>
-            <span class="teacher-sidebar-footer-copy"><strong id="teacher-sidebar-teacher">ครูประจำชั้น</strong><small id="teacher-sidebar-room">ห้องเรียน</small></span>
+            <span class="teacher-sidebar-footer-copy"><strong id="teacher-sidebar-footer-teacher">ครูประจำชั้น</strong><small id="teacher-sidebar-footer-room">ห้องเรียน</small></span>
         </footer>`;
         const attendance = this.element("attendance-panel");
         attendance && shell.insertBefore
@@ -278,22 +320,36 @@ class TeacherParityView {
         panel.hidden = true;
         panel.innerHTML = `
             <h3>ตั้งค่าหน้าครู</h3>
-            <p class="teacher-parity-intro">บันทึกเฉพาะการแสดงผลในอุปกรณ์นี้ ไม่แก้ข้อมูลโรงเรียน ห้องเรียน Firebase หรือสต็อก</p>
-            <div class="teacher-settings-grid">
-                <div class="teacher-settings-option">
-                    <label for="teacher-settings-report-days">ช่วงรายงานเริ่มต้น</label>
-                    <select id="teacher-settings-report-days">
-                        <option value="15">15 วัน</option>
-                        <option value="30">30 วัน</option>
-                        <option value="90">90 วัน</option>
-                    </select>
+            <section class="teacher-settings-surface" aria-labelledby="teacher-profile-title">
+                <h4 id="teacher-profile-title">👤 ข้อมูลครูประจำชั้น (แก้ไขได้)</h4>
+                <p class="teacher-parity-intro">ชื่อครูจะบันทึกในข้อมูลห้องเรียนเดียวกับระบบผู้ดูแล และนำไปแสดงในหน้าครูและรายงานครั้งถัดไป</p>
+                <div class="teacher-profile-grid">
+                    <div><label for="teacher-profile-room">ห้องเรียน</label><input id="teacher-profile-room" type="text" readonly></div>
+                    <div><label for="teacher-profile-name">ชื่อ-สกุล ครูประจำชั้น *</label><input id="teacher-profile-name" type="text" maxlength="120" required></div>
                 </div>
-                <div class="teacher-settings-option"><label><input id="teacher-settings-compact" type="checkbox"> แสดงผลแบบกระชับ</label></div>
-                <div class="teacher-settings-option"><label><input id="teacher-settings-remember" type="checkbox"> จำเมนูล่าสุดในอุปกรณ์นี้</label></div>
-            </div>
-            <p id="teacher-settings-status" class="status" data-state="idle" aria-live="polite"></p>
-            <p id="teacher-settings-error" class="error" role="alert" hidden></p>
-            <div class="teacher-parity-actions"><button id="teacher-settings-save" type="button">บันทึกการตั้งค่า</button></div>`;
+                <p id="teacher-profile-status" class="status" data-state="idle" aria-live="polite"></p>
+                <p id="teacher-profile-error" class="error" role="alert" hidden></p>
+                <div class="teacher-profile-actions"><button id="teacher-profile-save" type="button">💾 บันทึกข้อมูลครู</button></div>
+            </section>
+            <section class="teacher-settings-surface" aria-labelledby="teacher-display-settings-title">
+                <h4 id="teacher-display-settings-title">การแสดงผลในอุปกรณ์นี้</h4>
+                <p class="teacher-parity-intro">ส่วนนี้บันทึกเฉพาะค่าการแสดงผล ไม่แก้ข้อมูลโรงเรียน ห้องเรียน หรือสต็อก</p>
+                <div class="teacher-settings-grid">
+                    <div class="teacher-settings-option">
+                        <label for="teacher-settings-report-days">ช่วงรายงานเริ่มต้น</label>
+                        <select id="teacher-settings-report-days">
+                            <option value="15">15 วัน</option>
+                            <option value="30">30 วัน</option>
+                            <option value="90">90 วัน</option>
+                        </select>
+                    </div>
+                    <div class="teacher-settings-option"><label><input id="teacher-settings-compact" type="checkbox"> แสดงผลแบบกระชับ</label></div>
+                    <div class="teacher-settings-option"><label><input id="teacher-settings-remember" type="checkbox"> จำเมนูล่าสุดในอุปกรณ์นี้</label></div>
+                </div>
+                <p id="teacher-settings-status" class="status" data-state="idle" aria-live="polite"></p>
+                <p id="teacher-settings-error" class="error" role="alert" hidden></p>
+                <div class="teacher-parity-actions"><button id="teacher-settings-save" type="button">บันทึกการตั้งค่าการแสดงผล</button></div>
+            </section>`;
         this.insertBeforeActions(shell, panel);
     }
 
@@ -351,10 +407,12 @@ class TeacherParityView {
         this.eventTarget.addEventListener?.("milkapp:logout", this.handleLogout);
         this.eventTarget.addEventListener?.("milkapp:teacher-refreshed", this.handleTeacherRefreshed);
         this.element("teacher-parity-nav")?.addEventListener?.("click", this.handleNavigation);
+        this.element("teacher-parity-topbar")?.addEventListener?.("click", this.handleNavigation);
         this.element("student-report-load-button")?.addEventListener?.("click", this.handleStudentReportLoad);
         this.element("student-report-print-button")?.addEventListener?.("click", this.handleStudentReportPrint);
         this.element("room-stock-detail-refresh")?.addEventListener?.("click", this.handleRoomStockRefresh);
         this.element("teacher-settings-save")?.addEventListener?.("click", this.handleSettingsSave);
+        this.element("teacher-profile-save")?.addEventListener?.("click", this.handleTeacherProfileSave);
         this.bound = true;
     }
 
@@ -369,6 +427,10 @@ class TeacherParityView {
 
     handleTeacherRefreshed() {
         if (this.activeSession?.role === "teacher") {
+            const session = this.authService.getSession() || this.activeSession;
+            this.activeSession = { ...session };
+            this.renderSidebarIdentity(session);
+            this.renderTeacherProfile(session);
             this.renderOverview();
             this.populateStudents();
         }
@@ -390,8 +452,10 @@ class TeacherParityView {
 
     activate(session) {
         this.activeSession = { ...session };
+        this.element("teacher-parity-topbar")?.removeAttribute?.("hidden");
         this.element("teacher-parity-nav")?.removeAttribute?.("hidden");
         this.renderSidebarIdentity(session);
+        this.renderTeacherProfile(session);
         this.renderOverview();
         this.populateStudents();
         const preferences = this.manager.getPreferences();
@@ -480,17 +544,31 @@ class TeacherParityView {
         const snapshot = this.teacherManager.getSnapshot() || {};
         const room = snapshot.room || session.roomSnapshot || {};
         const settings = snapshot.settings || {};
+        const schoolName = session.schoolName || settings.schoolName || "โรงเรียน";
+        const teacher = session.teacher || room.teacher || "ครูประจำชั้น";
+        const roomName = session.roomName || room.name || session.roomId || "ห้องเรียน";
         this.setText(
             "teacher-sidebar-school",
-            session.schoolName || settings.schoolName || "โรงเรียน"
+            schoolName
         );
-        this.setText(
-            "teacher-sidebar-teacher",
-            session.teacher || room.teacher || "ครูประจำชั้น"
+        this.setText("teacher-sidebar-teacher", teacher);
+        this.setText("teacher-sidebar-room", roomName);
+        this.setText("teacher-sidebar-footer-teacher", teacher);
+        this.setText("teacher-sidebar-footer-room", roomName);
+        this.setText("teacher-topbar-school", schoolName);
+        this.setText("teacher-topbar-room", roomName);
+    }
+
+    renderTeacherProfile(session = this.activeSession || {}) {
+        const snapshot = this.teacherManager.getSnapshot() || {};
+        const room = snapshot.room || session.roomSnapshot || {};
+        this.setValue(
+            "teacher-profile-room",
+            session.roomName || room.name || session.roomId || ""
         );
-        this.setText(
-            "teacher-sidebar-room",
-            session.roomName || room.name || session.roomId || "ห้องเรียน"
+        this.setValue(
+            "teacher-profile-name",
+            session.teacher || snapshot.session?.teacher || room.teacher || ""
         );
     }
 
@@ -657,6 +735,34 @@ class TeacherParityView {
         }
     }
 
+    async handleTeacherProfileSave() {
+        const button = this.element("teacher-profile-save");
+        if (button) {
+            button.disabled = true;
+        }
+        this.clearError("teacher-profile-error");
+        this.setStatus("teacher-profile-status", "กำลังบันทึกข้อมูลครู...", "idle");
+        try {
+            const saved = await this.manager.saveTeacherProfile({
+                teacher: this.value("teacher-profile-name")
+            });
+            this.activeSession = {
+                ...(this.activeSession || {}),
+                teacher: saved.teacher
+            };
+            this.renderSidebarIdentity(this.activeSession);
+            this.renderTeacherProfile(this.activeSession);
+            this.setText("teacher-name", saved.teacher);
+            this.setStatus("teacher-profile-status", "บันทึกข้อมูลครูประจำชั้นแล้ว", "success");
+        } catch (error) {
+            this.renderError("teacher-profile-error", "teacher-profile-status", error);
+        } finally {
+            if (button) {
+                button.disabled = false;
+            }
+        }
+    }
+
     renderPreferences(preferences = {}) {
         this.setValue("teacher-settings-report-days", preferences.defaultReportDays || 30);
         if (this.element("teacher-settings-compact")) {
@@ -713,6 +819,7 @@ class TeacherParityView {
         this.activeSection = "overview";
         this.currentStudentReport = null;
         this.manager?.clear?.();
+        this.element("teacher-parity-topbar")?.setAttribute?.("hidden", "");
         this.element("teacher-parity-nav")?.setAttribute?.("hidden", "");
         [
             "teacher-overview-panel",
