@@ -55,7 +55,19 @@ The student report must not:
 
 The explicit Print action may perform one authenticated full-record read per already-loaded Attendance date. This is a user-triggered evidence boundary, not automatic login or range hydration.
 
-### 1.1 Attendance History Actions
+### 1.1 Monthly Paper Roster
+
+The Student Report page also provides a separate paper-form print action. The Teacher selects a month and prints:
+
+- the complete authenticated-room roster;
+- one blank column for every Monday-Friday date in that month;
+- blank manual total columns for `ดื่ม` and `ไม่ดื่ม`;
+- a legend for handwritten ✓ / ✕ marking;
+- the homeroom Teacher signature line.
+
+This form uses only the already-loaded room roster. It does not read Attendance history, hydrate media, save statuses, change stock, create Queue work, or write Firebase.
+
+### 1.2 Attendance History Actions
 
 Each loaded daily row exposes:
 
@@ -223,6 +235,7 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - milk-consumption wording without changing persisted `present`/`absent` values;
 - reuse of accepted operational panels;
 - student report and A4 rendering;
+- whole-room monthly paper roster with Monday-Friday columns and manual ✓/✕ cells;
 - print-time daily photos and homeroom Teacher signature;
 - one landscape Room A4 matrix containing all selected date columns, ✓/✕/— status, totals, and percentages;
 - following Room A4 evidence pages grouped at up to five dates per page;
@@ -252,6 +265,7 @@ Required local evidence after automated validation:
 - `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` appear consistently in daily, report, student-report, Pending, and A4 views;
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;
+- Student Report monthly paper-roster preview contains the complete room roster, weekdays only, blank cells, legend, and Teacher signature line;
 - Room A4 and Student A4 previews contain the available daily photos and homeroom Teacher signature;
 - Room A4 preview uses one landscape date-column matrix for the whole selected range;
 - Room A4 starts dated photo/signature evidence on following pages with up to five dates per page;

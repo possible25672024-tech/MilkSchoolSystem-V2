@@ -345,6 +345,7 @@ Implemented:
 - authenticated-room one-student selected-range report;
 - per-date present/absent/unchecked state and notes;
 - deterministic A4 student-report pages;
+- whole-room monthly paper roster with Monday-Friday blank cells for manual ✓/✕ marking and a Teacher signature line;
 - explicit Print-time photos and homeroom Teacher signatures in Room A4 and Student A4;
 - one landscape Room A4 status matrix containing all selected date columns;
 - following Room A4 evidence pages grouped at up to five dates per page, each with photos and homeroom Teacher signature;

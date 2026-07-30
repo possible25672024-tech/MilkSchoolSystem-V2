@@ -52,6 +52,15 @@ for (const profileRule of [
 ]) {
     assert.ok(viewCode.includes(profileRule), `Teacher settings must include ${profileRule}`);
 }
+for (const monthlyRosterRule of [
+    "พิมพ์แบบฟอร์มเช็กดื่มนม (กระดาษ) รายเดือน",
+    "monthly-paper-roster-month",
+    "พิมพ์รายชื่อนักเรียน 1 เดือน",
+    "✓ = ดื่มนม",
+    "✕ = ไม่ดื่มนม"
+]) {
+    assert.ok(viewCode.includes(monthlyRosterRule), `Monthly paper roster must include ${monthlyRosterRule}`);
+}
 for (const group of ["หน้าหลัก", "บันทึกและรายงาน", "จ่ายนม", "ระบบ"]) {
     assert.ok(viewCode.includes(`label: "${group}"`), `Teacher sidebar must include ${group}`);
 }
@@ -164,6 +173,10 @@ const ids = [
     "student-report-status",
     "student-report-error",
     "student-report-timeline",
+    "monthly-paper-roster-month",
+    "monthly-paper-roster-print-button",
+    "monthly-paper-roster-status",
+    "monthly-paper-roster-error",
     "room-stock-detail-room",
     "room-stock-detail-balance",
     "room-stock-detail-updated",
@@ -229,6 +242,12 @@ const reportWithEvidence = {
     }],
     source: { ...report.source, evidenceHydrated: true }
 };
+const monthlySchoolDays = Array.from({ length: 31 }, (_, index) => (
+    `2026-07-${String(index + 1).padStart(2, "0")}`
+)).filter(date => {
+    const weekday = new Date(`${date}T00:00:00.000Z`).getUTCDay();
+    return weekday >= 1 && weekday <= 5;
+});
 const manager = {
     parityService: {
         defaultRange() {
@@ -250,6 +269,27 @@ const manager = {
     },
     async hydrateStudentReportEvidence() {
         return reportWithEvidence;
+    },
+    getMonthlyPaperRoster(month) {
+        return {
+            metadata: {
+                schoolName: "โรงเรียนทดสอบ",
+                roomId: "room-a",
+                roomName: "อ.3-6",
+                teacher: "ครูทดสอบ",
+                month,
+                monthLabel: "กรกฎาคม 2569"
+            },
+            schoolDays: monthlySchoolDays,
+            students: [
+                { id: "s1", num: "1", name: "นักเรียนหนึ่ง" }
+            ],
+            source: {
+                studentCount: 1,
+                schoolDayCount: monthlySchoolDays.length,
+                readOnly: true
+            }
+        };
     },
     async refreshRoomStock() {
         return { roomName: "อ.3-6", balance: 12, updatedAt: "", readOnly: true };
@@ -343,6 +383,27 @@ assert.ok(!printWindow.html.includes("ขาดเรียน"));
 assert.ok(printWindow.html.includes(reportPhoto));
 assert.ok(printWindow.html.includes(reportSignature));
 assert.ok(printWindow.html.includes("ครูประจำชั้น"));
+assert.equal(printWindow.printed, true);
+
+printWindow.html = "";
+printWindow.printed = false;
+document.getElementById("monthly-paper-roster-month").value = "2026-07";
+view.handleMonthlyRosterPrint();
+assert.ok(printWindow.html.includes("แบบฟอร์มเช็กดื่มนมรายเดือน"));
+assert.ok(printWindow.html.includes("กรกฎาคม 2569"));
+assert.ok(printWindow.html.includes("นักเรียนหนึ่ง"));
+assert.ok(printWindow.html.includes('class="monthly-roster-table"'));
+assert.ok(printWindow.html.includes("<th class=\"day\">1</th>"));
+assert.ok(printWindow.html.includes("<th class=\"day\">31</th>"));
+assert.equal(
+    (printWindow.html.match(/<th class="day">/g) || []).length,
+    23,
+    "July 2026 paper roster must include all 23 weekdays on one monthly table"
+);
+assert.ok(printWindow.html.includes("✓ = ดื่มนม"));
+assert.ok(printWindow.html.includes("✕ = ไม่ดื่มนม"));
+assert.ok(printWindow.html.includes("ไม่แก้ไขข้อมูลในระบบ"));
+assert.equal(document.getElementById("monthly-paper-roster-status").dataset.state, "success");
 assert.equal(printWindow.printed, true);
 
 console.log("Teacher parity UI checks passed.");

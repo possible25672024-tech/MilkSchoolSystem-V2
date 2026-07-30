@@ -193,7 +193,7 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 
 ## Sprint 4.9 Current Implementation
 
-- `TeacherParityService` builds pure overview, Room Stock, student-report, range, and preference models;
+- `TeacherParityService` builds pure overview, Room Stock, student-report, monthly paper-roster, range, and preference models;
 - `TeacherPreferenceStore` persists only allowlisted UI preferences under `milkapp_teacher_preferences_v1`;
 - `TeacherParityManager` delegates scoped history/report/Teacher reads and emits metadata-only events;
 - `TeacherParityView` provides all 12 required Teacher navigation items;
@@ -201,6 +201,7 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - narrower widths retain the compact horizontal navigation fallback;
 - daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
+- Student Report includes a month picker for a whole-room paper roster with Monday-Friday columns, blank manual ✓/✕ cells, totals, and a Teacher signature line;
 - Room A4 and Student A4 explicitly hydrate only the already-selected dates at Print time and render available daily photos plus the homeroom Teacher signature;
 - Room A4 renders the whole selected range in one landscape matrix with ✓/✕/— status, per-student totals, and drinking percentages;
 - Room A4 starts evidence on the following page and groups up to five dates on each evidence page;

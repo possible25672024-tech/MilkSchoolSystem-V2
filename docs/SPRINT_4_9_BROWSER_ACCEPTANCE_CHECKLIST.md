@@ -67,7 +67,26 @@ Responsive screenshot:
 Console result:
 ```
 
-## C. Room and Student A4
+## C. Monthly paper roster
+
+Open `รายงานนักเรียน` without loading or saving Attendance.
+
+- [ ] The monthly paper-roster card appears below the selected-student report.
+- [ ] Selecting a month and pressing `พิมพ์รายชื่อนักเรียน 1 เดือน` opens A4 landscape preview.
+- [ ] The preview contains every student in the authenticated room.
+- [ ] Date columns include Monday-Friday only and remain blank for handwritten ✓ / ✕.
+- [ ] Manual `ดื่ม` and `ไม่ดื่ม` total columns, legend, and homeroom Teacher signature line appear.
+- [ ] No Fetch/XHR write occurs and no stock, Attendance, or Queue value changes.
+
+Evidence:
+
+```text
+Monthly paper-roster screenshot:
+Console result:
+Network result:
+```
+
+## D. Room and Student A4
 
 Use an already-saved non-quarantined date range. Do not create new Attendance data.
 
@@ -86,7 +105,7 @@ Room A4 screenshot:
 Student A4 screenshot:
 ```
 
-## D. Pending, Retroactive and Vacation A4
+## E. Pending, Retroactive and Vacation A4
 
 Use already-loaded history records only. Do not issue or delete milk.
 
@@ -106,7 +125,7 @@ Retroactive A4 screenshot:
 Vacation A4 screenshot:
 ```
 
-## E. History actions
+## F. History actions
 
 - [ ] `แก้ไข` opens the exact selected date in Daily Attendance.
 - [ ] Existing statuses, notes, photos, and signature load for that date.
