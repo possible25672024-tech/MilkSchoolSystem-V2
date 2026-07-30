@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="milkapp-foundation" content="Sprint 4.0 Cutover Readiness and Compatibility">
     <meta name="milkapp-teacher-shell" content="Sprint 4.1 Teacher UI Shell and Read-Only State">
+    <meta name="milkapp-attendance-ui" content="Sprint 4.2 Teacher Daily Attendance CRUD UI">
+    <meta name="milkapp-admin-report-ui" content="Sprint 5.0 Operational Admin Report Integration">
     <title>MilkSchoolSystem V2</title>
     <link rel="icon" href="data:,">
     <style>
@@ -387,12 +389,86 @@
             width: min(220px, 100%);
         }
 
+        .admin-report-panel {
+            margin-top: 26px;
+            padding-top: 24px;
+            border-top: 1px solid #dbe5ef;
+        }
+
+        .admin-report-toolbar,
+        .admin-report-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .admin-report-toolbar button,
+        .admin-report-actions button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-report-toolbar button[data-active="false"] {
+            color: #1a5276;
+            background: #e8f1f7;
+        }
+
+        .admin-report-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .admin-report-table-wrap {
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-report-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .admin-report-table th,
+        .admin-report-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .admin-report-table th:first-child,
+        .admin-report-table td:first-child {
+            text-align: left;
+        }
+
+        .admin-report-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-report-source-status {
+            margin: 12px 0 0;
+            color: #475569;
+            font-size: 0.82rem;
+        }
+
         [hidden] {
             display: none !important;
         }
 
         @media (max-width: 760px) {
             .attendance-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-report-metrics {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
@@ -423,6 +499,10 @@
             .teacher-metrics,
             .attendance-toolbar,
             .attendance-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-report-metrics {
                 grid-template-columns: 1fr;
             }
 
@@ -466,7 +546,9 @@
     <script defer src="modules/login/authService.js"></script>
     <script defer src="modules/login/loginManager.js"></script>
     <script defer src="modules/stock/stockManager.js"></script>
+    <script defer src="modules/report/browserLocalReportAdapter.js"></script>
     <script defer src="modules/report/reportManager.js"></script>
+    <script defer src="modules/report/adminReportView.js"></script>
     <script defer src="modules/room/roomManager.js"></script>
     <script defer src="modules/teacher/teacherManager.js"></script>
     <script defer src="modules/attendance/attendanceManager.js"></script>
@@ -513,8 +595,55 @@
             <div id="admin-shell">
                 <h1>เข้าสู่ระบบสำเร็จ</h1>
                 <p id="current-user"></p>
-                <p class="subtitle">Sprint 4.2 Teacher Daily Attendance CRUD UI พร้อมสำหรับการตรวจสอบหน้าครูเช็กดื่มนมรายวัน</p>
+                <p class="subtitle">Sprint 5.0 รายงานผู้ดูแลแบบอ่านอย่างเดียว</p>
                 <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+
+                <section id="admin-report-panel" class="admin-report-panel" aria-labelledby="admin-report-title" hidden>
+                    <h2 id="admin-report-title">รายงานการจ่ายและใช้ประโยชน์นม</h2>
+                    <p class="subtitle"><span id="admin-report-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-report-year">—</span></p>
+
+                    <div class="admin-report-toolbar" aria-label="มุมมองรายงาน">
+                        <button type="button" data-admin-report-view="room" data-active="true" aria-pressed="true">รายห้องเรียน</button>
+                        <button type="button" data-admin-report-view="grade" data-active="false" aria-pressed="false">รายระดับชั้น</button>
+                        <button type="button" data-admin-report-view="school" data-active="false" aria-pressed="false">ทั้งโรงเรียน</button>
+                        <button id="admin-report-refresh" class="secondary" type="button">โหลดรายงานใหม่</button>
+                    </div>
+
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-report-total-rooms" class="metric-value">0 ห้อง</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายให้ห้อง</p><p id="admin-report-total-distributed" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ใช้แล้ว</p><p id="admin-report-total-used" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">คงเหลือ</p><p id="admin-report-total-remaining" class="metric-value">0 กล่อง</p></article>
+                    </div>
+
+                    <p id="admin-report-source-status" class="admin-report-source-status"></p>
+                    <p id="admin-report-status" class="status" aria-live="polite"></p>
+                    <p id="admin-report-error" class="error" role="alert" hidden></p>
+
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead>
+                                <tr>
+                                    <th>ห้อง/ระดับ</th>
+                                    <th>นักเรียน</th>
+                                    <th>จ่ายทั้งหมด</th>
+                                    <th>ดื่มแล้ว</th>
+                                    <th>นมค้าง</th>
+                                    <th>ย้อนหลัง</th>
+                                    <th>ปิดเทอม</th>
+                                    <th>คงเหลือ</th>
+                                    <th>% ใช้ไป</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-report-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="admin-report-actions">
+                        <button id="admin-report-print" type="button">พิมพ์รายงาน A4</button>
+                        <button id="admin-report-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
             </div>
 
             <section id="teacher-shell" aria-labelledby="teacher-shell-title" aria-busy="false" hidden>

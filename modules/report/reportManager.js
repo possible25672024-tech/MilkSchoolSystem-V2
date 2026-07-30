@@ -1,6 +1,10 @@
 class ReportManager {
-    constructor(service = window.ReportService) {
+    constructor(
+        service = window.ReportService,
+        browserLocalAdapter = window.BrowserLocalReportAdapter
+    ) {
         this.service = service;
+        this.browserLocalAdapter = browserLocalAdapter;
         this.view = "room";
         this.currentReport = null;
         this.loading = false;
@@ -16,6 +20,13 @@ class ReportManager {
         }
 
         return this.service;
+    }
+
+    ensureBrowserLocalAdapter() {
+        if (!this.browserLocalAdapter) {
+            this.browserLocalAdapter = window.BrowserLocalReportAdapter;
+        }
+        return this.browserLocalAdapter?.read ? this.browserLocalAdapter : null;
     }
 
     setView(view) {
@@ -52,10 +63,19 @@ class ReportManager {
         this.emit("milkapp:report-loading", { view: this.view });
 
         try {
-            this.currentReport = await this.ensureService().generate(
-                this.view,
-                extraSources
-            );
+            const service = this.ensureService();
+            const adapter = this.ensureBrowserLocalAdapter();
+            if (adapter && service.loadSnapshot && service.buildReport) {
+                const snapshot = await service.loadSnapshot();
+                const localSources = adapter.read(snapshot);
+                this.currentReport = service.buildReport({
+                    ...snapshot,
+                    ...localSources,
+                    ...extraSources
+                }, this.view);
+            } else {
+                this.currentReport = await service.generate(this.view, extraSources);
+            }
 
             this.emit("milkapp:report-ready", {
                 view: this.view,

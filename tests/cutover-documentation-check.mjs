@@ -84,8 +84,12 @@ assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), 
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
 assert.ok(sprint.includes("Sprint 4.7 — Shared Media and Signature Workflow"), "Sprint status must preserve the Media and Signature foundation");
 assert.ok(
-    sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity"),
-    "Sprint status must identify the active Teacher parity Sprint"
+    sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity") ||
+        (
+            sprint.includes("## Sprint 4.9 Goal") &&
+            sprint.includes("Sprint 5.0 — Operational Admin Report Integration")
+        ),
+    "Sprint status must preserve Teacher parity while identifying its approved successor"
 );
 assert.ok(parity.includes("Student report"), "Parity matrix must include the Sprint 4.9 Student Report");
 assert.ok(parity.includes("Complete Teacher navigation"), "Parity matrix must include complete Teacher navigation");

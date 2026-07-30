@@ -50,8 +50,19 @@ assert.ok(gate.includes("teacher.html unchanged"));
 assert.ok(rehearsal.includes("DOCUMENTED DRY RUN ONLY"));
 assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
-assert.ok(sprint.includes("Current Branch: `feature/sprint-4.9-teacher-parity-cutover`"));
-assert.ok(sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity"));
+assert.match(
+    sprint,
+    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui)`/,
+    "Sprint status must identify the accepted 4.9 branch or its approved successor"
+);
+assert.ok(
+    sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity") ||
+        (
+            sprint.includes("## Sprint 4.9 Goal") &&
+            sprint.includes("Sprint 5.0 — Operational Admin Report Integration")
+        ),
+    "Sprint status must preserve the accepted Sprint 4.9 scope"
+);
 assert.ok(sprint.includes("54/54"), "Sprint 4.9 status must record the complete regression count");
 assert.ok(sprint.includes("Physical iPad remains deferred"));
 assert.ok(sprint.includes("No merge to `main` is authorized"));

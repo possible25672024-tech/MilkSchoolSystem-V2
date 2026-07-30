@@ -12,7 +12,8 @@ class MilkSchoolApplication {
         retroactiveEvidenceView = window.RetroactiveEvidenceView,
         vacationEvidenceView = window.VacationEvidenceView,
         attendancePrintView = window.AttendancePrintView,
-        teacherParityView = window.TeacherParityView
+        teacherParityView = window.TeacherParityView,
+        adminReportView = window.AdminReportView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -27,6 +28,7 @@ class MilkSchoolApplication {
         this.vacationEvidenceView = vacationEvidenceView;
         this.attendancePrintView = attendancePrintView;
         this.teacherParityView = teacherParityView;
+        this.adminReportView = adminReportView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -194,11 +196,24 @@ class MilkSchoolApplication {
         return this.teacherParityView;
     }
 
+    async ensureAdminReportView() {
+        if (!window.BrowserLocalReportAdapter) {
+            await import("../report/browserLocalReportAdapter.js");
+        }
+        if (!this.adminReportView) {
+            await import("../report/adminReportView.js");
+            this.adminReportView = window.AdminReportView;
+        }
+        return this.adminReportView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
 
         await this.loginManager.initialize();
+        const adminReportView = await this.ensureAdminReportView();
+        if (adminReportView?.initialize) adminReportView.initialize();
         if (this.teacherView?.initialize) await this.teacherView.initialize();
 
         const attendanceEvidenceView = await this.ensureAttendanceEvidenceView();

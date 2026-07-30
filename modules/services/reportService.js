@@ -325,6 +325,11 @@ class ReportService {
             settings,
             schoolName: String(settings.school || settings.schoolName || "โรงเรียน"),
             academicYear: String(settings.year || settings.academicYear || ""),
+            sourceDiagnostics: snapshot.reportLocalDiagnostics || {
+                missing: [],
+                invalid: [],
+                counts: { pending: 0, retro: 0, vacation: 0 }
+            },
             roomSummary,
             gradeSummary,
             schoolTotal,
@@ -334,8 +339,12 @@ class ReportService {
     }
 
     async generate(view = "room", extraSources = {}) {
-        const snapshot = await this.ensureRepository().loadReportSnapshot();
+        const snapshot = await this.loadSnapshot();
         return this.buildReport({ ...snapshot, ...extraSources }, view);
+    }
+
+    loadSnapshot() {
+        return this.ensureRepository().loadReportSnapshot();
     }
 
     buildExportRows(report) {
