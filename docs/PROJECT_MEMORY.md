@@ -392,15 +392,16 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 ## Next Phase
 
-Complete Sprint 4.9 with:
+Sprint 4.9 passed product-owner Live Server browser acceptance on 2026-07-30.
 
-- desktop and Chrome Responsive `820 x 1180`;
-- Room and Student Report A4 evidence preview;
-- History Edit exact-date browser validation;
-- History Delete confirmation-only browser validation without a real-classroom delete;
-- Room Stock/header consistency;
-- safe-setting persistence;
-- clean Console and read-only Network evidence.
+Prepare Sprint 5.0 operational Admin/report integration with:
+
+- a separate browser-local Report adapter under cutover decision D-02;
+- normalization and deduplication of pending, retroactive, and vacation sources;
+- read-only Admin report presentation using existing Report Service formulas;
+- representative formula-parity fixtures;
+- no change to protected `index.html` or `teacher.html`;
+- no Main Stock, Room Stock, Queue, ledger, stockLog, or Firebase-schema write.
 
 ## Deferred Production Decisions
 

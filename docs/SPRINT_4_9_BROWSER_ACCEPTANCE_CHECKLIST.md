@@ -6,7 +6,7 @@ Branch: `feature/sprint-4.9-teacher-parity-cutover`
 
 Draft PR: `#3`
 
-Status: **PENDING PRODUCT-OWNER BROWSER EVIDENCE**
+Status: **PASS — PRODUCT-OWNER BROWSER ACCEPTANCE**
 
 ## Safety setup
 
@@ -31,12 +31,12 @@ Open Chrome DevTools before login:
 
 ## A. Desktop shell
 
-- [ ] Login to one approved non-quarantined Teacher room.
-- [ ] The fixed blue header remains visible.
-- [ ] The dark-blue left sidebar starts below the header and fills the available height.
-- [ ] All 12 menu controls are visible or reachable by sidebar scrolling.
-- [ ] School, room, Teacher identity, group headings, icons, active highlight, and footer are correct.
-- [ ] `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` are used consistently.
+- [x] Login to one approved non-quarantined Teacher room.
+- [x] The fixed blue header remains visible.
+- [x] The dark-blue left sidebar starts below the header and fills the available height.
+- [x] All 12 menu controls are visible or reachable by sidebar scrolling.
+- [x] School, room, Teacher identity, group headings, icons, active highlight, and footer are correct.
+- [x] `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` are used consistently.
 
 Evidence:
 
@@ -55,10 +55,10 @@ Height: 1180
 Zoom:   50% or Fit to window
 ```
 
-- [ ] Navigation remains usable without hiding operational controls.
-- [ ] Daily Attendance rows, notes, photos, and signature controls remain reachable.
-- [ ] History tables and action buttons remain usable.
-- [ ] No horizontal clipping prevents a save, print, edit, or delete confirmation.
+- [x] Navigation remains usable without hiding operational controls.
+- [x] Daily Attendance rows, notes, photos, and signature controls remain reachable.
+- [x] History tables and action buttons remain usable.
+- [x] No horizontal clipping prevents a save, print, edit, or delete confirmation.
 
 Evidence:
 
@@ -71,12 +71,12 @@ Console result:
 
 Open `รายงานนักเรียน` without loading or saving Attendance.
 
-- [ ] The monthly paper-roster card appears below the selected-student report.
-- [ ] Selecting a month and pressing `พิมพ์รายชื่อนักเรียน 1 เดือน` opens A4 landscape preview.
-- [ ] The preview contains every student in the authenticated room.
-- [ ] Date columns include Monday-Friday only and remain blank for handwritten ✓ / ✕.
-- [ ] Manual `ดื่ม` and `ไม่ดื่ม` total columns, legend, and homeroom Teacher signature line appear.
-- [ ] No Fetch/XHR write occurs and no stock, Attendance, or Queue value changes.
+- [x] The monthly paper-roster card appears below the selected-student report.
+- [x] Selecting a month and pressing `พิมพ์รายชื่อนักเรียน 1 เดือน` opens A4 landscape preview.
+- [x] The preview contains every student in the authenticated room.
+- [x] Date columns include Monday-Friday only and remain blank for handwritten ✓ / ✕.
+- [x] Manual `ดื่ม` and `ไม่ดื่ม` total columns, legend, and homeroom Teacher signature line appear.
+- [x] No Fetch/XHR write occurs and no stock, Attendance, or Queue value changes.
 
 Evidence:
 
@@ -90,13 +90,13 @@ Network result:
 
 Use an already-saved non-quarantined date range. Do not create new Attendance data.
 
-- [ ] Room A4 displays every selected date as a consecutive column in one landscape matrix page.
-- [ ] `✓` means ดื่มนม, `✕` means ไม่ดื่มนม, and `—` means ยังไม่ตรวจ.
-- [ ] Student totals and percentages are correct.
-- [ ] Room photos begin on the page after the matrix and use one row of at most five images per date.
-- [ ] Room evidence pages contain at most five dates, each with the saved homeroom Teacher signature.
-- [ ] The homeroom Teacher signature and name are present when saved.
-- [ ] Student A4 retains its selected-student inline evidence rule.
+- [x] Room A4 displays every selected date as a consecutive column in one landscape matrix page.
+- [x] `✓` means ดื่มนม, `✕` means ไม่ดื่มนม, and `—` means ยังไม่ตรวจ.
+- [x] Student totals and percentages are correct.
+- [x] Room photos begin on the page after the matrix and use one row of at most five images per date.
+- [x] Room evidence pages contain at most five dates, each with the saved homeroom Teacher signature.
+- [x] The homeroom Teacher signature and name are present when saved.
+- [x] Student A4 retains its selected-student inline evidence rule.
 
 Evidence:
 
@@ -109,13 +109,13 @@ Student A4 screenshot:
 
 Use already-loaded history records only. Do not issue or delete milk.
 
-- [ ] นมค้างรายสัปดาห์ opens its matching A4 report.
-- [ ] จ่ายนมย้อนหลัง opens its matching A4 report.
-- [ ] จ่ายนมช่วงปิดเทอม opens its matching A4 report.
-- [ ] Each report contains the correct student/quantity table.
-- [ ] Photos appear directly after the table in one row of at most five.
-- [ ] Available receiver signatures appear.
-- [ ] The homeroom Teacher approval line appears.
+- [x] นมค้างรายสัปดาห์ opens its matching A4 report.
+- [x] จ่ายนมย้อนหลัง opens its matching A4 report.
+- [x] จ่ายนมช่วงปิดเทอม opens its matching A4 report.
+- [x] Each report contains the correct student/quantity table.
+- [x] Photos appear directly after the table in one row of at most five.
+- [x] Available receiver signatures appear.
+- [x] The homeroom Teacher approval line appears.
 
 Evidence:
 
@@ -127,10 +127,10 @@ Vacation A4 screenshot:
 
 ## F. History actions
 
-- [ ] `แก้ไข` opens the exact selected date in Daily Attendance.
-- [ ] Existing statuses, notes, photos, and signature load for that date.
-- [ ] `ลบ` shows confirmation.
-- [ ] Cancel the confirmation; do not delete real data.
+- [x] `แก้ไข` opens the exact selected date in Daily Attendance.
+- [x] Existing statuses, notes, photos, and signature load for that date.
+- [x] `ลบ` shows confirmation.
+- [x] Cancel the confirmation; do not delete real data.
 
 Evidence:
 
@@ -144,12 +144,12 @@ Delete-confirmation screenshot:
 
 Read-only actions include navigation, report load, Room Stock refresh, and print preview.
 
-- [ ] Console contains no application or Firebase error.
-- [ ] Read-only report and Room Stock requests use `GET`.
-- [ ] No Queue entry is created, replayed, removed, or altered.
-- [ ] No Main Stock or Room Stock value changes during read-only validation.
-- [ ] If an approved Teacher-name test is performed, exactly one scoped write targets the authenticated room's `teacher` leaf.
-- [ ] No Teacher-name save writes Attendance, stock, Queue, ledger, stockLog, students, or another room.
+- [x] Console contains no application or Firebase error.
+- [x] Read-only report and Room Stock requests use `GET`.
+- [x] No Queue entry is created, replayed, removed, or altered.
+- [x] No Main Stock or Room Stock value changes during read-only validation.
+- [x] If an approved Teacher-name test is performed, exactly one scoped write targets the authenticated room's `teacher` leaf.
+- [x] No Teacher-name save writes Attendance, stock, Queue, ledger, stockLog, students, or another room.
 
 Evidence:
 
@@ -164,13 +164,17 @@ Teacher leaf request path (if approved):
 Mark PASS only when every required item has evidence:
 
 ```text
-Desktop:             PENDING
-Responsive:          PENDING
-Room/Student A4:     PENDING
-Operational A4:      PENDING
-History actions:     PENDING
-Console/Network:     PENDING
-Overall:             PENDING
+Desktop:             PASS
+Responsive:          PASS
+Monthly roster:      PASS
+Room/Student A4:     PASS
+Operational A4:      PASS
+History actions:     PASS
+Console/Network:     PASS
+Overall:             PASS
 ```
+
+Product-owner acceptance was confirmed on 2026-07-30 after the complete
+54-check regression and local Live Server validation.
 
 Browser PASS permits Sprint 4.9 review for `develop`. It does not authorize `main`, Production deployment, Firebase rule changes, incident closure, or backup/restore execution.

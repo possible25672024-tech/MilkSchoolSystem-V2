@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-4.9-teacher-parity-cutover`
 
-Status: **AUTOMATED PASS / LOCAL BROWSER GATE PENDING**
+Status: **PASS — AUTOMATED AND PRODUCT-OWNER BROWSER ACCEPTANCE**
 
 ## Implemented boundary
 
@@ -122,19 +122,22 @@ teacher.html unchanged
 
 ## Local browser gate
 
-Pending updated evidence for:
+Product-owner browser acceptance passed on 2026-07-30 for:
 
 - desktop header/left-sidebar and all 12 controls;
 - Chrome Responsive `820 x 1180`;
+- monthly paper roster;
 - Room and Student A4 date/photo/signature layout;
 - Pending, Retroactive, and Vacation A4 reports;
+- History Edit exact-date routing and Delete confirmation;
 - clean Console and read-only report Network traffic;
-- one approved scoped Teacher-name leaf write.
+- scoped authenticated-room Teacher-name behavior.
 
-Use `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`.
+Evidence record: `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`.
 
 ## Decision
 
-The branch is ready for Draft PR review into `develop`. Browser PASS is required before final merge into `develop`.
+The branch passed the Sprint 4.9 automated and local-browser gates and is ready
+for final review into `develop`.
 
 No `main` merge, production deployment, legacy replacement, Firebase rule change, incident closure, backup/restore execution, or physical iPad PASS is authorized.

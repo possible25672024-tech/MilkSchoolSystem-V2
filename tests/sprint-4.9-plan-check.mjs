@@ -40,7 +40,11 @@ for (const label of [
 ]) {
     assert.ok(plan.includes(label), `Sprint 4.9 plan must retain ${label}`);
 }
-assert.ok(gate.includes("LOCAL BROWSER GATE PENDING"));
+assert.match(
+    gate,
+    /LOCAL BROWSER GATE PENDING|PASS — AUTOMATED AND PRODUCT-OWNER BROWSER ACCEPTANCE/,
+    "Sprint 4.9 gate must record either pending or accepted browser status"
+);
 assert.ok(gate.includes("index.html   unchanged"));
 assert.ok(gate.includes("teacher.html unchanged"));
 assert.ok(rehearsal.includes("DOCUMENTED DRY RUN ONLY"));
