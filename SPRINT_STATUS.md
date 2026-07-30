@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-29
 
-Current Branch: `feature/sprint-4.7-media-signature-ui`
+Current Branch: `feature/sprint-4.8-report-print-ui`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 4.7 — Shared Media and Signature Workflow
+Sprint 4.8 — Attendance History, Report and A4 Print UI
 
-Status: **100% IMPLEMENTED AND BROWSER-ACCEPTED / FINAL CLOSING REGRESSION AND DEVELOP FAST-FORWARD PENDING**
+Status: **5% — PLAN AND READ-ONLY REPORT CONTRACT OPEN / IMPLEMENTATION PENDING**
 
 ## Completed Foundation
 
@@ -31,92 +31,15 @@ Status: **100% IMPLEMENTED AND BROWSER-ACCEPTED / FINAL CLOSING REGRESSION AND D
 - Sprint 4.4 Pending Milk Operational UI merged into `develop`.
 - Sprint 4.5 Retroactive Milk Operational UI merged into `develop`.
 - Sprint 4.6 Vacation Milk Operational UI merged into `develop` at `5e462c9bb80f0f991045ff80ccd294d4240421cd`.
+- Sprint 4.7 — Shared Media and Signature Workflow merged into `develop` at `0ed9bc52e26bdf715240be72a84a220771068947`.
 
 Protected `index.html` and `teacher.html` remain unchanged and operational.
 
 Physical iPad remains deferred and must not be represented as PASS.
 
-## Sprint 4.7 Delivered Scope — PASS
+## Sprint 4.7 Final Acceptance — PASS
 
-Implemented:
-
-```text
-modules/media/mediaPolicy.js
-modules/media/mediaProcessor.js
-modules/media/mediaStore.js
-modules/media/mediaEnvelope.js
-modules/signature/signaturePad.js
-modules/media/attendanceEvidenceManager.js
-modules/media/attendanceEvidenceView.js
-modules/media/attendanceEvidenceAdapter.js
-modules/media/pendingEvidenceManager.js
-modules/media/pendingEvidenceView.js
-modules/media/pendingEvidenceAdapter.js
-modules/media/retroactiveEvidenceManager.js
-modules/media/retroactiveEvidenceView.js
-modules/media/retroactiveEvidenceAdapter.js
-modules/media/vacationEvidenceManager.js
-modules/media/vacationEvidenceView.js
-modules/media/vacationEvidenceAdapter.js
-```
-
-Confirmed:
-
-- maximum five photos per record;
-- JPEG, PNG, and WebP source support;
-- 8 MB source limit;
-- longest edge 1,000 px;
-- JPEG quality 0.7;
-- 400 KB processed-photo limit;
-- 120 KB signature limit;
-- 2.25 MB aggregate evidence limit;
-- 320-pixel thumbnails;
-- Pointer, Touch, and Mouse signature input;
-- empty-signature rejection;
-- lazy IndexedDB payload storage;
-- reference-only manifests;
-- Data URL, blob, payload, source-file-name, and receiver-identity redaction from safe Queue state;
-- Queue key remains `tc_pending_saves_v1`;
-- no Media layer ownership of Firebase stock arithmetic.
-
-## Workflow Integration — PASS
-
-### Attendance
-
-- daily photos and Teacher signature;
-- unchanged room/date preserves the active draft;
-- online save hydrates legacy `photos` and `signature` fields;
-- Queue keeps references only and hydrates before Attendance Service;
-- Main Stock remains unchanged.
-
-### Pending Milk
-
-- weekly photos and exact `studentId_absentDate` recipient signatures;
-- receiver-name compatibility at the protected write boundary;
-- safe state and Queue exclude receiver identity and payloads;
-- stock-retry Queue remains stock-only;
-- Main Stock remains unchanged.
-
-### Retroactive Milk
-
-- selected-range photos and one signature per student ID;
-- unchanged range preserves the active draft;
-- legacy `photos`, `signature`, and `signatures` compatibility;
-- stock-retry Queue remains stock-only;
-- Main Stock remains unchanged.
-
-### Vacation Milk
-
-- selected-record photos and one parent/recipient signature per student ID;
-- Login replay republishes the preview after Evidence View activation;
-- `milkapp:teacher-refreshed` redraws the Vacation preview from the live Teacher snapshot;
-- another-room and non-Teacher refreshes are ignored;
-- public adapter status contract remains stable;
-- Main Stock remains unchanged.
-
-## Accepted Automated Gates
-
-Confirmed locally:
+Accepted local result:
 
 ```text
 Media policy checks passed.
@@ -142,55 +65,113 @@ Vacation Milk isolated write checks passed.
 Sync UI checks passed.
 Cutover documentation checks passed.
 ALL 43 REGRESSION CHECKS PASSED (6.2s)
+nothing to commit, working tree clean
 ```
 
-The automatic runner discovers every `tests/*-check.mjs` file and rejects any failure.
+Accepted browser result:
 
-## Browser Read-Only Validation — PASS
+- Admin responsive shell passed;
+- Teacher dashboard showed authenticated-room ownership;
+- Attendance, Pending, Retroactive, and Vacation evidence panels passed;
+- desktop and Chrome `820 x 1180` layouts passed;
+- Console remained clean;
+- visible Network methods were GET-only;
+- Queue was `null` before login and after Logout;
+- no real evidence, Firebase write, stock mutation, or Queue replay occurred;
+- Teacher dashboard Room Stock and Vacation Milk Room Stock both displayed `476`.
+
+Artifacts:
+
+```text
+docs/SPRINT_4_7_PLAN.md
+docs/SPRINT_4_7_FULL_REGRESSION_GATE.md
+docs/SPRINT_4_7_BROWSER_VALIDATION_REPORT.md
+```
+
+## Sprint 4.8 Goal
+
+Complete the next Teacher parity slice with authenticated-room read-only Attendance history, summary, and printable A4 report workflows.
 
 Artifact:
 
 ```text
-docs/SPRINT_4_7_BROWSER_VALIDATION_REPORT.md
+docs/SPRINT_4_8_PLAN.md
 ```
 
-Accepted:
+## Sprint 4.8 Planned Scope
 
-- Admin responsive shell;
-- Teacher dashboard and authenticated-room ownership;
-- Attendance evidence controls with `0 / 5 รูป`;
-- Pending evidence controls with the earlier local draft removed and `0 / 5 รูป`;
-- Retroactive evidence controls with `0 / 5 รูป`;
-- Vacation evidence controls with `0 / 5 รูป`;
-- desktop and Chrome `820 x 1180` layouts;
-- clean Console;
-- visible Network methods were GET-only;
-- no visible POST, PUT, PATCH, or DELETE;
-- Queue was `null` before login and after Logout;
-- no real evidence, Firebase write, stock mutation, or Queue replay.
+### Attendance History
 
-Live stock consistency accepted:
+- load only when opened;
+- authenticated-room only;
+- one selected date or explicit date range;
+- deterministic record ordering;
+- no full-school Attendance read;
+- no historical media hydration unless one record is explicitly requested.
+
+### Attendance Summary
+
+- daily present, absent, and unchecked totals;
+- selected-range totals;
+- per-student present and absent totals;
+- school, room, Teacher, academic year, semester, and date-range metadata;
+- pure calculation without source-record mutation.
+
+### A4 Report and Print
+
+- school and room identity;
+- Teacher identity;
+- academic year and semester;
+- selected date or range;
+- student detail table;
+- present and absent totals;
+- deterministic print rows and page breaks;
+- print-only styling;
+- no Firebase write or automatic full-media download.
+
+Expected module boundary:
 
 ```text
-Teacher dashboard Room Stock = 476
-Vacation Milk Room Stock     = 476
-Vacation preview             = 16 students x 30 days = 480 boxes
+modules/reports/attendanceHistoryService.js
+modules/reports/attendanceHistoryManager.js
+modules/reports/attendanceReportBuilder.js
+modules/reports/attendancePrintView.js
 ```
 
-The Vacation warning state is expected because the preview requires four more boxes than the live Room Stock.
+## Sprint 4.8 Initial Gates
 
-## Evidence Recovery and Duplicate Prevention — PASS
+1. History Query Contract;
+2. Pure Summary Builder;
+3. A4 Print Model;
+4. Teacher History, Summary, and Print UI;
+5. desktop and `820 x 1180` read-only browser validation;
+6. GET/OPTIONS-only Network and empty Queue;
+7. complete regression suite;
+8. synchronized branch and clean working tree.
 
-Confirmed:
+## Read-Only Ownership Contract
 
-- repeated context events do not silently clear valid drafts;
-- signature replacement removes the previous draft once;
-- context changes remove each unsaved payload once;
-- removing a Pending owner removes only that owner's signature draft;
-- successful saves are not treated as unsaved drafts;
-- safe state excludes payloads and receiver identity;
-- adapter patch markers and replay listeners remain idempotent;
-- no stock, Firebase, network, or real Queue ownership.
+Preferred path:
+
+```text
+Teacher session
+    -> AttendanceHistoryManager
+    -> AttendanceHistoryService
+    -> scoped AttendanceRepository read
+    -> AttendanceReportBuilder
+    -> history, summary, or print view
+```
+
+Forbidden report ownership:
+
+```text
+Firebase writes
+POST / PUT / PATCH / DELETE
+Room Stock mutation
+Main Stock mutation
+Queue creation or replay
+ledger or stockLog repair
+```
 
 ## Teacher Legacy Parity Contract — BINDING
 
@@ -217,15 +198,19 @@ Artifact:
 docs/TEACHER_LEGACY_PARITY_CONTRACT.md
 ```
 
-## Final Sprint 4.7 Closure Steps
+## Sprint 4.8 Non-Goals
 
-1. pull the closing documentation commits;
-2. run `node tests/run-sprint-4.7-regression.mjs` again;
-3. confirm the feature branch matches Origin and the working tree is clean;
-4. fast-forward `develop` to the accepted Sprint 4.7 head;
-5. create the next feature branch from the integrated `develop` head.
+Sprint 4.8 does not complete:
 
-No merge to `main` is authorized.
+- operational Attendance write changes;
+- student report as a separate cross-period product;
+- remaining Room Stock report UI;
+- Teacher settings;
+- final navigation parity;
+- Firebase security hardening;
+- physical iPad sign-off;
+- production cutover;
+- deferred real-data incident recovery.
 
 ## Queue and Payload Rules
 
@@ -236,7 +221,8 @@ No merge to `main` is authorized.
 - Audit-only recovery remains audit-only.
 - Main Stock remains unchanged.
 - Teacher Login must not download historical evidence.
-- Evidence loads only for the selected room, date, week, range, or record.
+- Report history loads only for the authenticated room and selected date or range.
+- Evidence loads only for one explicitly selected record.
 
 ## Safety Boundary
 
@@ -254,7 +240,7 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- report and print parity;
+- report and print parity until Sprint 4.8 passes;
 - remaining Teacher navigation parity;
 - explicit `main` and production approval.
 
@@ -262,8 +248,12 @@ Do not use:
 
 - Main Stock decreases only on classroom distribution.
 - Attendance, Pending, Retroactive, and Vacation Milk change Room Stock only.
-- Delete restores exactly the quantity previously deducted.
+- Sprint 4.8 report and print modules are read-only and change no stock.
+- Attendance edits apply only the present-count difference.
+- Attendance delete restores exactly the quantity previously deducted.
 - Teacher access remains limited to the authenticated room.
 - Audit-only recovery never repeats a successful stock mutation.
 - Negative Room Stock is not silently clamped.
 - Legacy files remain available until explicit production-cutover approval.
+
+No merge to `main` is authorized.
