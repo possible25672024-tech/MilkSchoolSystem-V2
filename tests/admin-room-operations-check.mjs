@@ -29,12 +29,25 @@ for (const expected of [
     'id="admin-retroactive-body"',
     'id="admin-vacation-body"',
     'data-admin-record-action="edit"',
-    'data-admin-record-action="delete"'
+    'data-admin-record-action="delete"',
+    'class="admin-record-actions"',
+    'cell.dataset.label = labels[index] || ""',
+    'className = "admin-operation-empty"'
 ]) {
     assert.ok(
         indexSource.includes(expected) || viewSource.includes(expected),
         `Admin operations UI must contain ${expected}`
     );
+}
+
+for (const expected of [
+    "table-layout: fixed",
+    ".admin-operation-panel .admin-report-table-wrap",
+    ".admin-record-actions",
+    "content: attr(data-label)",
+    "@media (max-width: 900px)"
+]) {
+    assert.ok(indexSource.includes(expected), `Admin operation tables must include responsive rule ${expected}`);
 }
 
 assert.ok(appSource.includes("ensureAdminRoomView"), "App must initialize Admin Room View");

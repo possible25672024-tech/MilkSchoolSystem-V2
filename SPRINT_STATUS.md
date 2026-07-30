@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 5.1 — Large Attendance Payload Resilience
 
-Status: **96% — ROOM/WHOLE-SCHOOL 413 FIX AND 60-CHECK REGRESSION PASS / BROWSER RETRY PENDING**
+Status: **98% — 413 BROWSER RETRY PASS / ADMIN RESPONSIVE TABLE RETRY PENDING**
 
 ## Completed Foundation
 

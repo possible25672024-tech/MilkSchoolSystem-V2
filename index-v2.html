@@ -492,6 +492,7 @@
         }
 
         .admin-operation-panel {
+            min-width: 0;
             margin-top: 16px;
             border: 1px solid #dbe5ef;
             border-radius: 14px;
@@ -505,15 +506,37 @@
 
         .admin-operation-table {
             width: 100%;
-            min-width: 720px;
+            min-width: 0;
+            table-layout: fixed;
             border-collapse: collapse;
         }
 
         .admin-operation-table th,
         .admin-operation-table td {
             border-bottom: 1px solid #dbe5ef;
-            padding: 9px;
+            padding: 9px 7px;
             text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-operation-table th:nth-child(1),
+        .admin-operation-table td:nth-child(1) {
+            width: 23%;
+        }
+
+        .admin-operation-table th:nth-child(2),
+        .admin-operation-table td:nth-child(2) {
+            width: 21%;
+        }
+
+        .admin-operation-table th:nth-child(3),
+        .admin-operation-table td:nth-child(3) {
+            width: 17%;
+        }
+
+        .admin-operation-table th:nth-child(4),
+        .admin-operation-table td:nth-child(4) {
+            width: 39%;
         }
 
         .admin-operation-table th {
@@ -521,10 +544,25 @@
             background: #1a5276;
         }
 
+        .admin-operation-panel .admin-report-table-wrap {
+            overflow-x: hidden;
+        }
+
+        .admin-record-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 5px;
+            min-width: 0;
+        }
+
         .admin-operation-table button {
-            width: auto;
-            margin: 2px;
-            padding: 7px 10px;
+            width: 100%;
+            min-width: 0;
+            min-height: 38px;
+            margin: 0;
+            padding: 6px 5px;
+            line-height: 1.2;
+            white-space: normal;
         }
 
         .admin-report-toolbar,
@@ -595,7 +633,7 @@
             display: none !important;
         }
 
-        @media (max-width: 760px) {
+        @media (max-width: 900px) {
             .admin-layout {
                 grid-template-columns: 1fr;
             }
@@ -657,6 +695,67 @@
             .admin-room-dashboard,
             .admin-menu {
                 grid-template-columns: 1fr;
+            }
+
+            .admin-operation-panel {
+                padding: 14px;
+            }
+
+            .admin-operation-table,
+            .admin-operation-table tbody,
+            .admin-operation-table tr,
+            .admin-operation-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .admin-operation-table thead {
+                display: none;
+            }
+
+            .admin-operation-table tbody {
+                display: grid;
+                gap: 12px;
+            }
+
+            .admin-operation-table tr {
+                overflow: hidden;
+                border: 1px solid #dbe5ef;
+                border-radius: 12px;
+                background: #ffffff;
+            }
+
+            .admin-operation-table td {
+                display: grid;
+                grid-template-columns: minmax(90px, 0.42fr) minmax(0, 1fr);
+                gap: 10px;
+                border-bottom: 1px solid #e8eef4;
+                padding: 10px 12px;
+                text-align: left;
+            }
+
+            .admin-operation-table td::before {
+                content: attr(data-label);
+                color: #64748b;
+                font-size: 0.82rem;
+                font-weight: 700;
+            }
+
+            .admin-operation-table td:last-child {
+                border-bottom: 0;
+            }
+
+            .admin-operation-table td.admin-operation-empty {
+                display: block;
+                text-align: center;
+            }
+
+            .admin-operation-table td.admin-operation-empty::before {
+                content: none;
+            }
+
+            .admin-record-actions {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .attendance-toolbar button,

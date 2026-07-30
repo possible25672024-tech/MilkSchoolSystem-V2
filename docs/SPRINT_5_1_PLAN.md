@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-5.1-attendance-scalability`
 
-Status: **AUTOMATED PASS — 60/60 / PRODUCT-OWNER BROWSER RETRY PENDING**
+Status: **AUTOMATED PASS — 60/60 / 413 BROWSER RETRY PASS / RESPONSIVE TABLE RETRY PENDING**
 
 ## Trigger
 
@@ -73,6 +73,9 @@ legacy pages.
 7. No POST, PUT, PATCH, or DELETE occurs during initial room loading.
 8. Whole-school report renders without `(records || []).reduce is not a
    function`.
+9. Every Admin operation table keeps View/Edit/Delete controls inside the
+   content panel without horizontal scrolling; narrow screens render labeled
+   record cards.
 
 Sprint 5.1 does not authorize `main`, Production deployment, legacy
 replacement, Firebase-rule changes, or incident closure.

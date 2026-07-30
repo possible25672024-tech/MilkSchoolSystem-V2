@@ -20,6 +20,9 @@ All notable modular migration changes are recorded here.
 - Report aggregation reads only required compact fields and excludes photos
   and signatures.
 - Teacher Dashboard totals normalize both Firebase objects and arrays.
+- Admin operation tables use fitted columns and wrapped action controls so
+  View/Edit/Delete remain inside the content panel.
+- Admin operation rows become labeled cards on narrow screens.
 - Existing View/Edit/Delete, Room Stock rollback, audit, Queue recovery, and
   Main Stock isolation remain unchanged.
 
@@ -27,7 +30,9 @@ All notable modular migration changes are recorded here.
 
 - scalable-query, Admin operations, and Performance checks passed.
 - all 60 discovered regression checks passed.
-- product-owner Live Server 413 retry remains pending.
+- product-owner Live Server confirmed selected-room and whole-school data load
+  without the previous 413/reduce failures.
+- responsive table browser retry remains pending.
 
 ## 2026-07-30 — Sprint 5.0 Admin Room Operations
 

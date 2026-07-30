@@ -122,6 +122,7 @@ class AdminRoomView {
     renderRecords(type, records = []) {
         const body = this.element(`admin-${type}-body`);
         if (!body) return;
+        const labels = this.recordLabels(type);
         body.replaceChildren(...records.map(record => {
             const row = this.document.createElement("tr");
             row.dataset.recordId = record.id;
@@ -138,6 +139,7 @@ class AdminRoomView {
             ];
             cells.forEach((value, index) => {
                 const cell = this.document.createElement("td");
+                cell.dataset.label = labels[index] || "";
                 if (index === cells.length - 1) cell.innerHTML = value;
                 else cell.textContent = String(value ?? "");
                 row.appendChild(cell);
@@ -148,19 +150,29 @@ class AdminRoomView {
             const row = this.document.createElement("tr");
             const cell = this.document.createElement("td");
             cell.colSpan = 4;
+            cell.className = "admin-operation-empty";
             cell.textContent = "ยังไม่มีรายการ";
             row.appendChild(cell);
             body.appendChild(row);
         }
     }
 
+    recordLabels(type) {
+        return {
+            attendance: ["วันที่", "ดื่ม", "ไม่ดื่ม", "จัดการ"],
+            pending: ["วันที่จ่าย", "สัปดาห์", "จำนวน", "จัดการ"],
+            retroactive: ["วันที่จ่าย", "ช่วงย้อนหลัง", "จำนวน", "จัดการ"],
+            vacation: ["วันที่จ่าย", "ปีการศึกษา", "จำนวน", "จัดการ"]
+        }[type] || ["วันที่", "รายละเอียด", "จำนวน", "จัดการ"];
+    }
+
     actionMarkup(type) {
         const editLabel = type === "attendance" ? "เปิดแก้ไข" : "แก้หมายเหตุ";
-        return [
+        return `<div class="admin-record-actions">${[
             '<button type="button" data-admin-record-action="view">ดู</button>',
             `<button type="button" data-admin-record-action="edit">${editLabel}</button>`,
             '<button type="button" class="danger" data-admin-record-action="delete">ลบ</button>'
-        ].join(" ");
+        ].join("")}</div>`;
     }
 
     async handleRecordAction(event) {
