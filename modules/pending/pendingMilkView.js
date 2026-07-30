@@ -117,7 +117,7 @@ class PendingMilkView {
         panel.hidden = true;
         panel.innerHTML = `
             <h3 id="pending-milk-title">จ่ายนมค้างรายสัปดาห์</h3>
-            <p class="pending-milk-intro">แสดงเฉพาะนักเรียนที่ขาดเรียนและยังไม่เคยรับนมค้างของวันนั้น</p>
+            <p class="pending-milk-intro">แสดงเฉพาะนักเรียนที่ไม่ดื่มนมและยังไม่เคยรับนมค้างของวันนั้น</p>
             <div class="pending-milk-toolbar">
                 <div>
                     <label for="pending-milk-week-date">เลือกวันที่ในสัปดาห์</label>
@@ -307,7 +307,7 @@ class PendingMilkView {
                 ? state.eligible.map(pair => `
                     <label class="pending-milk-row">
                         <input type="checkbox" data-pending-key="${this.escape(pair.key)}">
-                        <span><span class="pending-milk-name">${this.escape(pair.studentNumber)}. ${this.escape(pair.name)}</span><br><span class="pending-milk-meta">ขาดเรียน · 1 กล่อง</span></span>
+                        <span><span class="pending-milk-name">${this.escape(pair.studentNumber)}. ${this.escape(pair.name)}</span><br><span class="pending-milk-meta">ไม่ดื่มนม · 1 กล่อง</span></span>
                         <span class="pending-milk-date">${this.escape(this.formatDate(pair.date))}</span>
                     </label>
                 `).join("")

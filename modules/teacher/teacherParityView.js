@@ -83,6 +83,7 @@ class TeacherParityView {
         style.id = "teacher-parity-view-style";
         style.textContent = `
             .teacher-parity-nav{position:sticky;top:0;z-index:20;margin:22px 0 8px;padding:10px;border:1px solid #dbe5ef;border-radius:14px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(15,46,68,.08)}
+            .teacher-parity-nav-title{margin:2px 4px 10px;color:#1a5276;font-size:.88rem;font-weight:800}
             .teacher-parity-nav-list{display:flex;gap:8px;overflow-x:auto;padding:2px;scrollbar-width:thin}
             .teacher-parity-nav button{flex:0 0 auto;width:auto;min-height:40px;margin:0;padding:8px 13px;color:#1e3a5f;background:#eef3f8;white-space:nowrap}
             .teacher-parity-nav button[aria-current=page]{color:#fff;background:#1a5276}
@@ -110,6 +111,15 @@ class TeacherParityView {
             .teacher-compact-mode .teacher-parity-panel,.teacher-compact-mode .attendance-panel,.teacher-compact-mode .attendance-report-panel{margin-top:18px;padding-top:18px}
             #student-report-status[data-state=success],#room-stock-detail-status[data-state=success],#teacher-settings-status[data-state=success]{color:#166534}
             #student-report-status[data-state=error],#room-stock-detail-status[data-state=error],#teacher-settings-status[data-state=error]{color:#991b1b}
+            @media(min-width:1101px){
+                body:has(#teacher-shell:not([hidden])){place-items:start center}
+                body:has(#teacher-shell:not([hidden])) main{width:min(1240px,100%)}
+                #teacher-shell{display:grid;grid-template-columns:minmax(0,1fr) 230px;column-gap:24px;align-items:start}
+                #teacher-shell>:not(.teacher-parity-nav){grid-column:1}
+                .teacher-parity-nav{grid-column:2;grid-row:1;align-self:start;top:24px;margin:0;max-height:calc(100vh - 48px);overflow:auto}
+                .teacher-parity-nav-list{display:grid;gap:7px;overflow:visible}
+                .teacher-parity-nav button{width:100%;text-align:left;white-space:normal}
+            }
             @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid{grid-template-columns:1fr}}
             @media(max-width:600px){.teacher-parity-grid,.teacher-parity-toolbar{grid-template-columns:1fr}.teacher-parity-actions{flex-direction:column}.teacher-parity-actions button{width:100%}}
         `;
@@ -137,7 +147,8 @@ class TeacherParityView {
         nav.className = "teacher-parity-nav";
         nav.setAttribute("aria-label", "เมนูครู");
         nav.hidden = true;
-        nav.innerHTML = `<div class="teacher-parity-nav-list" role="list">
+        nav.innerHTML = `<p class="teacher-parity-nav-title">เมนูหน้าครู</p>
+        <div class="teacher-parity-nav-list" role="list">
             ${this.navigationItems().map(item => (
                 `<button type="button" data-teacher-section="${item.id}">${item.label}</button>`
             )).join("")}
@@ -161,8 +172,8 @@ class TeacherParityView {
             <p class="teacher-parity-intro">สถานะวันนี้ของห้องที่เข้าสู่ระบบและสต็อกห้องล่าสุด</p>
             <dl class="teacher-parity-grid">
                 <div class="teacher-parity-card"><dt>นักเรียน</dt><dd id="teacher-overview-students">0</dd></div>
-                <div class="teacher-parity-card"><dt>มาเรียนวันนี้</dt><dd id="teacher-overview-present">0</dd></div>
-                <div class="teacher-parity-card"><dt>ขาดเรียนวันนี้</dt><dd id="teacher-overview-absent">0</dd></div>
+                <div class="teacher-parity-card"><dt>ดื่มนมวันนี้</dt><dd id="teacher-overview-present">0</dd></div>
+                <div class="teacher-parity-card"><dt>ไม่ดื่มนมวันนี้</dt><dd id="teacher-overview-absent">0</dd></div>
                 <div class="teacher-parity-card"><dt>สต็อกห้อง</dt><dd id="teacher-overview-room-stock">0 กล่อง</dd></div>
             </dl>
             <p id="teacher-overview-status" class="status" aria-live="polite"></p>`;
@@ -189,9 +200,9 @@ class TeacherParityView {
             <p id="student-report-identity" class="attendance-report-identity"></p>
             <dl class="teacher-parity-grid">
                 <div class="teacher-parity-card"><dt>วันที่มีข้อมูล</dt><dd id="student-report-days">0</dd></div>
-                <div class="teacher-parity-card"><dt>มาเรียน</dt><dd id="student-report-present">0</dd></div>
-                <div class="teacher-parity-card"><dt>ขาดเรียน</dt><dd id="student-report-absent">0</dd></div>
-                <div class="teacher-parity-card"><dt>อัตรามาเรียน</dt><dd id="student-report-rate">—</dd></div>
+                <div class="teacher-parity-card"><dt>ดื่มนม</dt><dd id="student-report-present">0</dd></div>
+                <div class="teacher-parity-card"><dt>ไม่ดื่มนม</dt><dd id="student-report-absent">0</dd></div>
+                <div class="teacher-parity-card"><dt>อัตราดื่มนม</dt><dd id="student-report-rate">—</dd></div>
             </dl>
             <p id="student-report-status" class="status" data-state="idle" aria-live="polite"></p>
             <p id="student-report-error" class="error" role="alert" hidden></p>
@@ -522,7 +533,7 @@ class TeacherParityView {
                     <p>เลขที่ ${this.escape(metadata.studentNumber || "—")} · ${this.escape(metadata.studentName || "นักเรียน")}</p>
                     <p>${this.escape(this.formatDate(metadata.startDate))} ถึง ${this.escape(this.formatDate(metadata.endDate))}</p>
                 </header>
-                <div class="totals">มา ${totals.present || 0} · ขาด ${totals.absent || 0} · ยังไม่ตรวจ ${totals.unchecked || 0} · อัตรามาเรียน ${totals.attendanceRate === null ? "—" : `${totals.attendanceRate}%`}</div>
+                <div class="totals">ดื่มนม ${totals.present || 0} · ไม่ดื่มนม ${totals.absent || 0} · ยังไม่ตรวจ ${totals.unchecked || 0} · อัตราดื่มนม ${totals.attendanceRate === null ? "—" : `${totals.attendanceRate}%`}</div>
                 <table><thead><tr><th>วันที่</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
                     <tbody>${rows.map(row => `<tr><td>${this.escape(this.formatDate(row.date))}</td><td>${this.escape(this.statusLabel(row.status))}</td><td class="note">${this.escape(row.note || "—")}</td></tr>`).join("")}</tbody>
                 </table>
@@ -646,7 +657,7 @@ class TeacherParityView {
     }
 
     statusLabel(status) {
-        return { present: "มาเรียน", absent: "ขาดเรียน", unchecked: "ยังไม่ตรวจ" }[status] || "ยังไม่ตรวจ";
+        return { present: "ดื่มนม", absent: "ไม่ดื่มนม", unchecked: "ยังไม่ตรวจ" }[status] || "ยังไม่ตรวจ";
     }
 
     formatNumber(value) {

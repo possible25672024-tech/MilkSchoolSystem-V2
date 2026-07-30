@@ -94,6 +94,15 @@ The modular V2 navigation must expose:
 
 Navigation reuses the accepted Sprint 4.1–4.8 panels. It does not duplicate their Service or stock logic.
 
+### 5. Teacher Menu Layout and Milk Wording
+
+- desktop widths above `1100px` show the 12-item Teacher navigation as a vertical sidebar on the right;
+- the sidebar remains sticky while the active Teacher panel scrolls;
+- widths at or below `1100px` retain the compact horizontal navigation so the content is not squeezed;
+- visible daily, history, student-report, Pending, and A4 labels use `ดื่มนม` and `ไม่ดื่มนม`;
+- visible rate labels use `อัตราดื่มนม`;
+- persisted status values remain `present` and `absent` for backward compatibility and unchanged Room Stock calculations.
+
 ## Module Boundary
 
 ```text
@@ -170,6 +179,9 @@ Events must not contain student names, notes, photo/signature data, credentials,
 ### Gate D — Navigation and UI
 
 - all 12 menu items;
+- right-side vertical Teacher navigation on desktop;
+- compact horizontal navigation on narrower screens;
+- milk-consumption wording without changing persisted `present`/`absent` values;
 - reuse of accepted operational panels;
 - student report and A4 rendering;
 - read-only stock display;
@@ -187,6 +199,8 @@ Required local evidence after automated validation:
 
 - Teacher login for a non-quarantined room;
 - all 12 menu controls visible and reachable;
+- the 12 controls appear in a right-side vertical sidebar on desktop;
+- `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` appear consistently in daily, report, student-report, Pending, and A4 views;
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;
 - Room Stock matches the Teacher header value;

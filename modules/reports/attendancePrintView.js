@@ -142,8 +142,8 @@ class AttendancePrintView {
             <dl class="attendance-report-summary" aria-label="สรุปรายงานการดื่มนม">
                 <div class="attendance-report-summary-card"><dt>วันที่มีข้อมูล</dt><dd id="attendance-report-school-days">0</dd></div>
                 <div class="attendance-report-summary-card"><dt>นักเรียน</dt><dd id="attendance-report-students">0</dd></div>
-                <div class="attendance-report-summary-card"><dt>มาเรียน</dt><dd id="attendance-report-present">0</dd></div>
-                <div class="attendance-report-summary-card"><dt>ขาดเรียน</dt><dd id="attendance-report-absent">0</dd></div>
+                <div class="attendance-report-summary-card"><dt>ดื่มนม</dt><dd id="attendance-report-present">0</dd></div>
+                <div class="attendance-report-summary-card"><dt>ไม่ดื่มนม</dt><dd id="attendance-report-absent">0</dd></div>
                 <div class="attendance-report-summary-card"><dt>ยังไม่ตรวจ</dt><dd id="attendance-report-unchecked">0</dd></div>
             </dl>
             <p id="attendance-report-status" class="status" data-state="idle" aria-live="polite"></p>
@@ -292,7 +292,7 @@ class AttendancePrintView {
         }
         target.innerHTML = rows.length
             ? `<div class="attendance-report-table-wrap"><table class="attendance-report-table">
-                <thead><tr><th>วันที่</th><th>มาเรียน</th><th>ขาดเรียน</th><th>ยังไม่ตรวจ</th><th>รวม</th></tr></thead>
+                <thead><tr><th>วันที่</th><th>ดื่มนม</th><th>ไม่ดื่มนม</th><th>ยังไม่ตรวจ</th><th>รวม</th></tr></thead>
                 <tbody>${rows.map(row => `<tr>
                     <td>${this.escape(this.formatDate(row.date))}</td>
                     <td>${this.number(row.present)}</td>
@@ -311,7 +311,7 @@ class AttendancePrintView {
         }
         target.innerHTML = rows.length
             ? `<div class="attendance-report-table-wrap"><table class="attendance-report-table">
-                <thead><tr><th>เลขที่</th><th>ชื่อ-นามสกุล</th><th>มาเรียน</th><th>ขาดเรียน</th><th>ยังไม่ตรวจ</th><th>อัตรามาเรียน</th></tr></thead>
+                <thead><tr><th>เลขที่</th><th>ชื่อ-นามสกุล</th><th>ดื่มนม</th><th>ไม่ดื่มนม</th><th>ยังไม่ตรวจ</th><th>อัตราดื่มนม</th></tr></thead>
                 <tbody>${rows.map(row => `<tr>
                     <td>${this.escape(row.num || "—")}</td>
                     <td class="name">${this.escape(row.name)}</td>
@@ -362,8 +362,8 @@ class AttendancePrintView {
                     <p>${this.escape(page.header.academicLabel)} · ${this.escape(page.header.rangeLabel)}</p>
                 </header>
                 <div class="totals">
-                    มาเรียน ${this.number(printData.totals.present)} ·
-                    ขาดเรียน ${this.number(printData.totals.absent)} ·
+                    ดื่มนม ${this.number(printData.totals.present)} ·
+                    ไม่ดื่มนม ${this.number(printData.totals.absent)} ·
                     ยังไม่ตรวจ ${this.number(printData.totals.unchecked)}
                 </div>
                 <table>
