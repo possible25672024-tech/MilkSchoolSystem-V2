@@ -550,7 +550,7 @@
 
         .admin-record-actions {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: minmax(54px, 0.7fr) minmax(112px, 1.35fr) minmax(54px, 0.7fr);
             gap: 5px;
             min-width: 0;
         }
@@ -562,7 +562,7 @@
             margin: 0;
             padding: 6px 5px;
             line-height: 1.2;
-            white-space: normal;
+            white-space: nowrap;
         }
 
         .admin-report-toolbar,
@@ -631,6 +631,73 @@
 
         [hidden] {
             display: none !important;
+        }
+
+        @media (min-width: 1101px) {
+            body:has(#app-panel:not([hidden]) #admin-shell:not([hidden])) {
+                display: block;
+                padding: 0;
+                background: #eef3f8;
+            }
+
+            body:has(#app-panel:not([hidden]) #admin-shell:not([hidden])) main {
+                width: 100%;
+                max-width: none;
+            }
+
+            #app-panel:has(#admin-shell:not([hidden])) {
+                min-height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                padding: 24px;
+                background: #eef3f8;
+                box-shadow: none;
+            }
+
+            #admin-shell,
+            .admin-layout {
+                width: 100%;
+            }
+
+            .admin-layout {
+                grid-template-columns: 286px minmax(0, 1fr);
+                gap: 24px;
+            }
+
+            .admin-sidebar {
+                display: flex;
+                flex-direction: column;
+                min-height: calc(100vh - 48px);
+                top: 24px;
+            }
+
+            .admin-menu {
+                align-content: start;
+            }
+
+            .admin-sidebar > .admin-room-picker:last-child {
+                margin-top: auto;
+            }
+
+            .admin-operation-table th:nth-child(1),
+            .admin-operation-table td:nth-child(1) {
+                width: 22%;
+            }
+
+            .admin-operation-table th:nth-child(2),
+            .admin-operation-table td:nth-child(2) {
+                width: 20%;
+            }
+
+            .admin-operation-table th:nth-child(3),
+            .admin-operation-table td:nth-child(3) {
+                width: 16%;
+            }
+
+            .admin-operation-table th:nth-child(4),
+            .admin-operation-table td:nth-child(4) {
+                width: 42%;
+            }
         }
 
         @media (max-width: 900px) {
@@ -756,6 +823,10 @@
 
             .admin-record-actions {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .admin-operation-table button {
+                white-space: normal;
             }
 
             .attendance-toolbar button,

@@ -76,6 +76,9 @@ legacy pages.
 9. Every Admin operation table keeps View/Edit/Delete controls inside the
    content panel without horizontal scrolling; narrow screens render labeled
    record cards.
+10. On desktop, the authenticated Admin workspace fills the viewport while the
+    navigation column stays fixed-width and report content uses the remaining
+    space.
 
 Sprint 5.1 does not authorize `main`, Production deployment, legacy
 replacement, Firebase-rule changes, or incident closure.

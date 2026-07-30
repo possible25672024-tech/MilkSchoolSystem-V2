@@ -23,6 +23,10 @@ All notable modular migration changes are recorded here.
 - Admin operation tables use fitted columns and wrapped action controls so
   View/Edit/Delete remain inside the content panel.
 - Admin operation rows become labeled cards on narrow screens.
+- The authenticated Admin workspace now uses the full desktop viewport with a
+  fixed-width navigation column and a fluid report column, matching the
+  operational legacy report proportions without changing Login or Teacher
+  layout.
 - Existing View/Edit/Delete, Room Stock rollback, audit, Queue recovery, and
   Main Stock isolation remain unchanged.
 

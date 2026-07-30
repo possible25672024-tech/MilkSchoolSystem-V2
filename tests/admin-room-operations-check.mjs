@@ -45,6 +45,10 @@ for (const expected of [
     ".admin-operation-panel .admin-report-table-wrap",
     ".admin-record-actions",
     "content: attr(data-label)",
+    "body:has(#app-panel:not([hidden]) #admin-shell:not([hidden]))",
+    "#app-panel:has(#admin-shell:not([hidden]))",
+    "grid-template-columns: 286px minmax(0, 1fr)",
+    "max-width: none",
     "@media (max-width: 900px)"
 ]) {
     assert.ok(indexSource.includes(expected), `Admin operation tables must include responsive rule ${expected}`);
