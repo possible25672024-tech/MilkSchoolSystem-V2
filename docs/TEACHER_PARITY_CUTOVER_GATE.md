@@ -106,8 +106,8 @@ Requested UI revision gates:
 Draft PR:              #3
 Base:                  develop
 Head:                  feature/sprint-4.9-teacher-parity-cutover
-Implementation commit: 60a134b1f63e2ee653902ceb4b5b0c4e0e17266c
-Validated source tree:  04593e114a594f0680652088f585d2b350613297
+Implementation commit: 532302c724318ced518bf5f94e91d79455b563b2
+Validated source tree:  54bb11b46a5bfcc50332fdf49e16f81a081d3c6b
 State:                 OPEN / DRAFT / MERGEABLE
 ```
 
