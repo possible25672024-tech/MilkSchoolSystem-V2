@@ -394,14 +394,14 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 Sprint 4.9 passed product-owner Live Server browser acceptance on 2026-07-30.
 
-Prepare Sprint 5.0 operational Admin/report integration with:
+Sprint 5.0 operational Admin/report integration is active:
 
-- a separate browser-local Report adapter under cutover decision D-02;
-- normalization and deduplication of pending, retroactive, and vacation sources;
-- read-only Admin report presentation using existing Report Service formulas;
-- representative formula-parity fixtures;
-- no change to protected `index.html` or `teacher.html`;
-- no Main Stock, Room Stock, Queue, ledger, stockLog, or Firebase-schema write.
+- Browser-local Report adapter automated gate passed;
+- Pending, Retroactive, and Vacation sources are normalized and deduplicated;
+- Admin room, grade, and whole-school report UI is implemented;
+- A4 landscape print and UTF-8 CSV export are implemented;
+- all 57 regression checks pass;
+- local Live Server browser evidence remains pending.
 
 ## Deferred Production Decisions
 

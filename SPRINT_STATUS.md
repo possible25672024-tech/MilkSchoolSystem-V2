@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-4.9-teacher-parity-cutover`
+Current Branch: `feature/sprint-5.0-admin-report-ui`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity
+Sprint 5.0 — Operational Admin Report Integration
 
-Status: **100% — AUTOMATED, 54-CHECK REGRESSION AND PRODUCT-OWNER BROWSER PASS**
+Status: **85% — ADAPTER, ADMIN UI AND 57-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -344,3 +344,42 @@ Do not use:
 - Legacy files remain available until explicit production-cutover approval.
 
 No merge to `main` is authorized.
+
+## Sprint 5.0 Goal
+
+Close cutover decision D-02 by adding a separate read-only browser-local Report
+adapter and an operational Admin report panel without changing Report Service
+formulas, protected legacy pages, Firebase schema, or stock rules.
+
+## Sprint 5.0 Current Implementation
+
+- reads only `storedMilkDB_v1`, `backdateDistDB_v1`, and
+  `vacationDistDB_v1`;
+- normalizes Pending, Retroactive, and Vacation records;
+- removes records already represented by Firebase using type-specific keys;
+- excludes photos and signatures from aggregation payloads;
+- reports missing or invalid local JSON without failing the cloud report;
+- injects normalized local sources through ReportManager into existing pure
+  Report Service formulas;
+- adds Admin-only classroom, grade, and whole-school views;
+- adds A4 landscape print and UTF-8 CSV export;
+- performs no Firebase or Storage write, stock mutation, Queue work, ledger
+  work, stockLog repair, or media hydration;
+- preserves protected `index.html` and `teacher.html`;
+- passes all 57 discovered regression checks.
+
+Artifacts:
+
+```text
+docs/SPRINT_5_0_PLAN.md
+docs/REPORT_BROWSER_LOCAL_ADAPTER_GATE.md
+docs/SPRINT_5_0_BROWSER_ACCEPTANCE_CHECKLIST.md
+```
+
+Pending:
+
+- product-owner Live Server Admin report validation;
+- desktop and Chrome Responsive `820 x 1180`;
+- accepted legacy/V2 formula comparison on the same browser;
+- A4/CSV evidence;
+- clean Console and GET-only Network evidence.

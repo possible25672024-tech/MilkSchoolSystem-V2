@@ -476,7 +476,8 @@ Rebuild
 - Sprint 4.6 — Vacation Milk Operational UI — Completed
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
 - Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
-- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Active
+- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Browser PASS
+- Sprint 5.0 — Browser-local Report adapter and operational Admin report UI — Active
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
