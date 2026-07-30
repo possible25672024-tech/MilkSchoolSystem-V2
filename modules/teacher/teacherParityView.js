@@ -37,6 +37,7 @@ class TeacherParityView {
         this.handleNavigation = this.handleNavigation.bind(this);
         this.handleStudentReportLoad = this.handleStudentReportLoad.bind(this);
         this.handleStudentReportPrint = this.handleStudentReportPrint.bind(this);
+        this.handleMonthlyRosterPrint = this.handleMonthlyRosterPrint.bind(this);
         this.handleRoomStockRefresh = this.handleRoomStockRefresh.bind(this);
         this.handleSettingsSave = this.handleSettingsSave.bind(this);
         this.handleTeacherProfileSave = this.handleTeacherProfileSave.bind(this);
@@ -50,6 +51,7 @@ class TeacherParityView {
         if (
             !this.manager?.loadStudentReport ||
             !this.manager?.hydrateStudentReportEvidence ||
+            !this.manager?.getMonthlyPaperRoster ||
             !this.manager?.refreshRoomStock ||
             !this.manager?.saveTeacherProfile
         ) {
@@ -122,6 +124,8 @@ class TeacherParityView {
             .teacher-settings-option input[type=checkbox]{width:20px;min-height:20px}
             .teacher-settings-surface{margin-top:18px;padding:20px;border:1px solid #dbe5ef;border-radius:14px;background:#fff;box-shadow:0 8px 22px rgba(15,46,68,.06)}
             .teacher-settings-surface h4{margin:0;color:#153d5c;font-size:1.05rem}.teacher-settings-surface .teacher-parity-intro{margin-top:8px}
+            .monthly-paper-roster{margin-top:24px}.monthly-paper-roster-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto;align-items:end;gap:14px;margin-top:16px}
+            .monthly-paper-roster-toolbar label{margin:0 0 6px}.monthly-paper-roster-toolbar button{width:auto;min-width:250px;margin:0;background:#f59e0b}
             .teacher-profile-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:18px}.teacher-profile-grid label{margin:0 0 6px}
             .teacher-profile-grid input[readonly]{color:#475569;background:#eef3f8}
             .teacher-profile-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}.teacher-profile-actions button{width:auto;min-width:190px;margin:0;background:#22a85a}
@@ -159,7 +163,7 @@ class TeacherParityView {
                 .teacher-sidebar-footer small{margin-top:2px;color:#9fbbcc;font-size:.7rem}
             }
             @media(max-width:1100px){.teacher-parity-topbar{margin:-28px -34px 18px}}
-            @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid,.teacher-profile-grid{grid-template-columns:1fr}.teacher-parity-home{display:none}}
+            @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid,.teacher-profile-grid,.monthly-paper-roster-toolbar{grid-template-columns:1fr}.monthly-paper-roster-toolbar button{width:100%}.teacher-parity-home{display:none}}
             @media(max-width:600px){.teacher-parity-grid,.teacher-parity-toolbar{grid-template-columns:1fr}.teacher-parity-actions{flex-direction:column}.teacher-parity-actions button{width:100%}}
         `;
         this.document.head?.appendChild?.(style);
@@ -285,7 +289,17 @@ class TeacherParityView {
             <p id="student-report-status" class="status" data-state="idle" aria-live="polite"></p>
             <p id="student-report-error" class="error" role="alert" hidden></p>
             <div id="student-report-timeline"></div>
-            <div class="teacher-parity-actions"><button id="student-report-print-button" type="button" disabled>พิมพ์รายงานนักเรียน A4</button></div>`;
+            <div class="teacher-parity-actions"><button id="student-report-print-button" type="button" disabled>พิมพ์รายงานนักเรียน A4</button></div>
+            <section class="teacher-settings-surface monthly-paper-roster" aria-labelledby="monthly-paper-roster-title">
+                <h4 id="monthly-paper-roster-title">🖨️ พิมพ์แบบฟอร์มเช็กดื่มนม (กระดาษ) รายเดือน</h4>
+                <p class="teacher-parity-intro">พิมพ์รายชื่อนักเรียนทั้งห้องพร้อมตารางว่าง สำหรับทำเครื่องหมาย ✓ ดื่มนม หรือ ✕ ไม่ดื่มนมด้วยมือ เฉพาะวันจันทร์–ศุกร์ของเดือนที่เลือก</p>
+                <div class="monthly-paper-roster-toolbar">
+                    <div><label for="monthly-paper-roster-month">เลือกเดือน</label><input id="monthly-paper-roster-month" type="month" required></div>
+                    <button id="monthly-paper-roster-print-button" type="button">🖨️ พิมพ์รายชื่อนักเรียน 1 เดือน</button>
+                </div>
+                <p id="monthly-paper-roster-status" class="status" data-state="idle" aria-live="polite"></p>
+                <p id="monthly-paper-roster-error" class="error" role="alert" hidden></p>
+            </section>`;
         this.insertBeforeActions(shell, panel);
     }
 
@@ -416,6 +430,7 @@ class TeacherParityView {
         this.element("teacher-parity-topbar")?.addEventListener?.("click", this.handleNavigation);
         this.element("student-report-load-button")?.addEventListener?.("click", this.handleStudentReportLoad);
         this.element("student-report-print-button")?.addEventListener?.("click", this.handleStudentReportPrint);
+        this.element("monthly-paper-roster-print-button")?.addEventListener?.("click", this.handleMonthlyRosterPrint);
         this.element("room-stock-detail-refresh")?.addEventListener?.("click", this.handleRoomStockRefresh);
         this.element("teacher-settings-save")?.addEventListener?.("click", this.handleSettingsSave);
         this.element("teacher-profile-save")?.addEventListener?.("click", this.handleTeacherProfileSave);
@@ -475,6 +490,7 @@ class TeacherParityView {
         this.renderPreferences(preferences);
         this.applyPreferences(preferences);
         this.setDefaultRange(preferences.defaultReportDays);
+        this.setValue("monthly-paper-roster-month", this.currentMonth());
         this.showSection(preferences.rememberLastSection ? preferences.lastSection : "overview", false);
     }
 
@@ -750,6 +766,105 @@ class TeacherParityView {
         }).join("");
     }
 
+    handleMonthlyRosterPrint() {
+        const button = this.element("monthly-paper-roster-print-button");
+        if (button) {
+            button.disabled = true;
+        }
+        this.clearError("monthly-paper-roster-error");
+        try {
+            const model = this.manager.getMonthlyPaperRoster(
+                this.value("monthly-paper-roster-month")
+            );
+            const printWindow = this.openWindow("", "_blank");
+            if (!printWindow?.document) {
+                throw new Error("เบราว์เซอร์ปิดกั้นหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up");
+            }
+            printWindow.document.write(this.monthlyRosterPrintDocument(model));
+            printWindow.document.close();
+            this.setStatus(
+                "monthly-paper-roster-status",
+                `เปิดแบบฟอร์ม ${model.metadata.monthLabel} แล้ว`,
+                "success"
+            );
+            this.schedule(() => {
+                printWindow.focus?.();
+                printWindow.print?.();
+            });
+        } catch (error) {
+            this.renderError(
+                "monthly-paper-roster-error",
+                "monthly-paper-roster-status",
+                error
+            );
+        } finally {
+            if (button) {
+                button.disabled = false;
+            }
+        }
+    }
+
+    monthlyRosterPrintDocument(model = {}) {
+        const metadata = model.metadata || {};
+        const schoolDays = Array.isArray(model.schoolDays) ? model.schoolDays : [];
+        const students = Array.isArray(model.students) ? model.students : [];
+        return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>แบบฟอร์มเช็กดื่มนมรายเดือน</title><style>
+            @page{size:A4 landscape;margin:8mm}*{box-sizing:border-box}
+            body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:7.5pt}
+            .page{min-height:194mm;display:flex;flex-direction:column}
+            header{text-align:center;margin-bottom:2.5mm}h1{margin:0;font-size:15pt}h2{margin:1mm 0 0;font-size:11pt}p{margin:.7mm 0}
+            .identity{display:flex;justify-content:space-between;gap:10mm;margin-bottom:2mm;font-weight:700}
+            table{width:100%;border-collapse:collapse;table-layout:fixed}
+            th,td{height:7.4mm;padding:.6mm .25mm;border:.5pt solid #555;text-align:center;vertical-align:middle}
+            th{color:#fff;background:#174b68;font-weight:700}
+            th.number{width:8mm}th.name{width:55mm}th.day{width:7mm}th.total{width:11mm}
+            td.name{text-align:left;padding-left:1.2mm;font-size:8pt}
+            .legend{display:flex;justify-content:space-between;gap:8mm;margin-top:3mm;font-size:8pt}
+            .signature{width:62mm;margin:7mm 8mm 0 auto;text-align:center}
+            .signature-line{height:12mm;border-bottom:1px solid #333}.signature-name{padding-top:1mm}
+            footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:3mm;font-size:7pt}
+            @media screen{body{background:#eef2f7;padding:12px}.page{max-width:297mm;margin:auto;padding:8mm;background:#fff;box-shadow:0 2px 12px #999}}
+        </style></head><body><section class="page">
+            <header>
+                <h1>แบบฟอร์มเช็กดื่มนมรายเดือน</h1>
+                <h2>${this.escape(metadata.schoolName || "โรงเรียน")}</h2>
+                <p>ห้อง ${this.escape(metadata.roomName || "ห้องเรียน")} · ครู ${this.escape(metadata.teacher || "ครูประจำชั้น")}</p>
+                <p>ประจำเดือน ${this.escape(metadata.monthLabel || metadata.month || "")}</p>
+            </header>
+            <div class="identity">
+                <span>จำนวนนักเรียน ${students.length} คน</span>
+                <span>วันจันทร์–ศุกร์ ${schoolDays.length} วัน</span>
+            </div>
+            <table class="monthly-roster-table">
+                <thead><tr>
+                    <th class="number">ที่</th>
+                    <th class="name">ชื่อ-นามสกุล</th>
+                    ${schoolDays.map(date => `<th class="day">${this.escape(this.dayOfMonth(date))}</th>`).join("")}
+                    <th class="total">ดื่ม</th>
+                    <th class="total">ไม่ดื่ม</th>
+                </tr></thead>
+                <tbody>${students.map((student, index) => `<tr>
+                    <td>${this.escape(student.num || index + 1)}</td>
+                    <td class="name">${this.escape(student.name || student.id)}</td>
+                    ${schoolDays.map(() => "<td></td>").join("")}
+                    <td></td><td></td>
+                </tr>`).join("")}</tbody>
+            </table>
+            <div class="legend">
+                <span>หมายเหตุ: ✓ = ดื่มนม · ✕ = ไม่ดื่มนม · เว้นว่าง = ยังไม่ตรวจ</span>
+                <span>แบบฟอร์มนี้ใช้บันทึกด้วยมือและไม่แก้ไขข้อมูลในระบบ</span>
+            </div>
+            <div class="signature">
+                <div class="signature-line"></div>
+                <div class="signature-name">ลงชื่อ ${this.escape(metadata.teacher || "ครูประจำชั้น")}<br>ครูประจำชั้น</div>
+            </div>
+            <footer>
+                <span>พิมพ์เมื่อ ${this.escape(this.formatTimestamp(this.now()))}</span>
+                <span>แบบฟอร์มรายเดือน 1 / 1</span>
+            </footer>
+        </section></body></html>`;
+    }
+
     async handleRoomStockRefresh() {
         this.setStatus("room-stock-detail-status", "กำลังอัปเดตสต็อกห้อง...", "idle");
         this.clearError("room-stock-detail-error");
@@ -903,6 +1018,20 @@ class TeacherParityView {
         const text = String(value || "");
         const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
         return match ? `${match[3]}/${match[2]}/${Number(match[1]) + 543}` : text;
+    }
+
+    dayOfMonth(value) {
+        const match = String(value || "").match(/^\d{4}-\d{2}-(\d{2})$/);
+        return match ? String(Number(match[1])) : String(value || "");
+    }
+
+    currentMonth() {
+        const supplied = String(this.now?.() || "");
+        if (/^\d{4}-\d{2}/.test(supplied)) {
+            return supplied.slice(0, 7);
+        }
+        const date = new Date();
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
     }
 
     formatTimestamp(value) {

@@ -108,6 +108,23 @@ const parityService = {
             updatedAt: value.updatedAt.roomStock[value.session.roomId],
             readOnly: true
         };
+    },
+    buildMonthlyPaperRoster(value, month) {
+        return {
+            metadata: {
+                roomId: value.session.roomId,
+                roomName: value.session.roomName,
+                month,
+                monthLabel: "กรกฎาคม 2569"
+            },
+            schoolDays: ["2026-07-01"],
+            students: value.students,
+            source: {
+                studentCount: value.students.length,
+                schoolDayCount: 1,
+                readOnly: true
+            }
+        };
     }
 };
 let historyInput = null;
@@ -242,6 +259,21 @@ assert.equal(hydratedReport.evidence.length, 1);
 const evidenceEvent = events.find(event => event.type === "milkapp:student-report-evidence-hydrated");
 assert.equal(evidenceEvent.detail.evidenceRecordCount, 1);
 assert.ok(!JSON.stringify(evidenceEvent.detail).includes("data:image"), "Evidence event must remain metadata-only");
+
+const monthlyRoster = manager.getMonthlyPaperRoster("2026-07");
+assert.equal(monthlyRoster.metadata.roomId, "room-a");
+assert.equal(monthlyRoster.source.readOnly, true);
+const monthlyRosterEvent = events.find(event => event.type === "milkapp:monthly-paper-roster-opened");
+assert.deepEqual(JSON.parse(JSON.stringify(monthlyRosterEvent.detail)), {
+    roomId: "room-a",
+    month: "2026-07",
+    studentCount: 1,
+    schoolDayCount: 1
+});
+assert.ok(
+    !JSON.stringify(monthlyRosterEvent.detail).includes("นักเรียนหนึ่ง"),
+    "Monthly roster event must remain metadata-only"
+);
 
 const stock = await manager.refreshRoomStock();
 assert.deepEqual(JSON.parse(JSON.stringify(refreshInput)), {

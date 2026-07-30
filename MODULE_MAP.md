@@ -381,6 +381,7 @@ Implemented boundary:
 
 - selected-student authenticated-room Attendance report
 - read-only selected-range timeline, notes, totals, and A4 print
+- read-only monthly paper-roster form for the whole authenticated room, with Monday-Friday columns and manual ✓/✕ marking
 - explicit Print-time hydration of available daily photos and homeroom Teacher signatures for Room A4 and Student A4
 - media-free ordinary History/report loading with metadata-only evidence events
 - History Edit/Delete actions with exact-date Daily Attendance routing

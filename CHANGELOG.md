@@ -19,6 +19,7 @@ All notable modular migration changes are recorded here.
 
 - Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
 - Added explicit Print-time daily photos and homeroom Teacher signatures to Room A4 and Student A4 reports.
+- Added a monthly paper-roster form inside Student Report: whole authenticated-room roster, Monday-Friday date columns, blank ✓/✕ cells, manual totals, and a homeroom Teacher signature line.
 - Changed Room A4 to one landscape date-column matrix for the whole selected range, with daily ✓/✕/— status, row totals, and drinking percentages.
 - Moved Room A4 evidence to the following pages, grouped at up to five dates per page; every date retains one row of at most five photos and its homeroom Teacher signature.
 - Added matching A4 report actions to Pending Milk, Retroactive Milk, and Vacation Milk history using one shared read-only renderer.
@@ -41,6 +42,7 @@ All notable modular migration changes are recorded here.
 - Preserved internal `present` / `absent` values, stock calculations, Queue compatibility, and existing data.
 - Dynamically loaded the Sprint 4.9 boundary from `MilkSchoolApplication`.
 - Kept Firebase schema, stock rules, Queue compatibility, and protected legacy pages unchanged.
+- Kept monthly paper-roster generation read-only; it uses the already-loaded room roster and performs no Attendance, stock, Queue, or Firebase write.
 
 ### Validation
 

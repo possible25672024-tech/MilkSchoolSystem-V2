@@ -29,7 +29,11 @@ class TeacherParityManager {
         this.authService ||= window.AuthService;
         this.loginManager ||= window.LoginManager;
 
-        if (!this.parityService?.buildStudentReport || !this.parityService?.buildRoomStock) {
+        if (
+            !this.parityService?.buildStudentReport ||
+            !this.parityService?.buildRoomStock ||
+            !this.parityService?.buildMonthlyPaperRoster
+        ) {
             throw new Error("TeacherParityService is not available.");
         }
         if (!this.preferenceStore?.load || !this.preferenceStore?.save) {
@@ -84,6 +88,21 @@ class TeacherParityManager {
     getOverview() {
         this.ensureDependencies();
         return this.parityService.buildOverview(this.teacherManager.getSnapshot() || {});
+    }
+
+    getMonthlyPaperRoster(month) {
+        this.getSession();
+        const model = this.parityService.buildMonthlyPaperRoster(
+            this.teacherManager.getSnapshot() || {},
+            month
+        );
+        this.emit("milkapp:monthly-paper-roster-opened", {
+            roomId: model.metadata.roomId,
+            month: model.metadata.month,
+            studentCount: model.source.studentCount,
+            schoolDayCount: model.source.schoolDayCount
+        });
+        return model;
     }
 
     getPreferences() {

@@ -107,6 +107,76 @@ class TeacherParityService {
         };
     }
 
+    buildMonthlyPaperRoster(snapshot = {}, month) {
+        const normalizedMonth = this.requireMonth(month);
+        const [year, monthNumber] = normalizedMonth.split("-").map(Number);
+        const students = (Array.isArray(snapshot.students)
+            ? snapshot.students
+            : Object.values(snapshot.students || {}))
+            .map((student, index) => {
+                const source = student && typeof student === "object" ? student : {};
+                const id = this.text(source.id || source.studentId || source["รหัส"], `student-${index + 1}`);
+                return {
+                    id,
+                    num: this.text(source.num || source.no || source["เลขที่"], String(index + 1)),
+                    name: this.text(source.name || source["ชื่อ-นามสกุล"], id),
+                    gender: this.text(source.gender || source.sex || source["เพศ"])
+                };
+            })
+            .sort((left, right) => {
+                const leftNumber = Number(left.num);
+                const rightNumber = Number(right.num);
+                if (Number.isFinite(leftNumber) && Number.isFinite(rightNumber) && leftNumber !== rightNumber) {
+                    return leftNumber - rightNumber;
+                }
+                return left.num.localeCompare(right.num, "th");
+            });
+        const schoolDays = [];
+        const cursor = new Date(Date.UTC(year, monthNumber - 1, 1));
+        while (cursor.getUTCFullYear() === year && cursor.getUTCMonth() === monthNumber - 1) {
+            const weekday = cursor.getUTCDay();
+            if (weekday >= 1 && weekday <= 5) {
+                schoolDays.push(cursor.toISOString().slice(0, 10));
+            }
+            cursor.setUTCDate(cursor.getUTCDate() + 1);
+        }
+        const thaiMonths = [
+            "มกราคม",
+            "กุมภาพันธ์",
+            "มีนาคม",
+            "เมษายน",
+            "พฤษภาคม",
+            "มิถุนายน",
+            "กรกฎาคม",
+            "สิงหาคม",
+            "กันยายน",
+            "ตุลาคม",
+            "พฤศจิกายน",
+            "ธันวาคม"
+        ];
+        const session = snapshot.session || {};
+        const room = snapshot.room || session.roomSnapshot || {};
+        const settings = snapshot.settings || {};
+
+        return {
+            metadata: {
+                schoolName: this.text(session.schoolName || settings.schoolName, "โรงเรียน"),
+                roomId: this.text(session.roomId || room.id),
+                roomName: this.text(session.roomName || room.name, "ห้องเรียน"),
+                teacher: this.text(session.teacher || room.teacher, "ครูประจำชั้น"),
+                month: normalizedMonth,
+                monthLabel: `${thaiMonths[monthNumber - 1]} ${year + 543}`
+            },
+            schoolDays,
+            students,
+            source: {
+                studentCount: students.length,
+                schoolDayCount: schoolDays.length,
+                readOnly: true
+            }
+        };
+    }
+
     findRoomUpdatedAt(rawUpdatedAt, roomId) {
         const source = rawUpdatedAt && typeof rawUpdatedAt === "object" ? rawUpdatedAt : {};
         const candidates = [
@@ -212,6 +282,24 @@ class TeacherParityService {
         const parsed = new Date(`${normalized}T00:00:00.000Z`);
         if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== normalized) {
             throw this.businessError("TEACHER_PARITY_DATE_INVALID", "วันที่ไม่ถูกต้อง");
+        }
+        return normalized;
+    }
+
+    requireMonth(value) {
+        const normalized = this.text(value);
+        if (!/^\d{4}-\d{2}$/.test(normalized)) {
+            throw this.businessError(
+                "MONTHLY_PAPER_ROSTER_MONTH_INVALID",
+                "กรุณาเลือกเดือนในรูปแบบ YYYY-MM"
+            );
+        }
+        const [year, month] = normalized.split("-").map(Number);
+        if (year < 2000 || year > 2200 || month < 1 || month > 12) {
+            throw this.businessError(
+                "MONTHLY_PAPER_ROSTER_MONTH_INVALID",
+                "เดือนที่เลือกไม่ถูกต้อง"
+            );
         }
         return normalized;
     }
