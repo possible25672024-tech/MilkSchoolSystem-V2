@@ -25,6 +25,9 @@ for (const expected of [
     'id="admin-enter-room"',
     'id="admin-return-button"',
     'id="admin-attendance-body"',
+    'id="admin-attendance-editor"',
+    'id="admin-attendance-editor-form"',
+    'id="admin-attendance-editor-list"',
     'id="admin-pending-body"',
     'id="admin-retroactive-body"',
     'id="admin-vacation-body"',
@@ -58,8 +61,16 @@ assert.ok(appSource.includes("ensureAdminRoomView"), "App must initialize Admin 
 assert.ok(managerSource.includes("saveParentAdminSession"), "Admin must preserve its parent session");
 assert.ok(managerSource.includes("queueRoomStockAdjustment"), "Admin deletes must preserve stock recovery");
 assert.ok(managerSource.includes("queueAttendanceAudit"), "Admin deletes must preserve audit recovery");
+assert.ok(managerSource.includes("saveAttendanceEditor"), "Admin must save Attendance edits without role navigation");
+assert.ok(viewSource.includes("openAttendanceEditor"), "Admin Attendance edit must open an inline editor");
+assert.ok(
+    !viewSource.includes("enterSelectedRoom({ attendanceDate"),
+    "Admin Attendance edit must not switch into the Teacher shell"
+);
 assert.ok(serviceSource.includes("buildDelegatedSession"), "Admin access must use an explicit delegated room context");
 assert.ok(serviceSource.includes("ADMIN_ROOM_QUARANTINED"), "Known quarantined room must block delegated edit mode");
+assert.ok(serviceSource.includes("assertAttendanceMutationAllowed"), "Quarantine must protect Admin Attendance edit and delete");
+assert.ok(serviceSource.includes("loadAttendanceEditor"), "Admin must explicitly hydrate one full Attendance record for editing");
 assert.ok(serviceSource.includes("mainStockDelta: 0"), "Admin metadata edits must not change Main Stock");
 
 const context = vm.createContext({
@@ -78,6 +89,16 @@ const room = {
     students: [{ id: "s1", name: "นักเรียนหนึ่ง" }]
 };
 const attendanceService = {
+    saveAttendance: async (session, input) => {
+        calls.push(["attendance-save", session, input]);
+        return {
+            key: `${input.roomId}_${input.date}`,
+            roomId: input.roomId,
+            record: input,
+            mainStockDelta: 0,
+            audit: { ok: true }
+        };
+    },
     deleteAttendance: async (session, input) => {
         calls.push(["attendance-delete", session, input]);
         return { roomId: input.roomId, mainStockDelta: 0, audit: { ok: true } };
@@ -109,7 +130,24 @@ const attendanceRepo = {
             date: "2026-07-30",
             data: { s1: "present" }
         }
-    })
+    }),
+    loadAttendanceRecord: async (roomId, date) => (
+        roomId === "room-1" && date === "2026-07-30"
+            ? {
+                clsId: roomId,
+                roomName: "อ.3-1",
+                date,
+                year: "2569",
+                term: "1",
+                teacher: "ครูหนึ่ง",
+                data: { s1: "present" },
+                notes: { s1: "เดิม" },
+                photos: ["photo-a"],
+                signature: "signature-a",
+                savedAt: "2026-07-30T08:00:00.000Z"
+            }
+            : null
+    )
 };
 const retroRepo = {
     loadRoomRecords: async () => ({})
@@ -174,6 +212,26 @@ assert.equal(dashboard.records.pending[0].totalBoxes, 1);
 assert.equal(dashboard.dashboard.delegatedRoomId, "room-1");
 assert.equal(calls[0][2].includeExtras, false);
 assert.equal(calls[0][2].attendanceMode, "none");
+
+const editor = await service.loadAttendanceEditor(admin, "room-1", "2026-07-30");
+assert.equal(editor.date, "2026-07-30");
+assert.equal(editor.students.length, 1);
+assert.equal(editor.record.photos[0], "photo-a");
+
+await service.saveAttendanceEditor(admin, "room-1", {
+    date: "2026-07-30",
+    data: { s1: "absent" },
+    notes: { s1: "แก้ไขโดยผู้ดูแล" },
+    photos: ["must-not-replace"],
+    signature: "must-not-replace"
+});
+const attendanceSave = calls.find(call => call[0] === "attendance-save");
+assert.equal(attendanceSave[1].role, "teacher");
+assert.equal(attendanceSave[1].adminOverride, true);
+assert.equal(JSON.stringify(attendanceSave[2].data), JSON.stringify({ s1: "absent" }));
+assert.equal(JSON.stringify(attendanceSave[2].photos), JSON.stringify(["photo-a"]));
+assert.equal(attendanceSave[2].signature, "signature-a");
+assert.equal(attendanceSave[2].savedAt, "2026-07-30T08:00:00.000Z");
 
 await service.deleteRecord(admin, "room-1", "attendance", { date: "2026-07-30" });
 const attendanceDelete = calls.find(call => call[0] === "attendance-delete");

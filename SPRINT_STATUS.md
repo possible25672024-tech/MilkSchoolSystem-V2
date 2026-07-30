@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-5.1-attendance-scalability`
+Current Branch: `feature/sprint-5.2-admin-inline-attendance`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.1 — Large Attendance Payload Resilience
+Sprint 5.2 — Admin Inline Attendance Edit
 
-Status: **98% — 413 BROWSER RETRY PASS / ADMIN RESPONSIVE TABLE RETRY PENDING**
+Status: **AUTOMATED PASS — 61/61 / LIVE SERVER BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -428,11 +428,49 @@ tests/attendance-scalable-query-check.mjs
 
 Pending:
 
-- product-owner Live Server retry on the previously failing room;
-- clean Console and GET-only initial-load Network evidence.
+- none; product-owner Live Server accepted the scalable reads and full-width
+  Admin layout.
 
 Automated result:
 
 ```text
 ALL 60 REGRESSION CHECKS PASSED
+```
+
+## Sprint 5.2 Goal
+
+Keep exact-date Attendance editing inside the Admin workspace instead of
+changing the active session to Teacher, while preserving the accepted
+Attendance stock, audit, recovery, media, and quarantine rules.
+
+## Sprint 5.2 Current Implementation
+
+- Attendance `เปิดแก้ไข` opens an inline selected-date form in Admin;
+- Admin session, selected room, active menu, and sidebar remain in place;
+- the edit form supports `ดื่มนม`, `ไม่ดื่มนม`, and per-student notes;
+- full Attendance evidence is loaded only for the explicitly selected date;
+- existing photos, signature, year, term, and saved timestamp are preserved by
+  AdminRoomService;
+- save delegates to Attendance Service for Room Stock difference, ETag, audit,
+  and Queue recovery;
+- Main Stock and protected legacy pages remain unchanged;
+- the protected incident room/date remains blocked;
+- Admin parity delivery is recorded for Sprints 5.3–5.8.
+
+Artifact:
+
+```text
+docs/SPRINT_5_2_PLAN.md
+tests/sprint-5.2-plan-check.mjs
+```
+
+Pending:
+
+- desktop and Responsive Live Server edit/save/cancel validation;
+- proof that existing report photos and signature remain after an Admin edit.
+
+Automated result:
+
+```text
+ALL 61 REGRESSION CHECKS PASSED
 ```

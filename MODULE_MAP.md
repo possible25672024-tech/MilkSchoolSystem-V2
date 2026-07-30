@@ -76,7 +76,7 @@ Completed boundary:
 - compatible ledger calculations
 - Main Stock and Room Stock separation
 
-### Report and Admin Operations — Sprint 5.1 Scalability Gate Active
+### Report and Admin Operations — Sprint 5.2 Inline Edit Gate Active
 
 Modules:
 
@@ -102,13 +102,17 @@ Current boundary:
 - Firebase array/object normalization before Dashboard totals;
 - no automatic historical photo or signature hydration;
 - protected `index.html` and `teacher.html` unchanged.
+- exact-date Attendance edit remains inside the Admin shell;
+- explicit single-record evidence hydration only after the edit action;
+- Service-owned preservation of existing Attendance photos and signature;
+- Attendance save through accepted Room Stock difference, audit, and Queue
+  recovery.
 
 Pending gates:
 
-- complete Sprint 5.1 regression;
-- product-owner Live Server retry of the room that previously returned HTTP
-  413;
-- desktop and Responsive validation.
+- complete Sprint 5.2 regression;
+- Admin inline edit browser validation;
+- post-edit evidence-preservation validation.
 
 Existing foundation modules:
 
@@ -512,7 +516,15 @@ Rebuild
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
 - Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
 - Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Browser PASS
-- Sprint 5.0 — Browser-local Report adapter and operational Admin report UI — Active
+- Sprint 5.0 — Browser-local Report adapter and operational Admin report UI — Completed
+- Sprint 5.1 — Scalable Admin Attendance and report reads — Browser PASS
+- Sprint 5.2 — Admin inline exact-date Attendance edit — Active
+- Sprint 5.3 — Admin overview and stock Dashboard — Planned
+- Sprint 5.4 — Milk receipt and receipt history — Planned
+- Sprint 5.5 — Student import, room management, and student reports — Planned
+- Sprint 5.6 — Classroom distribution and distribution history — Planned
+- Sprint 5.7 — Operational summaries and report-period parity — Planned
+- Sprint 5.8 — Documents, settings, backup/restore, and Drive sync — Planned
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions

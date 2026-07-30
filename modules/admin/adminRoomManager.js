@@ -112,6 +112,36 @@ class AdminRoomManager {
         return result;
     }
 
+    async loadAttendanceEditor(date) {
+        return this.adminRoomService.loadAttendanceEditor(
+            this.getAdminSession(),
+            this.selectedRoomId,
+            date
+        );
+    }
+
+    async saveAttendanceEditor(input = {}) {
+        let result;
+        try {
+            result = await this.adminRoomService.saveAttendanceEditor(
+                this.getAdminSession(),
+                this.selectedRoomId,
+                input
+            );
+            result = this.queueAuditIfNeeded(result);
+        } catch (error) {
+            if (
+                error?.code !== "ROOM_STOCK_ADJUSTMENT_REQUIRED" ||
+                error?.details?.operation !== "save"
+            ) {
+                throw error;
+            }
+            result = this.queueStockAdjustment(error);
+        }
+        await this.refresh();
+        return result;
+    }
+
     delegatedSession() {
         const session = this.current?.delegatedSession;
         if (!session?.roomId || session.roomId !== this.selectedRoomId) {

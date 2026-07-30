@@ -2,6 +2,33 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 5.2 Admin Inline Attendance Edit
+
+### Added
+
+- Admin-owned exact-date Attendance editor inside the selected-room workspace
+- explicit one-record evidence hydration after the edit action
+- Sprint 5.2 plan, parity roadmap, and automated gate
+
+### Changed
+
+- Attendance `เปิดแก้ไข` no longer changes the active Admin session or opens
+  the Teacher shell.
+- Admin may edit `ดื่มนม`, `ไม่ดื่มนม`, and per-student notes in place.
+- Attendance Service still owns present-count difference, Room Stock ETag,
+  audit, and Queue recovery.
+- Existing photos, signature, academic metadata, and original saved timestamp
+  are preserved by AdminRoomService rather than accepted from the View.
+- Protected quarantine, Main Stock isolation, `index.html`, and `teacher.html`
+  remain unchanged.
+- Recorded Admin parity delivery order for Sprints 5.3–5.8.
+
+### Validation
+
+- Admin room operations and Sprint 5.2 plan checks pass.
+- All 61 discovered regression checks pass.
+- Live Server browser acceptance remains pending.
+
 ## 2026-07-30 — Sprint 5.1 Large Attendance Payload Resilience
 
 ### Added

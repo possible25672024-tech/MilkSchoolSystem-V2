@@ -13,6 +13,8 @@ class AdminRoomView {
         this.alert = options.alert || (message => window.alert(message));
         this.bound = false;
         this.activeSection = "dashboard";
+        this.attendanceEditor = null;
+        this.attendanceEditorRows = new Map();
     }
 
     element(id) {
@@ -32,6 +34,15 @@ class AdminRoomView {
         this.element("admin-room-refresh")?.addEventListener("click", () => this.loadRooms(true));
         this.element("admin-enter-room")?.addEventListener("click", () => this.manager.enterSelectedRoom());
         this.element("admin-return-button")?.addEventListener("click", () => this.manager.restoreAdmin());
+        this.element("admin-attendance-editor-form")?.addEventListener("submit", event => {
+            this.saveAttendanceEditor(event);
+        });
+        this.element("admin-attendance-editor-cancel")?.addEventListener("click", () => {
+            this.closeAttendanceEditor();
+        });
+        this.element("admin-attendance-editor-close")?.addEventListener("click", () => {
+            this.closeAttendanceEditor();
+        });
         this.document.querySelectorAll?.("[data-admin-menu]")?.forEach(button => {
             button.addEventListener("click", () => this.showSection(button.dataset.adminMenu));
         });
@@ -77,6 +88,7 @@ class AdminRoomView {
 
     async loadRoom(roomId) {
         if (!roomId) return;
+        this.closeAttendanceEditor();
         this.setBusy(true);
         this.showError("");
         this.setStatus("กำลังโหลดข้อมูลห้อง...");
@@ -195,7 +207,7 @@ class AdminRoomView {
         }
         if (button.dataset.adminRecordAction === "edit") {
             if (type === "attendance") {
-                await this.manager.enterSelectedRoom({ attendanceDate: input.date });
+                await this.openAttendanceEditor(input.date);
                 return;
             }
             const note = this.prompt("แก้ไขหมายเหตุของรายการ", row.dataset.recordNote || "");
@@ -215,6 +227,146 @@ class AdminRoomView {
                 "ลบรายการและปรับ Room Stock แล้ว"
             );
         }
+    }
+
+    async openAttendanceEditor(date) {
+        this.setBusy(true);
+        this.showError("");
+        try {
+            const editor = await this.manager.loadAttendanceEditor(date);
+            this.renderAttendanceEditor(editor);
+            this.setStatus(`กำลังแก้ไขข้อมูลวันที่ ${editor.date} ในสิทธิ์ผู้ดูแลระบบ`);
+        } catch (error) {
+            this.showError(error?.message || "เปิดข้อมูลสำหรับแก้ไขไม่สำเร็จ");
+        } finally {
+            this.setBusy(false);
+        }
+    }
+
+    renderAttendanceEditor(editor) {
+        this.attendanceEditor = editor;
+        this.attendanceEditorRows.clear();
+        this.setText("admin-attendance-editor-date", editor?.date || "—");
+        const list = this.element("admin-attendance-editor-list");
+        if (!list) return;
+        const students = Array.isArray(editor?.students) ? editor.students : [];
+        list.replaceChildren(...students.map((student, index) => {
+            const studentId = String(student.id || `student_${index + 1}`);
+            const row = this.document.createElement("article");
+            row.className = "admin-attendance-editor-row";
+
+            const identity = this.document.createElement("div");
+            identity.className = "admin-attendance-editor-identity";
+            const number = this.document.createElement("span");
+            number.textContent = String(student.num || index + 1);
+            const name = this.document.createElement("strong");
+            name.textContent = String(student.name || `นักเรียนคนที่ ${index + 1}`);
+            identity.append(number, name);
+
+            const choices = this.document.createElement("div");
+            choices.className = "admin-attendance-editor-choices";
+            const present = this.createAttendanceEditorChoice(studentId, index, "present", "ดื่มนม");
+            const absent = this.createAttendanceEditorChoice(studentId, index, "absent", "ไม่ดื่มนม");
+            choices.append(present.label, absent.label);
+
+            const note = this.document.createElement("input");
+            note.type = "text";
+            note.className = "admin-attendance-editor-note";
+            note.placeholder = "หมายเหตุรายคน (ไม่บังคับ)";
+            note.setAttribute("aria-label", `หมายเหตุ ${name.textContent}`);
+
+            const status = String(editor?.record?.data?.[studentId] || "");
+            present.input.checked = status === "present";
+            absent.input.checked = status === "absent";
+            note.value = String(editor?.record?.notes?.[studentId] || "");
+            present.input.addEventListener("change", () => this.renderAttendanceEditorTotals());
+            absent.input.addEventListener("change", () => this.renderAttendanceEditorTotals());
+
+            row.append(identity, choices, note);
+            this.attendanceEditorRows.set(studentId, {
+                present: present.input,
+                absent: absent.input,
+                note
+            });
+            return row;
+        }));
+        this.element("admin-attendance-editor")?.removeAttribute("hidden");
+        this.renderAttendanceEditorTotals();
+        this.element("admin-attendance-editor")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    }
+
+    createAttendanceEditorChoice(studentId, index, value, text) {
+        const label = this.document.createElement("label");
+        label.className = `admin-attendance-editor-choice ${value}`;
+        const input = this.document.createElement("input");
+        input.type = "radio";
+        input.name = `admin-attendance-${index}`;
+        input.value = value;
+        input.dataset.studentId = studentId;
+        const span = this.document.createElement("span");
+        span.textContent = text;
+        label.append(input, span);
+        return { label, input };
+    }
+
+    renderAttendanceEditorTotals() {
+        let present = 0;
+        let absent = 0;
+        for (const controls of this.attendanceEditorRows.values()) {
+            if (controls.present.checked) present += 1;
+            else if (controls.absent.checked) absent += 1;
+        }
+        this.setText("admin-attendance-editor-present", present);
+        this.setText("admin-attendance-editor-absent", absent);
+        this.setText(
+            "admin-attendance-editor-unchecked",
+            Math.max(0, this.attendanceEditorRows.size - present - absent)
+        );
+    }
+
+    buildAttendanceEditorInput() {
+        const data = {};
+        const notes = {};
+        for (const [studentId, controls] of this.attendanceEditorRows) {
+            if (controls.present.checked) data[studentId] = "present";
+            else if (controls.absent.checked) data[studentId] = "absent";
+            const note = String(controls.note.value || "").trim();
+            if (note) notes[studentId] = note;
+        }
+        return {
+            date: this.attendanceEditor?.date,
+            data,
+            notes
+        };
+    }
+
+    async saveAttendanceEditor(event) {
+        event?.preventDefault?.();
+        if (!this.attendanceEditor) return;
+        this.setBusy(true);
+        this.showError("");
+        try {
+            const result = await this.manager.saveAttendanceEditor(this.buildAttendanceEditorInput());
+            this.closeAttendanceEditor();
+            this.render(this.manager.current);
+            const recovery = result?.stockQueued || result?.auditQueued
+                ? " (บันทึกแล้วและเข้าคิวกู้คืน)"
+                : "";
+            this.setStatus(`บันทึกข้อมูลในหน้า Admin แล้ว${recovery}`);
+        } catch (error) {
+            this.showError(error?.message || "บันทึกข้อมูลไม่สำเร็จ");
+        } finally {
+            this.setBusy(false);
+        }
+    }
+
+    closeAttendanceEditor() {
+        this.attendanceEditor = null;
+        this.attendanceEditorRows.clear();
+        const panel = this.element("admin-attendance-editor");
+        if (panel) panel.hidden = true;
+        const list = this.element("admin-attendance-editor-list");
+        list?.replaceChildren?.();
     }
 
     async runMutation(action, successMessage) {
@@ -261,10 +413,16 @@ class AdminRoomView {
             const element = this.element(id);
             if (element) element.disabled = Boolean(busy);
         }
+        this.document.querySelectorAll?.(
+            "[data-admin-record-action], #admin-attendance-editor-form button, #admin-attendance-editor-form input"
+        )?.forEach(element => {
+            element.disabled = Boolean(busy);
+        });
     }
 
     reset() {
         this.manager.clear?.();
+        this.closeAttendanceEditor();
         this.setStatus("");
         this.showError("");
     }

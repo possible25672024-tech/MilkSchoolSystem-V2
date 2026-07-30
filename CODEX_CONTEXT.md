@@ -34,16 +34,15 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed automated gates; Sprint 5.1 large Attendance payload resilience is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit is active
 
-Current Sprint 5.1 browser finding:
+Current Sprint 5.2 boundary:
 
-- selected-room shallow Attendance discovery passed;
-- the remaining whole-school full Stock snapshot caused HTTP 413 and an
-  object/array Dashboard aggregation error;
-- both paths now use compact media-free reads and normalized collections;
-- all 60 automated checks pass;
-- product-owner Live Server retry remains required.
+- Attendance edit must not change the active Admin session to Teacher;
+- edit one explicit date inside the selected-room Admin panel;
+- preserve existing photos and signature through the Service boundary;
+- reuse Attendance Room Stock difference, ETag, audit, and Queue recovery;
+- record Admin legacy-menu parity as Sprints 5.3–5.8.
 
 Production cutover remains blocked.
 
@@ -281,17 +280,17 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 Active Gate
 
-Sprint 4.9 — full regression and local browser acceptance.
+Sprint 5.2 — inline Admin Attendance edit.
 
 Required local evidence:
 
-- all 12 Teacher menu items;
-- Student Report load and A4 preview;
-- Room Stock equals the Teacher header;
-- safe settings persist on the same device;
-- Teacher name save updates the authenticated room only and survives refresh;
-- desktop and Chrome Responsive `820 x 1180`;
-- clean Console and no report/stock write method.
+- Admin remains visible after `ประวัติดื่มนม` → `เปิดแก้ไข`;
+- exact-date rows and notes load correctly;
+- save updates only the selected room/date;
+- Room Stock changes only by the present-count difference;
+- existing photos and signature remain in the report;
+- desktop and Chrome Responsive layout stays inside the viewport;
+- clean Console and scoped Firebase traffic.
 
 ---
 

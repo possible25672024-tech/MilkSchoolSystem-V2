@@ -56,6 +56,7 @@ class AdminRoomService {
             [this.loginService, "loadLoginOptions"],
             [this.teacherService, "loadTeacherView"],
             [this.teacherService, "buildDashboard"],
+            [this.attendanceService, "saveAttendance"],
             [this.attendanceService, "deleteAttendance"],
             [this.pendingMilkService, "remove"],
             [this.retroactiveMilkService, "remove"],
@@ -71,6 +72,7 @@ class AdminRoomService {
 
         const requiredRepositories = [
             [this.repositories.attendance, "loadRoomAttendanceSummaries"],
+            [this.repositories.attendance, "loadAttendanceRecord"],
             [this.repositories.pending, "loadRoomPendingRecords"],
             [this.repositories.retroactive, "loadRoomRecords"],
             [this.repositories.vacation, "loadRoomRecords"]
@@ -132,6 +134,19 @@ class AdminRoomService {
             throw this.businessError(
                 "ADMIN_ROOM_QUARANTINED",
                 "ห้อง อ.3-3 อยู่ระหว่างกักกันข้อมูล จึงยังไม่อนุญาตให้เปิดโหมดแก้ไข"
+            );
+        }
+        return true;
+    }
+
+    assertAttendanceMutationAllowed(roomId, date) {
+        if (
+            String(roomId || "") === this.quarantinedRoomId &&
+            String(date || "") === this.quarantinedAttendanceDate
+        ) {
+            throw this.businessError(
+                "ADMIN_ATTENDANCE_QUARANTINED",
+                "รายการ อ.3-3 วันที่ 2026-07-28 ถูกกักกันและห้ามแก้ไขหรือลบ"
             );
         }
         return true;
@@ -231,20 +246,69 @@ class AdminRoomService {
         };
     }
 
-    async deleteRecord(adminSession, roomId, type, input = {}) {
+    async loadAttendanceEditor(adminSession, roomId, date) {
+        this.ensureDependencies();
         const resolved = await this.resolveRoom(adminSession, roomId);
-        if (
-            resolved.room.id === this.quarantinedRoomId &&
-            type === "attendance" &&
-            String(input.date || "") === this.quarantinedAttendanceDate
-        ) {
+        const normalizedDate = String(date || "").trim();
+        this.assertAttendanceMutationAllowed(resolved.room.id, normalizedDate);
+        const record = await this.repositories.attendance.loadAttendanceRecord(
+            resolved.room.id,
+            normalizedDate
+        );
+        if (!record) {
             throw this.businessError(
-                "ADMIN_ATTENDANCE_QUARANTINED",
-                "รายการ อ.3-3 วันที่ 2026-07-28 ถูกกักกันและห้ามแก้ไขหรือลบ"
+                "ADMIN_ATTENDANCE_NOT_FOUND",
+                "ไม่พบข้อมูลเช็กดื่มนมของวันที่เลือก"
             );
         }
+        return {
+            room: resolved.room,
+            delegatedSession: resolved.session,
+            date: normalizedDate,
+            students: Array.isArray(resolved.room.students) ? [...resolved.room.students] : [],
+            record: {
+                ...record,
+                clsId: resolved.room.id,
+                date: normalizedDate
+            }
+        };
+    }
+
+    async saveAttendanceEditor(adminSession, roomId, input = {}) {
+        this.ensureDependencies();
+        const resolved = await this.resolveRoom(adminSession, roomId);
+        const date = String(input.date || "").trim();
+        this.assertAttendanceMutationAllowed(resolved.room.id, date);
+        const existing = await this.repositories.attendance.loadAttendanceRecord(
+            resolved.room.id,
+            date
+        );
+        if (!existing) {
+            throw this.businessError(
+                "ADMIN_ATTENDANCE_NOT_FOUND",
+                "ไม่พบข้อมูลเช็กดื่มนมของวันที่เลือก"
+            );
+        }
+        return this.attendanceService.saveAttendance(resolved.session, {
+            roomId: resolved.room.id,
+            roomName: existing.roomName || resolved.room.name,
+            date,
+            year: existing.year ?? "",
+            term: existing.term ?? "",
+            teacher: existing.teacher || resolved.room.teacher,
+            data: input.data || {},
+            notes: input.notes || {},
+            photos: Array.isArray(existing.photos) ? [...existing.photos] : [],
+            signature: String(existing.signature || ""),
+            savedAt: existing.savedAt || undefined
+        });
+    }
+
+    async deleteRecord(adminSession, roomId, type, input = {}) {
+        const resolved = await this.resolveRoom(adminSession, roomId);
         const recordId = String(input.recordId || input.id || "").trim();
         if (type === "attendance") {
+            this.assertAttendanceMutationAllowed(resolved.room.id, input.date);
             return this.attendanceService.deleteAttendance(resolved.session, {
                 roomId: resolved.room.id,
                 date: String(input.date || "").trim()

@@ -565,6 +565,81 @@
             white-space: nowrap;
         }
 
+        .admin-attendance-editor {
+            margin-top: 18px;
+            border-top: 1px solid #dbe5ef;
+            padding-top: 18px;
+        }
+
+        .admin-attendance-editor-header,
+        .admin-attendance-editor-summary,
+        .admin-attendance-editor-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .admin-attendance-editor-header h3 {
+            margin: 0;
+        }
+
+        .admin-attendance-editor-summary {
+            justify-content: flex-start;
+            margin: 12px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #eef6ff;
+        }
+
+        .admin-attendance-editor-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 0.8fr) minmax(220px, 1fr);
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .admin-attendance-editor-identity {
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-choice {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 10px;
+        }
+
+        .admin-attendance-editor-note {
+            min-width: 0;
+        }
+
+        .admin-attendance-editor-actions {
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
         .admin-report-toolbar,
         .admin-report-actions {
             display: flex;
@@ -715,6 +790,10 @@
 
             .admin-room-dashboard {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-attendance-editor-row {
+                grid-template-columns: 1fr;
             }
 
             .attendance-summary {
@@ -971,6 +1050,25 @@
                             <div class="admin-report-table-wrap">
                                 <table class="admin-operation-table"><thead><tr><th>วันที่</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>จัดการ</th></tr></thead><tbody id="admin-attendance-body" data-admin-record-body></tbody></table>
                             </div>
+                            <section id="admin-attendance-editor" class="admin-attendance-editor" hidden>
+                                <div class="admin-attendance-editor-header">
+                                    <h3>แก้ไขวันที่ <span id="admin-attendance-editor-date">—</span></h3>
+                                    <button id="admin-attendance-editor-close" class="secondary" type="button">ปิดแบบฟอร์ม</button>
+                                </div>
+                                <p>แก้ไขสถานะและหมายเหตุได้ในหน้า Admin หลักฐานรูปและลายเซ็นเดิมจะถูกเก็บไว้</p>
+                                <div class="admin-attendance-editor-summary">
+                                    <strong>ดื่มนม <span id="admin-attendance-editor-present">0</span></strong>
+                                    <strong>ไม่ดื่มนม <span id="admin-attendance-editor-absent">0</span></strong>
+                                    <strong>ยังไม่ตรวจ <span id="admin-attendance-editor-unchecked">0</span></strong>
+                                </div>
+                                <form id="admin-attendance-editor-form">
+                                    <div id="admin-attendance-editor-list" class="admin-attendance-editor-list"></div>
+                                    <div class="admin-attendance-editor-actions">
+                                        <button id="admin-attendance-editor-cancel" class="secondary" type="button">ยกเลิก</button>
+                                        <button type="submit">บันทึกการแก้ไขในหน้า Admin</button>
+                                    </div>
+                                </form>
+                            </section>
                         </section>
 
                         <section data-admin-section="pending" class="admin-operation-panel" hidden>
