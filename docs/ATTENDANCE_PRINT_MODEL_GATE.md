@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-4.8-report-print-ui`
 
-Status: **IMPLEMENTED / LOCAL ISOLATED VALIDATION PENDING**
+Status: **PASS — LOCAL ISOLATED VALIDATION AND REGRESSION COMPLETE**
 
 ## Purpose
 
@@ -201,10 +201,8 @@ Do not use quarantined room `อ.3-3`, room ID `mqn0z13eyx5b`, or date `2026-07-
 
 ## Next gate
 
-After local validation passes:
-
 ```text
 Gate D — Teacher History, Summary and A4 Print UI
 ```
 
-The browser UI must render from the accepted History, Summary, and Print models, remain Teacher-room scoped, and keep Network traffic read-only.
+The automated UI portion now passes on `feature/sprint-4.8.1-report-print-ui-integration`. Local desktop and `820 x 1180` browser evidence remains pending.

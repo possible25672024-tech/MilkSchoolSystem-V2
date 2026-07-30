@@ -2,6 +2,38 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 4.8 Attendance History, Summary and A4 Print UI
+
+### Added
+
+- `modules/reports/attendancePrintView.js`
+- `tests/attendance-report-print-ui-check.mjs`
+- `tests/run-sprint-4.8-regression.mjs`
+- `docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md`
+
+### Changed
+
+- Connected authenticated-room Attendance history, pure summary, and A4 print models to the modular Teacher shell.
+- Added explicit date-range loading, daily totals, per-student totals, empty/error states, and print controls.
+- Added deterministic print-window HTML generated only from the accepted in-memory print model.
+- Added metadata-only report-built and print-opened events.
+- Dynamically loaded and initialized the Sprint 4.8 report path from `MilkSchoolApplication`.
+- Kept Firebase, browser storage, Queue, stock, ledger, stockLog, and historical evidence payloads out of the View.
+- Kept `index.html` and `teacher.html` unchanged.
+
+### Validation
+
+- Attendance report and A4 print UI isolated check passed.
+- All 48 discovered regression checks passed.
+- Work Mode cloud-browser access to the workspace-local URL was blocked before page load; local desktop, `820 x 1180`, Console, and Network evidence remain pending and are not represented as PASS.
+
+### Integration Decision
+
+- Ready for Draft PR review into `develop`.
+- Does not authorize merge or deployment to `main`.
+- Does not replace `teacher.html`.
+- Production blockers remain open.
+
 ## 2026-07-29 — Sprint 4.3 Offline Queue Operational UI
 
 ### Added

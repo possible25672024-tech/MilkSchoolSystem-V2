@@ -2,9 +2,9 @@
 
 # Sprint Status
 
-Last Update: 2026-07-29
+Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-4.8-report-print-ui`
+Current Branch: `feature/sprint-4.8.1-report-print-ui-integration`
 
 Current Version: V2
 
@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.8 — Attendance History, Report and A4 Print UI
 
-Status: **5% — PLAN AND READ-ONLY REPORT CONTRACT OPEN / IMPLEMENTATION PENDING**
+Status: **90% — AUTOMATED UI AND 48-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -140,14 +140,32 @@ modules/reports/attendancePrintView.js
 
 ## Sprint 4.8 Initial Gates
 
-1. History Query Contract;
-2. Pure Summary Builder;
-3. A4 Print Model;
-4. Teacher History, Summary, and Print UI;
-5. desktop and `820 x 1180` read-only browser validation;
-6. GET/OPTIONS-only Network and empty Queue;
-7. complete regression suite;
-8. synchronized branch and clean working tree.
+1. History Query Contract — **PASS**;
+2. Pure Summary Builder — **PASS**;
+3. A4 Print Model — **PASS**;
+4. Teacher History, Summary, and Print UI automated gate — **PASS**;
+5. desktop and `820 x 1180` read-only browser validation — **PENDING**;
+6. GET/OPTIONS-only Network and empty Queue — **PENDING LOCAL BROWSER EVIDENCE**;
+7. complete regression suite — **PASS, 48/48**;
+8. synchronized branch and clean working tree — **PENDING PUBLICATION**.
+
+## Sprint 4.8 Current Implementation
+
+- `AttendanceHistoryService` and `AttendanceHistoryManager` load only the authenticated room and explicit date/range;
+- `AttendanceReportBuilder` produces pure daily, range, and per-student totals;
+- `AttendancePrintModel` produces deterministic A4 portrait pages;
+- `AttendancePrintView` renders history, summary, student detail, and A4 print actions;
+- `MilkSchoolApplication` dynamically loads and initializes the report path;
+- report and print events contain metadata only;
+- no report View owns Firebase, storage, Queue, stock, ledger, or stockLog work;
+- `index.html` and `teacher.html` remain unchanged;
+- Work Mode browser access to the local URL was blocked before page load and is not recorded as PASS.
+
+Artifact:
+
+```text
+docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md
+```
 
 ## Read-Only Ownership Contract
 
