@@ -374,6 +374,7 @@ Modules and artifacts:
 - `docs/SPRINT_4_9_PLAN.md`
 - `docs/TEACHER_PARITY_CUTOVER_GATE.md`
 - `docs/SPRINT_4_9_CUTOVER_REHEARSAL.md`
+- `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`
 - `docs/ATTENDANCE_REPORT_EVIDENCE_HISTORY_ACTION_GATE.md`
 
 Implemented boundary:

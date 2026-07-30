@@ -11,6 +11,11 @@ Status: **AUTOMATED PASS / LOCAL BROWSER GATE PENDING**
 - one-student authenticated-room Attendance report;
 - selected-range present, absent, unchecked, rate, notes, and timeline;
 - deterministic A4 student-report print pages;
+- reference-style Room A4 date matrix in groups of at most five dates, with ✓ / ✕ / — status, totals, and drinking percentages;
+- daily photos and the homeroom Teacher signature appended after Room and Student report tables without forced per-date evidence pages;
+- one photo row of at most five images per evidence date;
+- matching Pending, Retroactive, and Vacation A4 reports with student/quantity detail, photos, available receiver signatures, and Teacher approval;
+- Attendance History Edit/Delete actions with exact-date Daily Attendance routing;
 - actual read-only Room Stock and last-updated view;
 - room-isolated device-local display preferences;
 - complete 12-item Teacher navigation;
@@ -70,8 +75,8 @@ Cutover documentation checks passed.
 Complete regression:
 
 ```text
-Discovered 53 regression checks.
-ALL 53 REGRESSION CHECKS PASSED (2.9s)
+Discovered 54 regression checks.
+ALL 54 REGRESSION CHECKS PASSED (2.9s)
 ```
 
 Additional checks:
@@ -85,7 +90,23 @@ Requested UI revision gates:
 - all 12 menu items remain available in the desktop left sidebar;
 - the fixed blue top header, below-header left sidebar, room/Teacher identity, groups, icons, active highlight, scrollable area, and identity footer are present;
 - daily controls, summaries, reports, student timelines, Pending rows, and A4 print use milk-consumption wording;
+- Room A4 uses the accepted date-column matrix;
+- Room/Student evidence is inline and limited to one five-photo row per date;
+- Pending, Retroactive, and Vacation history exposes matching A4 print actions;
 - no Attendance payload, Queue format, Firebase schema, or Room Stock calculation changed.
+
+## Publication evidence
+
+```text
+Draft PR:       #3
+Base:           develop
+Head:           feature/sprint-4.9-teacher-parity-cutover
+Remote commit:  e28c2576cd129660d1587911e0939844f1b6c87f
+Source tree:    3acd19b91beae241d3f96ee829aad5ce02420fc6
+State:          OPEN / DRAFT / MERGEABLE
+```
+
+The local and GitHub source-tree SHAs match. Publication does not authorize merge or deployment.
 
 ## Protected files
 
@@ -96,7 +117,16 @@ teacher.html unchanged
 
 ## Local browser gate
 
-Pending desktop header/left-sidebar, Teacher profile save, and Chrome Responsive `820 x 1180` product-owner evidence.
+Pending updated evidence for:
+
+- desktop header/left-sidebar and all 12 controls;
+- Chrome Responsive `820 x 1180`;
+- Room and Student A4 date/photo/signature layout;
+- Pending, Retroactive, and Vacation A4 reports;
+- clean Console and read-only report Network traffic;
+- one approved scoped Teacher-name leaf write.
+
+Use `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`.
 
 ## Decision
 
