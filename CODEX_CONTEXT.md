@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.2
+Version: 3.3
 Last Updated: 2026-07-30
 
 ---
@@ -34,7 +34,7 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 history, summary, and A4 models merged into `develop`; report UI browser and A4 gates accepted on the follow-up feature branch
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher student report, stock, settings, and navigation parity is active
 
 Production cutover remains blocked.
 
@@ -225,6 +225,24 @@ Current result:
 - one-sheet A4 preview contained all 16 student rows
 - no approval for `main` or production cutover
 
+### Sprint 4.9 — Student Report, Room Stock, Settings and Navigation Parity
+
+Active branch:
+
+`feature/sprint-4.9-teacher-parity-cutover`
+
+Implemented boundary:
+
+- authenticated-room one-student selected-range report
+- per-date status and notes with deterministic A4 pages
+- actual read-only authenticated-room Room Stock
+- safe device-local display preferences under `milkapp_teacher_preferences_v1`
+- complete 12-item Teacher navigation reusing accepted Sprint 4.1–4.8 panels
+- metadata-only events and no direct Firebase, Queue, stock, or media ownership
+- isolated Service, Store, Manager, and UI gates passed
+- all 53 discovered regression checks passed
+- local browser evidence pending
+
 ---
 
 Deferred Real-Data Incident
@@ -249,11 +267,16 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 Active Gate
 
-Sprint 4.8 is accepted for `develop` integration.
+Sprint 4.9 — full regression and local browser acceptance.
 
-Next:
+Required local evidence:
 
-Sprint 4.9 covers student report, remaining Room Stock view, Teacher settings, final Teacher navigation parity, and cutover rehearsal.
+- all 12 Teacher menu items;
+- Student Report load and A4 preview;
+- Room Stock equals the Teacher header;
+- safe settings persist on the same device;
+- desktop and Chrome Responsive `820 x 1180`;
+- clean Console and no report/stock write method.
 
 ---
 

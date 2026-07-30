@@ -356,6 +356,43 @@ Completed automated boundary:
 - Console remained clean and visible report Network methods were GET-only
 - one-sheet A4 preview contained all 16 student rows
 
+### Teacher Student Report, Stock, Settings and Navigation — Sprint 4.9 Active
+
+Modules and artifacts:
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- `tests/teacher-parity-service-check.mjs`
+- `tests/teacher-preference-store-check.mjs`
+- `tests/teacher-parity-manager-check.mjs`
+- `tests/teacher-parity-ui-check.mjs`
+- `tests/sprint-4.9-plan-check.mjs`
+- `tests/run-sprint-4.9-regression.mjs`
+- `docs/SPRINT_4_9_PLAN.md`
+- `docs/TEACHER_PARITY_CUTOVER_GATE.md`
+- `docs/SPRINT_4_9_CUTOVER_REHEARSAL.md`
+
+Implemented boundary:
+
+- selected-student authenticated-room Attendance report
+- read-only selected-range timeline, notes, totals, and A4 print
+- actual read-only Room Stock and compatible last-updated display
+- allowlisted room-isolated UI preferences only
+- complete 12-item Teacher navigation
+- reuse of accepted Attendance, report, Queue, Pending, Retroactive, and Vacation panels
+- no Firebase schema, operational stock, Queue, ledger, stockLog, or media ownership
+
+Remaining gate:
+
+- local desktop and `820 x 1180` browser evidence
+- clean Console and read-only Network evidence
+
+Automated result:
+
+- all 53 discovered regression checks passed
+
 ### Legacy Removal — Blocked
 
 Legacy removal becomes eligible only after operational Admin and Teacher parity, data compatibility, backup/restore rehearsal, device risk decision, incident closure, and explicit production approval.
@@ -421,7 +458,7 @@ Rebuild
 - Sprint 4.6 — Vacation Milk Operational UI — Completed
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
 - Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
-- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Planned
+- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Active
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions

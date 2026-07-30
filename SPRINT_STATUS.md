@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-4.8.1-report-print-ui-integration`
+Current Branch: `feature/sprint-4.9-teacher-parity-cutover`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 4.8 — Attendance History, Report and A4 Print UI
+Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity
 
-Status: **100% — ACCEPTED FOR `develop` INTEGRATION**
+Status: **90% — AUTOMATED UI AND 53-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -32,6 +32,7 @@ Status: **100% — ACCEPTED FOR `develop` INTEGRATION**
 - Sprint 4.5 Retroactive Milk Operational UI merged into `develop`.
 - Sprint 4.6 Vacation Milk Operational UI merged into `develop` at `5e462c9bb80f0f991045ff80ccd294d4240421cd`.
 - Sprint 4.7 — Shared Media and Signature Workflow merged into `develop` at `0ed9bc52e26bdf715240be72a84a220771068947`.
+- Sprint 4.8 Attendance History, Summary and A4 Print UI merged into `develop` at `5436f255f57a1f925d02b28f906da7f85cb9e3d7`.
 
 Protected `index.html` and `teacher.html` remain unchanged and operational.
 
@@ -171,6 +172,49 @@ Artifact:
 docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md
 docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md
 ```
+
+## Sprint 4.9 Goal
+
+Complete the remaining modular Teacher parity slice with:
+
+- authenticated-room Student Report and A4 print;
+- actual read-only Room Stock and last-updated view;
+- safe room-isolated device display preferences;
+- the complete 12-item Teacher navigation;
+- a final non-destructive cutover rehearsal document.
+
+Artifacts:
+
+```text
+docs/SPRINT_4_9_PLAN.md
+docs/TEACHER_PARITY_CUTOVER_GATE.md
+docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
+```
+
+## Sprint 4.9 Current Implementation
+
+- `TeacherParityService` builds pure overview, Room Stock, student-report, range, and preference models;
+- `TeacherPreferenceStore` persists only allowlisted UI preferences under `milkapp_teacher_preferences_v1`;
+- `TeacherParityManager` delegates scoped history/report/Teacher reads and emits metadata-only events;
+- `TeacherParityView` provides all 12 required Teacher navigation items;
+- Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
+- Room Stock view displays the actual authenticated-room balance without rebuild or mutation;
+- safe settings never write Firebase or operational data;
+- App dynamically loads and initializes the Sprint 4.9 path after accepted operational panels;
+- isolated Service, Store, Manager, and UI gates pass;
+- all 53 discovered regression checks pass;
+- local desktop/Responsive browser gates remain pending.
+
+## Sprint 4.9 Gates
+
+1. Teacher Parity Service — **PASS**;
+2. Preference Store safety and room isolation — **PASS**;
+3. Manager delegation and metadata-only events — **PASS**;
+4. 12-item navigation and Student Report A4 UI — **PASS**;
+5. complete regression suite — **PASS, 53/53**;
+6. desktop and Chrome Responsive `820 x 1180` — **PENDING**;
+7. Console and read-only Network — **PENDING LOCAL BROWSER EVIDENCE**;
+8. synchronized branch and clean working tree — **PENDING PUBLICATION**.
 
 ## Read-Only Ownership Contract
 

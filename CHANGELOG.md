@@ -2,6 +2,40 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 4.9 Teacher Student Report and Navigation Parity
+
+### Added
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- Sprint 4.9 Service, Store, Manager, UI, plan, and full-regression gates
+- Sprint 4.9 plan, Teacher parity gate, and non-destructive cutover rehearsal
+
+### Changed
+
+- Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
+- Added an actual read-only Room Stock and compatible last-updated view.
+- Added safe room-isolated device preferences for default range, compact mode, and remembered navigation.
+- Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
+- Dynamically loaded the Sprint 4.9 boundary from `MilkSchoolApplication`.
+- Kept Firebase schema, stock rules, Queue compatibility, and protected legacy pages unchanged.
+
+### Validation
+
+- Teacher Parity Service isolated check passed.
+- Teacher Preference Store safety and room-isolation check passed.
+- Teacher Parity Manager and metadata-only event check passed.
+- Teacher navigation, Student Report, and A4 UI check passed.
+- All 53 discovered regression checks passed.
+- Local browser gate remains pending.
+
+### Integration Decision
+
+- Draft PR only until full regression and local browser acceptance pass.
+- Does not authorize `main`, Production, legacy replacement, incident closure, backup/restore execution, or physical iPad PASS.
+
 ## 2026-07-30 — Sprint 4.8 Attendance History, Summary and A4 Print UI
 
 ### Added
