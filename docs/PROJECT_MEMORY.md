@@ -2,7 +2,7 @@
 
 ## Project Memory
 
-Version: 3.0
+Version: 3.1
 
 Last updated: 2026-07-30
 
@@ -328,6 +328,31 @@ Current follow-up:
 - visible report Network methods were GET-only and Console remained clean
 - A4 preview fit all 16 student rows on one portrait sheet
 
+Merged into `develop` at:
+
+```text
+5436f255f57a1f925d02b28f906da7f85cb9e3d7
+```
+
+### Sprint 4.9 — Student Report, Room Stock, Settings and Navigation Parity
+
+Active branch:
+
+`feature/sprint-4.9-teacher-parity-cutover`
+
+Implemented:
+
+- authenticated-room one-student selected-range report;
+- per-date present/absent/unchecked state and notes;
+- deterministic A4 student-report pages;
+- actual read-only Room Stock and compatible last-updated state;
+- safe room-isolated device preferences under `milkapp_teacher_preferences_v1`;
+- complete 12-item Teacher navigation;
+- metadata-only events;
+- no direct Firebase, Queue, stock, ledger, stockLog, or historical media ownership;
+- isolated Service, Store, Manager, and UI gates passed;
+- all 53 discovered regression checks passed.
+
 ## Deferred Real-Classroom Incident
 
 The product owner deferred recovery so development could continue.
@@ -355,9 +380,13 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 ## Next Phase
 
-Sprint 4.8 is accepted for integration into `develop`.
+Complete Sprint 4.9 with:
 
-Open Sprint 4.9 for student report, remaining Room Stock view, Teacher settings, complete Teacher navigation parity, and cutover rehearsal.
+- desktop and Chrome Responsive `820 x 1180`;
+- Student Report A4;
+- Room Stock/header consistency;
+- safe-setting persistence;
+- clean Console and read-only Network evidence.
 
 ## Deferred Production Decisions
 

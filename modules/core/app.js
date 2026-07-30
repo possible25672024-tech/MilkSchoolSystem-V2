@@ -11,7 +11,8 @@ class MilkSchoolApplication {
         pendingEvidenceView = window.PendingEvidenceView,
         retroactiveEvidenceView = window.RetroactiveEvidenceView,
         vacationEvidenceView = window.VacationEvidenceView,
-        attendancePrintView = window.AttendancePrintView
+        attendancePrintView = window.AttendancePrintView,
+        teacherParityView = window.TeacherParityView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -25,6 +26,7 @@ class MilkSchoolApplication {
         this.retroactiveEvidenceView = retroactiveEvidenceView;
         this.vacationEvidenceView = vacationEvidenceView;
         this.attendancePrintView = attendancePrintView;
+        this.teacherParityView = teacherParityView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -178,6 +180,17 @@ class MilkSchoolApplication {
         return this.attendancePrintView;
     }
 
+    async ensureTeacherParityView() {
+        if (!window.TeacherParityService) await import("../services/teacherParityService.js");
+        if (!window.TeacherPreferenceStore) await import("../storage/teacherPreferenceStore.js");
+        if (!window.TeacherParityManager) await import("../teacher/teacherParityManager.js");
+        if (!this.teacherParityView) {
+            await import("../teacher/teacherParityView.js");
+            this.teacherParityView = window.TeacherParityView;
+        }
+        return this.teacherParityView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -214,6 +227,9 @@ class MilkSchoolApplication {
         const vacationEvidenceView = await this.ensureVacationEvidenceView();
         if (vacationEvidenceView?.initialize) await vacationEvidenceView.initialize();
         vacationMilkView?.handlePreviewChange?.();
+
+        const teacherParityView = await this.ensureTeacherParityView();
+        if (teacherParityView?.initialize) await teacherParityView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");
