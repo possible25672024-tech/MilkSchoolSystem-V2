@@ -12,7 +12,7 @@ Current Version: V2
 
 Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity
 
-Status: **90% — AUTOMATED UI AND 53-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
+Status: **90% — AUTOMATED UI AND 54-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -202,6 +202,11 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
 - Room A4 and Student A4 explicitly hydrate only the already-selected dates at Print time and render available daily photos plus the homeroom Teacher signature;
+- Room A4 renders a reference-style matrix in groups of five dates with ✓/✕/— status, per-student totals, and drinking percentages;
+- Room A4 and Student A4 keep evidence directly after the report table, without a forced evidence page for every date;
+- each evidence group uses one row of at most five photos;
+- Pending, Retroactive, and Vacation history records expose matching A4 report actions through one shared read-only print renderer;
+- operational A4 reports include the student/quantity table, one-row photos, available receiver signatures, and the homeroom Teacher approval line;
 - ordinary History and report loading remains media-free;
 - each History date exposes confirmed `แก้ไข` and `ลบ` actions;
 - History Edit opens and loads the exact date in Daily Attendance;
@@ -212,7 +217,7 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - desktop uses a fixed blue Teacher header and a dark-blue left sidebar beginning below the header;
 - App dynamically loads and initializes the Sprint 4.9 path after accepted operational panels;
 - isolated Service, Store, Manager, and UI gates pass;
-- all 53 discovered regression checks pass;
+- all 54 discovered regression checks pass;
 - local desktop/Responsive browser gates remain pending.
 
 ## Sprint 4.9 Gates
@@ -222,10 +227,11 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 3. Manager delegation and metadata-only events — **PASS**;
 4. 12-item reference-style top-header/left-sidebar navigation, milk wording, Teacher profile form, and Student Report A4 UI — **PASS**;
 5. explicit report evidence and History Edit/Delete automated gate — **PASS**;
-6. complete regression suite — **PASS, 53/53**;
-7. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
-8. Console, scoped print-time evidence reads, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
-9. synchronized branch and clean working tree — **PENDING PUBLICATION**.
+6. shared Pending/Retroactive/Vacation A4 parity gate — **PASS**;
+7. complete regression suite — **PASS, 54/54**;
+8. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
+9. Console, scoped print-time evidence reads, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
+10. synchronized branch and clean working tree — **PENDING PUBLICATION**.
 
 ## Read-Only Ownership Contract
 

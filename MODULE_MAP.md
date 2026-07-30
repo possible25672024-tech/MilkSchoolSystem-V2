@@ -334,6 +334,7 @@ Modules and artifacts:
 - `modules/reports/attendanceReportBuilder.js`
 - `modules/reports/attendancePrintModel.js`
 - `modules/reports/attendancePrintView.js`
+- `modules/reports/milkOperationPrintView.js`
 - `tests/attendance-history-query-check.mjs`
 - `tests/attendance-report-builder-check.mjs`
 - `tests/attendance-print-model-check.mjs`
@@ -383,6 +384,10 @@ Implemented boundary:
 - media-free ordinary History/report loading with metadata-only evidence events
 - History Edit/Delete actions with exact-date Daily Attendance routing
 - History Delete delegation to the accepted Attendance stock-difference, ETag, audit, and Queue recovery path
+- five-date Room A4 status matrices with ✓/✕/—, row totals, and drinking percentages
+- inline Room/Student Attendance photo evidence with no forced per-date evidence sheet
+- shared A4 print actions for Pending, Retroactive, and Vacation records
+- one-row, five-photo evidence limit plus receiver signatures and Teacher approval line
 - actual read-only Room Stock and compatible last-updated display
 - allowlisted room-isolated UI preferences only
 - complete 12-item Teacher navigation
@@ -401,7 +406,7 @@ Remaining gate:
 
 Automated result:
 
-- all 53 discovered regression checks passed
+- all 54 discovered regression checks passed
 
 ### Legacy Removal — Blocked
 

@@ -11,6 +11,7 @@ class PendingMilkView {
         this.document = options.document || window.document;
         this.eventTarget = options.eventTarget || window;
         this.confirm = options.confirm || (message => window.confirm(message));
+        this.operationPrintView = options.operationPrintView || window.MilkOperationPrintView;
         this.initialized = false;
         this.bound = false;
         this.activeSession = null;
@@ -92,6 +93,8 @@ class PendingMilkView {
             .pending-milk-note label{margin:0 0 6px}
             .pending-milk-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
             .pending-milk-actions button{width:min(240px,100%)}
+            .pending-milk-history-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+            .pending-milk-history-actions button{width:auto;margin:0}
             #pending-milk-status[data-state=success]{color:#166534}
             #pending-milk-status[data-state=warning]{color:#9a3412}
             #pending-milk-status[data-state=error]{color:#991b1b}
@@ -267,11 +270,19 @@ class PendingMilkView {
     }
 
     async handleDeleteClick(event) {
+        const printButton = event?.target?.closest?.("button[data-pending-print]");
+        if (printButton) {
+            this.printHistoryRecord(String(printButton.dataset.pendingPrint || ""));
+            return;
+        }
         const button = event?.target?.closest?.("button[data-pending-delete]");
         if (!button) {
             return;
         }
         const recordId = String(button.dataset.pendingDelete || "");
+        if (!recordId) {
+            return;
+        }
         const record = (this.currentWeek?.records || []).find(item => item.id === recordId);
         if (!record || !this.confirm(`ยืนยันลบรายการนมค้าง ${Number(record.totalBoxes) || 0} กล่อง และคืนสต็อกห้อง?`)) {
             return;
@@ -338,10 +349,38 @@ class PendingMilkView {
                 <article class="pending-milk-row">
                     <span aria-hidden="true">✓</span>
                     <span><span class="pending-milk-name">${this.escape(this.formatDate(record.weekStart))} – ${this.escape(this.formatDate(record.weekEnd))}</span><br><span class="pending-milk-meta">${Number(record.totalBoxes) || 0} กล่อง · ${this.escape(record.note || "ไม่มีหมายเหตุ")}</span></span>
-                    <button class="danger" type="button" data-pending-delete="${this.escape(record.id)}">ลบและคืนสต็อก</button>
+                    <span class="pending-milk-history-actions">
+                        <button type="button" data-pending-print="${this.escape(record.id)}">🖨️ พิมพ์รายงาน A4</button>
+                        <button class="danger" type="button" data-pending-delete="${this.escape(record.id)}">ลบและคืนสต็อก</button>
+                    </span>
                 </article>
             `).join("")
             : '<p class="pending-milk-empty">ยังไม่มีประวัตินมค้างของห้องนี้</p>';
+    }
+
+    printHistoryRecord(recordId) {
+        const record = (this.currentWeek?.records || []).find(item => String(item.id) === String(recordId));
+        if (!record) {
+            this.renderError(new Error("ไม่พบรายการนมค้างสำหรับพิมพ์"));
+            return;
+        }
+        try {
+            this.operationPrintView ||= window.MilkOperationPrintView;
+            if (!this.operationPrintView?.print) {
+                throw new Error("ระบบพิมพ์รายงานจ่ายนมยังไม่พร้อมใช้งาน");
+            }
+            const snapshot = this.teacherManager.getSnapshot?.() || {};
+            this.operationPrintView.print({
+                kind: "pending",
+                record,
+                session: this.activeSession,
+                settings: snapshot.settings || {},
+                students: snapshot.students || snapshot.room?.students || []
+            });
+            this.setStatus("เปิดหน้าพิมพ์รายงานนมค้างแล้ว", "success");
+        } catch (error) {
+            this.renderError(error);
+        }
     }
 
     renderSelectionSummary() {

@@ -48,7 +48,7 @@ assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
 assert.ok(sprint.includes("Current Branch: `feature/sprint-4.9-teacher-parity-cutover`"));
 assert.ok(sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity"));
-assert.ok(sprint.includes("53/53"), "Sprint 4.9 status must record the complete regression count");
+assert.ok(sprint.includes("54/54"), "Sprint 4.9 status must record the complete regression count");
 assert.ok(sprint.includes("Physical iPad remains deferred"));
 assert.ok(sprint.includes("No merge to `main` is authorized"));
 

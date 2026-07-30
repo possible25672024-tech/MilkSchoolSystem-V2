@@ -346,6 +346,11 @@ Implemented:
 - per-date present/absent/unchecked state and notes;
 - deterministic A4 student-report pages;
 - explicit Print-time photos and homeroom Teacher signatures in Room A4 and Student A4;
+- reference-style Room A4 status matrices with at most five date columns per page;
+- inline Attendance evidence after the report table with no forced per-date evidence page;
+- a one-row, five-photo maximum for every report evidence group;
+- shared A4 print reports for Pending, Retroactive, and Vacation history records;
+- operational reports include student/quantity detail, photos, receiver signatures, and a Teacher approval line;
 - media-free ordinary History/report loading;
 - per-date History Edit/Delete actions;
 - exact-date routing from History Edit to Daily Attendance;
@@ -356,7 +361,7 @@ Implemented:
 - metadata-only events;
 - no direct Firebase, Queue, stock, ledger, stockLog, or historical media ownership;
 - isolated Service, Store, Manager, and UI gates passed;
-- all 53 discovered regression checks passed.
+- all 54 discovered regression checks passed.
 
 ## Deferred Real-Classroom Incident
 

@@ -32,9 +32,29 @@ The evidence request is limited to:
 - at most five image Data URLs per Attendance record;
 - one homeroom Teacher signature per record.
 
-Room A4 and Student A4 output render the available daily photos, the signature image, and the homeroom Teacher name. A one-day room report keeps evidence with the report table. Multi-day reports use separate evidence sheets so photo groups do not overflow the summary table.
+Room A4 uses the accepted reference-style matrix: dates are columns in groups of at most five, statuses render as ✓ / ✕ / —, and each student row includes a drinking total and percentage. Room A4 and Student A4 output render the available daily photos, the signature image, and the homeroom Teacher name directly after the report table. Multi-day reports no longer force one evidence sheet per date. Each date has one photo row with at most five images, and normal browser pagination may continue the report only when its actual content exceeds A4.
 
 No photo/signature payload is placed in browser events.
+
+### Pending, Retroactive and Vacation report parity
+
+Every saved history record in:
+
+- นมค้างรายสัปดาห์;
+- จ่ายนมย้อนหลัง;
+- จ่ายนมช่วงปิดเทอม;
+
+now exposes `พิมพ์รายงาน A4`.
+
+All three delegate to the shared read-only `MilkOperationPrintView`. The renderer creates:
+
+- the same school, room, Teacher, period, total, and A4 structure;
+- an operation-specific student and quantity table;
+- photos directly after the table in one row, limited to five images;
+- available receiver signatures;
+- a homeroom Teacher approval line.
+
+The print renderer receives only the already-loaded authenticated-room record and current room roster. It performs no Firebase read or write and owns no stock, Queue, ledger, or stockLog logic.
 
 ### History Edit
 
@@ -89,7 +109,12 @@ Updated isolated checks verify:
 - evidence results are defensive copies;
 - evidence events contain no Data URLs;
 - room A4 includes daily photos and Teacher signature;
+- room A4 uses date columns in groups of five with status marks, totals, and percentages;
 - Student A4 includes daily photos and Teacher signature;
+- Room and Student A4 do not contain forced evidence-page breaks;
+- every evidence gallery uses one five-photo row;
+- Pending, Retroactive, and Vacation history expose A4 print actions;
+- the shared operational renderer builds all three report types and emits metadata-only print events;
 - History renders Edit/Delete controls;
 - Edit routes the exact selected date to Daily Attendance;
 - Delete delegates room/date to the existing Attendance Manager;
@@ -105,8 +130,10 @@ Use a non-quarantined room and non-operational test date to confirm:
 - saved photos and signature can be explicitly loaded in the Daily Attendance editor;
 - History Delete confirmation appears, but do not complete a real-classroom delete;
 - one-day Room A4 shows the table, photos, and signature;
-- multi-day Room A4 separates evidence by date;
-- Student A4 shows matching evidence sheets;
+- multi-day Room A4 keeps dated evidence directly after the report table without one forced page per date;
+- Student A4 keeps matching evidence inline after its timeline;
+- Pending, Retroactive, and Vacation history records each open their matching A4 report;
+- each operational report shows its student/quantity table, one-row photos, available receiver signatures, and Teacher approval line;
 - desktop and Responsive `820 x 1180` remain usable;
 - Console is clean;
 - ordinary report load stays media-free and Print performs only scoped authenticated reads.
