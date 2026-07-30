@@ -231,7 +231,7 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 7. complete regression suite — **PASS, 54/54**;
 8. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
 9. Console, scoped print-time evidence reads, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
-10. synchronized branch and clean working tree — **PENDING PUBLICATION**.
+10. synchronized source tree and Draft PR publication — **PASS** (`PR #3`, remote commit `e28c257`, source tree `3acd19b`).
 
 ## Read-Only Ownership Contract
 
@@ -324,8 +324,9 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- student report, remaining Room Stock view, settings, and final Teacher navigation parity in Sprint 4.9;
-- remaining Teacher navigation parity;
+- updated desktop/Responsive browser evidence for Sprint 4.9 report parity;
+- remaining Admin/report adapter gaps;
+- backup export and isolated restore rehearsal;
 - explicit `main` and production approval.
 
 ## Protected Business Rules
