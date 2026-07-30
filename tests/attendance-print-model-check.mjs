@@ -130,6 +130,11 @@ assert.equal(output.source.studentCount, 5);
 assert.equal(output.source.reportRecordCount, 2);
 assert.equal(output.source.evidenceHydrated, false);
 assert.equal(output.pages.length, 3);
+assert.deepEqual(
+    output.columns.map(column => column.label),
+    ["ลำดับ", "เลขที่", "รหัสนักเรียน", "ชื่อ-นามสกุล", "เพศ", "ดื่มนม", "ไม่ดื่มนม", "ยังไม่ตรวจ", "อัตราดื่มนม (%)", "หมายเหตุ"],
+    "A4 columns must use milk-consumption wording without changing present/absent keys"
+);
 assert.deepEqual(output.pages.map(page => page.rows.length), [2, 2, 1]);
 assert.deepEqual(output.pages.map(page => page.pageNumber), [1, 2, 3]);
 assert.deepEqual(output.pages.map(page => page.pageBreakAfter), [true, true, false]);

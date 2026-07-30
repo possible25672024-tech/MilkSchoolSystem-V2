@@ -27,6 +27,21 @@ for (const label of [
 ]) {
     assert.ok(viewCode.includes(label), `Teacher navigation must include ${label}`);
 }
+for (const layoutRule of [
+    "เมนูหน้าครู",
+    "@media(min-width:1101px)",
+    "grid-template-columns:minmax(0,1fr) 230px",
+    ".teacher-parity-nav{grid-column:2",
+    ".teacher-parity-nav-list{display:grid"
+]) {
+    assert.ok(viewCode.includes(layoutRule), `Desktop right navigation must include ${layoutRule}`);
+}
+for (const milkLabel of ["ดื่มนมวันนี้", "ไม่ดื่มนมวันนี้", "ดื่มนม", "ไม่ดื่มนม", "อัตราดื่มนม"]) {
+    assert.ok(viewCode.includes(milkLabel), `Teacher parity UI must include ${milkLabel}`);
+}
+for (const legacyLabel of ["มาเรียน", "ขาดเรียน", "อัตรามาเรียน"]) {
+    assert.ok(!viewCode.includes(legacyLabel), `Teacher parity UI must not display ${legacyLabel}`);
+}
 for (const forbidden of [
     "FirebaseService",
     "Repository",
@@ -244,10 +259,14 @@ assert.equal(document.getElementById("student-report-panel").hidden, false);
 assert.equal(document.getElementById("attendance-panel").hidden, true);
 await view.handleStudentReportLoad();
 assert.equal(view.getState().studentReportLoaded, true);
-assert.ok(document.getElementById("student-report-timeline").innerHTML.includes("ขาดเรียน"));
+assert.ok(document.getElementById("student-report-timeline").innerHTML.includes("ไม่ดื่มนม"));
 view.handleStudentReportPrint();
 assert.ok(printWindow.html.includes("รายงานนักเรียน"));
 assert.ok(printWindow.html.includes("นักเรียนหนึ่ง"));
+assert.ok(printWindow.html.includes("ดื่มนม 1"));
+assert.ok(printWindow.html.includes("ไม่ดื่มนม 1"));
+assert.ok(!printWindow.html.includes("มาเรียน"));
+assert.ok(!printWindow.html.includes("ขาดเรียน"));
 assert.ok(!printWindow.html.includes("data:image"));
 assert.equal(printWindow.printed, true);
 

@@ -29,6 +29,12 @@ assert.ok(
     appCode.includes("attendancePrintView.initialize"),
     "App must initialize AttendancePrintView"
 );
+for (const milkLabel of ["ดื่มนม", "ไม่ดื่มนม", "อัตราดื่มนม"]) {
+    assert.ok(viewCode.includes(milkLabel), `Attendance report UI must include ${milkLabel}`);
+}
+for (const legacyLabel of ["มาเรียน", "ขาดเรียน", "อัตรามาเรียน"]) {
+    assert.ok(!viewCode.includes(legacyLabel), `Attendance report UI must not display ${legacyLabel}`);
+}
 
 for (const forbidden of [
     "FirebaseService",
@@ -248,7 +254,7 @@ const printData = {
         columns: [
             { key: "rowNumber", label: "ลำดับ" },
             { key: "name", label: "ชื่อ-นามสกุล" },
-            { key: "present", label: "มา" }
+            { key: "present", label: "ดื่มนม" }
         ],
         rows: [{ rowNumber: 1, name: "นักเรียนหนึ่ง", present: 1 }],
         footer: {

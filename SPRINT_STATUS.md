@@ -197,6 +197,8 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - `TeacherPreferenceStore` persists only allowlisted UI preferences under `milkapp_teacher_preferences_v1`;
 - `TeacherParityManager` delegates scoped history/report/Teacher reads and emits metadata-only events;
 - `TeacherParityView` provides all 12 required Teacher navigation items;
+- desktop Teacher navigation is a sticky vertical sidebar on the right, with compact horizontal fallback at narrower widths;
+- daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
 - Room Stock view displays the actual authenticated-room balance without rebuild or mutation;
 - safe settings never write Firebase or operational data;
@@ -210,7 +212,7 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 1. Teacher Parity Service — **PASS**;
 2. Preference Store safety and room isolation — **PASS**;
 3. Manager delegation and metadata-only events — **PASS**;
-4. 12-item navigation and Student Report A4 UI — **PASS**;
+4. 12-item right-side desktop navigation, milk wording, and Student Report A4 UI — **PASS**;
 5. complete regression suite — **PASS, 53/53**;
 6. desktop and Chrome Responsive `820 x 1180` — **PENDING**;
 7. Console and read-only Network — **PENDING LOCAL BROWSER EVIDENCE**;
