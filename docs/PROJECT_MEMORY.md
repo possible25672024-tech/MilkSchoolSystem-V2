@@ -346,8 +346,9 @@ Implemented:
 - per-date present/absent/unchecked state and notes;
 - deterministic A4 student-report pages;
 - explicit Print-time photos and homeroom Teacher signatures in Room A4 and Student A4;
-- reference-style Room A4 status matrices with at most five date columns per page;
-- inline Attendance evidence after the report table with no forced per-date evidence page;
+- one landscape Room A4 status matrix containing all selected date columns;
+- following Room A4 evidence pages grouped at up to five dates per page, each with photos and homeroom Teacher signature;
+- inline Student A4 evidence after the report timeline with no forced per-date evidence page;
 - a one-row, five-photo maximum for every report evidence group;
 - shared A4 print reports for Pending, Retroactive, and Vacation history records;
 - operational reports include student/quantity detail, photos, receiver signatures, and a Teacher approval line;

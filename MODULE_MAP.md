@@ -385,8 +385,9 @@ Implemented boundary:
 - media-free ordinary History/report loading with metadata-only evidence events
 - History Edit/Delete actions with exact-date Daily Attendance routing
 - History Delete delegation to the accepted Attendance stock-difference, ETag, audit, and Queue recovery path
-- five-date Room A4 status matrices with ✓/✕/—, row totals, and drinking percentages
-- inline Room/Student Attendance photo evidence with no forced per-date evidence sheet
+- one landscape Room A4 status matrix containing the whole selected range with ✓/✕/—, row totals, and drinking percentages
+- following Room A4 evidence pages grouped at up to five dates per page, with one photo row and homeroom Teacher signature per date
+- inline Student Attendance photo evidence with no forced per-date evidence sheet
 - shared A4 print actions for Pending, Retroactive, and Vacation records
 - one-row, five-photo evidence limit plus receiver signatures and Teacher approval line
 - actual read-only Room Stock and compatible last-updated display

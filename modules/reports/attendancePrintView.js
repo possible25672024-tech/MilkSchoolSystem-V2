@@ -431,8 +431,11 @@ class AttendancePrintView {
         const evidence = this.normalizePrintEvidence(evidenceRecords);
         const matrixPages = this.buildMatrixPages(printData, evidenceRecords);
         const tablePages = matrixPages.length ? matrixPages : (printData.pages || []);
-        const pages = tablePages.map((page, index) => `
-            <section class="print-page${page.pageBreakAfter ? " page-break" : ""}">
+        const evidencePages = this.buildEvidencePages(evidence);
+        const totalPages = tablePages.length + evidencePages.length;
+        const pages = [
+            ...tablePages.map((page, index) => `
+            <section class="print-page${index + 1 < totalPages ? " page-break" : ""}">
                 <header>
                     <h1>${this.escape(page.title)}</h1>
                     <h2>${this.escape(page.header.schoolName)}</h2>
@@ -452,45 +455,70 @@ class AttendancePrintView {
                             `<td class="${column.key === "name" ? "name" : ""}">${this.escape(this.printCell(row[column.key], column.key))}</td>`
                         )).join("")}</tr>`).join("")}</tbody>
                     </table>`}
-                ${evidence.length && index === tablePages.length - 1
-                    ? evidence.map(record => this.evidenceDocumentSection(record)).join("")
-                    : ""}
-                <footer><span>พิมพ์เมื่อ ${this.escape(page.footer.printedAtLabel)}</span><span>${this.escape(page.footer.pageLabel)}</span></footer>
+                <footer>
+                    <span>พิมพ์เมื่อ ${this.escape(page.footer.printedAtLabel)}</span>
+                    <span>หน้า ${index + 1} / ${totalPages}</span>
+                </footer>
             </section>
-        `).join("");
+        `),
+            ...evidencePages.map((records, evidencePageIndex) => {
+                const pageNumber = tablePages.length + evidencePageIndex + 1;
+                const firstPage = tablePages[0] || {};
+                return `
+            <section class="print-page evidence-page${pageNumber < totalPages ? " page-break" : ""}">
+                <header class="evidence-header">
+                    <h1>หลักฐานการเช็กดื่มนมรายวัน</h1>
+                    <h2>${this.escape(firstPage.header?.schoolName || "")}</h2>
+                    <p>ห้อง ${this.escape(firstPage.header?.roomName || "")} · ${this.escape(firstPage.header?.teacher || "")}</p>
+                </header>
+                <div class="evidence-list" style="--evidence-days:${records.length}">
+                    ${records.map(record => this.evidenceDocumentSection(record)).join("")}
+                </div>
+                <footer>
+                    <span>พิมพ์เมื่อ ${this.escape(firstPage.footer?.printedAtLabel || printData.printedAtLabel || "")}</span>
+                    <span>หน้า ${pageNumber} / ${totalPages}</span>
+                </footer>
+            </section>`;
+            })
+        ].join("");
 
         return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${this.escape(printData.title)}</title>
             <style>
-                @page{size:A4 portrait;margin:10mm}
+                @page{size:A4 landscape;margin:8mm}
                 *{box-sizing:border-box}
-                body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:9pt}
-                .print-page{min-height:277mm;display:flex;flex-direction:column}
+                body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:8pt}
+                .print-page{min-height:194mm;display:flex;flex-direction:column}
                 .page-break{break-after:page;page-break-after:always}
-                header{text-align:center;margin-bottom:4mm}
-                h1{margin:0;font-size:16pt}h2{margin:2mm 0 0;font-size:12pt}p{margin:1mm 0}
-                .totals{margin:0 0 3mm;padding:2mm;border:1px solid #999;text-align:center;font-weight:700}
+                header{text-align:center;margin-bottom:2.5mm}
+                h1{margin:0;font-size:14pt}h2{margin:1mm 0 0;font-size:11pt}p{margin:.6mm 0}
+                .totals{margin:0 0 2mm;padding:1.5mm;border:1px solid #999;text-align:center;font-weight:700}
                 table{width:100%;border-collapse:collapse}
                 thead{display:table-header-group}
-                th,td{border:.5pt solid #777;padding:1.6mm 1mm;text-align:center;vertical-align:middle}
+                th,td{border:.5pt solid #777;padding:1.2mm .6mm;text-align:center;vertical-align:middle}
                 th{background:#174b68;color:#fff;font-weight:700}
                 td.name{text-align:left}
+                .matrix-table{table-layout:fixed;font-size:7pt}
+                .matrix-table th,.matrix-table td{padding:1.05mm .25mm}
                 .matrix-table th.name,.matrix-table td.name{text-align:left}
-                .matrix-table th.name{width:auto}
-                .matrix-table th.day{width:8mm}
-                .matrix-table th.summary{width:11mm}
-                .matrix-table td.present{color:#16a34a;font-size:12pt;font-weight:800}
-                .matrix-table td.absent{color:#dc2626;font-size:11pt;font-weight:800}
+                .matrix-table th.name{width:54mm}
+                .matrix-table th.day{width:6mm}
+                .matrix-table th.summary{width:8mm}
+                .matrix-table td.present{color:#16a34a;font-size:9pt;font-weight:800}
+                .matrix-table td.absent{color:#dc2626;font-size:9pt;font-weight:800}
                 .matrix-table tfoot td{background:#eaf2f8;font-weight:800}
                 tr{break-inside:avoid;page-break-inside:avoid}
-                .evidence{margin-top:4mm;break-inside:avoid}.evidence h3{margin:0 0 2mm;font-size:10pt}
+                .evidence-header{margin-bottom:2mm}
+                .evidence-list{display:grid;grid-template-rows:repeat(var(--evidence-days),minmax(0,1fr));gap:1.5mm;flex:1;min-height:0}
+                .evidence-day{display:grid;grid-template-columns:29mm minmax(0,1fr) 47mm;align-items:center;gap:2mm;padding:1.5mm;border:1px solid #bbb;break-inside:avoid;min-height:0}
+                .evidence-day h3{margin:0;font-size:9pt}
                 .evidence-gallery{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.5mm}
-                .evidence-gallery img{display:block;width:100%;height:25mm;border:1px solid #aaa;object-fit:cover}
-                .evidence-empty{padding:4mm;border:1px dashed #aaa;text-align:center;color:#666}
-                .signature{width:58mm;margin:4mm 8mm 0 auto;text-align:center}
-                .signature img{display:block;width:100%;height:20mm;object-fit:contain}
-                .signature-line{margin-top:1mm;border-top:1px solid #333;padding-top:1mm}
+                .evidence-gallery img{display:block;width:100%;height:22mm;border:1px solid #aaa;object-fit:cover}
+                .evidence-empty{padding:2mm;border:1px dashed #aaa;text-align:center;color:#666}
+                .signature{width:100%;text-align:center}
+                .signature img{display:block;width:100%;height:16mm;object-fit:contain}
+                .signature-line{margin-top:.7mm;border-top:1px solid #333;padding-top:.7mm;font-size:7pt}
                 footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:3mm;font-size:8pt}
-                @media screen{body{background:#eef2f7;padding:12px}.print-page{max-width:210mm;margin:0 auto 12px;padding:10mm;background:#fff;box-shadow:0 2px 12px #999}}
+                @media screen{body{background:#eef2f7;padding:12px}.print-page{max-width:297mm;margin:0 auto 12px;padding:8mm;background:#fff;box-shadow:0 2px 12px #999}}
             </style></head><body>${pages}</body></html>`;
     }
 
@@ -530,56 +558,50 @@ class AttendancePrintView {
             }
         });
 
-        const recordGroups = [];
-        for (let index = 0; index < uniqueRecords.length; index += 5) {
-            recordGroups.push(uniqueRecords.slice(index, index + 5));
-        }
-
         const firstPage = sourcePages[0];
-        return recordGroups.map((currentRecords, pageIndex) => {
-            const rows = students.map(student => {
-                const statuses = currentRecords.map(record => {
-                    const status = String(record.data[student.id] || "");
-                    return status === "present" || status === "absent" ? status : "unchecked";
-                });
-                const present = statuses.filter(status => status === "present").length;
-                const checked = statuses.filter(status => status !== "unchecked").length;
-                return {
-                    ...student,
-                    statuses,
-                    present,
-                    attendanceRate: checked ? Math.round((present / checked) * 10000) / 100 : null
-                };
+        const currentRecords = uniqueRecords;
+        const rows = students.map(student => {
+            const statuses = currentRecords.map(record => {
+                const status = String(record.data[student.id] || "");
+                return status === "present" || status === "absent" ? status : "unchecked";
             });
-            const dailyTotals = currentRecords.map((record, recordIndex) => (
-                rows.filter(row => row.statuses[recordIndex] === "present").length
-            ));
-            const presentTotal = rows.reduce((total, row) => total + row.present, 0);
-            const checkedTotal = rows.reduce(
-                (total, row) => total + row.statuses.filter(status => status !== "unchecked").length,
-                0
-            );
+            const present = statuses.filter(status => status === "present").length;
+            const checked = statuses.filter(status => status !== "unchecked").length;
             return {
-                matrix: true,
-                title: firstPage.title,
-                header: {
-                    ...firstPage.header,
-                    rangeLabel: this.formatMatrixRange(currentRecords)
-                },
-                records: currentRecords,
-                rows,
-                dailyTotals,
-                presentTotal,
-                attendanceRate: checkedTotal
-                    ? Math.round((presentTotal / checkedTotal) * 10000) / 100
-                    : null,
-                pageBreakAfter: pageIndex + 1 < recordGroups.length,
-                footer: {
-                    printedAtLabel: printData.printedAtLabel || firstPage.footer?.printedAtLabel || "",
-                    pageLabel: `หน้า ${pageIndex + 1} / ${recordGroups.length}`
-                }
+                ...student,
+                statuses,
+                present,
+                attendanceRate: checked ? Math.round((present / checked) * 10000) / 100 : null
             };
         });
+        const dailyTotals = currentRecords.map((record, recordIndex) => (
+            rows.filter(row => row.statuses[recordIndex] === "present").length
+        ));
+        const presentTotal = rows.reduce((total, row) => total + row.present, 0);
+        const checkedTotal = rows.reduce(
+            (total, row) => total + row.statuses.filter(status => status !== "unchecked").length,
+            0
+        );
+        return [{
+            matrix: true,
+            title: firstPage.title,
+            header: {
+                ...firstPage.header,
+                rangeLabel: this.formatMatrixRange(currentRecords)
+            },
+            records: currentRecords,
+            rows,
+            dailyTotals,
+            presentTotal,
+            attendanceRate: checkedTotal
+                ? Math.round((presentTotal / checkedTotal) * 10000) / 100
+                : null,
+            pageBreakAfter: false,
+            footer: {
+                printedAtLabel: printData.printedAtLabel || firstPage.footer?.printedAtLabel || "",
+                pageLabel: "หน้า 1 / 1"
+            }
+        }];
     }
 
     matrixTable(page = {}) {
@@ -613,7 +635,11 @@ class AttendancePrintView {
 
     printPageCount(printData = {}, evidenceRecords = []) {
         const matrixPages = this.buildMatrixPages(printData, evidenceRecords);
-        return matrixPages.length || (Array.isArray(printData.pages) ? printData.pages.length : 0);
+        const tablePageCount = matrixPages.length ||
+            (Array.isArray(printData.pages) ? printData.pages.length : 0);
+        return tablePageCount + this.buildEvidencePages(
+            this.normalizePrintEvidence(evidenceRecords)
+        ).length;
     }
 
     statusMark(status) {
@@ -658,9 +684,17 @@ class AttendancePrintView {
             }));
     }
 
+    buildEvidencePages(records = []) {
+        const pages = [];
+        for (let index = 0; index < records.length; index += 5) {
+            pages.push(records.slice(index, index + 5));
+        }
+        return pages;
+    }
+
     evidenceDocumentSection(record = {}) {
         const photos = record.photos || [];
-        return `<section class="evidence">
+        return `<section class="evidence-day">
             <h3>📷 รูปถ่ายวันที่ ${this.escape(this.formatDate(record.date))} (${photos.length} รูป)</h3>
             ${photos.length
                 ? `<div class="evidence-gallery">${photos.map((photo, index) => (

@@ -32,7 +32,7 @@ The evidence request is limited to:
 - at most five image Data URLs per Attendance record;
 - one homeroom Teacher signature per record.
 
-Room A4 uses the accepted reference-style matrix: dates are columns in groups of at most five, statuses render as ✓ / ✕ / —, and each student row includes a drinking total and percentage. Room A4 and Student A4 output render the available daily photos, the signature image, and the homeroom Teacher name directly after the report table. Multi-day reports no longer force one evidence sheet per date. Each date has one photo row with at most five images, and normal browser pagination may continue the report only when its actual content exceeds A4.
+Room A4 uses the accepted reference-style matrix: every date in the selected range is a column in one landscape table, statuses render as ✓ / ✕ / —, and each student row includes a drinking total and percentage. Room A4 evidence starts on the following page and is grouped at up to five dates per evidence page. Each date has one photo row with at most five images, its signature image, and the homeroom Teacher name. Student A4 retains its selected-student inline evidence layout.
 
 No photo/signature payload is placed in browser events.
 
@@ -109,9 +109,10 @@ Updated isolated checks verify:
 - evidence results are defensive copies;
 - evidence events contain no Data URLs;
 - room A4 includes daily photos and Teacher signature;
-- room A4 uses date columns in groups of five with status marks, totals, and percentages;
+- room A4 keeps all selected date columns in one landscape matrix with status marks, totals, and percentages;
 - Student A4 includes daily photos and Teacher signature;
-- Room and Student A4 do not contain forced evidence-page breaks;
+- Room A4 starts evidence on the following page and groups six evidence dates into pages of five plus one;
+- Student A4 does not contain forced per-date evidence-page breaks;
 - every evidence gallery uses one five-photo row;
 - Pending, Retroactive, and Vacation history expose A4 print actions;
 - the shared operational renderer builds all three report types and emits metadata-only print events;
@@ -130,7 +131,7 @@ Use a non-quarantined room and non-operational test date to confirm:
 - saved photos and signature can be explicitly loaded in the Daily Attendance editor;
 - History Delete confirmation appears, but do not complete a real-classroom delete;
 - one-day Room A4 shows the table, photos, and signature;
-- multi-day Room A4 keeps dated evidence directly after the report table without one forced page per date;
+- multi-day Room A4 keeps all date columns in one landscape matrix and places dated evidence on following pages at up to five dates per page;
 - Student A4 keeps matching evidence inline after its timeline;
 - Pending, Retroactive, and Vacation history records each open their matching A4 report;
 - each operational report shows its student/quantity table, one-row photos, available receiver signatures, and Teacher approval line;

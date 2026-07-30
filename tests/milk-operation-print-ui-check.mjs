@@ -39,8 +39,9 @@ assert.ok(
     "Student Attendance evidence photos must use one five-photo row"
 );
 assert.ok(
-    !attendanceCode.includes("evidence-page"),
-    "Room Attendance must not force one evidence page per day"
+    attendanceCode.includes("evidence-page") &&
+    attendanceCode.includes("index += 5"),
+    "Room Attendance must group evidence on following pages at five dates per page"
 );
 assert.ok(
     !teacherCode.includes("evidence-page"),

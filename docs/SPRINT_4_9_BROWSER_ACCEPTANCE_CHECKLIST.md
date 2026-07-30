@@ -71,13 +71,13 @@ Console result:
 
 Use an already-saved non-quarantined date range. Do not create new Attendance data.
 
-- [ ] Room A4 displays dates as columns in groups of at most five.
+- [ ] Room A4 displays every selected date as a consecutive column in one landscape matrix page.
 - [ ] `✓` means ดื่มนม, `✕` means ไม่ดื่มนม, and `—` means ยังไม่ตรวจ.
 - [ ] Student totals and percentages are correct.
-- [ ] Photos follow the report table and use one row of at most five images per date.
-- [ ] Evidence is not forced onto one separate page for every date.
+- [ ] Room photos begin on the page after the matrix and use one row of at most five images per date.
+- [ ] Room evidence pages contain at most five dates, each with the saved homeroom Teacher signature.
 - [ ] The homeroom Teacher signature and name are present when saved.
-- [ ] Student A4 uses the same inline evidence rule.
+- [ ] Student A4 retains its selected-student inline evidence rule.
 
 Evidence:
 

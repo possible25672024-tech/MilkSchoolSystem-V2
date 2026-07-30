@@ -496,7 +496,58 @@ assert.ok(printWindow.html.includes("ครูประจำชั้น"), "Pr
 assert.equal(
     (printWindow.html.match(/class="evidence-gallery"/g) || []).length,
     1,
-    "Daily evidence must be appended inline once instead of using a separate page"
+    "Daily evidence must be rendered once on the following evidence page"
+);
+assert.equal(
+    (printWindow.html.match(/class="print-page evidence-page/g) || []).length,
+    1,
+    "A single loaded day must place its photos and Teacher signature on the following page"
+);
+assert.ok(
+    printWindow.html.includes("@page{size:A4 landscape"),
+    "Monthly date-column reports must use A4 landscape"
+);
+
+const sixDayRecords = Array.from({ length: 6 }, (_, index) => ({
+    ...hydratedHistory.records[0],
+    date: `2026-07-${String(index + 1).padStart(2, "0")}`,
+    data: { s1: index === 2 ? "absent" : "present", s2: "present" },
+    photos: [`data:image/jpeg;base64,DAY_${index + 1}`],
+    signature: `data:image/png;base64,SIGNATURE_${index + 1}`,
+    evidence: { loaded: true, photoCount: 1, hasSignature: true }
+}));
+const sixDayHtml = view.printDocument(printData, sixDayRecords);
+assert.equal(
+    (sixDayHtml.match(/class="matrix-table"/g) || []).length,
+    1,
+    "All selected date columns must stay in one matrix table"
+);
+for (let day = 1; day <= 6; day += 1) {
+    assert.ok(
+        sixDayHtml.includes(`<th class="day">${day}</th>`),
+        `The single matrix table must include day ${day}`
+    );
+}
+assert.equal(
+    (sixDayHtml.match(/class="print-page evidence-page/g) || []).length,
+    2,
+    "Six evidence dates must be grouped into two evidence pages"
+);
+const evidencePageChunks = sixDayHtml.split('<section class="print-page evidence-page').slice(1);
+assert.equal(
+    (evidencePageChunks[0].match(/class="evidence-day"/g) || []).length,
+    5,
+    "The first evidence page must contain five dates"
+);
+assert.equal(
+    (evidencePageChunks[1].match(/class="evidence-day"/g) || []).length,
+    1,
+    "The second evidence page must contain the remaining date"
+);
+assert.equal(
+    view.printPageCount(printData, sixDayRecords),
+    3,
+    "Six selected dates must produce one matrix page plus two evidence pages"
 );
 
 const builtEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-report-built");
@@ -510,7 +561,7 @@ assert.deepEqual(plain(builtEvent.detail), {
     studentCount: 2
 });
 assert.ok(printEvent, "Print-opened event must be emitted");
-assert.equal(printEvent.detail.pageCount, 1);
+assert.equal(printEvent.detail.pageCount, 2);
 assert.equal(printEvent.detail.evidenceRecordCount, 1);
 assert.ok(!JSON.stringify(eventTarget.dispatched).includes("นักเรียนหนึ่ง"), "Events must remain metadata-only");
 
