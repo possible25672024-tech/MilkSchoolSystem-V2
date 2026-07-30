@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-4.8.1-report-print-ui-integration`
 
-Status: **AUTOMATED PASS / LOCAL BROWSER GATE PENDING**
+Status: **PASS — AUTOMATED, DESKTOP, 820 x 1180 AND A4 PRINT GATES COMPLETE**
 
 ## Purpose
 
@@ -83,7 +83,7 @@ Complete regression result:
 
 ```text
 Discovered 48 regression checks.
-ALL 48 REGRESSION CHECKS PASSED (2.8s)
+ALL 48 REGRESSION CHECKS PASSED (9.6s)
 ```
 
 The isolated UI test verifies:
@@ -110,28 +110,39 @@ No real Firebase data, quarantined room/date, operational Queue, Room Stock, or 
 
 ## Browser gate
 
-The Work Mode cloud browser could not open the workspace-local URL:
+Local Chrome validation passed on desktop and Responsive `820 x 1180`.
 
 ```text
-http://127.0.0.1:8000/index-v2.html
-net::ERR_BLOCKED_BY_CLIENT
+Range:          01/07/2026 - 30/07/2026
+Dates loaded:   19
+Students:       16
+Present:        300
+Absent:         4
+Unchecked:      0
 ```
 
-This is recorded as **PENDING**, not PASS. It does not indicate an application Console or Network failure because the page was not reached.
+Accepted local evidence confirms:
 
-Required local acceptance remains:
+- the authenticated school, room, and Teacher identity rendered;
+- the selected range loaded 19 daily records for 16 students;
+- daily and per-student summaries rendered and remained readable;
+- the Responsive `820 x 1180` shell stayed contained and vertically usable;
+- Console showed normal `MilkSchoolSystem V2 Started` output and no JavaScript or Firebase error;
+- visible report Network rows used `GET`; no `POST`, `PUT`, `PATCH`, or `DELETE` request was visible;
+- the report path performed no Queue action and the automated View boundary proves no browser-storage or Queue ownership;
+- A4 preview opened from the already-loaded report and fit all 16 student rows on one portrait sheet;
+- no Attendance save/delete, Queue replay, stock mutation, evidence upload, or other operational write was performed.
 
-- desktop Teacher login and report load;
-- Chrome `820 x 1180`;
-- clean Console;
-- report traffic limited to GET/OPTIONS;
-- Queue remains empty;
-- A4 preview and print layout;
-- no real operational write;
-- protected files unchanged.
+The Work Mode cloud browser still cannot reach the workspace-local URL. The accepted PASS is based on the product owner's local Chrome evidence, not on the blocked cloud-browser attempt.
+
+Detailed evidence is recorded in:
+
+```text
+docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md
+```
 
 ## Decision
 
-The Sprint 4.8 runtime and automated code gate are ready for Draft PR review into `develop`.
+Sprint 4.8 is accepted for integration into `develop`.
 
-Sprint 4.8 is not yet eligible for production cutover, `main`, or replacement of `teacher.html`. Local browser evidence, the deferred real-data incident, Firebase security hardening, backup/restore rehearsal, and physical iPad decision remain open.
+This does not authorize production cutover, `main`, or replacement of `teacher.html`. The deferred real-data incident, Firebase security hardening, backup/restore rehearsal, remaining Teacher parity, and physical iPad decision remain open.

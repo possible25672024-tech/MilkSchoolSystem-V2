@@ -24,12 +24,15 @@ All notable modular migration changes are recorded here.
 ### Validation
 
 - Attendance report and A4 print UI isolated check passed.
-- All 48 discovered regression checks passed.
-- Work Mode cloud-browser access to the workspace-local URL was blocked before page load; local desktop, `820 x 1180`, Console, and Network evidence remain pending and are not represented as PASS.
+- All 48 discovered regression checks passed locally in 9.6 seconds.
+- Desktop and Chrome Responsive `820 x 1180` report layouts passed.
+- The accepted range loaded 19 days for 16 students with 300 present, 4 absent, and 0 unchecked.
+- Console remained clean and visible report Network methods were GET-only.
+- A4 print preview fit all 16 student rows on one portrait sheet.
 
 ### Integration Decision
 
-- Ready for Draft PR review into `develop`.
+- Accepted for integration into `develop`.
 - Does not authorize merge or deployment to `main`.
 - Does not replace `teacher.html`.
 - Production blockers remain open.

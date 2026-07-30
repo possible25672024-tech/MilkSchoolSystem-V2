@@ -34,7 +34,7 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 history, summary, and A4 models merged into `develop`; report UI automated gate passes on a follow-up feature branch
+Sprint 4.8 history, summary, and A4 models merged into `develop`; report UI browser and A4 gates accepted on the follow-up feature branch
 
 Production cutover remains blocked.
 
@@ -220,7 +220,9 @@ Current result:
 - Teacher report and print UI wired into the modular App
 - isolated UI gate passed
 - all 48 discovered regression checks passed
-- local desktop and `820 x 1180` browser evidence pending
+- local desktop and `820 x 1180` browser evidence passed
+- visible report traffic was GET-only and Console remained clean
+- one-sheet A4 preview contained all 16 student rows
 - no approval for `main` or production cutover
 
 ---
@@ -247,19 +249,11 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 Active Gate
 
-Sprint 4.8 — Local Browser Acceptance
+Sprint 4.8 is accepted for `develop` integration.
 
-Required evidence:
+Next:
 
-- desktop Teacher report workflow
-- Chrome `820 x 1180`
-- GET/OPTIONS-only report Network
-- clean Console
-- empty Queue
-- A4 preview and print layout
-- protected legacy files unchanged
-
-After Sprint 4.8 closes, Sprint 4.9 covers student report, remaining Room Stock view, Teacher settings, final Teacher navigation parity, and cutover rehearsal.
+Sprint 4.9 covers student report, remaining Room Stock view, Teacher settings, final Teacher navigation parity, and cutover rehearsal.
 
 ---
 

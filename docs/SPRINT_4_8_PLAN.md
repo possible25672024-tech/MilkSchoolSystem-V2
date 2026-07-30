@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.8-report-print-ui`
 
-Status: **AUTOMATED UI AND FULL REGRESSION PASS / LOCAL BROWSER VALIDATION PENDING**
+Status: **COMPLETE — AUTOMATED, DESKTOP, 820 x 1180 AND A4 PRINT GATES PASS**
 
 ## Goal
 
@@ -295,7 +295,9 @@ Completed on `feature/sprint-4.8.1-report-print-ui-integration`:
 - isolated UI validation;
 - all 48 discovered regression checks.
 
-Browser validation remains pending because the Work Mode cloud browser could not access the workspace-local test URL. This is not recorded as PASS.
+Local Chrome browser validation passed on desktop and Responsive `820 x 1180`. The accepted report loaded 19 days for 16 students with 300 present, 4 absent, and 0 unchecked; Console remained clean, visible report traffic was GET-only, and the A4 preview fit all 16 rows on one portrait sheet.
+
+The Work Mode cloud browser remained unable to access the workspace-local URL. Sprint 4.8 PASS is based on the product owner's local Chrome evidence.
 
 Evidence:
 
@@ -304,4 +306,5 @@ docs/ATTENDANCE_HISTORY_QUERY_GATE.md
 docs/ATTENDANCE_REPORT_BUILDER_GATE.md
 docs/ATTENDANCE_PRINT_MODEL_GATE.md
 docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md
+docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md
 ```
