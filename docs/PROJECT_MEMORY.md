@@ -2,9 +2,9 @@
 
 ## Project Memory
 
-Version: 2.9
+Version: 3.0
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 ## Project Goal
 
@@ -293,6 +293,39 @@ Integration decision:
 - does not replace `teacher.html`
 - does not authorize `main` or production cutover
 
+### Sprints 4.4–4.7 — Teacher Operational Parity
+
+- Pending Milk operational UI
+- Retroactive Milk operational UI
+- Vacation Milk operational UI
+- Room Stock-only issue/delete/rollback
+- typed Queue recovery
+- shared photo and signature workflow
+- lazy evidence persistence and duplicate prevention
+- responsive modular Teacher integration
+- protected `index.html` and `teacher.html` unchanged
+
+Merged into `develop`.
+
+### Sprint 4.8 — Attendance History, Summary and A4 Print UI
+
+Merged foundation:
+
+- authenticated-room and selected-range Attendance history
+- evidence-free historical child reads
+- pure daily, range, and per-student summary builder
+- deterministic A4 portrait print model
+
+Current follow-up:
+
+- branch `feature/sprint-4.8.1-report-print-ui-integration`
+- Teacher history, summary, student detail, and A4 print UI connected
+- metadata-only report/print events
+- no report Firebase, Queue, stock, ledger, stockLog, or media-payload ownership
+- isolated UI check passed
+- all 48 discovered regression checks passed
+- local desktop and `820 x 1180` browser evidence pending
+
 ## Deferred Real-Classroom Incident
 
 The product owner deferred recovery so development could continue.
@@ -320,25 +353,16 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 ## Next Phase
 
-Sprint 4.4 — Pending Milk Operational UI
+Close Sprint 4.8 with local browser acceptance:
 
-Planned branch:
+- desktop Teacher report workflow
+- Chrome `820 x 1180`
+- clean Console
+- GET/OPTIONS-only report Network
+- empty Queue
+- A4 preview and print layout
 
-`feature/sprint-4.4-pending-milk-ui`
-
-Planned boundary:
-
-- show absent students eligible for pending milk
-- dedicated Manager/Service command path
-- issue pending milk
-- deduct Room Stock only
-- prevent duplicate issue for the same student/date/reference
-- preserve legacy-compatible `absentMilk` fields and transaction references
-- authenticated-room-only access
-- isolated write validation only
-- no additional real-classroom write tests
-
-Retroactive Milk and Vacation Milk remain later phases.
+Then open Sprint 4.9 for student report, remaining Room Stock view, Teacher settings, complete Teacher navigation parity, and cutover rehearsal.
 
 ## Deferred Production Decisions
 

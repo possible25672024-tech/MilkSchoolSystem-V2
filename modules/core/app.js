@@ -10,7 +10,8 @@ class MilkSchoolApplication {
         attendanceEvidenceView = window.AttendanceEvidenceView,
         pendingEvidenceView = window.PendingEvidenceView,
         retroactiveEvidenceView = window.RetroactiveEvidenceView,
-        vacationEvidenceView = window.VacationEvidenceView
+        vacationEvidenceView = window.VacationEvidenceView,
+        attendancePrintView = window.AttendancePrintView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -23,6 +24,7 @@ class MilkSchoolApplication {
         this.pendingEvidenceView = pendingEvidenceView;
         this.retroactiveEvidenceView = retroactiveEvidenceView;
         this.vacationEvidenceView = vacationEvidenceView;
+        this.attendancePrintView = attendancePrintView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -164,6 +166,18 @@ class MilkSchoolApplication {
         return this.vacationMilkView;
     }
 
+    async ensureAttendancePrintView() {
+        if (!window.AttendanceHistoryService) await import("../reports/attendanceHistoryService.js");
+        if (!window.AttendanceHistoryManager) await import("../reports/attendanceHistoryManager.js");
+        if (!window.AttendanceReportBuilder) await import("../reports/attendanceReportBuilder.js");
+        if (!window.AttendancePrintModel) await import("../reports/attendancePrintModel.js");
+        if (!this.attendancePrintView) {
+            await import("../reports/attendancePrintView.js");
+            this.attendancePrintView = window.AttendancePrintView;
+        }
+        return this.attendancePrintView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -174,6 +188,8 @@ class MilkSchoolApplication {
         const attendanceEvidenceView = await this.ensureAttendanceEvidenceView();
         if (this.attendanceView?.initialize) await this.attendanceView.initialize();
         if (attendanceEvidenceView?.initialize) await attendanceEvidenceView.initialize();
+        const attendancePrintView = await this.ensureAttendancePrintView();
+        if (attendancePrintView?.initialize) await attendancePrintView.initialize();
 
         const retroactiveSyncAdapter = await this.ensureRetroactiveSyncAdapter();
         const vacationSyncAdapter = await this.ensureVacationSyncAdapter();

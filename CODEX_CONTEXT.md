@@ -1,8 +1,8 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.1
-Last Updated: 2026-07-29
+Version: 3.2
+Last Updated: 2026-07-30
 
 ---
 
@@ -30,11 +30,11 @@ Modular V2 Firebase, repository, stock, report, room, Teacher, Attendance, queue
 
 ↓
 
-Teacher shell, Attendance CRUD UI, and Offline Queue operational UI completed and approved for `develop`
+Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation, and Media/Signature UIs completed and approved for `develop`
 
 ↓
 
-Pending Milk operational UI is next
+Sprint 4.8 history, summary, and A4 models merged into `develop`; report UI automated gate passes on a follow-up feature branch
 
 Production cutover remains blocked.
 
@@ -186,6 +186,43 @@ Integration decision:
 - approved for fast-forward merge into `develop`
 - not approved for `main` or production cutover
 
+### Sprints 4.4–4.7 — Teacher Operational Parity
+
+- Pending Milk operational UI
+- Retroactive Milk operational UI
+- Vacation Milk operational UI
+- shared photo and signature workflow
+- typed Queue recovery and duplicate prevention
+- isolated issue/delete/rollback gates
+- responsive Teacher integration
+- protected legacy files unchanged
+
+Integration decision:
+
+- merged into `develop`
+- not approved for `main` or production cutover
+
+### Sprint 4.8 — Attendance History, Summary and A4 Print UI
+
+Merged foundation:
+
+- authenticated-room, selected-range history query
+- evidence-free historical reads
+- pure daily, range, and per-student summary builder
+- deterministic A4 print model
+
+Current follow-up branch:
+
+`feature/sprint-4.8.1-report-print-ui-integration`
+
+Current result:
+
+- Teacher report and print UI wired into the modular App
+- isolated UI gate passed
+- all 48 discovered regression checks passed
+- local desktop and `820 x 1180` browser evidence pending
+- no approval for `main` or production cutover
+
 ---
 
 Deferred Real-Data Incident
@@ -208,34 +245,21 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 ---
 
-Next Sprint
+Active Gate
 
-Sprint 4.4 — Pending Milk Operational UI
+Sprint 4.8 — Local Browser Acceptance
 
-Planned branch:
+Required evidence:
 
-`feature/sprint-4.4-pending-milk-ui`
+- desktop Teacher report workflow
+- Chrome `820 x 1180`
+- GET/OPTIONS-only report Network
+- clean Console
+- empty Queue
+- A4 preview and print layout
+- protected legacy files unchanged
 
-Goals:
-
-- show absent students eligible for pending milk
-- issue pending milk through a dedicated Manager/Service command path
-- deduct Room Stock only
-- prevent duplicate issue for the same student/date/reference
-- preserve legacy-compatible `absentMilk` fields and references
-- use authenticated-room-only access
-- expose Room Stock result and audit feedback
-- use isolated write validation only
-- preserve protected legacy files and Firebase paths
-
-Out of scope:
-
-- Retroactive Milk
-- Vacation Milk
-- photos and signatures
-- printing and Attendance history
-- replacement or removal of `teacher.html`
-- production deployment
+After Sprint 4.8 closes, Sprint 4.9 covers student report, remaining Room Stock view, Teacher settings, final Teacher navigation parity, and cutover rehearsal.
 
 ---
 

@@ -2,7 +2,7 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 ## Protected Legacy Files
 
@@ -305,33 +305,58 @@ Deferred incident:
 - room `อ.3-3` / `mqn0z13eyx5b`, date `2026-07-28` remains quarantined with Attendance 22 present / 3 absent and Room Stock discrepancy -22
 - recovery is mandatory before production acceptance
 
-### Pending Milk Operational UI — Next Sprint 4.4
+### Teacher Operational Parity — Sprints 4.4–4.7 Completed
 
-Planned branch:
+Completed boundary:
 
-`feature/sprint-4.4-pending-milk-ui`
-
-Target boundary:
-
-- show absent students eligible for pending milk
-- dedicated Repository/Service/Manager command path where needed
-- issue pending milk
-- deduct Room Stock only
-- prevent duplicate issue for the same student/date/reference
-- preserve legacy-compatible `absentMilk` fields and references
+- Pending Milk eligibility, issue, duplicate protection, history, delete, and rollback
+- Retroactive Milk calculation, issue, history, delete, and rollback
+- Vacation Milk calculation, issue, history, delete, and rollback
+- Room Stock-only mutations and Main Stock isolation
+- typed Queue recovery
+- shared photo and signature workflow
+- lazy media persistence and Queue redaction
 - authenticated-room-only access
-- compatible ledger and stockLog references
-- isolated create/duplicate/rollback validation only
-- no real-classroom write tests
+- desktop and responsive automated/browser gates recorded by each Sprint
 
-Out of scope:
+Integration meaning:
 
-- Retroactive Milk
-- Vacation Milk
-- photos and signatures
-- printing and history-range views
-- replacing or removing `teacher.html`
-- production deployment
+- merged into `develop`
+- does not replace `teacher.html`
+- does not authorize `main` or production cutover
+
+### Attendance History, Summary and A4 Print — Sprint 4.8 Active
+
+Modules and artifacts:
+
+- `modules/reports/attendanceHistoryService.js`
+- `modules/reports/attendanceHistoryManager.js`
+- `modules/reports/attendanceReportBuilder.js`
+- `modules/reports/attendancePrintModel.js`
+- `modules/reports/attendancePrintView.js`
+- `tests/attendance-history-query-check.mjs`
+- `tests/attendance-report-builder-check.mjs`
+- `tests/attendance-print-model-check.mjs`
+- `tests/attendance-report-print-ui-check.mjs`
+- `tests/run-sprint-4.8-regression.mjs`
+- `docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md`
+
+Completed automated boundary:
+
+- authenticated-room and explicit selected-range history
+- no full-school Attendance read
+- no automatic historical media hydration
+- pure daily, range, and per-student report model
+- deterministic A4 portrait print model and View
+- metadata-only report and print events
+- no report write, stock, Queue, ledger, or stockLog ownership
+- all 48 discovered regression checks passed
+
+Remaining gate:
+
+- local desktop and `820 x 1180` browser evidence
+- clean Console and GET/OPTIONS-only Network
+- empty Queue and A4 layout evidence
 
 ### Legacy Removal — Blocked
 
@@ -393,8 +418,12 @@ Rebuild
 - Sprint 4.1 — Teacher UI Shell and Read-Only State — Completed
 - Sprint 4.2 — Teacher Daily Attendance CRUD UI — Completed
 - Sprint 4.3 — Offline Queue Operational UI — Completed
-- Sprint 4.4 — Pending Milk Operational UI — Next
-- Retroactive and Vacation Milk UI — Later
+- Sprint 4.4 — Pending Milk Operational UI — Completed
+- Sprint 4.5 — Retroactive Milk Operational UI — Completed
+- Sprint 4.6 — Vacation Milk Operational UI — Completed
+- Sprint 4.7 — Shared Media and Signature Workflow — Completed
+- Sprint 4.8 — Attendance History, Summary and A4 Print UI — Automated gate passed, local browser gate pending
+- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Planned
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions
