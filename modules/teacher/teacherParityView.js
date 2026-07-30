@@ -83,9 +83,11 @@ class TeacherParityView {
         style.id = "teacher-parity-view-style";
         style.textContent = `
             .teacher-parity-nav{position:sticky;top:0;z-index:20;margin:22px 0 8px;padding:10px;border:1px solid #dbe5ef;border-radius:14px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(15,46,68,.08)}
-            .teacher-parity-nav-title{margin:2px 4px 10px;color:#1a5276;font-size:.88rem;font-weight:800}
+            .teacher-sidebar-brand,.teacher-sidebar-footer,.teacher-parity-nav-group-title{display:none}
             .teacher-parity-nav-list{display:flex;gap:8px;overflow-x:auto;padding:2px;scrollbar-width:thin}
-            .teacher-parity-nav button{flex:0 0 auto;width:auto;min-height:40px;margin:0;padding:8px 13px;color:#1e3a5f;background:#eef3f8;white-space:nowrap}
+            .teacher-parity-nav-group,.teacher-parity-nav-group-items{display:contents}
+            .teacher-parity-nav button{display:flex;align-items:center;gap:10px;flex:0 0 auto;width:auto;min-height:40px;margin:0;padding:8px 13px;color:#1e3a5f;background:#eef3f8;white-space:nowrap}
+            .teacher-parity-nav-icon{display:inline-grid;place-items:center;width:22px;flex:0 0 22px}
             .teacher-parity-nav button[aria-current=page]{color:#fff;background:#1a5276}
             .teacher-parity-panel{margin-top:28px;padding-top:26px;border-top:1px solid #dbe5ef}
             .teacher-parity-intro{margin:6px 0 0;color:#64748b;font-size:.9rem}
@@ -112,13 +114,30 @@ class TeacherParityView {
             #student-report-status[data-state=success],#room-stock-detail-status[data-state=success],#teacher-settings-status[data-state=success]{color:#166534}
             #student-report-status[data-state=error],#room-stock-detail-status[data-state=error],#teacher-settings-status[data-state=error]{color:#991b1b}
             @media(min-width:1101px){
-                body:has(#teacher-shell:not([hidden])){place-items:start center}
-                body:has(#teacher-shell:not([hidden])) main{width:min(1240px,100%)}
-                #teacher-shell{display:grid;grid-template-columns:minmax(0,1fr) 230px;column-gap:24px;align-items:start}
-                #teacher-shell>:not(.teacher-parity-nav){grid-column:1}
-                .teacher-parity-nav{grid-column:2;grid-row:1;align-self:start;top:24px;margin:0;max-height:calc(100vh - 48px);overflow:auto}
-                .teacher-parity-nav-list{display:grid;gap:7px;overflow:visible}
-                .teacher-parity-nav button{width:100%;text-align:left;white-space:normal}
+                body:has(#teacher-shell:not([hidden])){display:block;padding:0;background:#eef3f8}
+                body:has(#teacher-shell:not([hidden])) main{width:100%;max-width:none}
+                #app-panel:has(#teacher-shell:not([hidden])){min-height:100vh;margin:0;padding:0 0 0 286px;border-radius:0;background:#eef3f8;box-shadow:none}
+                #teacher-shell{min-height:100vh;padding:28px 34px 42px}
+                .teacher-parity-nav{position:fixed;inset:0 auto 0 0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:286px;height:100vh;margin:0;padding:0;border:0;border-radius:0;color:#e2edf5;background:linear-gradient(180deg,#103650 0%,#174e70 100%);box-shadow:8px 0 28px rgba(15,46,68,.2);overflow:hidden}
+                .teacher-sidebar-brand{display:block;padding:26px 22px 22px;text-align:center;background:rgba(4,35,55,.3)}
+                .teacher-sidebar-mark{display:grid;place-items:center;width:70px;height:70px;margin:0 auto 14px;border:3px solid rgba(255,255,255,.82);border-radius:50%;color:#0f4669;background:#fff;font-size:2rem;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+                .teacher-sidebar-title{margin:0;color:#fff;font-size:1.02rem;font-weight:800;line-height:1.45}
+                .teacher-sidebar-school{margin:7px 0 0;color:#a9c0d0;font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
+                .teacher-parity-nav-list{display:block;padding:12px 0 18px;overflow-x:hidden;overflow-y:auto;scrollbar-color:#9bb2c1 transparent;scrollbar-width:thin}
+                .teacher-parity-nav-group{display:block;margin:0 0 8px}
+                .teacher-parity-nav-group-items{display:block}
+                .teacher-parity-nav-group-title{display:block;margin:10px 22px 7px;color:#82a3b8;font-size:.72rem;font-weight:800;letter-spacing:.08em}
+                .teacher-parity-nav button{display:flex;width:100%;min-height:48px;margin:0;padding:11px 22px;border-left:4px solid transparent;border-radius:0;color:#dbe8f0;background:transparent;text-align:left;white-space:normal}
+                .teacher-parity-nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+                .teacher-parity-nav button[aria-current=page]{border-left-color:#f59e0b;color:#fff;background:rgba(148,180,201,.3)}
+                .teacher-parity-nav button[data-teacher-section=logout]{color:#fecaca}
+                .teacher-parity-nav-icon{font-size:1.12rem}
+                .teacher-sidebar-footer{display:flex;align-items:center;gap:10px;min-height:58px;padding:11px 18px;color:#dceaf2;background:rgba(3,39,60,.48);box-shadow:0 -1px 0 rgba(255,255,255,.1)}
+                .teacher-sidebar-footer-icon{font-size:1.1rem}
+                .teacher-sidebar-footer-copy{min-width:0}
+                .teacher-sidebar-footer strong,.teacher-sidebar-footer small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+                .teacher-sidebar-footer strong{font-size:.8rem}
+                .teacher-sidebar-footer small{margin-top:2px;color:#9fbbcc;font-size:.7rem}
             }
             @media(max-width:820px){.teacher-parity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-parity-toolbar button{width:100%}.teacher-settings-grid{grid-template-columns:1fr}}
             @media(max-width:600px){.teacher-parity-grid,.teacher-parity-toolbar{grid-template-columns:1fr}.teacher-parity-actions{flex-direction:column}.teacher-parity-actions button{width:100%}}
@@ -147,12 +166,27 @@ class TeacherParityView {
         nav.className = "teacher-parity-nav";
         nav.setAttribute("aria-label", "เมนูครู");
         nav.hidden = true;
-        nav.innerHTML = `<p class="teacher-parity-nav-title">เมนูหน้าครู</p>
+        nav.innerHTML = `<header class="teacher-sidebar-brand">
+            <div class="teacher-sidebar-mark" aria-hidden="true">🥛</div>
+            <p class="teacher-sidebar-title">ระบบบริหารจัดการ<br>อาหารเสริมนม</p>
+            <p id="teacher-sidebar-school" class="teacher-sidebar-school">โรงเรียน</p>
+        </header>
         <div class="teacher-parity-nav-list" role="list">
-            ${this.navigationItems().map(item => (
-                `<button type="button" data-teacher-section="${item.id}">${item.label}</button>`
-            )).join("")}
-        </div>`;
+            ${this.navigationGroups().map(group => `
+                <section class="teacher-parity-nav-group" aria-label="${group.label}">
+                    <p class="teacher-parity-nav-group-title">${group.label}</p>
+                    <div class="teacher-parity-nav-group-items">
+                        ${group.items.map(item => (
+                            `<button type="button" data-teacher-section="${item.id}"><span class="teacher-parity-nav-icon" aria-hidden="true">${item.icon}</span><span>${item.label}</span></button>`
+                        )).join("")}
+                    </div>
+                </section>
+            `).join("")}
+        </div>
+        <footer class="teacher-sidebar-footer">
+            <span class="teacher-sidebar-footer-icon" aria-hidden="true">👩‍🏫</span>
+            <span class="teacher-sidebar-footer-copy"><strong id="teacher-sidebar-teacher">ครูประจำชั้น</strong><small id="teacher-sidebar-room">ห้องเรียน</small></span>
+        </footer>`;
         const attendance = this.element("attendance-panel");
         attendance && shell.insertBefore
             ? shell.insertBefore(nav, attendance)
@@ -271,19 +305,41 @@ class TeacherParityView {
     }
 
     navigationItems() {
+        return this.navigationGroups().flatMap(group => group.items);
+    }
+
+    navigationGroups() {
         return [
-            { id: "overview", label: "ภาพรวมการดื่มนม" },
-            { id: "attendance", label: "เช็กดื่มนมรายวัน" },
-            { id: "history", label: "ประวัติการเช็ก" },
-            { id: "summary", label: "สรุปรายงาน" },
-            { id: "print", label: "พิมพ์รายงาน A4" },
-            { id: "pending", label: "นมค้างรายสัปดาห์" },
-            { id: "retroactive", label: "จ่ายนมย้อนหลัง" },
-            { id: "vacation", label: "จ่ายนมช่วงปิดเทอม" },
-            { id: "student-report", label: "รายงานนักเรียน" },
-            { id: "room-stock", label: "สต็อกนมคงเหลือ" },
-            { id: "settings", label: "ตั้งค่า" },
-            { id: "logout", label: "ออกจากระบบ" }
+            {
+                label: "หน้าหลัก",
+                items: [{ id: "overview", label: "ภาพรวมการดื่มนม", icon: "📊" }]
+            },
+            {
+                label: "บันทึกและรายงาน",
+                items: [
+                    { id: "attendance", label: "เช็กดื่มนมรายวัน", icon: "🥛" },
+                    { id: "history", label: "ประวัติการเช็ก", icon: "📅" },
+                    { id: "summary", label: "สรุปรายงาน", icon: "📋" },
+                    { id: "print", label: "พิมพ์รายงาน A4", icon: "🖨️" },
+                    { id: "student-report", label: "รายงานนักเรียน", icon: "👥" }
+                ]
+            },
+            {
+                label: "จ่ายนม",
+                items: [
+                    { id: "pending", label: "นมค้างรายสัปดาห์", icon: "🧾" },
+                    { id: "retroactive", label: "จ่ายนมย้อนหลัง", icon: "↩️" },
+                    { id: "vacation", label: "จ่ายนมช่วงปิดเทอม", icon: "🏖️" }
+                ]
+            },
+            {
+                label: "ระบบ",
+                items: [
+                    { id: "room-stock", label: "สต็อกนมคงเหลือ", icon: "📦" },
+                    { id: "settings", label: "ตั้งค่า", icon: "⚙️" },
+                    { id: "logout", label: "ออกจากระบบ", icon: "🚪" }
+                ]
+            }
         ];
     }
 
@@ -335,6 +391,7 @@ class TeacherParityView {
     activate(session) {
         this.activeSession = { ...session };
         this.element("teacher-parity-nav")?.removeAttribute?.("hidden");
+        this.renderSidebarIdentity(session);
         this.renderOverview();
         this.populateStudents();
         const preferences = this.manager.getPreferences();
@@ -416,6 +473,24 @@ class TeacherParityView {
         this.setText(
             "teacher-overview-status",
             model.date ? `ข้อมูลการเช็กวันที่ ${this.formatDate(model.date)}` : "ยังไม่มีข้อมูลการเช็กของวันนี้"
+        );
+    }
+
+    renderSidebarIdentity(session = this.activeSession || {}) {
+        const snapshot = this.teacherManager.getSnapshot() || {};
+        const room = snapshot.room || session.roomSnapshot || {};
+        const settings = snapshot.settings || {};
+        this.setText(
+            "teacher-sidebar-school",
+            session.schoolName || settings.schoolName || "โรงเรียน"
+        );
+        this.setText(
+            "teacher-sidebar-teacher",
+            session.teacher || room.teacher || "ครูประจำชั้น"
+        );
+        this.setText(
+            "teacher-sidebar-room",
+            session.roomName || room.name || session.roomId || "ห้องเรียน"
         );
     }
 

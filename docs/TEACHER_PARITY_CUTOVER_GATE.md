@@ -14,7 +14,8 @@ Status: **AUTOMATED PASS / LOCAL BROWSER GATE PENDING**
 - actual read-only Room Stock and last-updated view;
 - room-isolated device-local display preferences;
 - complete 12-item Teacher navigation;
-- right-side sticky desktop navigation with compact narrow-screen fallback;
+- full-height dark-blue left desktop sidebar with compact narrow-screen fallback;
+- system/school header, grouped menus, active-item marker, scrollable menu area, and Teacher/room footer;
 - `ดื่มนม` / `ไม่ดื่มนม` user-facing wording while persisted `present` / `absent` values remain compatible;
 - App dynamic-load and initialization wiring.
 
@@ -55,7 +56,7 @@ Complete regression:
 
 ```text
 Discovered 53 regression checks.
-ALL 53 REGRESSION CHECKS PASSED (2.9s)
+ALL 53 REGRESSION CHECKS PASSED (3.0s)
 ```
 
 Additional checks:
@@ -66,7 +67,8 @@ Additional checks:
 
 Requested UI revision gates:
 
-- all 12 menu items remain available in the desktop right sidebar;
+- all 12 menu items remain available in the desktop left sidebar;
+- the reference header, groups, icons, active highlight, scrollable area, and identity footer are present;
 - daily controls, summaries, reports, student timelines, Pending rows, and A4 print use milk-consumption wording;
 - no Attendance payload, Queue format, Firebase schema, or Room Stock calculation changed.
 
@@ -79,7 +81,7 @@ teacher.html unchanged
 
 ## Local browser gate
 
-Pending desktop right-sidebar and Chrome Responsive `820 x 1180` product-owner evidence.
+Pending desktop left-sidebar and Chrome Responsive `820 x 1180` product-owner evidence.
 
 ## Decision
 
