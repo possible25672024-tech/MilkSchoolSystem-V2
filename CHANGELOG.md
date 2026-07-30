@@ -12,10 +12,16 @@ All notable modular migration changes are recorded here.
 - `modules/teacher/teacherParityView.js`
 - Sprint 4.9 Service, Store, Manager, UI, plan, and full-regression gates
 - Sprint 4.9 plan, Teacher parity gate, and non-destructive cutover rehearsal
+- Attendance report-evidence and History-action gate
 
 ### Changed
 
 - Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
+- Added explicit Print-time daily photos and homeroom Teacher signatures to Room A4 and Student A4 reports.
+- Kept ordinary History and report loading media-free; evidence reads are limited to dates already selected in the report.
+- Added per-date History `แก้ไข` and `ลบ` actions.
+- History Edit opens and loads the exact selected date in Daily Attendance, including the existing selected-date evidence workflow.
+- History Delete delegates to the accepted Attendance Manager/Service path so present-count restoration, ETag retry, audit retry, and Queue recovery remain unchanged.
 - Added an actual read-only Room Stock and compatible last-updated view.
 - Added safe room-isolated device preferences for default range, compact mode, and remembered navigation.
 - Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
@@ -38,6 +44,7 @@ All notable modular migration changes are recorded here.
 - Teacher Parity Manager and metadata-only event check passed.
 - Teacher navigation, Student Report, and A4 UI check passed.
 - Authenticated-room Teacher-profile Repository, Service, Manager, and UI checks passed.
+- Explicit report-evidence and History Edit/Delete checks passed.
 - All 53 discovered regression checks passed.
 - Local browser gate remains pending.
 

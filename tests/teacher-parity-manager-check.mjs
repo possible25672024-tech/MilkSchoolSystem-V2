@@ -81,6 +81,13 @@ const parityService = {
         return { roomId: value.session.roomId, roomStock: value.roomStock };
     },
     buildStudentReport(history, report, studentId) {
+        const evidence = history.records
+            .filter(record => record.evidence?.loaded)
+            .map(record => ({
+                date: record.date,
+                photos: record.photos || [],
+                signature: record.signature || ""
+            }));
         return {
             metadata: {
                 ...report.metadata,
@@ -89,7 +96,8 @@ const parityService = {
             },
             totals: { schoolDays: history.recordCount, present: 1, absent: 0, unchecked: 0 },
             timeline: history.records,
-            source: { recordCount: history.recordCount, evidenceHydrated: false, readOnly: true }
+            evidence,
+            source: { recordCount: history.recordCount, evidenceHydrated: evidence.length > 0, readOnly: true }
         };
     },
     buildRoomStock(value) {
@@ -103,16 +111,30 @@ const parityService = {
     }
 };
 let historyInput = null;
+let currentHistory = null;
 const historyManager = {
     async load(input) {
         historyInput = input;
-        return {
+        currentHistory = {
             roomId: "room-a",
             startDate: input.startDate,
             endDate: input.endDate,
             recordCount: 1,
             records: [{ date: input.startDate, status: "present" }]
         };
+        return currentHistory;
+    },
+    async hydrateCurrentEvidence() {
+        currentHistory = {
+            ...currentHistory,
+            records: currentHistory.records.map(record => ({
+                ...record,
+                photos: ["data:image/jpeg;base64,PHOTO"],
+                signature: "data:image/png;base64,SIGNATURE",
+                evidence: { loaded: true, photoCount: 1, hasSignature: true }
+            }))
+        };
+        return currentHistory;
     }
 };
 let reportContext = null;
@@ -213,6 +235,13 @@ assert.equal(reportContext.roomId, "room-a");
 assert.equal(report.metadata.studentId, "s1");
 assert.equal(events.find(event => event.type === "milkapp:student-report-built").detail.recordCount, 1);
 assert.ok(!JSON.stringify(events).includes("นักเรียนหนึ่ง"), "Manager events must remain metadata-only");
+
+const hydratedReport = await manager.hydrateStudentReportEvidence();
+assert.equal(hydratedReport.source.evidenceHydrated, true);
+assert.equal(hydratedReport.evidence.length, 1);
+const evidenceEvent = events.find(event => event.type === "milkapp:student-report-evidence-hydrated");
+assert.equal(evidenceEvent.detail.evidenceRecordCount, 1);
+assert.ok(!JSON.stringify(evidenceEvent.detail).includes("data:image"), "Evidence event must remain metadata-only");
 
 const stock = await manager.refreshRoomStock();
 assert.deepEqual(JSON.parse(JSON.stringify(refreshInput)), {

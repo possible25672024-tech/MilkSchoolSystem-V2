@@ -201,6 +201,11 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 - narrower widths retain the compact horizontal navigation fallback;
 - daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
 - Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
+- Room A4 and Student A4 explicitly hydrate only the already-selected dates at Print time and render available daily photos plus the homeroom Teacher signature;
+- ordinary History and report loading remains media-free;
+- each History date exposes confirmed `แก้ไข` and `ลบ` actions;
+- History Edit opens and loads the exact date in Daily Attendance;
+- History Delete reuses the existing Attendance Manager/Service stock-difference, ETag, audit, and Queue recovery path;
 - Room Stock view displays the actual authenticated-room balance without rebuild or mutation;
 - safe settings never write Firebase or operational data;
 - the Settings screen now separately allows an authenticated Teacher to update only their room's `teacher` leaf;
@@ -216,10 +221,11 @@ docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
 2. Preference Store safety and room isolation — **PASS**;
 3. Manager delegation and metadata-only events — **PASS**;
 4. 12-item reference-style top-header/left-sidebar navigation, milk wording, Teacher profile form, and Student Report A4 UI — **PASS**;
-5. complete regression suite — **PASS, 53/53**;
-6. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
-7. Console, read-only report/stock Network, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
-8. synchronized branch and clean working tree — **PENDING PUBLICATION**.
+5. explicit report evidence and History Edit/Delete automated gate — **PASS**;
+6. complete regression suite — **PASS, 53/53**;
+7. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
+8. Console, scoped print-time evidence reads, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
+9. synchronized branch and clean working tree — **PENDING PUBLICATION**.
 
 ## Read-Only Ownership Contract
 
@@ -294,7 +300,7 @@ Sprint 4.8 does not complete:
 - Main Stock remains unchanged.
 - Teacher Login must not download historical evidence.
 - Report history loads only for the authenticated room and selected date or range.
-- Evidence loads only for one explicitly selected record.
+- Evidence loads only after an explicit user action and only for dates already selected in the current report.
 
 ## Safety Boundary
 

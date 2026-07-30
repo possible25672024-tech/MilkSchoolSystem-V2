@@ -157,6 +157,19 @@ class TeacherParityService {
             note: this.text(record?.notes?.[normalizedStudentId]),
             savedAt: this.text(record?.savedAt)
         })).sort((left, right) => left.date.localeCompare(right.date));
+        const evidence = (history.records || [])
+            .filter(record => record?.evidence?.loaded)
+            .map(record => ({
+                date: this.text(record.date),
+                teacher: this.text(record.teacher, report.metadata?.teacher || "ครูประจำชั้น"),
+                photos: (Array.isArray(record.photos) ? record.photos : [])
+                    .filter(value => typeof value === "string" && value.startsWith("data:image/"))
+                    .slice(0, 5),
+                signature: typeof record.signature === "string" &&
+                    record.signature.startsWith("data:image/")
+                    ? record.signature
+                    : ""
+            }));
 
         return {
             metadata: {
@@ -176,9 +189,10 @@ class TeacherParityService {
                     : this.number(student.attendanceRate)
             },
             timeline,
+            evidence,
             source: {
                 recordCount: timeline.length,
-                evidenceHydrated: false,
+                evidenceHydrated: evidence.length > 0,
                 readOnly: true
             }
         };

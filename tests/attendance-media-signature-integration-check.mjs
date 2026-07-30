@@ -31,6 +31,10 @@ assert.ok(viewCode.includes("หลักฐานเช็กดื่มนม
 assert.ok(viewCode.includes("attendance-photo-input"), "Attendance evidence panel must include photo input");
 assert.ok(viewCode.includes("attendance-signature-canvas"), "Attendance evidence panel must include Teacher signature canvas");
 assert.ok(viewCode.includes("สูงสุด 5 รูป"), "Attendance evidence panel must communicate the five-photo limit");
+assert.ok(
+    viewCode.includes("recordKey !== deletedKey"),
+    "Deleting a different History date must not clear the active evidence context"
+);
 assert.ok(appCode.includes('import("../media/attendanceEvidenceManager.js")'), "App must load AttendanceEvidenceManager");
 assert.ok(appCode.includes('import("../media/attendanceEvidenceAdapter.js")'), "App must load AttendanceEvidenceAdapter");
 assert.ok(appCode.includes('import("../media/attendanceEvidenceView.js")'), "App must load AttendanceEvidenceView");

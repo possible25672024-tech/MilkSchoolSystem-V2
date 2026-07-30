@@ -13,6 +13,8 @@ Complete the remaining modular V2 Teacher navigation parity without changing ver
 Sprint 4.9 adds:
 
 - authenticated-room student report and A4 print;
+- explicit print-time photo and homeroom Teacher-signature evidence for room and student reports;
+- Attendance History Edit/Delete actions with exact-date routing back to Daily Attendance;
 - actual remaining Room Stock and last-updated view;
 - safe device-local Teacher display settings;
 - authenticated-room homeroom Teacher name editing without replacing the room record;
@@ -41,14 +43,26 @@ The Teacher may:
 - view present, absent, unchecked, and attendance-rate totals;
 - view one timeline row per loaded Attendance record;
 - view per-date notes;
-- print the already-loaded report on deterministic A4 portrait pages.
+- print the already-loaded report on deterministic A4 portrait pages;
+- explicitly load only the selected report dates' photos and homeroom Teacher signatures when Print is requested.
 
 The student report must not:
 
 - load another room;
-- download historical photo or signature payloads;
+- download historical photo or signature payloads while loading or browsing the report;
 - write Attendance, stock, Queue, settings, ledger, or stockLog data;
-- perform another Attendance read when print preview opens.
+- include photo/signature payloads in browser events.
+
+The explicit Print action may perform one authenticated full-record read per already-loaded Attendance date. This is a user-triggered evidence boundary, not automatic login or range hydration.
+
+### 1.1 Attendance History Actions
+
+Each loaded daily row exposes:
+
+- `แก้ไข` — emits a metadata-only exact-date request, opens `เช็กดื่มนมรายวัน`, and loads that date through the existing `AttendanceManager`;
+- `ลบ` — requires confirmation and delegates to the existing `AttendanceManager.remove()` path.
+
+The report layer does not duplicate stock arithmetic. Existing Attendance rules remain authoritative: edit applies only the present-count difference and delete restores the deleted record's previous present count.
 
 ### 2. Room Stock View
 
@@ -145,6 +159,9 @@ Only metadata-safe events are allowed:
 
 ```text
 milkapp:student-report-built
+milkapp:student-report-evidence-hydrated
+milkapp:attendance-evidence-hydrated
+milkapp:attendance-history-edit-requested
 milkapp:teacher-room-stock-viewed
 milkapp:teacher-preferences-saved
 milkapp:teacher-profile-updated
@@ -160,6 +177,8 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - Sprint 4.9 student report, Room Stock, and device-display preferences remain read-only at the Firebase boundary.
 - The only new Firebase write is the authenticated room's `teacher` leaf.
 - Attendance edit/delete difference rules remain unchanged.
+- History Delete delegates to the existing Attendance delete/recovery/Queue boundary.
+- Historical evidence stays media-free until an explicit Print request.
 - Negative Room Stock remains visible and unclamped.
 - Queue key remains `tc_pending_saves_v1`.
 - Teacher access remains limited to the authenticated room.
@@ -202,6 +221,8 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - milk-consumption wording without changing persisted `present`/`absent` values;
 - reuse of accepted operational panels;
 - student report and A4 rendering;
+- print-time daily photos and homeroom Teacher signature;
+- History Edit/Delete controls and exact-date Daily Attendance routing;
 - read-only stock display;
 - safe settings;
 - scoped homeroom Teacher-name save;
@@ -223,6 +244,9 @@ Required local evidence after automated validation:
 - `ดื่มนม`, `ไม่ดื่มนม`, and `อัตราดื่มนม` appear consistently in daily, report, student-report, Pending, and A4 views;
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;
+- Room A4 and Student A4 previews contain the available daily photos and homeroom Teacher signature;
+- History Edit opens the exact selected date with statuses, notes, photos, and signature available through the existing selected-date evidence control;
+- History Delete requires confirmation and is validated only with generated/isolated data;
 - Room Stock matches the Teacher header value;
 - safe settings survive refresh on the same device;
 - desktop and Chrome Responsive `820 x 1180`;

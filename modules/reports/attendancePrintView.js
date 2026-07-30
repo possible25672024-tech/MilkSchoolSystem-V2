@@ -17,6 +17,8 @@ class AttendancePrintView {
         this.openWindow = options.openWindow || ((...args) => window.open(...args));
         this.schedule = options.schedule || (callback => window.setTimeout(callback, 250));
         this.now = options.now || (() => new Date().toISOString());
+        this.confirm = options.confirm || (message => window.confirm(message));
+        this.attendanceManager = options.attendanceManager || window.AttendanceManager;
         this.initialized = false;
         this.bound = false;
         this.activeSession = null;
@@ -27,6 +29,8 @@ class AttendancePrintView {
         this.handleLogout = this.handleLogout.bind(this);
         this.handleLoad = this.handleLoad.bind(this);
         this.handlePrint = this.handlePrint.bind(this);
+        this.handleDailyAction = this.handleDailyAction.bind(this);
+        this.handleAttendanceDeleted = this.handleAttendanceDeleted.bind(this);
     }
 
     ensureDependencies() {
@@ -35,8 +39,13 @@ class AttendancePrintView {
         this.printModel ||= window.AttendancePrintModel;
         this.authService ||= window.AuthService;
         this.teacherManager ||= window.TeacherManager;
+        this.attendanceManager ||= window.AttendanceManager;
 
-        if (!this.historyManager?.load || !this.historyManager?.clear) {
+        if (
+            !this.historyManager?.load ||
+            !this.historyManager?.hydrateCurrentEvidence ||
+            !this.historyManager?.clear
+        ) {
             throw new Error("AttendanceHistoryManager is not available.");
         }
         if (!this.reportBuilder?.build) {
@@ -50,6 +59,9 @@ class AttendancePrintView {
         }
         if (!this.teacherManager?.getSnapshot) {
             throw new Error("TeacherManager is not available.");
+        }
+        if (!this.attendanceManager?.remove) {
+            throw new Error("AttendanceManager is not available.");
         }
     }
 
@@ -97,6 +109,9 @@ class AttendancePrintView {
             .attendance-report-table th,.attendance-report-table td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:.86rem}
             .attendance-report-table th{position:sticky;top:0;background:#eaf2f8;color:#1e3a5f;font-weight:800}
             .attendance-report-table td.name{text-align:left;font-weight:700}
+            .attendance-report-row-actions{display:flex;justify-content:center;gap:7px;white-space:nowrap}
+            .attendance-report-row-actions button{width:auto;min-width:0;margin:0;padding:6px 10px;font-size:.78rem}
+            .attendance-report-row-actions .delete{background:#dc4c45}
             .attendance-report-empty{margin:12px 0 0;border-radius:10px;padding:16px;color:#64748b;background:#f8fafc}
             .attendance-report-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
             .attendance-report-actions button{width:min(240px,100%)}
@@ -176,8 +191,10 @@ class AttendancePrintView {
 
         this.eventTarget.addEventListener?.("milkapp:login-success", this.handleLoginSuccess);
         this.eventTarget.addEventListener?.("milkapp:logout", this.handleLogout);
+        this.eventTarget.addEventListener?.("milkapp:attendance-deleted", this.handleAttendanceDeleted);
         this.element("attendance-report-load-button")?.addEventListener?.("click", this.handleLoad);
         this.element("attendance-report-print-button")?.addEventListener?.("click", this.handlePrint);
+        this.element("attendance-report-daily")?.addEventListener?.("click", this.handleDailyAction);
         this.bound = true;
     }
 
@@ -192,6 +209,12 @@ class AttendancePrintView {
 
     handleLogout() {
         this.clear();
+    }
+
+    handleAttendanceDeleted() {
+        if (this.currentReport) {
+            this.handleLoad();
+        }
     }
 
     activate(session) {
@@ -292,13 +315,17 @@ class AttendancePrintView {
         }
         target.innerHTML = rows.length
             ? `<div class="attendance-report-table-wrap"><table class="attendance-report-table">
-                <thead><tr><th>วันที่</th><th>ดื่มนม</th><th>ไม่ดื่มนม</th><th>ยังไม่ตรวจ</th><th>รวม</th></tr></thead>
+                <thead><tr><th>วันที่</th><th>ดื่มนม</th><th>ไม่ดื่มนม</th><th>ยังไม่ตรวจ</th><th>รวม</th><th>การจัดการ</th></tr></thead>
                 <tbody>${rows.map(row => `<tr>
                     <td>${this.escape(this.formatDate(row.date))}</td>
                     <td>${this.number(row.present)}</td>
                     <td>${this.number(row.absent)}</td>
                     <td>${this.number(row.unchecked)}</td>
                     <td>${this.number(row.totalStudents)}</td>
+                    <td><div class="attendance-report-row-actions">
+                        <button type="button" data-attendance-history-action="edit" data-date="${this.escape(row.date)}">✏️ แก้ไข</button>
+                        <button type="button" class="delete" data-attendance-history-action="delete" data-date="${this.escape(row.date)}">🗑️ ลบ</button>
+                    </div></td>
                 </tr>`).join("")}</tbody>
             </table></div>`
             : '<p class="attendance-report-empty">ไม่พบประวัติรายวันในช่วงที่เลือก</p>';
@@ -324,24 +351,70 @@ class AttendancePrintView {
             : '<p class="attendance-report-empty">ไม่พบรายชื่อนักเรียนสำหรับสรุป</p>';
     }
 
-    handlePrint() {
+    async handleDailyAction(event) {
+        const button = event?.target?.closest?.("[data-attendance-history-action]");
+        if (!button) {
+            return;
+        }
+        const action = String(button.dataset.attendanceHistoryAction || "");
+        const date = String(button.dataset.date || "");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            this.renderError(new Error("วันที่ของรายการประวัติไม่ถูกต้อง"));
+            return;
+        }
+
+        if (action === "edit") {
+            this.emit("milkapp:attendance-history-edit-requested", {
+                roomId: String(this.currentHistory?.roomId || ""),
+                date
+            });
+            return;
+        }
+        if (action !== "delete" || !this.confirm(
+            `ยืนยันการลบข้อมูลเช็กดื่มนมวันที่ ${this.formatDate(date)} และคืนสต็อกตามข้อมูลเดิมหรือไม่`
+        )) {
+            return;
+        }
+
+        this.setBusy(true, "กำลังลบข้อมูลวันที่เลือกและคืนสต็อก...");
+        this.clearError();
+        try {
+            await this.attendanceManager.remove({
+                roomId: this.currentHistory?.roomId,
+                date
+            });
+        } catch (error) {
+            this.renderError(error);
+        } finally {
+            this.setBusy(false);
+        }
+    }
+
+    async handlePrint() {
         if (!this.currentReport) {
             this.renderError(new Error("กรุณาโหลดรายงานก่อนพิมพ์"));
             return;
         }
 
+        this.setBusy(true, "กำลังโหลดรูปและลายเซ็นเฉพาะวันที่ในรายงาน...");
+        this.clearError();
         try {
-            const printData = this.printModel.build(this.currentReport, { printedAt: this.now() });
+            const hydratedHistory = await this.historyManager.hydrateCurrentEvidence();
+            const hydratedReport = this.reportBuilder.build(hydratedHistory, this.reportContext());
+            this.currentHistory = hydratedHistory;
+            this.currentReport = hydratedReport;
+            const printData = this.printModel.build(hydratedReport, { printedAt: this.now() });
             const printWindow = this.openWindow("", "_blank");
             if (!printWindow?.document) {
                 throw new Error("เบราว์เซอร์ปิดกั้นหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up");
             }
 
-            printWindow.document.write(this.printDocument(printData));
+            printWindow.document.write(this.printDocument(printData, hydratedHistory.records));
             printWindow.document.close();
             this.emit("milkapp:attendance-print-opened", {
-                ...this.safeReportDetail(this.currentReport),
-                pageCount: printData.pages.length
+                ...this.safeReportDetail(hydratedReport),
+                pageCount: printData.pages.length,
+                evidenceRecordCount: hydratedHistory.records.filter(record => record.evidence?.loaded).length
             });
             this.schedule(() => {
                 printWindow.focus?.();
@@ -349,11 +422,16 @@ class AttendancePrintView {
             });
         } catch (error) {
             this.renderError(error);
+        } finally {
+            this.setBusy(false);
         }
     }
 
-    printDocument(printData = {}) {
-        const pages = (printData.pages || []).map(page => `
+    printDocument(printData = {}, evidenceRecords = []) {
+        const evidence = this.normalizePrintEvidence(evidenceRecords);
+        const tablePages = printData.pages || [];
+        const inlineEvidence = evidence.length === 1 ? evidence[0] : null;
+        const pages = tablePages.map((page, index) => `
             <section class="print-page${page.pageBreakAfter ? " page-break" : ""}">
                 <header>
                     <h1>${this.escape(page.title)}</h1>
@@ -372,9 +450,23 @@ class AttendancePrintView {
                         `<td class="${column.key === "name" ? "name" : ""}">${this.escape(this.printCell(row[column.key], column.key))}</td>`
                     )).join("")}</tr>`).join("")}</tbody>
                 </table>
+                ${inlineEvidence && index === tablePages.length - 1
+                    ? this.evidenceDocumentSection(inlineEvidence)
+                    : ""}
                 <footer><span>พิมพ์เมื่อ ${this.escape(page.footer.printedAtLabel)}</span><span>${this.escape(page.footer.pageLabel)}</span></footer>
             </section>
         `).join("");
+        const evidencePages = evidence.length > 1
+            ? evidence.map((record, index) => `
+                <section class="print-page evidence-page${index < evidence.length - 1 ? " page-break" : ""}">
+                    <header><h1>หลักฐานการเช็กดื่มนมรายวัน</h1>
+                        <h2>${this.escape(printData.metadata?.schoolName || "โรงเรียน")}</h2>
+                        <p>ห้อง ${this.escape(printData.metadata?.roomName || "ห้องเรียน")} · ${this.escape(printData.metadata?.teacher || "ครูประจำชั้น")}</p>
+                    </header>
+                    ${this.evidenceDocumentSection(record)}
+                    <footer><span>พิมพ์เมื่อ ${this.escape(printData.printedAtLabel || "")}</span><span>หลักฐาน ${index + 1} / ${evidence.length}</span></footer>
+                </section>`).join("")
+            : "";
 
         return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${this.escape(printData.title)}</title>
             <style>
@@ -383,6 +475,7 @@ class AttendancePrintView {
                 body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:9pt}
                 .print-page{min-height:277mm;display:flex;flex-direction:column}
                 .page-break{break-after:page;page-break-after:always}
+                .evidence-page{break-before:page;page-break-before:always}
                 header{text-align:center;margin-bottom:4mm}
                 h1{margin:0;font-size:16pt}h2{margin:2mm 0 0;font-size:12pt}p{margin:1mm 0}
                 .totals{margin:0 0 3mm;padding:2mm;border:1px solid #999;text-align:center;font-weight:700}
@@ -392,9 +485,50 @@ class AttendancePrintView {
                 th{background:#eaf2f8;font-weight:700}
                 td.name{text-align:left}
                 tr{break-inside:avoid;page-break-inside:avoid}
+                .evidence{margin-top:4mm;break-inside:avoid}.evidence h3{margin:0 0 2mm;font-size:10pt}
+                .evidence-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
+                .evidence-gallery img{display:block;width:100%;height:34mm;border:1px solid #aaa;object-fit:cover}
+                .evidence-empty{padding:4mm;border:1px dashed #aaa;text-align:center;color:#666}
+                .signature{width:58mm;margin:4mm 8mm 0 auto;text-align:center}
+                .signature img{display:block;width:100%;height:20mm;object-fit:contain}
+                .signature-line{margin-top:1mm;border-top:1px solid #333;padding-top:1mm}
                 footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:3mm;font-size:8pt}
                 @media screen{body{background:#eef2f7;padding:12px}.print-page{max-width:210mm;margin:0 auto 12px;padding:10mm;background:#fff;box-shadow:0 2px 12px #999}}
-            </style></head><body>${pages}</body></html>`;
+            </style></head><body>${pages}${evidencePages}</body></html>`;
+    }
+
+    normalizePrintEvidence(records = []) {
+        return (Array.isArray(records) ? records : [])
+            .filter(record => record?.evidence?.loaded)
+            .map(record => ({
+                date: String(record.date || ""),
+                teacher: String(record.teacher || this.currentReport?.metadata?.teacher || "ครูประจำชั้น"),
+                photos: (Array.isArray(record.photos) ? record.photos : [])
+                    .filter(value => typeof value === "string" && value.startsWith("data:image/"))
+                    .slice(0, 5),
+                signature: typeof record.signature === "string" &&
+                    record.signature.startsWith("data:image/")
+                    ? record.signature
+                    : ""
+            }));
+    }
+
+    evidenceDocumentSection(record = {}) {
+        const photos = record.photos || [];
+        return `<section class="evidence">
+            <h3>📷 รูปถ่ายวันที่ ${this.escape(this.formatDate(record.date))} (${photos.length} รูป)</h3>
+            ${photos.length
+                ? `<div class="evidence-gallery">${photos.map((photo, index) => (
+                    `<img src="${this.escape(photo)}" alt="รูปหลักฐาน ${index + 1}">`
+                )).join("")}</div>`
+                : '<div class="evidence-empty">ไม่มีรูปถ่ายในรายการนี้</div>'}
+            <div class="signature">
+                ${record.signature
+                    ? `<img src="${this.escape(record.signature)}" alt="ลายเซ็นครูประจำชั้น">`
+                    : '<div class="evidence-empty">ไม่มีภาพลายเซ็น</div>'}
+                <div class="signature-line">ลงชื่อ ${this.escape(record.teacher || "ครูประจำชั้น")}<br>ครูประจำชั้น</div>
+            </div>
+        </section>`;
     }
 
     printCell(value, key) {

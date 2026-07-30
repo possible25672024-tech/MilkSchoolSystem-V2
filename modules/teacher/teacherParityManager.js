@@ -146,6 +146,27 @@ class TeacherParityManager {
         return this.currentStudentReport;
     }
 
+    async hydrateStudentReportEvidence() {
+        if (!this.currentStudentReport) {
+            throw new Error("Student report must be loaded before evidence.");
+        }
+        const history = await this.historyManager.hydrateCurrentEvidence();
+        const roomReport = this.reportBuilder.build(history, this.getContext());
+        const report = this.parityService.buildStudentReport(
+            history,
+            roomReport,
+            this.currentStudentReport.metadata?.studentId
+        );
+        this.currentStudentReport = report;
+        this.emit("milkapp:student-report-evidence-hydrated", {
+            roomId: report.metadata.roomId,
+            studentId: report.metadata.studentId,
+            recordCount: report.source.recordCount,
+            evidenceRecordCount: report.evidence.length
+        });
+        return report;
+    }
+
     async refreshRoomStock() {
         this.getSession();
         await this.teacherManager.refresh({

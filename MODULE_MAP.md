@@ -373,11 +373,16 @@ Modules and artifacts:
 - `docs/SPRINT_4_9_PLAN.md`
 - `docs/TEACHER_PARITY_CUTOVER_GATE.md`
 - `docs/SPRINT_4_9_CUTOVER_REHEARSAL.md`
+- `docs/ATTENDANCE_REPORT_EVIDENCE_HISTORY_ACTION_GATE.md`
 
 Implemented boundary:
 
 - selected-student authenticated-room Attendance report
 - read-only selected-range timeline, notes, totals, and A4 print
+- explicit Print-time hydration of available daily photos and homeroom Teacher signatures for Room A4 and Student A4
+- media-free ordinary History/report loading with metadata-only evidence events
+- History Edit/Delete actions with exact-date Daily Attendance routing
+- History Delete delegation to the accepted Attendance stock-difference, ETag, audit, and Queue recovery path
 - actual read-only Room Stock and compatible last-updated display
 - allowlisted room-isolated UI preferences only
 - complete 12-item Teacher navigation

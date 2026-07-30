@@ -345,6 +345,11 @@ Implemented:
 - authenticated-room one-student selected-range report;
 - per-date present/absent/unchecked state and notes;
 - deterministic A4 student-report pages;
+- explicit Print-time photos and homeroom Teacher signatures in Room A4 and Student A4;
+- media-free ordinary History/report loading;
+- per-date History Edit/Delete actions;
+- exact-date routing from History Edit to Daily Attendance;
+- History Delete delegation to the existing Attendance stock/ETag/audit/Queue path;
 - actual read-only Room Stock and compatible last-updated state;
 - safe room-isolated device preferences under `milkapp_teacher_preferences_v1`;
 - complete 12-item Teacher navigation;
@@ -383,7 +388,9 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 Complete Sprint 4.9 with:
 
 - desktop and Chrome Responsive `820 x 1180`;
-- Student Report A4;
+- Room and Student Report A4 evidence preview;
+- History Edit exact-date browser validation;
+- History Delete confirmation-only browser validation without a real-classroom delete;
 - Room Stock/header consistency;
 - safe-setting persistence;
 - clean Console and read-only Network evidence.
