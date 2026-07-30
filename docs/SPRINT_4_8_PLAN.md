@@ -4,7 +4,7 @@ Date: 2026-07-29
 
 Branch: `feature/sprint-4.8-report-print-ui`
 
-Status: **OPEN — PLAN AND READ-ONLY REPORT CONTRACT DEFINED / IMPLEMENTATION PENDING**
+Status: **COMPLETE — AUTOMATED, DESKTOP, 820 x 1180 AND A4 PRINT GATES PASS**
 
 ## Goal
 
@@ -281,3 +281,30 @@ Sprint 4.8 may be accepted for fast-forward integration into `develop` only when
 - full regression passes;
 - branch matches Origin;
 - working tree is clean.
+
+## 2026-07-30 Implementation Checkpoint
+
+Completed on `feature/sprint-4.8.1-report-print-ui-integration`:
+
+- authenticated-room history query;
+- pure Attendance summary builder;
+- deterministic A4 print model;
+- Teacher history, daily summary, per-student summary, and A4 print UI;
+- dynamic App loading and initialization;
+- metadata-only report and print events;
+- isolated UI validation;
+- all 48 discovered regression checks.
+
+Local Chrome browser validation passed on desktop and Responsive `820 x 1180`. The accepted report loaded 19 days for 16 students with 300 present, 4 absent, and 0 unchecked; Console remained clean, visible report traffic was GET-only, and the A4 preview fit all 16 rows on one portrait sheet.
+
+The Work Mode cloud browser remained unable to access the workspace-local URL. Sprint 4.8 PASS is based on the product owner's local Chrome evidence.
+
+Evidence:
+
+```text
+docs/ATTENDANCE_HISTORY_QUERY_GATE.md
+docs/ATTENDANCE_REPORT_BUILDER_GATE.md
+docs/ATTENDANCE_PRINT_MODEL_GATE.md
+docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md
+docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md
+```

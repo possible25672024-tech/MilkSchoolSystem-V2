@@ -46,12 +46,17 @@ for (const gate of [
     assertContains(plan, gate, `Sprint 4.8 isolated gate: ${gate}`);
 }
 
-assertContains(sprint, "Current Branch: `feature/sprint-4.8-report-print-ui`", "Active Sprint 4.8 branch");
+assertContains(sprint, "Current Branch: `feature/sprint-4.8.1-report-print-ui-integration`", "Active Sprint 4.8 branch");
 assertContains(sprint, "Sprint 4.8 — Attendance History, Report and A4 Print UI", "Active Sprint 4.8 identity");
 assertContains(sprint, "Sprint 4.7 — Shared Media and Signature Workflow merged into `develop`", "Sprint 4.7 develop integration");
 assertContains(sprint, "0ed9bc52e26bdf715240be72a84a220771068947", "Sprint 4.7 accepted integration head");
 assertContains(sprint, "Sprint 4.8 report and print modules are read-only and change no stock", "Sprint 4.8 status stock boundary");
 assertContains(sprint, "Physical iPad remains deferred", "Physical iPad deferral");
 assertContains(sprint, "No merge to `main` is authorized", "Main branch remains blocked");
+assertContains(sprint, "48/48", "Complete Sprint 4.8 regression count");
+assertContains(sprint, "Status: **100% — ACCEPTED FOR `develop` INTEGRATION**", "Sprint 4.8 integration acceptance");
+assertContains(sprint, "desktop and `820 x 1180` read-only browser validation — **PASS**", "Responsive browser gate");
+assertContains(sprint, "visible report Network methods were GET-only", "Read-only browser Network gate");
+assertContains(sprint, "A4 preview contained all 16 student rows on one portrait sheet", "A4 browser print gate");
 
 console.log("Sprint 4.8 plan checks passed.");
