@@ -11,7 +11,8 @@ class MilkSchoolApplication {
         pendingEvidenceView = window.PendingEvidenceView,
         retroactiveEvidenceView = window.RetroactiveEvidenceView,
         vacationEvidenceView = window.VacationEvidenceView,
-        attendancePrintView = window.AttendancePrintView
+        attendancePrintView = window.AttendancePrintView,
+        teacherParityView = window.TeacherParityView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -25,6 +26,7 @@ class MilkSchoolApplication {
         this.retroactiveEvidenceView = retroactiveEvidenceView;
         this.vacationEvidenceView = vacationEvidenceView;
         this.attendancePrintView = attendancePrintView;
+        this.teacherParityView = teacherParityView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -137,6 +139,7 @@ class MilkSchoolApplication {
         if (!window.PendingMilkRepository) await import("../repositories/pendingMilkRepository.js");
         if (!window.PendingMilkService) await import("../services/pendingMilkService.js");
         if (!window.PendingMilkManager) await import("../pending/pendingMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.pendingMilkView) {
             await import("../pending/pendingMilkView.js");
             this.pendingMilkView = window.PendingMilkView;
@@ -148,6 +151,7 @@ class MilkSchoolApplication {
         if (!window.RetroactiveMilkRepository) await import("../repositories/retroactiveMilkRepository.js");
         if (!window.RetroactiveMilkService) await import("../services/retroactiveMilkService.js");
         if (!window.RetroactiveMilkManager) await import("../retroactive/retroactiveMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.retroactiveMilkView) {
             await import("../retroactive/retroactiveMilkView.js");
             this.retroactiveMilkView = window.RetroactiveMilkView;
@@ -159,6 +163,7 @@ class MilkSchoolApplication {
         if (!window.VacationMilkRepository) await import("../repositories/vacationMilkRepository.js");
         if (!window.VacationMilkService) await import("../services/vacationMilkService.js");
         if (!window.VacationMilkManager) await import("../vacation/vacationMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.vacationMilkView) {
             await import("../vacation/vacationMilkView.js");
             this.vacationMilkView = window.VacationMilkView;
@@ -176,6 +181,17 @@ class MilkSchoolApplication {
             this.attendancePrintView = window.AttendancePrintView;
         }
         return this.attendancePrintView;
+    }
+
+    async ensureTeacherParityView() {
+        if (!window.TeacherParityService) await import("../services/teacherParityService.js");
+        if (!window.TeacherPreferenceStore) await import("../storage/teacherPreferenceStore.js");
+        if (!window.TeacherParityManager) await import("../teacher/teacherParityManager.js");
+        if (!this.teacherParityView) {
+            await import("../teacher/teacherParityView.js");
+            this.teacherParityView = window.TeacherParityView;
+        }
+        return this.teacherParityView;
     }
 
     async start() {
@@ -214,6 +230,9 @@ class MilkSchoolApplication {
         const vacationEvidenceView = await this.ensureVacationEvidenceView();
         if (vacationEvidenceView?.initialize) await vacationEvidenceView.initialize();
         vacationMilkView?.handlePreviewChange?.();
+
+        const teacherParityView = await this.ensureTeacherParityView();
+        if (teacherParityView?.initialize) await teacherParityView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

@@ -2,6 +2,64 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-30 — Sprint 4.9 Teacher Student Report and Navigation Parity
+
+### Added
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- Sprint 4.9 Service, Store, Manager, UI, plan, and full-regression gates
+- Sprint 4.9 plan, Teacher parity gate, and non-destructive cutover rehearsal
+- Attendance report-evidence and History-action gate
+- Shared Pending/Retroactive/Vacation A4 print renderer and automated gate
+
+### Changed
+
+- Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
+- Added explicit Print-time daily photos and homeroom Teacher signatures to Room A4 and Student A4 reports.
+- Added a monthly paper-roster form inside Student Report: whole authenticated-room roster, Monday-Friday date columns, blank ✓/✕ cells, manual totals, and a homeroom Teacher signature line.
+- Changed Room A4 to one landscape date-column matrix for the whole selected range, with daily ✓/✕/— status, row totals, and drinking percentages.
+- Moved Room A4 evidence to the following pages, grouped at up to five dates per page; every date retains one row of at most five photos and its homeroom Teacher signature.
+- Added matching A4 report actions to Pending Milk, Retroactive Milk, and Vacation Milk history using one shared read-only renderer.
+- Added operation-specific student/quantity tables, one-row photo evidence, receiver signatures, and the homeroom Teacher approval line.
+- Kept ordinary History and report loading media-free; evidence reads are limited to dates already selected in the report.
+- Added per-date History `แก้ไข` and `ลบ` actions.
+- History Edit opens and loads the exact selected date in Daily Attendance, including the existing selected-date evidence workflow.
+- History Delete delegates to the accepted Attendance Manager/Service path so present-count restoration, ETag retry, audit retry, and Queue recovery remain unchanged.
+- Added an actual read-only Room Stock and compatible last-updated view.
+- Added safe room-isolated device preferences for default range, compact mode, and remembered navigation.
+- Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
+- Reworked the 12-item Teacher menu into a full-height dark-blue left desktop sidebar matching the accepted reference structure.
+- Added grouped menu headings, icons, amber active-item marker, scrollable menu area, system/school header, and Teacher/room footer.
+- Matched the supplied Teacher reference more closely with a fixed blue top header and a left sidebar that begins below the header.
+- Moved authenticated room and Teacher identity into the upper sidebar while retaining the identity footer.
+- Added editable homeroom Teacher information in Settings: room is read-only and the Teacher name writes only the authenticated room's `teacher` leaf.
+- Added validation, session/cache refresh, and metadata-only Teacher-profile events without changing students, Attendance, Queue, Room Stock, Main Stock, ledger, or stockLog.
+- Retained the compact horizontal navigation fallback on narrower screens.
+- Changed user-facing Attendance wording from `มาเรียน` / `ขาดเรียน` to `ดื่มนม` / `ไม่ดื่มนม` across daily controls, summaries, reports, Pending rows, and A4 print.
+- Preserved internal `present` / `absent` values, stock calculations, Queue compatibility, and existing data.
+- Dynamically loaded the Sprint 4.9 boundary from `MilkSchoolApplication`.
+- Kept Firebase schema, stock rules, Queue compatibility, and protected legacy pages unchanged.
+- Kept monthly paper-roster generation read-only; it uses the already-loaded room roster and performs no Attendance, stock, Queue, or Firebase write.
+
+### Validation
+
+- Teacher Parity Service isolated check passed.
+- Teacher Preference Store safety and room-isolation check passed.
+- Teacher Parity Manager and metadata-only event check passed.
+- Teacher navigation, Student Report, and A4 UI check passed.
+- Authenticated-room Teacher-profile Repository, Service, Manager, and UI checks passed.
+- Explicit report-evidence and History Edit/Delete checks passed.
+- All 54 discovered regression checks passed.
+- Local browser gate remains pending.
+
+### Integration Decision
+
+- Draft PR only until full regression and local browser acceptance pass.
+- Does not authorize `main`, Production, legacy replacement, incident closure, backup/restore execution, or physical iPad PASS.
+
 ## 2026-07-30 — Sprint 4.8 Attendance History, Summary and A4 Print UI
 
 ### Added

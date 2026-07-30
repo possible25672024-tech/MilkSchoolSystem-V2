@@ -334,6 +334,7 @@ Modules and artifacts:
 - `modules/reports/attendanceReportBuilder.js`
 - `modules/reports/attendancePrintModel.js`
 - `modules/reports/attendancePrintView.js`
+- `modules/reports/milkOperationPrintView.js`
 - `tests/attendance-history-query-check.mjs`
 - `tests/attendance-report-builder-check.mjs`
 - `tests/attendance-print-model-check.mjs`
@@ -355,6 +356,60 @@ Completed automated boundary:
 - local desktop and `820 x 1180` browser evidence passed
 - Console remained clean and visible report Network methods were GET-only
 - one-sheet A4 preview contained all 16 student rows
+
+### Teacher Student Report, Stock, Settings and Navigation — Sprint 4.9 Active
+
+Modules and artifacts:
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- `tests/teacher-parity-service-check.mjs`
+- `tests/teacher-preference-store-check.mjs`
+- `tests/teacher-parity-manager-check.mjs`
+- `tests/teacher-parity-ui-check.mjs`
+- `tests/sprint-4.9-plan-check.mjs`
+- `tests/run-sprint-4.9-regression.mjs`
+- `docs/SPRINT_4_9_PLAN.md`
+- `docs/TEACHER_PARITY_CUTOVER_GATE.md`
+- `docs/SPRINT_4_9_CUTOVER_REHEARSAL.md`
+- `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`
+- `docs/ATTENDANCE_REPORT_EVIDENCE_HISTORY_ACTION_GATE.md`
+
+Implemented boundary:
+
+- selected-student authenticated-room Attendance report
+- read-only selected-range timeline, notes, totals, and A4 print
+- read-only monthly paper-roster form for the whole authenticated room, with Monday-Friday columns and manual ✓/✕ marking
+- explicit Print-time hydration of available daily photos and homeroom Teacher signatures for Room A4 and Student A4
+- media-free ordinary History/report loading with metadata-only evidence events
+- History Edit/Delete actions with exact-date Daily Attendance routing
+- History Delete delegation to the accepted Attendance stock-difference, ETag, audit, and Queue recovery path
+- one landscape Room A4 status matrix containing the whole selected range with ✓/✕/—, row totals, and drinking percentages
+- following Room A4 evidence pages grouped at up to five dates per page, with one photo row and homeroom Teacher signature per date
+- inline Student Attendance photo evidence with no forced per-date evidence sheet
+- shared A4 print actions for Pending, Retroactive, and Vacation records
+- one-row, five-photo evidence limit plus receiver signatures and Teacher approval line
+- actual read-only Room Stock and compatible last-updated display
+- allowlisted room-isolated UI preferences only
+- complete 12-item Teacher navigation
+- fixed blue Teacher header plus dark-blue Teacher navigation on the left below the header at desktop widths
+- grouped menu sections, active marker, room/Teacher identity, and identity footer
+- authenticated-room homeroom Teacher-name editing through `TeacherManager -> TeacherService -> RoomRepository`
+- teacher-leaf-only Firebase update; no room-record, student, stock, Attendance, Queue, ledger, or stockLog replacement
+- milk-consumption display wording without changing the compatible Attendance status keys
+- reuse of accepted Attendance, report, Queue, Pending, Retroactive, and Vacation panels
+- no Firebase schema, operational stock, Queue, ledger, stockLog, or media ownership
+
+Remaining gate:
+
+- local desktop and `820 x 1180` browser evidence
+- clean Console and read-only Network evidence
+
+Automated result:
+
+- all 54 discovered regression checks passed
 
 ### Legacy Removal — Blocked
 
@@ -421,7 +476,7 @@ Rebuild
 - Sprint 4.6 — Vacation Milk Operational UI — Completed
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
 - Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
-- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Planned
+- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Active
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions

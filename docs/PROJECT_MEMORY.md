@@ -2,7 +2,7 @@
 
 ## Project Memory
 
-Version: 3.0
+Version: 3.1
 
 Last updated: 2026-07-30
 
@@ -328,6 +328,43 @@ Current follow-up:
 - visible report Network methods were GET-only and Console remained clean
 - A4 preview fit all 16 student rows on one portrait sheet
 
+Merged into `develop` at:
+
+```text
+5436f255f57a1f925d02b28f906da7f85cb9e3d7
+```
+
+### Sprint 4.9 — Student Report, Room Stock, Settings and Navigation Parity
+
+Active branch:
+
+`feature/sprint-4.9-teacher-parity-cutover`
+
+Implemented:
+
+- authenticated-room one-student selected-range report;
+- per-date present/absent/unchecked state and notes;
+- deterministic A4 student-report pages;
+- whole-room monthly paper roster with Monday-Friday blank cells for manual ✓/✕ marking and a Teacher signature line;
+- explicit Print-time photos and homeroom Teacher signatures in Room A4 and Student A4;
+- one landscape Room A4 status matrix containing all selected date columns;
+- following Room A4 evidence pages grouped at up to five dates per page, each with photos and homeroom Teacher signature;
+- inline Student A4 evidence after the report timeline with no forced per-date evidence page;
+- a one-row, five-photo maximum for every report evidence group;
+- shared A4 print reports for Pending, Retroactive, and Vacation history records;
+- operational reports include student/quantity detail, photos, receiver signatures, and a Teacher approval line;
+- media-free ordinary History/report loading;
+- per-date History Edit/Delete actions;
+- exact-date routing from History Edit to Daily Attendance;
+- History Delete delegation to the existing Attendance stock/ETag/audit/Queue path;
+- actual read-only Room Stock and compatible last-updated state;
+- safe room-isolated device preferences under `milkapp_teacher_preferences_v1`;
+- complete 12-item Teacher navigation;
+- metadata-only events;
+- no direct Firebase, Queue, stock, ledger, stockLog, or historical media ownership;
+- isolated Service, Store, Manager, and UI gates passed;
+- all 54 discovered regression checks passed.
+
 ## Deferred Real-Classroom Incident
 
 The product owner deferred recovery so development could continue.
@@ -355,9 +392,15 @@ Recovery, Main Stock review, queue and audit review, and explicit incident closu
 
 ## Next Phase
 
-Sprint 4.8 is accepted for integration into `develop`.
+Complete Sprint 4.9 with:
 
-Open Sprint 4.9 for student report, remaining Room Stock view, Teacher settings, complete Teacher navigation parity, and cutover rehearsal.
+- desktop and Chrome Responsive `820 x 1180`;
+- Room and Student Report A4 evidence preview;
+- History Edit exact-date browser validation;
+- History Delete confirmation-only browser validation without a real-classroom delete;
+- Room Stock/header consistency;
+- safe-setting persistence;
+- clean Console and read-only Network evidence.
 
 ## Deferred Production Decisions
 

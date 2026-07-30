@@ -4,15 +4,15 @@
 
 Last Update: 2026-07-30
 
-Current Branch: `feature/sprint-4.8.1-report-print-ui-integration`
+Current Branch: `feature/sprint-4.9-teacher-parity-cutover`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 4.8 — Attendance History, Report and A4 Print UI
+Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity
 
-Status: **100% — ACCEPTED FOR `develop` INTEGRATION**
+Status: **90% — AUTOMATED UI AND 54-CHECK REGRESSION PASS / LOCAL BROWSER GATE PENDING**
 
 ## Completed Foundation
 
@@ -32,6 +32,7 @@ Status: **100% — ACCEPTED FOR `develop` INTEGRATION**
 - Sprint 4.5 Retroactive Milk Operational UI merged into `develop`.
 - Sprint 4.6 Vacation Milk Operational UI merged into `develop` at `5e462c9bb80f0f991045ff80ccd294d4240421cd`.
 - Sprint 4.7 — Shared Media and Signature Workflow merged into `develop` at `0ed9bc52e26bdf715240be72a84a220771068947`.
+- Sprint 4.8 Attendance History, Summary and A4 Print UI merged into `develop` at `5436f255f57a1f925d02b28f906da7f85cb9e3d7`.
 
 Protected `index.html` and `teacher.html` remain unchanged and operational.
 
@@ -172,6 +173,67 @@ docs/ATTENDANCE_REPORT_PRINT_UI_GATE.md
 docs/SPRINT_4_8_BROWSER_VALIDATION_REPORT.md
 ```
 
+## Sprint 4.9 Goal
+
+Complete the remaining modular Teacher parity slice with:
+
+- authenticated-room Student Report and A4 print;
+- actual read-only Room Stock and last-updated view;
+- safe room-isolated device display preferences;
+- the complete 12-item Teacher navigation;
+- a final non-destructive cutover rehearsal document.
+
+Artifacts:
+
+```text
+docs/SPRINT_4_9_PLAN.md
+docs/TEACHER_PARITY_CUTOVER_GATE.md
+docs/SPRINT_4_9_CUTOVER_REHEARSAL.md
+```
+
+## Sprint 4.9 Current Implementation
+
+- `TeacherParityService` builds pure overview, Room Stock, student-report, monthly paper-roster, range, and preference models;
+- `TeacherPreferenceStore` persists only allowlisted UI preferences under `milkapp_teacher_preferences_v1`;
+- `TeacherParityManager` delegates scoped history/report/Teacher reads and emits metadata-only events;
+- `TeacherParityView` provides all 12 required Teacher navigation items;
+- desktop Teacher navigation is a full-height dark-blue sidebar on the left with grouped menus, active highlight, and Teacher footer;
+- narrower widths retain the compact horizontal navigation fallback;
+- daily, history, student-report, Pending, and A4 views display `ดื่มนม` / `ไม่ดื่มนม` while storage remains `present` / `absent`;
+- Student Report supports selected student/date range, notes, totals, timeline, and deterministic A4 pages;
+- Student Report includes a month picker for a whole-room paper roster with Monday-Friday columns, blank manual ✓/✕ cells, totals, and a Teacher signature line;
+- Room A4 and Student A4 explicitly hydrate only the already-selected dates at Print time and render available daily photos plus the homeroom Teacher signature;
+- Room A4 renders the whole selected range in one landscape matrix with ✓/✕/— status, per-student totals, and drinking percentages;
+- Room A4 starts evidence on the following page and groups up to five dates on each evidence page;
+- each Room evidence date uses one row of at most five photos plus its homeroom Teacher signature, while Student A4 retains its inline evidence layout;
+- Pending, Retroactive, and Vacation history records expose matching A4 report actions through one shared read-only print renderer;
+- operational A4 reports include the student/quantity table, one-row photos, available receiver signatures, and the homeroom Teacher approval line;
+- ordinary History and report loading remains media-free;
+- each History date exposes confirmed `แก้ไข` and `ลบ` actions;
+- History Edit opens and loads the exact date in Daily Attendance;
+- History Delete reuses the existing Attendance Manager/Service stock-difference, ETag, audit, and Queue recovery path;
+- Room Stock view displays the actual authenticated-room balance without rebuild or mutation;
+- safe settings never write Firebase or operational data;
+- the Settings screen now separately allows an authenticated Teacher to update only their room's `teacher` leaf;
+- desktop uses a fixed blue Teacher header and a dark-blue left sidebar beginning below the header;
+- App dynamically loads and initializes the Sprint 4.9 path after accepted operational panels;
+- isolated Service, Store, Manager, and UI gates pass;
+- all 54 discovered regression checks pass;
+- local desktop/Responsive browser gates remain pending.
+
+## Sprint 4.9 Gates
+
+1. Teacher Parity Service — **PASS**;
+2. Preference Store safety and room isolation — **PASS**;
+3. Manager delegation and metadata-only events — **PASS**;
+4. 12-item reference-style top-header/left-sidebar navigation, milk wording, Teacher profile form, and Student Report A4 UI — **PASS**;
+5. explicit report evidence and History Edit/Delete automated gate — **PASS**;
+6. shared Pending/Retroactive/Vacation A4 parity gate — **PASS**;
+7. complete regression suite — **PASS, 54/54**;
+8. desktop and Chrome Responsive `820 x 1180` — **PENDING UPDATED SCREENSHOT EVIDENCE**;
+9. Console, scoped print-time evidence reads, and one scoped Teacher-name write — **PENDING LOCAL BROWSER EVIDENCE**;
+10. synchronized source tree and Draft PR publication — **PASS** (`PR #3`, remote commit `532302c`, source tree `54bb11b`).
+
 ## Read-Only Ownership Contract
 
 Preferred path:
@@ -245,7 +307,7 @@ Sprint 4.8 does not complete:
 - Main Stock remains unchanged.
 - Teacher Login must not download historical evidence.
 - Report history loads only for the authenticated room and selected date or range.
-- Evidence loads only for one explicitly selected record.
+- Evidence loads only after an explicit user action and only for dates already selected in the current report.
 
 ## Safety Boundary
 
@@ -263,8 +325,9 @@ Do not use:
 - deferred real-classroom incident;
 - public Firebase root `.read` and `.write` rules;
 - physical iPad validation;
-- student report, remaining Room Stock view, settings, and final Teacher navigation parity in Sprint 4.9;
-- remaining Teacher navigation parity;
+- updated desktop/Responsive browser evidence for Sprint 4.9 report parity;
+- remaining Admin/report adapter gaps;
+- backup export and isolated restore rehearsal;
 - explicit `main` and production approval.
 
 ## Protected Business Rules

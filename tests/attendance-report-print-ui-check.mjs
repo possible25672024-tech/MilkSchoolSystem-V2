@@ -29,6 +29,12 @@ assert.ok(
     appCode.includes("attendancePrintView.initialize"),
     "App must initialize AttendancePrintView"
 );
+for (const milkLabel of ["ดื่มนม", "ไม่ดื่มนม", "อัตราดื่มนม"]) {
+    assert.ok(viewCode.includes(milkLabel), `Attendance report UI must include ${milkLabel}`);
+}
+for (const legacyLabel of ["มาเรียน", "ขาดเรียน", "อัตรามาเรียน"]) {
+    assert.ok(!viewCode.includes(legacyLabel), `Attendance report UI must not display ${legacyLabel}`);
+}
 
 for (const forbidden of [
     "FirebaseService",
@@ -42,8 +48,7 @@ for (const forbidden of [
     "mainStock",
     "stockTransactions/",
     "stockLog/",
-    "tc_pending_saves_v1",
-    "data:image"
+    "tc_pending_saves_v1"
 ]) {
     assert.ok(!viewCode.includes(forbidden), `AttendancePrintView must not own ${forbidden}`);
 }
@@ -198,6 +203,17 @@ const history = {
         evidence: { loaded: false, photoCount: null, hasSignature: null }
     }]
 };
+const reportPhoto = "data:image/jpeg;base64,cmVwb3J0LXBob3Rv";
+const reportSignature = "data:image/png;base64,cmVwb3J0LXNpZ25hdHVyZQ==";
+const hydratedHistory = {
+    ...history,
+    records: history.records.map(record => ({
+        ...record,
+        photos: [reportPhoto],
+        signature: reportSignature,
+        evidence: { loaded: true, photoCount: 1, hasSignature: true }
+    }))
+};
 const report = {
     metadata: {
         schoolName: session.schoolName,
@@ -248,9 +264,9 @@ const printData = {
         columns: [
             { key: "rowNumber", label: "ลำดับ" },
             { key: "name", label: "ชื่อ-นามสกุล" },
-            { key: "present", label: "มา" }
+            { key: "present", label: "ดื่มนม" }
         ],
-        rows: [{ rowNumber: 1, name: "นักเรียนหนึ่ง", present: 1 }],
+        rows: [{ rowNumber: 1, id: "s1", num: "1", name: "นักเรียนหนึ่ง", present: 1 }],
         footer: {
             printedAtLabel: "2026-07-30 08:00",
             pageLabel: "หน้า 1 / 1"
@@ -264,10 +280,14 @@ let buildInput = null;
 let buildContext = null;
 let printInput = null;
 let printOptions = null;
+let removeInput = null;
 const historyManager = {
     async load(input) {
         loadInput = input;
         return history;
+    },
+    async hydrateCurrentEvidence() {
+        return hydratedHistory;
     },
     clear() {
         clearCount += 1;
@@ -313,6 +333,12 @@ const teacherManager = {
         };
     }
 };
+const attendanceManager = {
+    async remove(input) {
+        removeInput = input;
+        return { key: `${input.roomId}_${input.date}` };
+    }
+};
 const printWindow = {
     html: "",
     focused: false,
@@ -335,6 +361,7 @@ const windowObject = {
     AttendanceHistoryManager: historyManager,
     AttendanceReportBuilder: reportBuilder,
     AttendancePrintModel: printModel,
+    AttendanceManager: attendanceManager,
     AuthService: authService,
     TeacherManager: teacherManager,
     open() {
@@ -374,7 +401,9 @@ const view = new AttendancePrintView(
         eventTarget,
         openWindow: () => printWindow,
         schedule: callback => callback(),
-        now: () => "2026-07-30T01:00:00.000Z"
+        now: () => "2026-07-30T01:00:00.000Z",
+        attendanceManager,
+        confirm: () => true
     }
 );
 
@@ -406,19 +435,120 @@ assert.ok(
     "Daily table must render the selected Attendance date"
 );
 assert.ok(
+    document.getElementById("attendance-report-daily").innerHTML.includes("✏️ แก้ไข") &&
+    document.getElementById("attendance-report-daily").innerHTML.includes("🗑️ ลบ"),
+    "Daily history must expose Edit and Delete actions"
+);
+assert.ok(
     document.getElementById("attendance-report-student-list").innerHTML.includes("นักเรียนหนึ่ง"),
     "Student summary must render visible student detail"
 );
 assert.equal(document.getElementById("attendance-report-print-button").disabled, false);
 
-view.handlePrint();
+await view.handleDailyAction({
+    target: {
+        closest() {
+            return {
+                dataset: {
+                    attendanceHistoryAction: "edit",
+                    date: "2026-07-01"
+                }
+            };
+        }
+    }
+});
+const editEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-history-edit-requested");
+assert.deepEqual(plain(editEvent.detail), {
+    roomId: session.roomId,
+    date: "2026-07-01"
+});
+
+await view.handleDailyAction({
+    target: {
+        closest() {
+            return {
+                dataset: {
+                    attendanceHistoryAction: "delete",
+                    date: "2026-07-01"
+                }
+            };
+        }
+    }
+});
+assert.deepEqual(plain(removeInput), {
+    roomId: session.roomId,
+    date: "2026-07-01"
+});
+
+await view.handlePrint();
 assert.equal(printInput, report, "Printing must reuse the already-built report");
 assert.deepEqual(plain(printOptions), { printedAt: "2026-07-30T01:00:00.000Z" });
 assert.equal(printWindow.focused, true);
 assert.equal(printWindow.printed, true);
 assert.ok(printWindow.html.includes("รายงานการเช็กดื่มนมรายวัน"));
 assert.ok(printWindow.html.includes("นักเรียนหนึ่ง"));
-assert.ok(!printWindow.html.includes("data:image"), "Print output must not include media payloads");
+assert.ok(printWindow.html.includes('class="matrix-table"'), "A4 output must use the date-column matrix layout");
+assert.ok(printWindow.html.includes("<th class=\"day\">1</th>"), "A4 matrix must expose the daily date column");
+assert.ok(printWindow.html.includes('class="present">✓</td>'), "A4 matrix must mark drinking status");
+assert.ok(printWindow.html.includes(reportPhoto), "Print output must include explicitly hydrated daily photos");
+assert.ok(printWindow.html.includes(reportSignature), "Print output must include the Teacher signature");
+assert.ok(printWindow.html.includes("ครูประจำชั้น"), "Print output must label the Teacher signature");
+assert.equal(
+    (printWindow.html.match(/class="evidence-gallery"/g) || []).length,
+    1,
+    "Daily evidence must be rendered once on the following evidence page"
+);
+assert.equal(
+    (printWindow.html.match(/class="print-page evidence-page/g) || []).length,
+    1,
+    "A single loaded day must place its photos and Teacher signature on the following page"
+);
+assert.ok(
+    printWindow.html.includes("@page{size:A4 landscape"),
+    "Monthly date-column reports must use A4 landscape"
+);
+
+const sixDayRecords = Array.from({ length: 6 }, (_, index) => ({
+    ...hydratedHistory.records[0],
+    date: `2026-07-${String(index + 1).padStart(2, "0")}`,
+    data: { s1: index === 2 ? "absent" : "present", s2: "present" },
+    photos: [`data:image/jpeg;base64,DAY_${index + 1}`],
+    signature: `data:image/png;base64,SIGNATURE_${index + 1}`,
+    evidence: { loaded: true, photoCount: 1, hasSignature: true }
+}));
+const sixDayHtml = view.printDocument(printData, sixDayRecords);
+assert.equal(
+    (sixDayHtml.match(/class="matrix-table"/g) || []).length,
+    1,
+    "All selected date columns must stay in one matrix table"
+);
+for (let day = 1; day <= 6; day += 1) {
+    assert.ok(
+        sixDayHtml.includes(`<th class="day">${day}</th>`),
+        `The single matrix table must include day ${day}`
+    );
+}
+assert.equal(
+    (sixDayHtml.match(/class="print-page evidence-page/g) || []).length,
+    2,
+    "Six evidence dates must be grouped into two evidence pages"
+);
+const evidencePageChunks = sixDayHtml.split('<section class="print-page evidence-page').slice(1);
+assert.equal(
+    (evidencePageChunks[0].match(/class="evidence-day"/g) || []).length,
+    5,
+    "The first evidence page must contain five dates"
+);
+assert.equal(
+    (evidencePageChunks[1].match(/class="evidence-day"/g) || []).length,
+    1,
+    "The second evidence page must contain the remaining date"
+);
+assert.equal(
+    view.printPageCount(printData, sixDayRecords),
+    3,
+    "Six selected dates must produce one matrix page plus two evidence pages"
+);
 
 const builtEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-report-built");
 const printEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-print-opened");
@@ -431,7 +561,8 @@ assert.deepEqual(plain(builtEvent.detail), {
     studentCount: 2
 });
 assert.ok(printEvent, "Print-opened event must be emitted");
-assert.equal(printEvent.detail.pageCount, 1);
+assert.equal(printEvent.detail.pageCount, 2);
+assert.equal(printEvent.detail.evidenceRecordCount, 1);
 assert.ok(!JSON.stringify(eventTarget.dispatched).includes("นักเรียนหนึ่ง"), "Events must remain metadata-only");
 
 eventTarget.dispatch("milkapp:logout");

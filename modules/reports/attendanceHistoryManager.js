@@ -14,7 +14,11 @@ class AttendanceHistoryManager {
         if (!this.historyService) {
             this.historyService = window.AttendanceHistoryService;
         }
-        if (!this.historyService?.loadRange || !this.historyService?.normalizeRange) {
+        if (
+            !this.historyService?.loadRange ||
+            !this.historyService?.loadEvidence ||
+            !this.historyService?.normalizeRange
+        ) {
             throw new Error("AttendanceHistoryService is not available.");
         }
         return this.historyService;
@@ -75,6 +79,36 @@ class AttendanceHistoryManager {
         }
     }
 
+    async hydrateCurrentEvidence() {
+        if (!this.current) {
+            throw new Error("Attendance history must be loaded before evidence.");
+        }
+
+        const session = this.getSession();
+        const dates = this.current.records.map(record => record.date);
+        const result = await this.ensureHistoryService().loadEvidence(session, {
+            roomId: this.current.roomId,
+            startDate: this.current.startDate,
+            endDate: this.current.endDate,
+            dates
+        });
+        const evidenceByDate = new Map(result.records.map(record => [record.date, record]));
+        this.current = {
+            ...this.current,
+            records: this.current.records.map(record => {
+                const hydrated = evidenceByDate.get(record.date);
+                return hydrated ? { ...record, ...hydrated } : record;
+            })
+        };
+        this.emit("milkapp:attendance-evidence-hydrated", {
+            roomId: this.current.roomId,
+            startDate: this.current.startDate,
+            endDate: this.current.endDate,
+            recordCount: result.recordCount
+        });
+        return this.current;
+    }
+
     getSnapshot() {
         return {
             loading: this.loading,
@@ -85,6 +119,7 @@ class AttendanceHistoryManager {
                     ...record,
                     data: { ...record.data },
                     notes: { ...record.notes },
+                    photos: Array.isArray(record.photos) ? [...record.photos] : undefined,
                     evidence: { ...record.evidence }
                 }))
             } : null

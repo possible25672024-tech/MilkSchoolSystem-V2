@@ -55,9 +55,9 @@ Required:
 
 Current modular status:
 
-- roster and Attendance CRUD implemented;
-- Room Stock difference and Queue recovery implemented;
-- photo capture, Teacher signature, full history, summary, and print parity remain pending.
+- roster, Attendance CRUD, Room Stock difference, Queue recovery, photo capture, Teacher signature, scoped history, summary, and Attendance A4 print implemented;
+- desktop and Responsive `820 x 1180` Attendance/report gates passed;
+- physical iPad remains deferred and edit/delete navigation from history remains a production-parity review item.
 
 ## Pending Milk Parity
 
@@ -78,8 +78,8 @@ Required:
 
 Current modular status:
 
-- eligibility, student names, duplicate prevention, issue history, delete/rollback, Room Stock, typed Queue recovery, desktop and responsive gates passed;
-- photo/signature capture and print/report parity remain pending.
+- eligibility, student names, duplicate prevention, issue history, delete/rollback, Room Stock, typed Queue recovery, photo/signature capture, desktop and responsive gates passed;
+- dedicated Pending Milk monthly/weekly print parity remains pending for production acceptance.
 
 ## Retroactive Milk Parity
 
@@ -102,9 +102,8 @@ Required:
 
 Current modular status:
 
-- calculation, compatible record, history, issue/delete, Room Stock, and initial View implemented;
-- typed `RETRO` Queue recovery is being validated;
-- roster detail, photo/signature capture, and report/print parity remain pending.
+- calculation, compatible record, history, issue/delete, Room Stock, typed `RETRO` Queue recovery, roster detail, and photo/signature capture implemented;
+- dedicated Retroactive Milk report/print parity remains pending for production acceptance.
 
 ## Vacation Milk Parity
 
@@ -121,7 +120,10 @@ Required:
 - report and A4 printing;
 - no Main Stock mutation.
 
-Status: planned after Sprint 4.5.
+Current modular status:
+
+- authenticated-room calculation, issue history, delete/rollback, Room Stock-only behavior, typed Queue recovery, student detail, and photo/signature capture implemented;
+- dedicated Vacation Milk report/A4 parity remains pending for production acceptance.
 
 ## Student, Stock, Setting, Report, and Print Parity
 
@@ -135,6 +137,15 @@ Required:
 - browser and iPad-responsive access;
 - room-scoped and date-scoped payload loading;
 - no all-school Teacher payload download.
+
+Current modular status:
+
+- authenticated-room Student Report, selected-range timeline/notes/totals, and A4 print implemented in Sprint 4.9;
+- actual remaining Room Stock and compatible last-updated state implemented as read-only;
+- safe device-local Teacher display settings implemented without Firebase writes;
+- authenticated-room homeroom Teacher-name editing implemented as a scoped `rooms/{matchedRoomKey}/teacher` write;
+- all 12 Teacher navigation items implemented;
+- isolated automated gates passed; local Sprint 4.9 browser evidence remains pending.
 
 ## Media and Signature Boundary
 
@@ -191,6 +202,12 @@ The implementation must:
 - Teacher settings;
 - complete Teacher navigation shell;
 - final legacy parity matrix and cutover rehearsal.
+
+Implementation status:
+
+- runtime and isolated automated gates implemented on `feature/sprint-4.9-teacher-parity-cutover`;
+- full regression and local desktop/Responsive browser acceptance pending;
+- production cutover remains blocked.
 
 Sprint numbering may be split further when test isolation or risk requires it, but no listed capability may be removed from the parity contract.
 

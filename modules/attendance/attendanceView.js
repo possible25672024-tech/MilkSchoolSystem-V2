@@ -35,6 +35,7 @@ class AttendanceView {
         this.handleLoadClick = this.handleLoadClick.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
+        this.handleHistoryEditRequested = this.handleHistoryEditRequested.bind(this);
     }
 
     ensureDependencies() {
@@ -99,6 +100,10 @@ class AttendanceView {
         this.eventTarget.addEventListener?.("milkapp:attendance-deleted", this.handleAttendanceEvent);
         this.eventTarget.addEventListener?.("milkapp:attendance-stock-queued", this.handleAttendanceEvent);
         this.eventTarget.addEventListener?.("milkapp:attendance-audit-queued", this.handleAttendanceEvent);
+        this.eventTarget.addEventListener?.(
+            "milkapp:attendance-history-edit-requested",
+            this.handleHistoryEditRequested
+        );
         this.element("attendance-load-button")?.addEventListener?.("click", this.handleLoadClick);
         this.element("attendance-form")?.addEventListener?.("submit", this.handleSubmit);
         this.element("attendance-delete-button")?.addEventListener?.("click", this.handleDeleteClick);
@@ -168,6 +173,22 @@ class AttendanceView {
         this.deleteCurrentDay().catch(error => this.renderError(error));
     }
 
+    handleHistoryEditRequested(event) {
+        if (this.activeSession?.role !== "teacher") {
+            return;
+        }
+        const date = String(event?.detail?.date || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            this.renderError(new Error("วันที่จากประวัติไม่ถูกต้อง"));
+            return;
+        }
+        const input = this.element("attendance-date");
+        if (input) {
+            input.value = date;
+        }
+        this.loadSelectedDay().catch(error => this.renderError(error));
+    }
+
     activate(session) {
         if (session?.role !== "teacher") {
             this.clear();
@@ -212,7 +233,7 @@ class AttendanceView {
         }
 
         const input = this.buildSaveInput();
-        this.setBusy(true, "กำลังบันทึกข้อมูลการมาเรียน...");
+        this.setBusy(true, "กำลังบันทึกข้อมูลการดื่มนม...");
         this.clearError();
 
         try {
@@ -336,8 +357,8 @@ class AttendanceView {
             );
 
             const choices = this.createElement("div", "attendance-choices");
-            const present = this.createChoice(studentId, index, "present", "มาเรียน");
-            const absent = this.createChoice(studentId, index, "absent", "ขาดเรียน");
+            const present = this.createChoice(studentId, index, "present", "ดื่มนม");
+            const absent = this.createChoice(studentId, index, "absent", "ไม่ดื่มนม");
             choices.append?.(present.label, absent.label);
 
             const note = this.document.createElement("input");
@@ -408,7 +429,7 @@ class AttendanceView {
         if (record) {
             const totals = this.renderTotals();
             this.setStatus(
-                `โหลดข้อมูลวันที่ ${record.date || this.selectedDate()} แล้ว: มาเรียน ${totals.present} คน ขาดเรียน ${totals.absent} คน`,
+                `โหลดข้อมูลวันที่ ${record.date || this.selectedDate()} แล้ว: ดื่มนม ${totals.present} คน ไม่ดื่มนม ${totals.absent} คน`,
                 "success"
             );
         } else {
@@ -422,7 +443,7 @@ class AttendanceView {
             this.setStatus(
                 operation === "delete"
                     ? "ลบข้อมูลแล้ว และรอซิงก์การคืนสต็อกในคิวถาวร"
-                    : "บันทึกข้อมูลการมาเรียนแล้ว และรอซิงก์การปรับสต็อกในคิวถาวร",
+                    : "บันทึกข้อมูลการดื่มนมแล้ว และรอซิงก์การปรับสต็อกในคิวถาวร",
                 "warning"
             );
             return;
@@ -448,7 +469,7 @@ class AttendanceView {
             );
         } else {
             this.setStatus(
-                `บันทึกสำเร็จ: มาเรียน ${this.formatNumber(result.present || 0)} คน ขาดเรียน ${this.formatNumber(result.absent || 0)} คน · ${stockText}${conflictText}`,
+                `บันทึกสำเร็จ: ดื่มนม ${this.formatNumber(result.present || 0)} คน ไม่ดื่มนม ${this.formatNumber(result.absent || 0)} คน · ${stockText}${conflictText}`,
                 "success"
             );
         }
@@ -490,7 +511,7 @@ class AttendanceView {
     renderError(error) {
         const element = this.element("attendance-error");
         if (element) {
-            element.textContent = error?.message || "ไม่สามารถดำเนินการข้อมูลการมาเรียนได้";
+            element.textContent = error?.message || "ไม่สามารถดำเนินการข้อมูลการดื่มนมได้";
             element.hidden = false;
         }
         this.setStatus("ดำเนินการไม่สำเร็จ", "error");
@@ -536,7 +557,7 @@ class AttendanceView {
 
     requireTeacherSession() {
         if (this.activeSession?.role !== "teacher") {
-            throw new Error("ต้องเข้าสู่ระบบครูประจำชั้นก่อนใช้งานข้อมูลการมาเรียน");
+            throw new Error("ต้องเข้าสู่ระบบครูประจำชั้นก่อนใช้งานข้อมูลการดื่มนม");
         }
         return this.activeSession;
     }

@@ -1,6 +1,10 @@
 class TeacherService {
-    constructor(repository = window.TeacherRepository) {
+    constructor(
+        repository = window.TeacherRepository,
+        roomRepository = window.RoomRepository
+    ) {
         this.repository = repository;
+        this.roomRepository = roomRepository;
         this.roomStockOperationTypes = new Set(["ATTENDANCE", "PENDING", "RETRO", "VACATION"]);
     }
 
@@ -14,6 +18,18 @@ class TeacherService {
         }
 
         return this.repository;
+    }
+
+    ensureRoomRepository() {
+        if (!this.roomRepository) {
+            this.roomRepository = window.RoomRepository;
+        }
+
+        if (!this.roomRepository?.updateRoomTeacher) {
+            throw new Error("RoomRepository is not available.");
+        }
+
+        return this.roomRepository;
     }
 
     validateSession(session) {
@@ -248,6 +264,29 @@ class TeacherService {
         return {
             snapshot,
             dashboard: this.buildDashboard(snapshot)
+        };
+    }
+
+    async updateTeacherProfile(session, input = {}) {
+        const roomId = this.assertRoomAccess(session, input.roomId);
+        const teacher = String(input.teacher || "").replace(/\s+/g, " ").trim();
+
+        if (!teacher) {
+            const error = new Error("กรุณากรอกชื่อ-สกุล ครูประจำชั้น");
+            error.code = "TEACHER_NAME_REQUIRED";
+            throw error;
+        }
+        if (teacher.length > 120) {
+            const error = new Error("ชื่อ-สกุล ครูประจำชั้นต้องไม่เกิน 120 ตัวอักษร");
+            error.code = "TEACHER_NAME_TOO_LONG";
+            throw error;
+        }
+
+        await this.ensureRoomRepository().updateRoomTeacher(roomId, teacher);
+        return {
+            roomId,
+            roomName: String(session.roomName || session.roomSnapshot?.name || roomId),
+            teacher
         };
     }
 

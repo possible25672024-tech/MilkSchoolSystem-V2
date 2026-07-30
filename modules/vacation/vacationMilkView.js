@@ -11,6 +11,7 @@ class VacationMilkView {
         this.document = options.document || window.document;
         this.eventTarget = options.eventTarget || window;
         this.confirm = options.confirm || (message => window.confirm(message));
+        this.operationPrintView = options.operationPrintView || window.MilkOperationPrintView;
         this.initialized = false;
         this.bound = false;
         this.activeSession = null;
@@ -73,6 +74,8 @@ class VacationMilkView {
             .vacation-milk-actions button{width:min(260px,100%)}
             .vacation-milk-history{display:grid;gap:10px;margin-top:16px}
             .vacation-milk-history-row{display:grid;grid-template-columns:minmax(190px,1fr) auto;align-items:center;gap:12px;border:1px solid #dbe5ef;border-radius:12px;padding:13px;background:#fff}
+            .vacation-milk-history-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+            .vacation-milk-history-actions button{width:auto;margin:0}
             .vacation-milk-history-title{font-weight:800;color:#1a5276}.vacation-milk-history-meta{margin-top:3px;color:#64748b;font-size:.82rem;overflow-wrap:anywhere}
             .vacation-milk-history-badge{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:.76rem;font-weight:800}
             .vacation-milk-empty{margin:0;border-radius:10px;padding:16px;color:#64748b;background:#f8fafc}
@@ -223,9 +226,15 @@ class VacationMilkView {
     }
 
     async handleDeleteClick(event) {
+        const printButton = event?.target?.closest?.("[data-vacation-print]");
+        if (printButton) {
+            this.printHistoryRecord(String(printButton.dataset.vacationPrint || ""));
+            return;
+        }
         const button = event?.target?.closest?.("[data-vacation-delete]");
         if (!button) return;
         const recordId = String(button.dataset.vacationDelete || "");
+        if (!recordId) return;
         const quantity = Number(button.dataset.quantity || 0);
         if (!this.confirm(`ยืนยันลบรายการและคืนสต็อก ${quantity} กล่อง?`)) return;
         this.setBusy(true, "กำลังลบและคืนสต็อก...");
@@ -315,9 +324,39 @@ class VacationMilkView {
                     <div class="vacation-milk-history-meta">จ่าย ${this.escape(record.date)} · ${this.escape(record.days || 30)} วัน · ${this.escape(record.studentCount || 0)} คน · ${this.escape(record.totalBoxes || 0)} กล่อง · รูป ${(record.photos || []).length}</div>
                     <span class="vacation-milk-history-badge">จ่ายช่วงปิดเทอม</span>
                 </div>
-                <button type="button" data-vacation-delete="${this.escape(record.id)}" data-quantity="${this.escape(record.totalBoxes || 0)}">ลบและคืนสต็อก</button>
+                <span class="vacation-milk-history-actions">
+                    <button type="button" data-vacation-print="${this.escape(record.id)}">🖨️ พิมพ์รายงาน A4</button>
+                    <button type="button" data-vacation-delete="${this.escape(record.id)}" data-quantity="${this.escape(record.totalBoxes || 0)}">ลบและคืนสต็อก</button>
+                </span>
             </article>
         `).join("");
+    }
+
+    printHistoryRecord(recordId) {
+        const record = (this.currentHistory?.records || []).find(
+            item => String(item.id) === String(recordId)
+        );
+        if (!record) {
+            this.renderError(new Error("ไม่พบรายการนมช่วงปิดเทอมสำหรับพิมพ์"));
+            return;
+        }
+        try {
+            this.operationPrintView ||= window.MilkOperationPrintView;
+            if (!this.operationPrintView?.print) {
+                throw new Error("ระบบพิมพ์รายงานจ่ายนมยังไม่พร้อมใช้งาน");
+            }
+            const snapshot = this.teacherManager.getSnapshot?.() || {};
+            this.operationPrintView.print({
+                kind: "vacation",
+                record,
+                session: this.activeSession,
+                settings: snapshot.settings || {},
+                students: snapshot.students || snapshot.room?.students || []
+            });
+            this.setStatus("เปิดหน้าพิมพ์รายงานนมช่วงปิดเทอมแล้ว", "success");
+        } catch (error) {
+            this.renderError(error);
+        }
     }
 
     setBusy(busy, message = "") {
