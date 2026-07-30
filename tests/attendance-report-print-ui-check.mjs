@@ -266,7 +266,7 @@ const printData = {
             { key: "name", label: "ชื่อ-นามสกุล" },
             { key: "present", label: "ดื่มนม" }
         ],
-        rows: [{ rowNumber: 1, name: "นักเรียนหนึ่ง", present: 1 }],
+        rows: [{ rowNumber: 1, id: "s1", num: "1", name: "นักเรียนหนึ่ง", present: 1 }],
         footer: {
             printedAtLabel: "2026-07-30 08:00",
             pageLabel: "หน้า 1 / 1"
@@ -487,9 +487,17 @@ assert.equal(printWindow.focused, true);
 assert.equal(printWindow.printed, true);
 assert.ok(printWindow.html.includes("รายงานการเช็กดื่มนมรายวัน"));
 assert.ok(printWindow.html.includes("นักเรียนหนึ่ง"));
+assert.ok(printWindow.html.includes('class="matrix-table"'), "A4 output must use the date-column matrix layout");
+assert.ok(printWindow.html.includes("<th class=\"day\">1</th>"), "A4 matrix must expose the daily date column");
+assert.ok(printWindow.html.includes('class="present">✓</td>'), "A4 matrix must mark drinking status");
 assert.ok(printWindow.html.includes(reportPhoto), "Print output must include explicitly hydrated daily photos");
 assert.ok(printWindow.html.includes(reportSignature), "Print output must include the Teacher signature");
 assert.ok(printWindow.html.includes("ครูประจำชั้น"), "Print output must label the Teacher signature");
+assert.equal(
+    (printWindow.html.match(/class="evidence-gallery"/g) || []).length,
+    1,
+    "Daily evidence must be appended inline once instead of using a separate page"
+);
 
 const builtEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-report-built");
 const printEvent = eventTarget.dispatched.find(event => event.type === "milkapp:attendance-print-opened");

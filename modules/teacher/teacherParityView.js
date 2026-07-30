@@ -701,6 +701,7 @@ class TeacherParityView {
         const totals = report.totals || {};
         const pages = this.chunk(report.timeline || [], 28);
         const safePages = pages.length ? pages : [[]];
+        const evidence = Array.isArray(report.evidence) ? report.evidence : [];
         const body = safePages.map((rows, index) => `
             <section class="page${index < safePages.length - 1 ? " break" : ""}">
                 <header><h1>รายงานนักเรียน</h1><h2>${this.escape(metadata.schoolName || "โรงเรียน")}</h2>
@@ -712,27 +713,21 @@ class TeacherParityView {
                 <table><thead><tr><th>วันที่</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
                     <tbody>${rows.map(row => `<tr><td>${this.escape(this.formatDate(row.date))}</td><td>${this.escape(this.statusLabel(row.status))}</td><td class="note">${this.escape(row.note || "—")}</td></tr>`).join("")}</tbody>
                 </table>
+                ${evidence.length && index === safePages.length - 1
+                    ? this.studentEvidenceDocument(evidence, metadata)
+                    : ""}
                 <footer><span>พิมพ์เมื่อ ${this.escape(this.formatTimestamp(this.now()))}</span><span>หน้า ${index + 1} / ${safePages.length}</span></footer>
-            </section>`).join("");
-        const evidence = Array.isArray(report.evidence) ? report.evidence : [];
-        const evidencePages = evidence.map((record, index) => `
-            <section class="page evidence-page${index < evidence.length - 1 ? " break" : ""}">
-                <header><h1>หลักฐานรายงานนักเรียน</h1><h2>${this.escape(metadata.schoolName || "โรงเรียน")}</h2>
-                    <p>ห้อง ${this.escape(metadata.roomName || "—")} · ${this.escape(metadata.studentName || "นักเรียน")}</p>
-                </header>
-                ${this.studentEvidenceDocument([record], metadata)}
-                <footer><span>พิมพ์เมื่อ ${this.escape(this.formatTimestamp(this.now()))}</span><span>หลักฐาน ${index + 1} / ${evidence.length}</span></footer>
             </section>`).join("");
         return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายงานนักเรียน</title><style>
             @page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:10pt}
-            .page{min-height:277mm;display:flex;flex-direction:column}.break{break-after:page;page-break-after:always}.evidence-page{break-before:page;page-break-before:always}header{text-align:center;margin-bottom:4mm}
+            .page{min-height:277mm;display:flex;flex-direction:column}.break{break-after:page;page-break-after:always}header{text-align:center;margin-bottom:4mm}
             h1,h2,p{margin:1mm}.totals{margin-bottom:4mm;padding:3mm;border:1px solid #999;text-align:center;font-weight:700}
             table{width:100%;border-collapse:collapse}th,td{padding:2.2mm;border:1px solid #777;text-align:center}td.note{text-align:left}
-            .evidence-record{margin-top:4mm;break-inside:avoid}.evidence-record h3{font-size:10pt}.evidence-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
-            .evidence-gallery img{width:100%;height:30mm;border:1px solid #aaa;object-fit:cover}.signature{width:58mm;margin:3mm 6mm 0 auto;text-align:center}
+            .evidence-record{margin-top:4mm;break-inside:avoid}.evidence-record h3{font-size:10pt}.evidence-gallery{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.5mm}
+            .evidence-gallery img{width:100%;height:25mm;border:1px solid #aaa;object-fit:cover}.signature{width:58mm;margin:3mm 6mm 0 auto;text-align:center}
             .signature img{width:100%;height:18mm;object-fit:contain}.signature-line{border-top:1px solid #333;padding-top:1mm}.evidence-empty{padding:3mm;border:1px dashed #aaa;color:#666;text-align:center}
             footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:4mm}
-        </style></head><body>${body}${evidencePages}</body></html>`;
+        </style></head><body>${body}</body></html>`;
     }
 
     studentEvidenceDocument(records = [], metadata = {}) {

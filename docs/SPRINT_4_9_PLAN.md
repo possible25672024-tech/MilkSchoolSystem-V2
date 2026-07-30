@@ -150,6 +150,7 @@ modules/services/teacherParityService.js
 modules/storage/teacherPreferenceStore.js
 modules/teacher/teacherParityManager.js
 modules/teacher/teacherParityView.js
+modules/reports/milkOperationPrintView.js
 modules/core/app.js
 ```
 
@@ -166,6 +167,7 @@ milkapp:teacher-room-stock-viewed
 milkapp:teacher-preferences-saved
 milkapp:teacher-profile-updated
 milkapp:teacher-profile-saved
+milkapp:milk-operation-print-opened
 ```
 
 Events must not contain student names, notes, photo/signature data, credentials, Queue payloads, or Firebase records.
@@ -222,6 +224,11 @@ Events must not contain student names, notes, photo/signature data, credentials,
 - reuse of accepted operational panels;
 - student report and A4 rendering;
 - print-time daily photos and homeroom Teacher signature;
+- reference-style Room A4 matrices with at most five date columns, ✓/✕/— status, totals, and percentages;
+- inline report evidence without forced per-date evidence pages;
+- one photo row of at most five images per evidence date;
+- shared Pending, Retroactive, and Vacation A4 report actions;
+- operational student/quantity tables, receiver signatures, and Teacher approval line;
 - History Edit/Delete controls and exact-date Daily Attendance routing;
 - read-only stock display;
 - safe settings;
@@ -231,7 +238,7 @@ Events must not contain student names, notes, photo/signature data, credentials,
 
 ### Gate E — Full Regression
 
-Run every `tests/*-check.mjs` file in a separate Node process. Require at least 53 checks and all checks PASS.
+Run every `tests/*-check.mjs` file in a separate Node process. Require at least 54 checks and all checks PASS.
 
 ## Browser Acceptance
 
@@ -245,6 +252,9 @@ Required local evidence after automated validation:
 - Student Report loads one selected student/date range;
 - Student Report A4 preview;
 - Room A4 and Student A4 previews contain the available daily photos and homeroom Teacher signature;
+- Room A4 preview uses the accepted date-column matrix and splits longer ranges into groups of five dates;
+- Room A4 and Student A4 keep each date's photos directly after the report table in one row, without forced evidence pages;
+- Pending, Retroactive, and Vacation history print actions produce matching A4 tables, photos, available receiver signatures, and Teacher approval lines;
 - History Edit opens the exact selected date with statuses, notes, photos, and signature available through the existing selected-date evidence control;
 - History Delete requires confirmation and is validated only with generated/isolated data;
 - Room Stock matches the Teacher header value;
