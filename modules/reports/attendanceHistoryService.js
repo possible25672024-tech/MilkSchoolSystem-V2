@@ -27,6 +27,17 @@ class AttendanceHistoryService {
         return this.repository;
     }
 
+    ensureEvidenceRepository() {
+        const repository = this.ensureRepository();
+        if (!repository?.loadAttendanceRecord) {
+            throw this.businessError(
+                "ATTENDANCE_EVIDENCE_REPOSITORY_UNAVAILABLE",
+                "AttendanceRepository selected-record evidence reads are not available."
+            );
+        }
+        return repository;
+    }
+
     ensureTeacherService() {
         if (!this.teacherService) {
             this.teacherService = window.TeacherService;
@@ -168,6 +179,28 @@ class AttendanceHistoryService {
         };
     }
 
+    normalizeEvidenceRecord(session, roomId, date, rawRecord = {}) {
+        const record = this.normalizeRecord(session, roomId, date, rawRecord);
+        const photos = (Array.isArray(rawRecord?.photos) ? rawRecord.photos : [])
+            .filter(value => typeof value === "string" && value.startsWith("data:image/"))
+            .slice(0, 5);
+        const signature = typeof rawRecord?.signature === "string" &&
+            rawRecord.signature.startsWith("data:image/")
+            ? rawRecord.signature
+            : "";
+
+        return {
+            ...record,
+            photos,
+            signature,
+            evidence: {
+                loaded: true,
+                photoCount: photos.length,
+                hasSignature: Boolean(signature)
+            }
+        };
+    }
+
     async mapWithConcurrency(values, worker) {
         const results = new Array(values.length);
         let cursor = 0;
@@ -215,6 +248,36 @@ class AttendanceHistoryService {
             startDate: range.startDate,
             endDate: range.endDate,
             requestedDays: range.days,
+            recordCount: records.length,
+            records
+        };
+    }
+
+    async loadEvidence(session, input = {}) {
+        const roomId = this.ensureTeacherService().assertRoomAccess(session, input?.roomId);
+        const range = this.normalizeRange(input);
+        const requestedDates = Array.isArray(input?.dates)
+            ? [...new Set(input.dates.map(date => this.requireDate(date, "date")))]
+            : this.enumerateDates(range.startDate, range.endDate);
+        const dates = requestedDates.filter(date => (
+            date >= range.startDate && date <= range.endDate
+        ));
+        const repository = this.ensureEvidenceRepository();
+        const rawRecords = await this.mapWithConcurrency(
+            dates,
+            date => repository.loadAttendanceRecord(roomId, date)
+        );
+        const records = rawRecords
+            .map((record, index) => (
+                record ? this.normalizeEvidenceRecord(session, roomId, dates[index], record) : null
+            ))
+            .filter(Boolean)
+            .sort((left, right) => left.date.localeCompare(right.date));
+
+        return {
+            roomId,
+            startDate: range.startDate,
+            endDate: range.endDate,
             recordCount: records.length,
             records
         };

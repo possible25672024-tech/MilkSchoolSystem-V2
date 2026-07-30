@@ -217,6 +217,18 @@ const report = {
     ],
     source: { recordCount: 2, evidenceHydrated: false, readOnly: true }
 };
+const reportPhoto = "data:image/jpeg;base64,c3R1ZGVudC1yZXBvcnQtcGhvdG8=";
+const reportSignature = "data:image/png;base64,c3R1ZGVudC1yZXBvcnQtc2lnbmF0dXJl";
+const reportWithEvidence = {
+    ...report,
+    evidence: [{
+        date: "2026-07-01",
+        teacher: "ครูทดสอบ",
+        photos: [reportPhoto],
+        signature: reportSignature
+    }],
+    source: { ...report.source, evidenceHydrated: true }
+};
 const manager = {
     parityService: {
         defaultRange() {
@@ -235,6 +247,9 @@ const manager = {
     rememberSection() {},
     async loadStudentReport() {
         return report;
+    },
+    async hydrateStudentReportEvidence() {
+        return reportWithEvidence;
     },
     async refreshRoomStock() {
         return { roomName: "อ.3-6", balance: 12, updatedAt: "", readOnly: true };
@@ -318,14 +333,16 @@ assert.equal(document.getElementById("attendance-panel").hidden, true);
 await view.handleStudentReportLoad();
 assert.equal(view.getState().studentReportLoaded, true);
 assert.ok(document.getElementById("student-report-timeline").innerHTML.includes("ไม่ดื่มนม"));
-view.handleStudentReportPrint();
+await view.handleStudentReportPrint();
 assert.ok(printWindow.html.includes("รายงานนักเรียน"));
 assert.ok(printWindow.html.includes("นักเรียนหนึ่ง"));
 assert.ok(printWindow.html.includes("ดื่มนม 1"));
 assert.ok(printWindow.html.includes("ไม่ดื่มนม 1"));
 assert.ok(!printWindow.html.includes("มาเรียน"));
 assert.ok(!printWindow.html.includes("ขาดเรียน"));
-assert.ok(!printWindow.html.includes("data:image"));
+assert.ok(printWindow.html.includes(reportPhoto));
+assert.ok(printWindow.html.includes(reportSignature));
+assert.ok(printWindow.html.includes("ครูประจำชั้น"));
 assert.equal(printWindow.printed, true);
 
 console.log("Teacher parity UI checks passed.");

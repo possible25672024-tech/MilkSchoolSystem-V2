@@ -367,6 +367,15 @@ eventTarget.dispatch("milkapp:attendance-stock-queued", {
 });
 assert.ok(document.getElementById("attendance-status").textContent.includes("รอซิงก์"), "Partial save must show persistent queue feedback");
 
+eventTarget.dispatch("milkapp:attendance-history-edit-requested", {
+    roomId: "r1",
+    date: "2026-07-27"
+});
+await Promise.resolve();
+await Promise.resolve();
+assert.equal(document.getElementById("attendance-date").value, "2026-07-27");
+assert.equal(loadDate, "2026-07-27", "History Edit must load the exact selected Attendance date");
+
 const stateBeforeLogout = view.getState();
 assert.equal(stateBeforeLogout.active, true, "Teacher Attendance View must report active state");
 assert.equal(stateBeforeLogout.studentCount, 2, "Teacher Attendance View state must report room students");

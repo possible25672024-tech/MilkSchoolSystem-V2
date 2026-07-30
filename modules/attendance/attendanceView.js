@@ -35,6 +35,7 @@ class AttendanceView {
         this.handleLoadClick = this.handleLoadClick.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
+        this.handleHistoryEditRequested = this.handleHistoryEditRequested.bind(this);
     }
 
     ensureDependencies() {
@@ -99,6 +100,10 @@ class AttendanceView {
         this.eventTarget.addEventListener?.("milkapp:attendance-deleted", this.handleAttendanceEvent);
         this.eventTarget.addEventListener?.("milkapp:attendance-stock-queued", this.handleAttendanceEvent);
         this.eventTarget.addEventListener?.("milkapp:attendance-audit-queued", this.handleAttendanceEvent);
+        this.eventTarget.addEventListener?.(
+            "milkapp:attendance-history-edit-requested",
+            this.handleHistoryEditRequested
+        );
         this.element("attendance-load-button")?.addEventListener?.("click", this.handleLoadClick);
         this.element("attendance-form")?.addEventListener?.("submit", this.handleSubmit);
         this.element("attendance-delete-button")?.addEventListener?.("click", this.handleDeleteClick);
@@ -166,6 +171,22 @@ class AttendanceView {
 
     handleDeleteClick() {
         this.deleteCurrentDay().catch(error => this.renderError(error));
+    }
+
+    handleHistoryEditRequested(event) {
+        if (this.activeSession?.role !== "teacher") {
+            return;
+        }
+        const date = String(event?.detail?.date || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            this.renderError(new Error("วันที่จากประวัติไม่ถูกต้อง"));
+            return;
+        }
+        const input = this.element("attendance-date");
+        if (input) {
+            input.value = date;
+        }
+        this.loadSelectedDay().catch(error => this.renderError(error));
     }
 
     activate(session) {

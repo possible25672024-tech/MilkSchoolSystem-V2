@@ -95,9 +95,14 @@ const sourceRecords = {
 };
 const originalRecords = structuredClone(sourceRecords);
 const calls = [];
+const evidenceCalls = [];
 const repository = {
     async loadAttendanceHistoryRecord(roomId, date) {
         calls.push({ roomId, date });
+        return sourceRecords[date] || null;
+    },
+    async loadAttendanceRecord(roomId, date) {
+        evidenceCalls.push({ roomId, date });
         return sourceRecords[date] || null;
     }
 };
@@ -204,6 +209,34 @@ assert.ok(!JSON.stringify(dispatched).includes("data:image"), "History events mu
 const snapshot = manager.getSnapshot();
 snapshot.current.records[0].data.s1 = "absent";
 assert.equal(manager.getSnapshot().current.records[0].data.s1, "present", "Manager snapshots must be defensive copies");
+
+dispatched.length = 0;
+const hydrated = await manager.hydrateCurrentEvidence();
+assert.deepEqual(evidenceCalls, [
+    { roomId: "room-36", date: "2026-07-01" },
+    { roomId: "room-36", date: "2026-07-03" }
+], "Evidence hydration must read only records already selected in the loaded history");
+assert.deepEqual(toPlain(hydrated.records[0].evidence), {
+    loaded: true,
+    photoCount: 1,
+    hasSignature: true
+});
+assert.deepEqual(toPlain(hydrated.records[0].photos), [
+    "data:image/jpeg;base64,SECRET"
+]);
+assert.equal(hydrated.records[0].signature, "data:image/png;base64,SECRET");
+assert.deepEqual(
+    dispatched.map(event => event.type),
+    ["milkapp:attendance-evidence-hydrated"]
+);
+assert.ok(!JSON.stringify(dispatched).includes("data:image"), "Evidence events must remain metadata-only");
+const hydratedSnapshot = manager.getSnapshot();
+hydratedSnapshot.current.records[0].photos[0] = "changed";
+assert.equal(
+    manager.getSnapshot().current.records[0].photos[0],
+    "data:image/jpeg;base64,SECRET",
+    "Hydrated evidence snapshots must copy photo arrays"
+);
 
 const emptyService = new AttendanceHistoryService({
     async loadAttendanceHistoryRecord() {

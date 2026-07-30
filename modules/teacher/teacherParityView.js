@@ -40,6 +40,7 @@ class TeacherParityView {
         this.handleRoomStockRefresh = this.handleRoomStockRefresh.bind(this);
         this.handleSettingsSave = this.handleSettingsSave.bind(this);
         this.handleTeacherProfileSave = this.handleTeacherProfileSave.bind(this);
+        this.handleHistoryEditRequested = this.handleHistoryEditRequested.bind(this);
     }
 
     ensureDependencies() {
@@ -48,6 +49,7 @@ class TeacherParityView {
         this.authService ||= window.AuthService;
         if (
             !this.manager?.loadStudentReport ||
+            !this.manager?.hydrateStudentReportEvidence ||
             !this.manager?.refreshRoomStock ||
             !this.manager?.saveTeacherProfile
         ) {
@@ -406,6 +408,10 @@ class TeacherParityView {
         this.eventTarget.addEventListener?.("milkapp:login-success", this.handleLoginSuccess);
         this.eventTarget.addEventListener?.("milkapp:logout", this.handleLogout);
         this.eventTarget.addEventListener?.("milkapp:teacher-refreshed", this.handleTeacherRefreshed);
+        this.eventTarget.addEventListener?.(
+            "milkapp:attendance-history-edit-requested",
+            this.handleHistoryEditRequested
+        );
         this.element("teacher-parity-nav")?.addEventListener?.("click", this.handleNavigation);
         this.element("teacher-parity-topbar")?.addEventListener?.("click", this.handleNavigation);
         this.element("student-report-load-button")?.addEventListener?.("click", this.handleStudentReportLoad);
@@ -433,6 +439,13 @@ class TeacherParityView {
             this.renderTeacherProfile(session);
             this.renderOverview();
             this.populateStudents();
+        }
+    }
+
+    handleHistoryEditRequested() {
+        if (this.activeSession?.role === "teacher") {
+            this.showSection("attendance");
+            this.manager.rememberSection("attendance");
         }
     }
 
@@ -649,7 +662,7 @@ class TeacherParityView {
         this.setStatus("student-report-status", `โหลดรายงานนักเรียนสำเร็จ ${totals.schoolDays || 0} วัน`, "success");
     }
 
-    handleStudentReportPrint() {
+    async handleStudentReportPrint() {
         if (!this.currentStudentReport) {
             this.renderError(
                 "student-report-error",
@@ -659,6 +672,13 @@ class TeacherParityView {
             return;
         }
         try {
+            this.setStudentBusy(true);
+            this.setStatus(
+                "student-report-status",
+                "กำลังโหลดรูปและลายเซ็นเฉพาะวันที่ในรายงาน...",
+                "idle"
+            );
+            this.currentStudentReport = await this.manager.hydrateStudentReportEvidence();
             const printWindow = this.openWindow("", "_blank");
             if (!printWindow?.document) {
                 throw new Error("เบราว์เซอร์ปิดกั้นหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up");
@@ -671,6 +691,8 @@ class TeacherParityView {
             });
         } catch (error) {
             this.renderError("student-report-error", "student-report-status", error);
+        } finally {
+            this.setStudentBusy(false);
         }
     }
 
@@ -692,12 +714,45 @@ class TeacherParityView {
                 </table>
                 <footer><span>พิมพ์เมื่อ ${this.escape(this.formatTimestamp(this.now()))}</span><span>หน้า ${index + 1} / ${safePages.length}</span></footer>
             </section>`).join("");
+        const evidence = Array.isArray(report.evidence) ? report.evidence : [];
+        const evidencePages = evidence.map((record, index) => `
+            <section class="page evidence-page${index < evidence.length - 1 ? " break" : ""}">
+                <header><h1>หลักฐานรายงานนักเรียน</h1><h2>${this.escape(metadata.schoolName || "โรงเรียน")}</h2>
+                    <p>ห้อง ${this.escape(metadata.roomName || "—")} · ${this.escape(metadata.studentName || "นักเรียน")}</p>
+                </header>
+                ${this.studentEvidenceDocument([record], metadata)}
+                <footer><span>พิมพ์เมื่อ ${this.escape(this.formatTimestamp(this.now()))}</span><span>หลักฐาน ${index + 1} / ${evidence.length}</span></footer>
+            </section>`).join("");
         return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายงานนักเรียน</title><style>
             @page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;color:#111;font-family:"Sarabun","Noto Sans Thai",sans-serif;font-size:10pt}
-            .page{min-height:277mm;display:flex;flex-direction:column}.break{break-after:page;page-break-after:always}header{text-align:center;margin-bottom:4mm}
+            .page{min-height:277mm;display:flex;flex-direction:column}.break{break-after:page;page-break-after:always}.evidence-page{break-before:page;page-break-before:always}header{text-align:center;margin-bottom:4mm}
             h1,h2,p{margin:1mm}.totals{margin-bottom:4mm;padding:3mm;border:1px solid #999;text-align:center;font-weight:700}
-            table{width:100%;border-collapse:collapse}th,td{padding:2.2mm;border:1px solid #777;text-align:center}td.note{text-align:left}footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:4mm}
-        </style></head><body>${body}</body></html>`;
+            table{width:100%;border-collapse:collapse}th,td{padding:2.2mm;border:1px solid #777;text-align:center}td.note{text-align:left}
+            .evidence-record{margin-top:4mm;break-inside:avoid}.evidence-record h3{font-size:10pt}.evidence-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
+            .evidence-gallery img{width:100%;height:30mm;border:1px solid #aaa;object-fit:cover}.signature{width:58mm;margin:3mm 6mm 0 auto;text-align:center}
+            .signature img{width:100%;height:18mm;object-fit:contain}.signature-line{border-top:1px solid #333;padding-top:1mm}.evidence-empty{padding:3mm;border:1px dashed #aaa;color:#666;text-align:center}
+            footer{display:flex;justify-content:space-between;margin-top:auto;padding-top:4mm}
+        </style></head><body>${body}${evidencePages}</body></html>`;
+    }
+
+    studentEvidenceDocument(records = [], metadata = {}) {
+        return (Array.isArray(records) ? records : []).map(record => {
+            const photos = Array.isArray(record.photos) ? record.photos.slice(0, 5) : [];
+            return `<section class="evidence-record">
+                <h3>📷 หลักฐานวันที่ ${this.escape(this.formatDate(record.date))}</h3>
+                ${photos.length
+                    ? `<div class="evidence-gallery">${photos.map((photo, index) => (
+                        `<img src="${this.escape(photo)}" alt="รูปหลักฐาน ${index + 1}">`
+                    )).join("")}</div>`
+                    : '<div class="evidence-empty">ไม่มีรูปถ่ายในรายการนี้</div>'}
+                <div class="signature">
+                    ${record.signature
+                        ? `<img src="${this.escape(record.signature)}" alt="ลายเซ็นครูประจำชั้น">`
+                        : '<div class="evidence-empty">ไม่มีภาพลายเซ็น</div>'}
+                    <div class="signature-line">ลงชื่อ ${this.escape(record.teacher || metadata.teacher || "ครูประจำชั้น")}<br>ครูประจำชั้น</div>
+                </div>
+            </section>`;
+        }).join("");
     }
 
     async handleRoomStockRefresh() {

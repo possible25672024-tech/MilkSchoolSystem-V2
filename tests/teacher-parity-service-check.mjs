@@ -75,7 +75,11 @@ const history = {
             date: "2026-07-01",
             data: { s1: "present" },
             notes: { s1: "ปกติ" },
-            savedAt: "2026-07-01T01:00:00.000Z"
+            savedAt: "2026-07-01T01:00:00.000Z",
+            teacher: "ครูทดสอบ",
+            photos: ["data:image/jpeg;base64,PHOTO"],
+            signature: "data:image/png;base64,SIGNATURE",
+            evidence: { loaded: true, photoCount: 1, hasSignature: true }
         },
         {
             date: "2026-07-02",
@@ -120,7 +124,17 @@ assert.deepEqual(
     JSON.parse(JSON.stringify(studentReport.timeline.map(row => row.status))),
     ["present", "absent", "unchecked"]
 );
-assert.equal(studentReport.source.evidenceHydrated, false);
+assert.equal(studentReport.source.evidenceHydrated, true);
+assert.equal(studentReport.evidence.length, 1);
+assert.deepEqual(
+    JSON.parse(JSON.stringify(studentReport.evidence[0])),
+    {
+        date: "2026-07-01",
+        teacher: "ครูทดสอบ",
+        photos: ["data:image/jpeg;base64,PHOTO"],
+        signature: "data:image/png;base64,SIGNATURE"
+    }
+);
 assert.equal(studentReport.source.readOnly, true);
 assert.throws(
     () => service.buildStudentReport(history, roomReport, "missing"),
