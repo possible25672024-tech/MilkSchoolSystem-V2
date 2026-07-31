@@ -4,7 +4,7 @@ Date: 2026-07-31
 
 Branch: `feature/sprint-5.7-operational-reports`
 
-Status: **AUTOMATED PASS — 73/73 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 74/74 / LIVE SERVER BROWSER GATE PENDING**
 
 ## Goal
 
@@ -36,7 +36,8 @@ Status: **AUTOMATED PASS — 73/73 / LIVE SERVER BROWSER GATE PENDING**
 
 - แสดงวันที่ ห้อง นักเรียน จำนวนวัน ลัง กล่องเศษ รวม Main Stock ก่อน/หลัง
   และหมายเหตุ;
-- เรียงวันที่ใหม่ก่อนและชื่อห้องแบบภาษาไทยเมื่อวันที่เท่ากัน;
+- เรียงรายการตัด Main Stock จากเก่าไปใหม่ โดยใช้เวลาบันทึก และใช้สาย
+  `stockBefore → stockAfter` เป็น fallback สำหรับข้อมูลเก่าที่ไม่มีเวลา;
 - จำนวนรายการ จำนวนห้อง และจำนวนกล่องรวมต้องมาจากรายการในช่วงเดียวกัน;
 - ประวัติยังเป็น read-only ไม่มีแก้ไข ลบ หรือปรับส่วนต่างใน Sprint นี้.
 
@@ -65,7 +66,8 @@ Status: **AUTOMATED PASS — 73/73 / LIVE SERVER BROWSER GATE PENDING**
 - out-of-range hydration prevention: **PASS**;
 - media/signature exclusion: **PASS**;
 - Admin View, A4, and UTF-8 CSV boundary: **PASS**;
-- complete regression: **PASS, 73/73**.
+- Thai grade/room and Main Stock chronology ordering: **PASS**;
+- complete regression: **PASS, 74/74**.
 
 ## Browser acceptance pending
 

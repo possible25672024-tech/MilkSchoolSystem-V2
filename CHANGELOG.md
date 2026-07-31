@@ -1,5 +1,14 @@
 # Changelog
 
+## Sprint 5.7.1 — Report Ordering Correction
+
+- sorted classroom reports by Thai education level from kindergarten upward;
+- added natural room-number ordering within each grade;
+- changed distribution reports to oldest-first saved chronology;
+- added stock-before/stock-after chain fallback for legacy untimed records;
+- added a dedicated ordering gate and raised complete regression to 74 checks;
+- kept all reports read-only and protected stock/legacy files unchanged.
+
 ## Sprint 5.7 — Operational Summaries and Period Reports
 
 - added separate Admin management-summary and distribution-report screens;

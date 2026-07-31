@@ -8,6 +8,10 @@ Last updated: 2026-07-31
 
 ## Current Sprint State
 
+Sprint 5.7.1 Report Ordering Correction is automated PASS at 74/74
+with Thai grade/room natural ordering and oldest-to-newest Main Stock deduction
+chronology. Browser acceptance remains pending.
+
 Sprint 5.7 Operational Summaries and Period Reports is automated PASS at 73/73
 on `feature/sprint-5.7-operational-reports`.
 

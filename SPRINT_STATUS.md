@@ -4,17 +4,27 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.7-operational-reports`
+Current Branch: `feature/sprint-5.7.1-report-ordering`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.7 — Operational Summaries and Period Reports
+Sprint 5.7.1 — Report Ordering Correction
 
-Status: **AUTOMATED PASS — 73/73 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 74/74 / LIVE SERVER BROWSER GATE PENDING**
 
-Approved predecessor: Sprint 5.6 — Classroom Distribution and Distribution History
+Approved predecessor: Sprint 5.7 — Operational Summaries and Period Reports
+
+## Sprint 5.7.1 Current Boundary
+
+- order classroom reports from `อ.2` upward through `ป.6` and later levels;
+- naturally order room numbers inside each grade;
+- order Main Stock deductions from oldest to newest saved record;
+- fall back to the `stockBefore → stockAfter` chain for untimed legacy data;
+- preserve read-only output and all stock values/history unchanged;
+- all 74 discovered regression checks pass;
+- Live Server browser acceptance remains pending.
 
 ## Sprint 5.7 Current Boundary
 

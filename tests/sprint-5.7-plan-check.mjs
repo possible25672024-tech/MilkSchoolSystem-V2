@@ -11,7 +11,7 @@ for (const expected of [
     "รายวัน", "รายสัปดาห์", "15 วัน", "รายเดือน", "ภาคเรียน",
     "Attendance + Pending + Retroactive + Vacation",
     "shallow=true", "UTF-8 BOM", "read-only",
-    "index.html", "teacher.html", "73/73"
+    "index.html", "teacher.html", "74/74"
 ]) {
     assert.ok(plan.includes(expected), `Sprint 5.7 plan must contain ${expected}`);
 }

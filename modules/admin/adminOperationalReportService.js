@@ -145,6 +145,35 @@ class AdminOperationalReportService {
         return match ? `${match[1]}.${match[2]}` : "ไม่ระบุชั้น";
     }
 
+    compareGrade(first, second) {
+        if (first === "ไม่ระบุชั้น") return second === "ไม่ระบุชั้น" ? 0 : 1;
+        if (second === "ไม่ระบุชั้น") return -1;
+        const order = { "อ": 0, "ป": 1, "ม": 2 };
+        const firstParts = String(first || "").match(/^([ปอมพ])\.?\s*(\d+)/);
+        const secondParts = String(second || "").match(/^([ปอมพ])\.?\s*(\d+)/);
+        if (!firstParts || !secondParts) {
+            return String(first).localeCompare(String(second), "th", { numeric: true });
+        }
+        const levelOrder = (order[firstParts[1]] ?? 9) - (order[secondParts[1]] ?? 9);
+        return levelOrder || this.number(firstParts[2]) - this.number(secondParts[2]);
+    }
+
+    roomSequence(roomName = "") {
+        const match = String(roomName).trim().match(/^[ปอมพ]\.?\s*\d+\s*[-/]?\s*(\d+)/);
+        return match ? this.number(match[1], Number.MAX_SAFE_INTEGER) : Number.MAX_SAFE_INTEGER;
+    }
+
+    compareRooms(first = {}, second = {}) {
+        const gradeOrder = this.compareGrade(first.grade, second.grade);
+        if (gradeOrder !== 0) return gradeOrder;
+        const sequenceOrder = this.roomSequence(first.roomName) - this.roomSequence(second.roomName);
+        if (sequenceOrder !== 0) return sequenceOrder;
+        return String(first.roomName).localeCompare(String(second.roomName), "th", {
+            numeric: true,
+            sensitivity: "base"
+        });
+    }
+
     normalizeRooms(collection = {}) {
         return this.entries(collection).map(([key, room]) => ({
             id: String(room.id || key),
@@ -284,7 +313,7 @@ class AdminOperationalReportService {
             row.netMovement = row.distributed - row.used;
             return row;
         }).filter(row => row.distributed || row.used)
-            .sort((left, right) => left.roomName.localeCompare(right.roomName, "th"));
+            .sort((left, right) => this.compareRooms(left, right));
     }
 
     aggregateRows(rows = [], keyName = "grade") {
@@ -301,9 +330,9 @@ class AdminOperationalReportService {
                 .forEach(field => { current[field] += this.number(row[field]); });
             groups.set(key, current);
         });
-        return [...groups.values()].sort((left, right) => (
-            String(left[keyName]).localeCompare(String(right[keyName]), "th")
-        ));
+        return [...groups.values()].sort((left, right) => keyName === "grade"
+            ? this.compareGrade(left.grade, right.grade)
+            : String(left[keyName]).localeCompare(String(right[keyName]), "th", { numeric: true }));
     }
 
     schoolTotal(rows = [], snapshot = {}) {
@@ -330,9 +359,10 @@ class AdminOperationalReportService {
     }
 
     normalizeDistributions(snapshot = {}) {
-        return this.entries(snapshot.distributes).map(([id, record]) => ({
+        const records = this.entries(snapshot.distributes).map(([id, record]) => ({
             id: String(record.id || id),
             date: this.isoDate(record.date || record.createdAt),
+            createdAt: String(record.createdAt || ""),
             roomId: this.roomId(record, id),
             roomName: String(record.roomName || this.roomId(record, id) || "—"),
             students: this.number(record.students),
@@ -344,9 +374,63 @@ class AdminOperationalReportService {
             stockBefore: this.number(record.stockBefore),
             stockAfter: this.number(record.stockAfter),
             note: String(record.note || "")
-        })).sort((left, right) => (
-            right.date.localeCompare(left.date) || left.roomName.localeCompare(right.roomName, "th")
-        ));
+        }));
+        return this.sortDistributionChronology(records);
+    }
+
+    distributionTime(record = {}) {
+        const timestamp = Date.parse(record.createdAt || "");
+        return Number.isFinite(timestamp) ? timestamp : null;
+    }
+
+    compareDistributionFallback(left = {}, right = {}) {
+        const dateOrder = String(left.date).localeCompare(String(right.date));
+        if (dateOrder !== 0) return dateOrder;
+        const stockOrder = this.number(right.stockBefore) - this.number(left.stockBefore);
+        if (stockOrder !== 0) return stockOrder;
+        return String(left.id).localeCompare(String(right.id), "th", { numeric: true });
+    }
+
+    sortDistributionChain(records = []) {
+        const remaining = [...records];
+        const ordered = [];
+        while (remaining.length) {
+            const afterBalances = new Set(remaining.map(record => this.number(record.stockAfter)));
+            const starts = remaining.filter(record => !afterBalances.has(this.number(record.stockBefore)));
+            const candidates = starts.length ? starts : remaining;
+            candidates.sort((left, right) => this.compareDistributionFallback(left, right));
+            let current = candidates[0];
+            while (current) {
+                ordered.push(current);
+                remaining.splice(remaining.indexOf(current), 1);
+                const next = remaining.filter(record => (
+                    this.number(record.stockBefore) === this.number(current.stockAfter)
+                )).sort((left, right) => this.compareDistributionFallback(left, right))[0];
+                current = next || null;
+            }
+        }
+        return ordered;
+    }
+
+    sortDistributionChronology(records = []) {
+        const byDate = new Map();
+        records.forEach(record => {
+            const date = String(record.date || "");
+            if (!byDate.has(date)) byDate.set(date, []);
+            byDate.get(date).push(record);
+        });
+        return [...byDate.keys()].sort().flatMap(date => {
+            const datedRecords = byDate.get(date);
+            const timed = datedRecords.filter(record => this.distributionTime(record) !== null)
+                .sort((left, right) => (
+                    this.distributionTime(left) - this.distributionTime(right)
+                    || this.compareDistributionFallback(left, right)
+                ));
+            const untimed = this.sortDistributionChain(
+                datedRecords.filter(record => this.distributionTime(record) === null)
+            );
+            return [...timed, ...untimed];
+        });
     }
 
     build(snapshot = {}, period = {}, view = "room") {
