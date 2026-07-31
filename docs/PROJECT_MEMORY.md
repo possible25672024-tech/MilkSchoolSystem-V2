@@ -2,9 +2,20 @@
 
 ## Project Memory
 
-Version: 3.1
+Version: 3.2
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
+
+## Current Sprint State
+
+Sprint 5.3 Admin System and Stock Dashboard is automated PASS at 63/63 on
+`feature/sprint-5.3-admin-dashboard`.
+
+- Admin Attendance history uses normalized actual room rosters.
+- generated `student_*` fallback rows are not merged with real student IDs.
+- the system Dashboard is read-only and shows actual Main Stock and Room Stock.
+- per-room differences are surfaced but never repaired automatically.
+- browser validation remains pending.
 
 ## Project Goal
 

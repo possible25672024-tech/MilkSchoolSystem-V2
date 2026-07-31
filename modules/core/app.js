@@ -14,7 +14,8 @@ class MilkSchoolApplication {
         attendancePrintView = window.AttendancePrintView,
         teacherParityView = window.TeacherParityView,
         adminReportView = window.AdminReportView,
-        adminRoomView = window.AdminRoomView
+        adminRoomView = window.AdminRoomView,
+        adminDashboardView = window.AdminDashboardView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -31,6 +32,7 @@ class MilkSchoolApplication {
         this.teacherParityView = teacherParityView;
         this.adminReportView = adminReportView;
         this.adminRoomView = adminRoomView;
+        this.adminDashboardView = adminDashboardView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -219,6 +221,16 @@ class MilkSchoolApplication {
         return this.adminRoomView;
     }
 
+    async ensureAdminDashboardView() {
+        if (!window.AdminDashboardService) await import("../admin/adminDashboardService.js");
+        if (!window.AdminDashboardManager) await import("../admin/adminDashboardManager.js");
+        if (!this.adminDashboardView) {
+            await import("../admin/adminDashboardView.js");
+            this.adminDashboardView = window.AdminDashboardView;
+        }
+        return this.adminDashboardView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -263,6 +275,8 @@ class MilkSchoolApplication {
 
         const adminRoomView = await this.ensureAdminRoomView();
         if (adminRoomView?.initialize) adminRoomView.initialize();
+        const adminDashboardView = await this.ensureAdminDashboardView();
+        if (adminDashboardView?.initialize) adminDashboardView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

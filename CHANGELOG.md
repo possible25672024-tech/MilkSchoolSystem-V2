@@ -2,6 +2,33 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-31 — Sprint 5.3 Admin System and Stock Dashboard
+
+### Added
+
+- read-only Admin `ภาพรวมระบบ` as the default Admin workspace
+- Main Stock, combined Room Stock, total system stock, rooms, students, and
+  used-milk metrics
+- per-room actual-versus-history stock comparison
+- ready, empty, mismatch, and negative Room Stock status groups
+- Admin Dashboard Service, Manager, View, plan, and automated gate
+
+### Fixed
+
+- Thai student roster fields are normalized before Admin history and inline
+  Attendance rendering.
+- generated `student_*` identities are no longer merged with the real roster,
+  preventing a 32-student room from rendering approximately 64 rows.
+- Attendance detail totals are scoped to the actual current roster.
+
+### Validation
+
+- all 63 discovered regression checks pass
+- Dashboard reads Main Stock and Room Stock without write ownership
+- `index.html` and `teacher.html` remain unchanged
+- Live Server desktop, responsive, Network, Console, and real-value comparison
+  remain pending
+
 ## 2026-07-30 — Sprint 5.2 Admin Inline Attendance Edit
 
 ### Added

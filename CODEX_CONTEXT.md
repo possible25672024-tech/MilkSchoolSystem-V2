@@ -2,7 +2,7 @@
 # AI Development Context
 
 Version: 3.3
-Last Updated: 2026-07-30
+Last Updated: 2026-07-31
 
 ---
 
@@ -34,7 +34,16 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard is active
+
+Current Sprint 5.3 boundary:
+
+- show actual Main Stock, Room Stock, rooms, students, and stock health without writes;
+- compare actual Room Stock with report-history expectations without repair;
+- normalize actual Thai-keyed student rosters and exclude generated duplicate rows;
+- preserve scalable Attendance/report reads and media-on-demand behavior;
+- keep `index.html`, `teacher.html`, schema, Queue, ledger, and stock mutations out
+  of scope.
 
 Current Sprint 5.2 boundary:
 

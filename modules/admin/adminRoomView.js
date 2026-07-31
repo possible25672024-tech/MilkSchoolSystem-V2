@@ -12,7 +12,7 @@ class AdminRoomView {
         this.prompt = options.prompt || ((message, value) => window.prompt(message, value));
         this.alert = options.alert || (message => window.alert(message));
         this.bound = false;
-        this.activeSection = "dashboard";
+        this.activeSection = "system-dashboard";
         this.attendanceEditor = null;
         this.attendanceEditorRows = new Map();
         this.recordDetail = null;
@@ -60,6 +60,7 @@ class AdminRoomView {
 
     async handleSession(session) {
         if (session?.role !== "admin") return;
+        this.showSection(this.activeSection);
         await this.loadRooms(false);
     }
 
@@ -289,7 +290,13 @@ class AdminRoomView {
         const record = detail?.record || {};
         const type = detail?.type;
         const data = record.data && typeof record.data === "object" ? record.data : {};
-        const statusValues = Object.values(data);
+        const roster = Array.isArray(detail?.students) ? detail.students : [];
+        const rosterIds = roster.map((student, index) => this.studentId(student, index));
+        const statusValues = rosterIds.length
+            ? rosterIds.map(studentId => data[studentId]).filter(Boolean)
+            : Object.entries(data)
+                .filter(([studentId]) => !this.isGeneratedStudentId(studentId))
+                .map(([, value]) => value);
         const checkedCount = statusValues.filter(
             value => value === "present" || value === "absent"
         ).length;
@@ -297,7 +304,7 @@ class AdminRoomView {
             ? [
                 ["ดื่มนม", statusValues.filter(value => value === "present").length, "คน"],
                 ["ไม่ดื่มนม", statusValues.filter(value => value === "absent").length, "คน"],
-                ["ยังไม่ตรวจ", Math.max(0, (detail?.students?.length || 0) - checkedCount), "คน"],
+                ["ยังไม่ตรวจ", Math.max(0, roster.length - checkedCount), "คน"],
                 ["ปี/ภาคเรียน", `${record.year || "—"} / ${record.term || "—"}`, ""]
             ]
             : [
@@ -335,7 +342,9 @@ class AdminRoomView {
         if (detail?.type === "attendance") {
             const data = record.data && typeof record.data === "object" ? record.data : {};
             const notes = record.notes && typeof record.notes === "object" ? record.notes : {};
-            const ids = [...new Set([...rosterMap.keys(), ...Object.keys(data)])];
+            const ids = rosterMap.size
+                ? [...rosterMap.keys()]
+                : Object.keys(data).filter(studentId => !this.isGeneratedStudentId(studentId));
             rows = ids.map((studentId, index) => {
                 const student = rosterMap.get(studentId) || {};
                 return {
@@ -492,7 +501,18 @@ class AdminRoomView {
     }
 
     studentId(student = {}, index = 0) {
-        return String(student.id || student.studentId || student.code || `student_${index + 1}`);
+        return String(
+            student["รหัส"] ||
+            student["รหัสประจำตัว"] ||
+            student.id ||
+            student.studentId ||
+            student.code ||
+            `student_${index + 1}`
+        );
+    }
+
+    isGeneratedStudentId(studentId) {
+        return /^student_\d+$/i.test(String(studentId || "").trim());
     }
 
     pendingDayCount(record = {}) {

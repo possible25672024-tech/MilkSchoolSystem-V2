@@ -128,6 +128,19 @@ const pendingRepo = {
     loadPendingRecord: async () => ({ roomId: "room-1", note: "เดิม" }),
     updatePendingRecord: async (id, changes) => calls.push(["pending-update", id, changes])
 };
+const attendanceRecord = {
+    clsId: "room-1",
+    roomName: "อ.3-1",
+    date: "2026-07-30",
+    year: "2569",
+    term: "1",
+    teacher: "ครูหนึ่ง",
+    data: { s1: "present" },
+    notes: { s1: "เดิม" },
+    photos: ["photo-a"],
+    signature: "signature-a",
+    savedAt: "2026-07-30T08:00:00.000Z"
+};
 const attendanceRepo = {
     loadRoomAttendanceSummaries: async () => ({
         "room-1_2026-07-30": {
@@ -138,19 +151,7 @@ const attendanceRepo = {
     }),
     loadAttendanceRecord: async (roomId, date) => (
         roomId === "room-1" && date === "2026-07-30"
-            ? {
-                clsId: roomId,
-                roomName: "อ.3-1",
-                date,
-                year: "2569",
-                term: "1",
-                teacher: "ครูหนึ่ง",
-                data: { s1: "present" },
-                notes: { s1: "เดิม" },
-                photos: ["photo-a"],
-                signature: "signature-a",
-                savedAt: "2026-07-30T08:00:00.000Z"
-            }
+            ? { ...attendanceRecord, clsId: roomId, date }
             : null
     )
 };
@@ -205,7 +206,13 @@ const service = new AdminRoomService(
             attendanceDays: Object.keys(snapshot.attendance).length,
             usedTotal: 2,
             delegatedRoomId: snapshot.session.roomId
-        })
+        }),
+        normalizeStudents: students => students.map((student, index) => ({
+            ...student,
+            id: String(student["รหัสประจำตัว"] || student.id || `student_${index + 1}`),
+            num: String(student["เลขที่"] || student.num || index + 1),
+            name: String(student["ชื่อ-นามสกุล"] || student.name || `นักเรียนคนที่ ${index + 1}`)
+        }))
     },
     attendanceService,
     pendingService,
@@ -249,6 +256,35 @@ assert.equal(attendanceDetail.type, "attendance");
 assert.equal(attendanceDetail.record.photos[0], "photo-a");
 assert.equal(attendanceDetail.record.signature, "signature-a");
 assert.equal(attendanceDetail.students[0].name, "นักเรียนหนึ่ง");
+
+room.students = [
+    { "รหัสประจำตัว": "8710", "เลขที่": "1", "ชื่อ-นามสกุล": "นักเรียนจริง หนึ่ง" },
+    { "รหัสประจำตัว": "8711", "เลขที่": "2", "ชื่อ-นามสกุล": "นักเรียนจริง สอง" },
+    {}
+];
+attendanceRecord.data = {
+    student_1: "present",
+    student_2: "present",
+    "8710": "present",
+    "8711": "absent"
+};
+const normalizedRosterDetail = await service.loadRecordDetail(
+    admin,
+    "room-1",
+    "attendance",
+    { date: "2026-07-30" }
+);
+assert.deepEqual(
+    normalizedRosterDetail.students.map(student => student.id),
+    ["8710", "8711"],
+    "Admin history must normalize Thai roster fields and must not invent placeholder students"
+);
+assert.deepEqual(
+    normalizedRosterDetail.students.map(student => student.name),
+    ["นักเรียนจริง หนึ่ง", "นักเรียนจริง สอง"]
+);
+room.students = [{ id: "s1", num: 1, name: "นักเรียนหนึ่ง" }];
+attendanceRecord.data = { s1: "present" };
 
 const pendingDetail = await service.loadRecordDetail(
     admin,

@@ -2,7 +2,7 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
 ## Protected Legacy Files
 
@@ -76,7 +76,7 @@ Completed boundary:
 - compatible ledger calculations
 - Main Stock and Room Stock separation
 
-### Report and Admin Operations — Sprint 5.2 Inline Edit Gate Active
+### Report and Admin Operations — Sprint 5.3 Dashboard Gate Active
 
 Modules:
 
@@ -85,8 +85,19 @@ Modules:
 - `modules/admin/adminRoomService.js`
 - `modules/admin/adminRoomManager.js`
 - `modules/admin/adminRoomView.js`
+- `modules/admin/adminDashboardService.js`
+- `modules/admin/adminDashboardManager.js`
+- `modules/admin/adminDashboardView.js`
 
 Current boundary:
+
+- actual Thai-keyed room rosters normalized before Admin Attendance rendering
+- no generated `student_*` rows merged into a real room roster
+- read-only whole-system Admin Dashboard
+- actual Main Stock and Room Stock totals
+- per-room actual-versus-history status without rebuild or repair
+- ready, empty, mismatch, and negative stock visibility
+- scalable Report snapshot reuse without historical media hydration
 
 - read-only classroom, grade, and whole-school Admin reports;
 - browser-local Pending, Retroactive, and Vacation report normalization;

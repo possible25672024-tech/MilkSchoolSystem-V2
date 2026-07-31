@@ -2,17 +2,32 @@
 
 # Sprint Status
 
-Last Update: 2026-07-30
+Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.2-admin-inline-attendance`
+Current Branch: `feature/sprint-5.3-admin-dashboard`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.2 — Admin Inline Attendance Edit
+Sprint 5.3 — Admin System and Stock Dashboard
 
-Status: **AUTOMATED PASS — 61/61 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 63/63 / LIVE SERVER BROWSER GATE PENDING**
+
+Approved predecessor: Sprint 5.2 — Admin Inline Attendance Edit
+
+## Sprint 5.3 Current Boundary
+
+- Admin opens on a read-only whole-system Dashboard.
+- Main Stock and Room Stock are read as actual balances.
+- Room Stock is compared with the accepted Report history model per room.
+- zero, mismatch, and negative rooms remain visible and are not repaired.
+- Thai roster fields are normalized before Attendance detail/edit rendering.
+- generated `student_*` rows are excluded when a real roster exists.
+- no full historical media collection is loaded.
+- no stock, Queue, ledger, stockLog, schema, or legacy file is written.
+- all 63 discovered regression checks pass.
+- Live Server browser acceptance is pending.
 
 ## Completed Foundation
 

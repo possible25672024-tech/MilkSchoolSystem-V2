@@ -491,6 +491,117 @@
             margin-top: 14px;
         }
 
+        .admin-system-dashboard-header,
+        .admin-dashboard-health-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .admin-system-dashboard-header h2,
+        .admin-system-dashboard-header p {
+            margin: 0 0 5px;
+        }
+
+        .admin-system-dashboard-header button {
+            width: auto;
+            min-width: 160px;
+            margin: 0;
+        }
+
+        .admin-dashboard-metrics,
+        .admin-dashboard-status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .admin-dashboard-status-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .admin-dashboard-health-row {
+            margin-top: 18px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: #f8fafc;
+        }
+
+        #admin-dashboard-health {
+            font-weight: 800;
+        }
+
+        #admin-dashboard-health[data-state="ready"] {
+            color: #166534;
+        }
+
+        #admin-dashboard-health[data-state="warning"] {
+            color: #9a3412;
+        }
+
+        .admin-dashboard-status-card {
+            border-radius: 12px;
+            padding: 14px;
+            background: #eef6fb;
+        }
+
+        .admin-dashboard-status-card span,
+        .admin-dashboard-status-card strong {
+            display: block;
+        }
+
+        .admin-dashboard-status-card span {
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .admin-dashboard-status-card strong {
+            margin-top: 5px;
+            color: #123b56;
+            font-size: 1.15rem;
+        }
+
+        .admin-dashboard-table-wrap {
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .admin-dashboard-table th,
+        .admin-dashboard-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 11px 10px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-dashboard-table th:first-child,
+        .admin-dashboard-table td:first-child {
+            width: 26%;
+            text-align: left;
+        }
+
+        .admin-dashboard-table tr[data-state="mismatch"] td:last-child {
+            color: #9a3412;
+            font-weight: 800;
+        }
+
+        .admin-dashboard-table tr[data-state="negative"] td:last-child {
+            color: #b91c1c;
+            font-weight: 800;
+        }
+
         .admin-operation-panel {
             min-width: 0;
             margin-top: 16px;
@@ -994,6 +1105,11 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .admin-dashboard-metrics,
+            .admin-dashboard-status-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .admin-attendance-editor-row {
                 grid-template-columns: 1fr;
             }
@@ -1051,8 +1167,20 @@
             }
 
             .admin-room-dashboard,
+            .admin-dashboard-metrics,
+            .admin-dashboard-status-grid,
             .admin-menu {
                 grid-template-columns: 1fr;
+            }
+
+            .admin-system-dashboard-header,
+            .admin-dashboard-health-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-system-dashboard-header button {
+                width: 100%;
             }
 
             .admin-operation-panel {
@@ -1244,7 +1372,8 @@
                             <button id="admin-enter-room" type="button">เปิดเมนูครูห้องนี้</button>
                         </div>
                         <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
-                            <button type="button" data-admin-menu="dashboard" data-active="true" aria-pressed="true">📊 ภาพรวมห้อง</button>
+                            <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
+                            <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมห้อง</button>
                             <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
                             <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
                             <button type="button" data-admin-menu="pending" data-active="false" aria-pressed="false">🧾 นมค้างรายสัปดาห์</button>
@@ -1268,7 +1397,43 @@
                         <p id="admin-room-status" class="status" aria-live="polite"></p>
                         <p id="admin-room-error" class="error" role="alert" hidden></p>
 
-                        <section data-admin-section="dashboard">
+                        <section data-admin-section="system-dashboard" class="admin-operation-panel">
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>ภาพรวมระบบ <span id="admin-dashboard-school">โรงเรียน</span></h2>
+                                    <p>ปีการศึกษา <span id="admin-dashboard-year">—</span> · ข้อมูลแบบอ่านอย่างเดียว</p>
+                                </div>
+                                <button id="admin-dashboard-refresh" type="button">โหลดภาพรวมใหม่</button>
+                            </div>
+                            <div class="admin-dashboard-metrics">
+                                <article class="metric-card"><p class="metric-label">Main Stock</p><p id="admin-dashboard-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">Room Stock รวม</p><p id="admin-dashboard-room-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นมคงเหลือทั้งระบบ</p><p id="admin-dashboard-system-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-dashboard-rooms" class="metric-value">0 ห้อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียนจริง</p><p id="admin-dashboard-students" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ใช้ไปแล้ว</p><p id="admin-dashboard-used" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <div class="admin-dashboard-health-row">
+                                <strong id="admin-dashboard-health" data-state="ready">กำลังตรวจสอบยอด Room Stock</strong>
+                                <span>เปรียบเทียบยอดจริงกับประวัติการจ่ายและการใช้</span>
+                            </div>
+                            <div class="admin-dashboard-status-grid">
+                                <article class="admin-dashboard-status-card"><span>ปกติ</span><strong id="admin-dashboard-ready">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>สต็อกหมด</span><strong id="admin-dashboard-empty">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>ยอดไม่ตรง</span><strong id="admin-dashboard-mismatch">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>สต็อกติดลบ</span><strong id="admin-dashboard-negative">0 ห้อง</strong></article>
+                            </div>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-dashboard-table">
+                                    <thead><tr><th>ห้องเรียน</th><th>นักเรียน</th><th>คงเหลือจริง</th><th>ตามประวัติ</th><th>ส่วนต่าง</th><th>สถานะ</th></tr></thead>
+                                    <tbody id="admin-dashboard-room-body"></tbody>
+                                </table>
+                            </div>
+                            <p id="admin-dashboard-status" class="status" aria-live="polite"></p>
+                            <p id="admin-dashboard-error" class="error" role="alert" hidden></p>
+                        </section>
+
+                        <section data-admin-section="dashboard" hidden>
                             <div class="admin-room-dashboard">
                                 <article class="metric-card"><p class="metric-label">นักเรียน</p><p id="admin-room-students" class="metric-value">0 คน</p></article>
                                 <article class="metric-card"><p class="metric-label">Room Stock</p><p id="admin-room-stock" class="metric-value">0 กล่อง</p></article>

@@ -183,6 +183,35 @@ assert.equal(
 );
 assert.match(elements.get("admin-room-status").textContent, /ทั้งรายการ/);
 
+await view.renderRecordDetail({
+    type: "attendance",
+    id: "room-1_2026-07-31",
+    room: { id: "room-1", name: "อ.3-1", teacher: "ครูหนึ่ง" },
+    students: [
+        { id: "8710", num: 1, name: "นักเรียนจริง หนึ่ง" },
+        { id: "8711", num: 2, name: "นักเรียนจริง สอง" }
+    ],
+    record: {
+        roomId: "room-1",
+        date: "2026-07-31",
+        data: {
+            student_1: "present",
+            student_2: "present",
+            "8710": "present",
+            "8711": "absent"
+        }
+    }
+});
+assert.equal(
+    elements.get("admin-record-detail-students").children.length,
+    2,
+    "Saved generated student keys must not double the actual room roster"
+);
+assert.equal(
+    elements.get("admin-record-detail-students").children[0].children[1].children[0].textContent,
+    "นักเรียนจริง หนึ่ง"
+);
+
 view.closeRecordDetail();
 assert.equal(elements.get("admin-record-detail").hidden, true);
 assert.equal(elements.get("admin-record-detail-students").children.length, 0);

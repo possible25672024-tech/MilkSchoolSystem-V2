@@ -52,7 +52,7 @@ assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
 assert.match(
     sprint,
-    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance)`/,
+    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance|5\.3-admin-dashboard)`/,
     "Sprint status must identify the accepted 4.9 branch or its approved successor"
 );
 assert.ok(
@@ -62,7 +62,8 @@ assert.ok(
             (
                 sprint.includes("Sprint 5.0 — Operational Admin Report Integration") ||
                 sprint.includes("Sprint 5.1 — Large Attendance Payload Resilience") ||
-                sprint.includes("Sprint 5.2 — Admin Inline Attendance Edit")
+                sprint.includes("Sprint 5.2 — Admin Inline Attendance Edit") ||
+                sprint.includes("Sprint 5.3 — Admin System and Stock Dashboard")
             )
         ),
     "Sprint status must preserve the accepted Sprint 4.9 scope"

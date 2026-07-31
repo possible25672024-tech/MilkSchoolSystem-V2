@@ -98,6 +98,32 @@ class AdminRoomService {
         };
     }
 
+    normalizeRoomStudents(room = {}) {
+        const rawStudents = Array.isArray(room.students)
+            ? room.students
+            : Object.values(room.students || {});
+        const hasIdentity = student => {
+            if (!student || typeof student !== "object") return false;
+            return [
+                student["รหัส"],
+                student["รหัสประจำตัว"],
+                student.id,
+                student.studentId,
+                student.code,
+                student["ชื่อ-นามสกุล"],
+                student["ชื่อ"],
+                student.name,
+                student.fullName,
+                student.firstName
+            ].some(value => String(value || "").trim());
+        };
+        const actualStudents = rawStudents.filter(hasIdentity);
+        if (this.teacherService?.normalizeStudents) {
+            return this.teacherService.normalizeStudents(actualStudents);
+        }
+        return actualStudents.map(student => ({ ...student }));
+    }
+
     async loadRooms(adminSession, options = {}) {
         this.assertAdmin(adminSession);
         this.ensureDependencies();
@@ -268,7 +294,7 @@ class AdminRoomService {
             room: resolved.room,
             delegatedSession: resolved.session,
             date: normalizedDate,
-            students: Array.isArray(resolved.room.students) ? [...resolved.room.students] : [],
+            students: this.normalizeRoomStudents(resolved.room),
             record: {
                 ...record,
                 clsId: resolved.room.id,
@@ -327,9 +353,7 @@ class AdminRoomService {
             id: recordId,
             room: resolved.room,
             delegatedSession: resolved.session,
-            students: Array.isArray(resolved.room.students)
-                ? resolved.room.students.map(student => ({ ...student }))
-                : [],
+            students: this.normalizeRoomStudents(resolved.room),
             record: {
                 ...record,
                 roomId: resolved.room.id,
