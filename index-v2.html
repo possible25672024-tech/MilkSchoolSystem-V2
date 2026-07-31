@@ -449,6 +449,14 @@
             padding: 0 10px 14px;
         }
 
+        .admin-menu-group {
+            margin: 10px 8px 2px;
+            color: #8fb3c9;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
         .admin-menu button {
             border-left: 4px solid transparent;
             border-radius: 8px;
@@ -1404,6 +1412,18 @@
             font-size: 0.82rem;
         }
 
+        .admin-report-source-status[data-state="error"] {
+            border: 1px solid #fecaca;
+            border-radius: 9px;
+            padding: 9px 11px;
+            color: #b91c1c;
+            background: #fff1f2;
+        }
+
+        .admin-report-source-status[data-state="ok"] {
+            color: #166534;
+        }
+
         .admin-report-filter-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(150px, 1fr));
@@ -1830,25 +1850,33 @@
                             <button id="admin-enter-room" type="button">เปิดเมนูครูห้องนี้</button>
                         </div>
                         <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
+                            <span class="admin-menu-group">หน้าหลัก</span>
                             <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
+                            <span class="admin-menu-group">เอกสาร</span>
+                            <button type="button" data-admin-menu="documents" data-active="false" aria-pressed="false">📁 เอกสารที่เกี่ยวข้อง</button>
+                            <span class="admin-menu-group">รับนม</span>
                             <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
-                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้อง</button>
-                            <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 ประวัติการจ่ายนม</button>
-                            <button type="button" data-admin-menu="operational-summary" data-active="false" aria-pressed="false">📊 สรุปบริหารจัดการนม</button>
-                            <button type="button" data-admin-menu="distribution-report" data-active="false" aria-pressed="false">🧾 รายงานการจ่ายนม</button>
-                            <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้านักเรียน</button>
+                            <span class="admin-menu-group">นักเรียน</span>
+                            <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้าข้อมูลนักเรียน</button>
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
                             <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
-                            <button type="button" data-admin-menu="documents" data-active="false" aria-pressed="false">📁 เอกสารที่เกี่ยวข้อง</button>
+                            <span class="admin-menu-group">จ่ายนม</span>
+                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้อง</button>
+                            <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 รายการจ่ายนมทั้งหมด</button>
+                            <button type="button" data-admin-menu="pending" data-active="false" aria-pressed="false">🧾 นมค้างรายสัปดาห์</button>
+                            <button type="button" data-admin-menu="vacation" data-active="false" aria-pressed="false">🏖️ จ่ายนมช่วงปิดเทอม</button>
+                            <button type="button" data-admin-menu="retroactive" data-active="false" aria-pressed="false">↩️ จ่ายนมย้อนหลัง</button>
+                            <span class="admin-menu-group">รายงาน</span>
+                            <button type="button" data-admin-menu="operational-summary" data-active="false" aria-pressed="false">📊 สรุปบริหารจัดการนม</button>
+                            <button type="button" data-admin-menu="distribution-report" data-active="false" aria-pressed="false">🧾 รายงานการจ่ายนม</button>
+                            <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
+                            <span class="admin-menu-group">เช็กดื่มนม</span>
+                            <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมการดื่มนม</button>
+                            <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
+                            <span class="admin-menu-group">ตั้งค่า</span>
                             <button type="button" data-admin-menu="system-settings" data-active="false" aria-pressed="false">⚙️ ตั้งค่าระบบ</button>
                             <button type="button" data-admin-menu="backup-restore" data-active="false" aria-pressed="false">💾 สำรอง/กู้คืน</button>
-                            <button type="button" data-admin-menu="drive-sync" data-active="false" aria-pressed="false">☁️ Google Drive</button>
-                            <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมห้อง</button>
-                            <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
-                            <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
-                            <button type="button" data-admin-menu="pending" data-active="false" aria-pressed="false">🧾 นมค้างรายสัปดาห์</button>
-                            <button type="button" data-admin-menu="retroactive" data-active="false" aria-pressed="false">↩️ จ่ายนมย้อนหลัง</button>
-                            <button type="button" data-admin-menu="vacation" data-active="false" aria-pressed="false">🏖️ จ่ายนมช่วงปิดเทอม</button>
+                            <button type="button" data-admin-menu="drive-sync" data-active="false" aria-pressed="false">☁️ ซิงก์ Google Drive</button>
                         </nav>
                         <div class="admin-room-picker">
                             <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
@@ -2286,6 +2314,7 @@
                         <article class="metric-card"><p class="metric-label">ห้องที่ได้รับนม</p><p id="admin-distribution-report-rooms" class="metric-value">0 ห้อง</p></article>
                         <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-report-main-stock" class="metric-value">0 กล่อง</p></article>
                     </div>
+                    <p id="admin-distribution-report-stock-check" class="admin-report-source-status" aria-live="polite"></p>
                     <p id="admin-distribution-report-status" class="status" aria-live="polite"></p>
                     <p id="admin-distribution-report-error" class="error" role="alert" hidden></p>
                     <div class="admin-report-table-wrap">

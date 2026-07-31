@@ -4,17 +4,30 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.7.1-report-ordering`
+Current Branch: `feature/sprint-5.9-integration-security-uat`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.7.1 — Report Ordering Correction
+Sprint 5.9 — Integration, Security and UAT
 
-Status: **AUTOMATED PASS — 74/74 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 81/81 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
 
-Approved predecessor: Sprint 5.7 — Operational Summaries and Period Reports
+Approved predecessor: Sprint 5.8 — Admin System Tools
+
+## Sprint 5.9 Current Boundary
+
+- open the selected student roster visibly from room management;
+- group all 19 Admin menus into eight reference-order categories;
+- create full backups through shallow root discovery and recursive chunk reads
+  instead of one oversized Firebase root response;
+- verify the root ETag before and after backup hydration;
+- keep restore preview summary reads compact and restore writes guarded;
+- expose per-row Main Stock formula anomalies without auto-repair;
+- all 81 discovered regression checks pass;
+- Live Server browser and isolated Firebase Backup/Restore UAT remain pending;
+- Production restore, Firebase Rules deployment, `main`, and cutover remain blocked.
 
 ## Sprint 5.7.1 Current Boundary
 

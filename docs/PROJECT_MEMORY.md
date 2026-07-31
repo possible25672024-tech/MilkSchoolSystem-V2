@@ -2,15 +2,27 @@
 
 ## Project Memory
 
-Version: 3.4
+Version: 3.5
 
 Last updated: 2026-07-31
 
 ## Current Sprint State
 
-Sprint 5.7.1 Report Ordering Correction is automated PASS at 74/74
-with Thai grade/room natural ordering and oldest-to-newest Main Stock deduction
-chronology. Browser acceptance remains pending.
+Sprint 5.9 Integration, Security and UAT is automated PASS at 81/81.
+
+- room-management `ดูรายชื่อ` now opens the selected visible roster;
+- Admin navigation follows eight reference categories and preserves 19 menus;
+- full backup avoids Firebase 413 with shallow discovery, chunk hydration, and
+  before/after root ETag verification;
+- restore preview uses compact shallow summaries while guarded root restore is
+  unchanged;
+- distribution rows expose formula anomalies such as `109310 → 5560` without
+  changing historical or current Stock;
+- browser acceptance and isolated Firebase Backup/Restore UAT remain pending;
+- Production restore, Rules deployment, `main`, and cutover remain blocked.
+
+Sprint 5.7.1 Report Ordering Correction is automated PASS at 74/74 with Thai
+grade/room natural ordering and oldest-to-newest Main Stock chronology.
 
 Sprint 5.7 Operational Summaries and Period Reports is automated PASS at 73/73
 on `feature/sprint-5.7-operational-reports`.

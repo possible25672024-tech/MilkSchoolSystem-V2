@@ -45,8 +45,98 @@ class AdminSystemRepository extends BaseRepository {
         });
     }
 
-    loadRootWithEtag() {
-        return this.ensureService().getWithEtag(this.appRoot);
+    isPayloadTooLarge(error) {
+        return /\(413\)|payload is too large/i.test(String(error?.message || error || ""));
+    }
+
+    collectionFromEntries(entries = []) {
+        const keys = entries.map(([key]) => String(key));
+        const numeric = keys.length > 0 && keys.every(key => /^(0|[1-9]\d*)$/.test(key));
+        if (numeric) {
+            const highest = Math.max(...keys.map(Number));
+            if (highest < keys.length * 2) {
+                const result = Array(highest + 1).fill(null);
+                entries.forEach(([key, value]) => { result[Number(key)] = value; });
+                return result;
+            }
+        }
+        return Object.fromEntries(entries);
+    }
+
+    async loadChunked(path) {
+        try {
+            return await this.get(path);
+        } catch (error) {
+            if (!this.isPayloadTooLarge(error)) throw error;
+        }
+
+        const shallow = await this.get(path, { shallow: true });
+        if (!shallow || typeof shallow !== "object" || Array.isArray(shallow)) {
+            const error = new Error(`Firebase item is too large to back up safely: ${path}`);
+            error.code = "BACKUP_ITEM_TOO_LARGE";
+            throw error;
+        }
+
+        const entries = [];
+        for (const key of Object.keys(shallow)) {
+            const child = `${path}/${encodeURIComponent(key)}`;
+            entries.push([key, await this.loadChunked(child)]);
+        }
+        return this.collectionFromEntries(entries);
+    }
+
+    async loadRootMarker() {
+        return this.ensureService().getWithEtag(this.appRoot, { shallow: true });
+    }
+
+    async loadRootWithEtag(options = {}) {
+        const attempts = Math.max(1, Number(options.attempts) || 2);
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+            const before = await this.loadRootMarker();
+            const rootKeys = before?.value && typeof before.value === "object"
+                ? Object.keys(before.value)
+                : [];
+            const entries = [];
+            for (const key of rootKeys) {
+                entries.push([key, await this.loadChunked(this.path(key))]);
+            }
+            const after = await this.loadRootMarker();
+            if (String(before?.etag || "") === String(after?.etag || "")) {
+                return {
+                    value: Object.fromEntries(entries),
+                    etag: String(after?.etag || ""),
+                    status: after?.status
+                };
+            }
+        }
+        const error = new Error("Firebase data changed while the backup was being read. Please try again.");
+        error.code = "BACKUP_SNAPSHOT_CHANGED";
+        throw error;
+    }
+
+    async loadRootSummaryWithEtag(options = {}) {
+        const attempts = Math.max(1, Number(options.attempts) || 2);
+        const collections = [
+            "rooms", "roomStock", "receives", "distributes", "mcAttendance",
+            "absentMilk", "retroMilk", "vacationMilk", "documents"
+        ];
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+            const before = await this.loadRootMarker();
+            const value = {
+                settings: await this.get(this.path("settings")) || {},
+                stock: await this.get(this.path("stock")) || 0
+            };
+            for (const key of collections) {
+                value[key] = await this.get(this.path(key), { shallow: true }) || {};
+            }
+            const after = await this.loadRootMarker();
+            if (String(before?.etag || "") === String(after?.etag || "")) {
+                return { value, etag: String(after?.etag || ""), status: after?.status };
+            }
+        }
+        const error = new Error("Firebase data changed while the restore preview was being prepared. Please try again.");
+        error.code = "RESTORE_PREVIEW_CHANGED";
+        throw error;
     }
 
     restoreRootIfMatch(data, etag) {

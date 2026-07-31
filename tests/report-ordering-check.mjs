@@ -90,4 +90,20 @@ assert.deepEqual(
     "Legacy records without createdAt must follow their stock-before/stock-after chain"
 );
 
+const anomalous = operationalService.normalizeDistributions({
+    distributes: {
+        valid: { date: "2026-06-12", stockBefore: 110180, stockAfter: 109310, total: 870 },
+        invalid: { date: "2026-06-12", stockBefore: 109310, stockAfter: 5560, total: 780 }
+    }
+});
+assert.equal(anomalous[0].stockValid, true);
+assert.equal(anomalous[1].stockValid, false);
+assert.equal(anomalous[1].expectedStockAfter, 108530);
+assert.equal(anomalous[1].stockDifference, -102970);
+assert.match(
+    operationalService.distributionExportRows({ distributions: anomalous })[1]["ตรวจยอด"],
+    /108530/,
+    "Anomalous legacy Main Stock must be visible in exports without auto-repair"
+);
+
 console.log("Thai grade and Main Stock chronology report ordering checks passed.");

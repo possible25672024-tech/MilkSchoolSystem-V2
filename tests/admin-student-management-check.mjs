@@ -106,4 +106,44 @@ assert.ok(csv.startsWith("\uFEFF"), "Thai CSV must include a UTF-8 BOM");
 assert.match(csv, /"ป\.1-1"/);
 assert.doesNotMatch(csv, /student_3/, "CSV must not contain generated fallback students");
 
+const stubDocument = {
+    getElementById() { return null; },
+    querySelector() { return null; }
+};
+const viewContext = vm.createContext({
+    console,
+    document: stubDocument,
+    window: {
+        AdminStudentManager: null,
+        AuthService: null,
+        confirm() { return true; },
+        alert() {}
+    }
+});
+new vm.Script(viewCode).runInContext(viewContext);
+const AdminStudentView = viewContext.window.AdminStudentView.constructor;
+let menuClicks = 0;
+let renderedRoom = null;
+let scrolled = false;
+const view = new AdminStudentView(null, null, {
+    document: {
+        getElementById(id) {
+            return id === "admin-student-detail-title"
+                ? { scrollIntoView() { scrolled = true; } }
+                : null;
+        },
+        querySelector(selector) {
+            assert.equal(selector, '[data-admin-menu="student-report"]');
+            return { click() { menuClicks += 1; } };
+        }
+    },
+    window: { requestAnimationFrame(callback) { callback(); } }
+});
+view.renderSelectedRoom = room => { renderedRoom = room; };
+view.openStudentReport({ id: "r1", name: "ป.1-1", students: [] });
+assert.equal(view.activeRoomId, "r1");
+assert.equal(menuClicks, 1, "ดูรายชื่อ must open the visible student-report section");
+assert.equal(renderedRoom?.id, "r1");
+assert.equal(scrolled, true, "The selected roster must be brought into view");
+
 console.log("Admin student management and report checks passed.");

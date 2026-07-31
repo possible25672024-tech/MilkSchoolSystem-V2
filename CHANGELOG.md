@@ -1,5 +1,19 @@
 # Changelog
 
+## Sprint 5.9 — Integration, Security and UAT
+
+- fixed room-management `ดูรายชื่อ` so the selected roster opens visibly in
+  the student-report section;
+- regrouped all 19 Admin menus into the eight reference sidebar categories;
+- replaced oversized root backup reads with shallow root discovery, recursive
+  chunk hydration, and before/after root ETag consistency checks;
+- kept full-data SHA-256 backup integrity while making restore previews use
+  compact current summaries;
+- added read-only per-distribution Main Stock formula diagnostics and exports;
+- added three Sprint 5.9 gates and raised complete regression to 81 checks;
+- kept Production restore, rule deployment, stock auto-repair, `main`, and
+  protected legacy replacement blocked pending live/isolated UAT.
+
 ## Sprint 5.8 — Admin System Tools
 
 - added Admin document metadata listing with on-demand file download;

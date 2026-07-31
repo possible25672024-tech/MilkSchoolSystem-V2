@@ -24,7 +24,8 @@ for (const expected of [
     'data-admin-section="distribution-report"',
     'value="day"', 'value="week"', 'value="fortnight"', 'value="month"', 'value="semester"',
     'id="admin-operational-print"', 'id="admin-operational-export"',
-    'id="admin-distribution-report-print"', 'id="admin-distribution-report-export"'
+    'id="admin-distribution-report-print"', 'id="admin-distribution-report-export"',
+    'id="admin-distribution-report-stock-check"'
 ]) {
     assert.ok(indexSource.includes(expected), `Sprint 5.7 UI must contain ${expected}`);
 }

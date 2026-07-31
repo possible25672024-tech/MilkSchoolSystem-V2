@@ -275,7 +275,10 @@ class AdminSystemService {
         if (actual !== expected) {
             throw this.businessError("BACKUP_CHECKSUM_MISMATCH", "ไฟล์สำรองถูกแก้ไขหรือเสียหาย (SHA-256 ไม่ตรง)");
         }
-        const current = await this.ensureRepository().loadRootWithEtag();
+        const repository = this.ensureRepository();
+        const current = repository.loadRootSummaryWithEtag
+            ? await repository.loadRootSummaryWithEtag()
+            : await repository.loadRootWithEtag();
         return {
             envelope,
             summary: this.summarizeRoot(envelope.data),

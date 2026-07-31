@@ -79,7 +79,7 @@ Completed boundary:
 - stable operation idempotency and completion markers
 - scalable distribution summary history without media hydration
 
-### Report and Admin Operations — Sprint 5.7 Period Report Gate Active
+### Report and Admin Operations — Sprint 5.9 Integration/UAT Gate Active
 
 Modules:
 
@@ -123,6 +123,8 @@ Current boundary:
 - out-of-range detail hydration prevention and media/signature exclusion
 - separate management summary and classroom-distribution report screens
 - landscape A4 and Thai UTF-8 BOM CSV exports
+- read-only per-row `stockBefore - total = stockAfter` diagnostics;
+- visible anomaly warning and expected balance in screen/CSV/A4 output;
 
 - read-only classroom, grade, and whole-school Admin reports;
 - browser-local Pending, Retroactive, and Vacation report normalization;
@@ -200,6 +202,29 @@ Sprint 5.5 boundary:
 - UTF-8 CSV and browser A4 output
 - no generated `student_*` persistence
 - no Main Stock, Room Stock, Queue, ledger, or milk-history mutation
+- Sprint 5.9 fixes room-management roster navigation so the selected room opens
+  visibly in the student-report section.
+
+### Admin System Tools — Sprint 5.9 Integration/UAT Gate Active
+
+Modules:
+
+- `modules/repositories/adminSystemRepository.js`
+- `modules/admin/adminSystemService.js`
+- `modules/admin/adminSystemManager.js`
+- `modules/admin/adminSystemView.js`
+
+Current boundary:
+
+- document metadata and files remain separated and files hydrate on demand;
+- settings writes retain ETag protection and protected configuration values;
+- backup discovers root keys with shallow ETag reads and hydrates large
+  collections recursively after Firebase 413;
+- a second root ETag check rejects mixed-time snapshots;
+- restore preview reads compact counts and restore keeps safety backup, SHA-256,
+  typed confirmation, final confirmation, and root If-Match protection;
+- Google Drive remains an explicit user-owned file transfer;
+- Production restore and Firebase Rules changes remain blocked pending isolated UAT.
 
 Remaining production gaps:
 

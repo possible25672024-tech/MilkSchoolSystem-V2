@@ -140,6 +140,14 @@ class AdminOperationalReportView {
         this.setText("admin-distribution-report-total", `${total} กล่อง`);
         this.setText("admin-distribution-report-rooms", `${rooms} ห้อง`);
         this.setText("admin-distribution-report-main-stock", `${report.currentStock?.main || 0} กล่อง`);
+        const anomalies = records.filter(record => record.stockValid === false);
+        const stockCheck = this.element("admin-distribution-report-stock-check");
+        if (stockCheck) {
+            stockCheck.textContent = anomalies.length
+                ? `⚠️ พบ ${anomalies.length} รายการที่ Main Stock หลัง ไม่เท่ากับ Main Stock ก่อน − จำนวนจ่าย ระบบแสดงเพื่อให้ตรวจสอบและยังไม่แก้ข้อมูลย้อนหลัง`
+                : "ตรวจสูตร Main Stock ของทุกรายการแล้ว ไม่พบยอดผิดปกติ";
+            stockCheck.dataset.state = anomalies.length ? "error" : "ok";
+        }
         const body = this.element("admin-distribution-report-body");
         if (!body) return;
         body.replaceChildren(...records.map((record, index) => this.row([
@@ -150,7 +158,9 @@ class AdminOperationalReportView {
             `${record.days} วัน`,
             `${record.crates} ลัง + ${record.boxes} กล่อง`,
             record.total,
-            `${record.stockBefore} → ${record.stockAfter}`,
+            record.stockValid === false
+                ? `⚠ ${record.stockBefore} → ${record.stockAfter} (ควร ${record.expectedStockAfter})`
+                : `${record.stockBefore} → ${record.stockAfter}`,
             record.note || "—"
         ])));
         this.renderEmpty(body, records, 9, "ไม่พบรายการจ่ายนมในช่วงที่เลือก");

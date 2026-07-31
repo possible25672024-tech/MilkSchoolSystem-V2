@@ -375,7 +375,16 @@ class AdminOperationalReportService {
             stockAfter: this.number(record.stockAfter),
             note: String(record.note || "")
         }));
-        return this.sortDistributionChronology(records);
+        return this.sortDistributionChronology(records).map(record => {
+            const expectedStockAfter = this.number(record.stockBefore) - this.number(record.total);
+            const stockDifference = this.number(record.stockAfter) - expectedStockAfter;
+            return {
+                ...record,
+                expectedStockAfter,
+                stockDifference,
+                stockValid: stockDifference === 0
+            };
+        });
     }
 
     distributionTime(record = {}) {
@@ -504,6 +513,9 @@ class AdminOperationalReportService {
             "รวมกล่อง": record.total,
             "Main Stock ก่อน": record.stockBefore,
             "Main Stock หลัง": record.stockAfter,
+            "ตรวจยอด": record.stockValid
+                ? "ถูกต้อง"
+                : `ผิดปกติ: ควรเหลือ ${record.expectedStockAfter}`,
             "หมายเหตุ": record.note
         }));
     }

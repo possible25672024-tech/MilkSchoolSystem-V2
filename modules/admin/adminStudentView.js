@@ -287,8 +287,7 @@ class AdminStudentView {
         if (!room) return;
 
         if (button.dataset.roomAction === "view") {
-            this.activeRoomId = roomId;
-            this.renderSelectedRoom(room);
+            this.openStudentReport(room);
             return;
         }
         if (button.dataset.roomAction === "edit") {
@@ -413,6 +412,17 @@ class AdminStudentView {
         if (!room) return;
         this.activeRoomId = roomId;
         this.renderSelectedRoom(room);
+    }
+
+    openStudentReport(room) {
+        if (!room?.id) return;
+        this.activeRoomId = room.id;
+        this.document.querySelector?.('[data-admin-menu="student-report"]')?.click?.();
+        this.renderSelectedRoom(room);
+        const heading = this.element("admin-student-detail-title");
+        this.window.requestAnimationFrame?.(() => {
+            heading?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        });
     }
 
     renderSelectedRoom(room) {

@@ -95,7 +95,9 @@ assert.ok(
                 sprint.includes("Sprint 5.4 — Milk Receipt and Receipt History") ||
                 sprint.includes("Sprint 5.5 — Student Import, Room Management and Student Report") ||
                 sprint.includes("Sprint 5.6 — Classroom Distribution and Distribution History") ||
-                sprint.includes("Sprint 5.7 — Operational Summaries and Period Reports")
+                sprint.includes("Sprint 5.7 — Operational Summaries and Period Reports") ||
+                sprint.includes("Sprint 5.8 — Admin System Tools") ||
+                sprint.includes("Sprint 5.9 — Integration, Security and UAT")
             )
         ),
     "Sprint status must preserve Teacher parity while identifying its approved successor"
