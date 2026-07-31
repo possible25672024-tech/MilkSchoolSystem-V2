@@ -81,6 +81,89 @@ class StockRepository extends BaseRepository {
         return this.get(this.path("distributes"));
     }
 
+    async loadDistributionSummaries(options = {}) {
+        const concurrency = Number.isInteger(options.concurrency)
+            ? Math.max(1, Math.min(12, options.concurrency))
+            : 6;
+        const fields = [
+            "date",
+            "createdAt",
+            "roomId",
+            "roomName",
+            "students",
+            "days",
+            "perCrate",
+            "crates",
+            "boxes",
+            "total",
+            "year",
+            "note",
+            "stockBefore",
+            "stockAfter",
+            "roomStockBefore",
+            "roomStockAfter"
+        ];
+        const keyIndex = await this.get(this.path("distributes"), { shallow: true });
+        const keys = Object.keys(keyIndex || {}).sort((left, right) => left.localeCompare(right));
+        const summaries = Object.fromEntries(keys.map(key => [key, { id: key }]));
+        const tasks = keys.flatMap(key => fields.map(field => ({ key, field })));
+        let cursor = 0;
+
+        const worker = async () => {
+            while (cursor < tasks.length) {
+                const index = cursor;
+                cursor += 1;
+                const { key, field } = tasks[index];
+                const value = await this.get(this.path(`distributes/${key}/${field}`));
+                if (value !== null && value !== undefined) summaries[key][field] = value;
+            }
+        };
+        await Promise.all(
+            Array.from(
+                { length: Math.min(concurrency, tasks.length || 1) },
+                () => worker()
+            )
+        );
+        return summaries;
+    }
+
+    loadDistributionCommand(operationId) {
+        return this.get(this.path(`stockOperations/distributionCommands/${operationId}`));
+    }
+
+    loadDistributionLockVersioned() {
+        return this.ensureService().getWithEtag(
+            this.path("stockOperations/distributionLock")
+        );
+    }
+
+    setDistributionLockIfMatch(lock, etag) {
+        return this.ensureService().setIfMatch(
+            this.path("stockOperations/distributionLock"),
+            lock,
+            etag
+        );
+    }
+
+    async releaseDistributionLock(owner) {
+        const current = await this.loadDistributionLockVersioned();
+        if (String(current?.value?.owner || "") !== String(owner || "")) {
+            return { status: "not-owner" };
+        }
+        return this.setDistributionLockIfMatch(null, current.etag);
+    }
+
+    applyDistributionUpdate(updates, operationId, commandRecord) {
+        const normalizedId = String(operationId || "").trim();
+        if (!normalizedId) {
+            throw new Error("A distribution operation id is required.");
+        }
+        return this.applyMultiLocationUpdate({
+            ...updates,
+            [`stockOperations/distributionCommands/${normalizedId}`]: commandRecord
+        });
+    }
+
     loadAttendance() {
         return this.get(this.path("mcAttendance"));
     }

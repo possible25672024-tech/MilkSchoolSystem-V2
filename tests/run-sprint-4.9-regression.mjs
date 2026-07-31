@@ -6,9 +6,11 @@ import { fileURLToPath } from "node:url";
 
 const currentFile = fileURLToPath(import.meta.url);
 const testsDirectory = path.dirname(currentFile);
-const minimumExpectedChecks = 67;
+const minimumExpectedChecks = 69;
 const requiredSprint49Checks = [
     "milk-operation-print-ui-check.mjs",
+    "admin-distribution-check.mjs",
+    "distribution-concurrency-check.mjs",
     "admin-student-management-check.mjs",
     "room-import-concurrency-check.mjs",
     "student-import-parser-check.mjs",

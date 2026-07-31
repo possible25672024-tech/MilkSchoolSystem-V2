@@ -4,17 +4,31 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.5-student-room-management`
+Current Branch: `feature/sprint-5.6-room-distribution`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.5 — Student Import, Room Management and Student Report
+Sprint 5.6 — Classroom Distribution and Distribution History
 
-Status: **AUTOMATED PASS — 67/67 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 69/69 / LIVE SERVER WRITE GATE PENDING**
 
-Approved predecessor: Sprint 5.4 — Milk Receipt and Receipt History
+Approved predecessor: Sprint 5.5 — Student Import, Room Management and Student Report
+
+## Sprint 5.6 Current Boundary
+
+- calculate classroom distribution from actual students × days;
+- decrease Main Stock and increase only the selected Room Stock;
+- persist distribution, `DISTRIBUTE` ledger, and operation completion marker in
+  the same multi-location update;
+- use ETag/If-Match lock plus stable operation id to prevent double deduction;
+- block a live second Admin writer and reject mismatched operation reuse;
+- load history through shallow keys and media-free summary fields;
+- keep the quarantined room/date blocked;
+- leave distribution edit/delete differential outside this Sprint;
+- all 69 discovered regression checks pass;
+- Live Server controlled-write acceptance is pending.
 
 ## Sprint 5.5 Current Boundary
 

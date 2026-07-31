@@ -2,14 +2,14 @@
 
 ## Project Memory
 
-Version: 3.2
+Version: 3.3
 
 Last updated: 2026-07-31
 
 ## Current Sprint State
 
-Sprint 5.4 Milk Receipt and Receipt History is automated PASS at 64/64 on
-`feature/sprint-5.4-stock-audit-receipts`.
+Sprint 5.6 Classroom Distribution and Distribution History is automated PASS at
+69/69 on `feature/sprint-5.6-room-distribution`.
 
 - Admin Attendance history uses normalized actual room rosters.
 - generated `student_*` fallback rows are not merged with real student IDs.
@@ -20,6 +20,11 @@ Sprint 5.4 Milk Receipt and Receipt History is automated PASS at 64/64 on
 - the 83-room real-data audit found 26 history-complete rooms, 54 opening
   balance/legacy-history candidates, and three negative rooms.
 - Admin receipt increases Main Stock only and records receipt plus ledger.
+- Admin distribution calculates actual students × days and transfers exactly
+  that quantity from Main Stock to the selected Room Stock.
+- an ETag/If-Match lock plus stable operation id prevents the V2 Admin workflow
+  from deducting Main Stock twice.
+- distribution history discovers shallow keys and excludes media fields.
 - browser validation remains pending.
 
 ## Project Goal
@@ -122,6 +127,8 @@ Under `milkApp`:
 - `retroMilk`
 - `vacationMilk`
 - `stockTransactions`
+- `stockOperations/distributionLock`
+- `stockOperations/distributionCommands/{operationId}`
 - `stockLog`
 - `updatedAt`
 

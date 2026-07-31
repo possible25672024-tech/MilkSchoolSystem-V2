@@ -1,5 +1,18 @@
 # Changelog
 
+## Sprint 5.6 — Classroom Distribution and Distribution History
+
+- added Admin V2 classroom distribution using actual roster count × days;
+- added separate distribution and scalable history screens;
+- added ETag/If-Match distribution locking and stable operation idempotency;
+- persisted Main Stock, Room Stock, distribution, `DISTRIBUTE` ledger, and
+  completion marker in one multi-location update;
+- blocked reuse of one operation id for a different distribution;
+- excluded generated `student_*` rows and preserved the quarantined room/date;
+- added two Sprint 5.6 gates and raised complete regression to 69 checks;
+- kept protected legacy files unchanged and left differential edit/delete
+  outside this Sprint.
+
 ## Sprint 5.5 — Student Import, Room Management and Student Report
 
 - added a local vendored XLSX/XLS/CSV reader with Thai school-header handling;

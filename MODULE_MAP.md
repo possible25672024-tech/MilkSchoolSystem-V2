@@ -60,7 +60,7 @@ Completed boundary:
 - conditional writes through `If-Match`
 - HTTP 412 conflict exposure
 
-### Stock — Completed
+### Stock — Sprint 5.6 Distribution Gate Active
 
 Modules:
 
@@ -75,8 +75,11 @@ Completed boundary:
 - rebuild and validation
 - compatible ledger calculations
 - Main Stock and Room Stock separation
+- Admin distribution ETag lock with stale-lock conditional takeover
+- stable operation idempotency and completion markers
+- scalable distribution summary history without media hydration
 
-### Report and Admin Operations — Sprint 5.4 Receipt Gate Active
+### Report and Admin Operations — Sprint 5.6 Distribution Gate Active
 
 Modules:
 
@@ -91,6 +94,9 @@ Modules:
 - `modules/admin/adminReceiptService.js`
 - `modules/admin/adminReceiptManager.js`
 - `modules/admin/adminReceiptView.js`
+- `modules/admin/adminDistributionService.js`
+- `modules/admin/adminDistributionManager.js`
+- `modules/admin/adminDistributionView.js`
 
 Current boundary:
 
@@ -104,6 +110,10 @@ Current boundary:
 - per-room stock trace and read-only opening-balance candidate
 - Admin Main Stock receipt and media-free receipt history
 - receipt writes Main Stock, receive record, and `RECEIVE` ledger only
+- classroom distribution transfers Main Stock to one Room Stock only
+- distribution record, `DISTRIBUTE` ledger, and completion marker share one update
+- ETag lock and stable operation id block duplicate Main Stock deductions
+- distribution history uses shallow discovery and media-free summaries
 
 - read-only classroom, grade, and whole-school Admin reports;
 - browser-local Pending, Retroactive, and Vacation report normalization;
@@ -555,8 +565,8 @@ Rebuild
 - Sprint 5.2 — Admin inline exact-date Attendance edit — Automated PASS
 - Sprint 5.3 — Admin overview and stock Dashboard — Automated PASS
 - Sprint 5.4 — Milk receipt and receipt history — Automated PASS
-- Sprint 5.5 — Student import, room management, and student reports — Active, automated PASS
-- Sprint 5.6 — Classroom distribution and distribution history — Planned
+- Sprint 5.5 — Student import, room management, and student reports — Automated PASS
+- Sprint 5.6 — Classroom distribution and distribution history — Active, automated PASS
 - Sprint 5.7 — Operational summaries and report-period parity — Planned
 - Sprint 5.8 — Documents, settings, backup/restore, and Drive sync — Planned
 - Legacy Removal — Blocked pending production-cutover approval

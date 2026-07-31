@@ -743,6 +743,25 @@
             background: #1a5276;
         }
 
+        .admin-distribution-history-table {
+            width: 100%;
+            min-width: 1120px;
+            border-collapse: collapse;
+        }
+
+        .admin-distribution-history-table th,
+        .admin-distribution-history-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 8px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-distribution-history-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
         .admin-student-metrics,
         .admin-student-import-summary,
         .admin-room-create-grid {
@@ -1666,6 +1685,8 @@
                         <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
                             <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
                             <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
+                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้อง</button>
+                            <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 ประวัติการจ่ายนม</button>
                             <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้านักเรียน</button>
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
                             <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
@@ -1792,6 +1813,63 @@
                                 <table class="admin-receipt-table">
                                     <thead><tr><th>วันที่รับ</th><th>แหล่งรับ</th><th>ลัง/เศษ</th><th>รวม</th><th>หมายเหตุ</th></tr></thead>
                                     <tbody id="admin-receipt-body"></tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section data-admin-section="distribution" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>จ่ายนมให้ห้องเรียน</h2>
+                                    <p>ย้ายจาก Main Stock ไป Room Stock ตามสูตร นักเรียน × วัน · มีระบบป้องกันการตัดยอดซ้ำ</p>
+                                </div>
+                                <button id="admin-distribution-refresh" class="secondary" type="button">โหลดสต็อกใหม่</button>
+                            </div>
+                            <div class="admin-receipt-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนที่จะจ่าย</p><p id="admin-distribution-total" class="metric-value">—</p></article>
+                            </div>
+                            <div class="admin-student-import-summary">
+                                <article class="metric-card"><p class="metric-label">นักเรียนจริง</p><p id="admin-distribution-students" class="metric-value">—</p></article>
+                                <article class="metric-card"><p class="metric-label">ลัง + กล่องเศษ</p><p id="admin-distribution-package" class="metric-value">—</p></article>
+                                <article class="metric-card"><p class="metric-label">Main Stock หลังจ่าย</p><p id="admin-distribution-main-after" class="metric-value">—</p></article>
+                                <article class="metric-card"><p class="metric-label">Room Stock ก่อน → หลัง</p><p id="admin-distribution-room-after" class="metric-value">—</p></article>
+                            </div>
+                            <form id="admin-distribution-form">
+                                <div class="admin-receipt-form-grid">
+                                    <div class="admin-receipt-field"><label for="admin-distribution-date">วันที่จ่ายนม</label><input id="admin-distribution-date" type="date" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-room">ห้องเรียน</label><select id="admin-distribution-room" required><option value="">-- เลือกห้องเรียน --</option></select></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-days">จำนวนวัน</label><input id="admin-distribution-days" type="number" min="1" step="1" value="1" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-per-crate">กล่องต่อลัง</label><input id="admin-distribution-per-crate" type="number" min="1" step="1" value="36" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-year">ปีการศึกษา</label><input id="admin-distribution-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
+                                    <div class="admin-receipt-field full"><label for="admin-distribution-note">หมายเหตุ</label><input id="admin-distribution-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการจ่ายนม"></div>
+                                </div>
+                                <div class="admin-receipt-actions"><button type="submit">ยืนยันจ่ายนมให้ห้อง</button></div>
+                            </form>
+                            <p id="admin-distribution-status" class="status" aria-live="polite"></p>
+                            <p id="admin-distribution-error" class="error" role="alert" hidden></p>
+                            <p class="admin-stock-trace-warning">ระยะนี้ใช้ Admin ผู้บันทึกเพียงคนเดียว ระบบจะล็อกคำสั่งและบันทึก Main Stock, Room Stock, รายการจ่าย และ Ledger ในชุดเดียว ห้ามกดซ้ำจากระบบเดิมพร้อมกัน</p>
+                        </section>
+
+                        <section data-admin-section="distribution-history" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รายการจ่ายนมให้ห้องเรียนทั้งหมด</h2>
+                                    <p>โหลดเฉพาะข้อมูลสรุปของแต่ละรายการ ไม่ดึงรูปหรือลายเซ็นก้อนใหญ่</p>
+                                </div>
+                                <button id="admin-distribution-history-refresh" class="secondary" type="button">โหลดประวัติใหม่</button>
+                            </div>
+                            <div class="admin-student-import-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-history-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-distribution-history-count" class="metric-value">0 รายการ</p></article>
+                                <article class="metric-card"><p class="metric-label">จ่ายรวม</p><p id="admin-distribution-history-total" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <p id="admin-distribution-history-status" class="status" aria-live="polite"></p>
+                            <p id="admin-distribution-history-error" class="error" role="alert" hidden></p>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-distribution-history-table">
+                                    <thead><tr><th>#</th><th>วันที่</th><th>ห้องเรียน</th><th>นักเรียน</th><th>จำนวนวัน</th><th>ลัง/เศษ</th><th>รวม</th><th>Main Stock</th><th>หมายเหตุ</th></tr></thead>
+                                    <tbody id="admin-distribution-history-body"></tbody>
                                 </table>
                             </div>
                         </section>

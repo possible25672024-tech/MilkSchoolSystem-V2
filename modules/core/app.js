@@ -17,7 +17,8 @@ class MilkSchoolApplication {
         adminRoomView = window.AdminRoomView,
         adminDashboardView = window.AdminDashboardView,
         adminReceiptView = window.AdminReceiptView,
-        adminStudentView = window.AdminStudentView
+        adminStudentView = window.AdminStudentView,
+        adminDistributionView = window.AdminDistributionView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -37,6 +38,7 @@ class MilkSchoolApplication {
         this.adminDashboardView = adminDashboardView;
         this.adminReceiptView = adminReceiptView;
         this.adminStudentView = adminStudentView;
+        this.adminDistributionView = adminDistributionView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -256,6 +258,16 @@ class MilkSchoolApplication {
         return this.adminStudentView;
     }
 
+    async ensureAdminDistributionView() {
+        if (!window.AdminDistributionService) await import("../admin/adminDistributionService.js");
+        if (!window.AdminDistributionManager) await import("../admin/adminDistributionManager.js");
+        if (!this.adminDistributionView) {
+            await import("../admin/adminDistributionView.js");
+            this.adminDistributionView = window.AdminDistributionView;
+        }
+        return this.adminDistributionView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -306,6 +318,8 @@ class MilkSchoolApplication {
         if (adminReceiptView?.initialize) adminReceiptView.initialize();
         const adminStudentView = await this.ensureAdminStudentView();
         if (adminStudentView?.initialize) adminStudentView.initialize();
+        const adminDistributionView = await this.ensureAdminDistributionView();
+        if (adminDistributionView?.initialize) adminDistributionView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

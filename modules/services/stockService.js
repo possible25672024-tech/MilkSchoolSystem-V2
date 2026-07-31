@@ -5,6 +5,7 @@ class StockService {
         this.idFactory = options.idFactory || (() => (
             Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
         ));
+        this.distributionLockTtlMs = Number(options.distributionLockTtlMs) || 120_000;
         this.allowedRoomConsumptionTypes = new Set([
             "ATTENDANCE",
             "PENDING",
@@ -338,8 +339,7 @@ class StockService {
         return { record, ledger, stockBefore, stockAfter, total };
     }
 
-    async distributeToRoom(command = {}) {
-        const repository = this.ensureRepository();
+    normalizeDistributionCommand(command = {}) {
         const roomId = this.requireRoomId(command.roomId);
         const calculation = command.total !== undefined
             ? {
@@ -354,6 +354,13 @@ class StockService {
             calculation.crates = Math.floor(calculation.total / calculation.perCrate);
             calculation.boxes = calculation.total % calculation.perCrate;
         }
+
+        return { roomId, calculation };
+    }
+
+    async prepareDistribution(command = {}) {
+        const repository = this.ensureRepository();
+        const { roomId, calculation } = this.normalizeDistributionCommand(command);
 
         const [rawMainStock, rawRoomStock] = await Promise.all([
             repository.loadMainStock(),
@@ -396,21 +403,121 @@ class StockService {
             referenceId
         });
 
-        await repository.applyMultiLocationUpdate({
+        const updates = {
             stock: mainStockAfter,
             [`roomStock/${roomId}`]: roomStockAfter,
             [`distributes/${referenceId}`]: record,
             [`stockTransactions/${ledger.id}`]: ledger
-        });
+        };
 
         return {
-            record,
-            ledger,
-            mainStockBefore,
-            mainStockAfter,
-            roomStockBefore,
-            roomStockAfter
+            result: {
+                record,
+                ledger,
+                mainStockBefore,
+                mainStockAfter,
+                roomStockBefore,
+                roomStockAfter
+            },
+            updates
         };
+    }
+
+    async distributeToRoom(command = {}) {
+        const repository = this.ensureRepository();
+        const prepared = await this.prepareDistribution(command);
+        await repository.applyMultiLocationUpdate(prepared.updates);
+        return prepared.result;
+    }
+
+    distributionFingerprint(command = {}, normalized = this.normalizeDistributionCommand(command)) {
+        return [
+            normalized.roomId,
+            String(command.record?.date || command.date || ""),
+            normalized.calculation.students,
+            normalized.calculation.days,
+            normalized.calculation.total
+        ].join("|");
+    }
+
+    async acquireDistributionLock(operationId) {
+        const repository = this.ensureRepository();
+        if (!repository.loadDistributionLockVersioned || !repository.setDistributionLockIfMatch) {
+            throw this.businessError(
+                "DISTRIBUTION_CONCURRENCY_UNAVAILABLE",
+                "Classroom distribution concurrency protection is unavailable."
+            );
+        }
+        const snapshot = await repository.loadDistributionLockVersioned();
+        const current = snapshot?.value;
+        const now = this.clock();
+        const expiresAt = current?.expiresAt ? new Date(current.expiresAt) : null;
+        if (current?.owner && expiresAt && expiresAt.getTime() > now.getTime()) {
+            throw this.businessError(
+                "DISTRIBUTION_LOCKED",
+                "Another classroom distribution is currently being saved."
+            );
+        }
+        const lock = {
+            owner: operationId,
+            acquiredAt: now.toISOString(),
+            expiresAt: new Date(now.getTime() + this.distributionLockTtlMs).toISOString()
+        };
+        const write = await repository.setDistributionLockIfMatch(lock, snapshot?.etag);
+        if (write?.status !== "ok") {
+            throw this.businessError(
+                "DISTRIBUTION_LOCKED",
+                "Another classroom distribution changed the stock first."
+            );
+        }
+        return lock;
+    }
+
+    async distributeToRoomGuarded(command = {}) {
+        const repository = this.ensureRepository();
+        const operationId = String(command.operationId || "").trim();
+        if (!operationId) {
+            throw this.businessError(
+                "DISTRIBUTION_OPERATION_REQUIRED",
+                "A classroom distribution operation id is required."
+            );
+        }
+        const normalized = this.normalizeDistributionCommand(command);
+        const fingerprint = this.distributionFingerprint(command, normalized);
+        await this.acquireDistributionLock(operationId);
+
+        try {
+            const completed = await repository.loadDistributionCommand(operationId);
+            if (completed) {
+                if (String(completed.fingerprint || "") !== fingerprint) {
+                    throw this.businessError(
+                        "DISTRIBUTION_OPERATION_MISMATCH",
+                        "This operation id was already used for a different classroom distribution."
+                    );
+                }
+                return { ...(completed.result || {}), operationId, idempotent: true };
+            }
+
+            const prepared = await this.prepareDistribution(command);
+            const commandRecord = {
+                id: operationId,
+                status: "completed",
+                fingerprint,
+                referenceId: prepared.result.record.id,
+                completedAt: this.nowIso(),
+                result: prepared.result
+            };
+            await repository.applyDistributionUpdate(
+                prepared.updates,
+                operationId,
+                commandRecord
+            );
+            return { ...prepared.result, operationId, idempotent: false };
+        } finally {
+            if (repository.releaseDistributionLock) {
+                await repository.releaseDistributionLock(operationId).catch(() => {});
+            }
+        }
     }
 
     async consumeRoomStock(command = {}) {

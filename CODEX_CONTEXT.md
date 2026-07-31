@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.3
+Version: 3.4
 Last Updated: 2026-07-31
 
 ---
@@ -34,7 +34,18 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution is active
+
+Current Sprint 5.6 boundary:
+
+- calculate distribution from the actual non-fallback roster × days;
+- transfer exactly one quantity from Main Stock to the selected Room Stock;
+- persist distribution, `DISTRIBUTE` ledger, and completion marker atomically;
+- acquire an ETag/If-Match lock before reading current balances;
+- reuse a completed operation result without deducting Main Stock twice;
+- load distribution history through shallow keys and summary fields only;
+- keep the real-data quarantine and protected legacy files unchanged;
+- keep one Admin writer until isolated browser concurrency evidence passes.
 
 Current Sprint 5.5 boundary:
 
