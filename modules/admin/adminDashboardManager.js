@@ -33,6 +33,15 @@ class AdminDashboardManager {
         return this.current;
     }
 
+    getRoomTrace(roomId) {
+        const normalizedRoomId = String(roomId || "").trim();
+        const room = this.current?.rooms?.find(item => item.roomId === normalizedRoomId);
+        if (!room) {
+            throw new Error("ไม่พบเส้นทางสต็อกของห้องที่เลือก");
+        }
+        return room;
+    }
+
     clear() {
         this.current = null;
     }

@@ -2,6 +2,33 @@
 
 All notable modular migration changes are recorded here.
 
+## 2026-07-31 — Sprint 5.4 Milk Receipt and Stock Trace
+
+### Added
+
+- Admin `รับนมจาก อบต.` form and media-free receipt history
+- Main Stock receipt preview using crates × per-crate count + extra boxes
+- receipt persistence through the accepted Stock Service `RECEIVE` workflow
+- complete system stock-path explanation and per-room trace
+- read-only opening-balance candidate for legacy-history reconciliation
+- real-data audit report for 83 rooms
+
+### Changed
+
+- the Dashboard no longer labels every pre-V2 opening balance as an ordinary
+  stock mismatch
+- rooms are classified as history-complete, empty, opening-balance required, or
+  negative
+- receipt history uses shallow key discovery and selected summary fields
+
+### Validation
+
+- all 64 discovered regression checks pass
+- receipt increases Main Stock and never changes Room Stock
+- stock trace and opening-balance calculation remain read-only
+- `rebuildAndPersist` remains blocked for the real dataset
+- `index.html` and `teacher.html` remain unchanged
+
 ## 2026-07-31 — Sprint 5.3 Admin System and Stock Dashboard
 
 ### Added

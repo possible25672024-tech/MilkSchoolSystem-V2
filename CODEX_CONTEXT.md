@@ -34,7 +34,17 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace is active
+
+Current Sprint 5.4 boundary:
+
+- receive milk into Main Stock only through the accepted Stock Service;
+- persist receipt and `RECEIVE` ledger with the stock update;
+- load receipt history through shallow, media-free summaries;
+- show the complete stock path and per-room opening-balance candidate;
+- do not auto-repair 54 legacy-history differences or three negative rooms;
+- do not run stock rebuild on the real 83-room dataset;
+- preserve protected legacy files and block Production cutover.
 
 Current Sprint 5.3 boundary:
 

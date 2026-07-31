@@ -15,7 +15,8 @@ class MilkSchoolApplication {
         teacherParityView = window.TeacherParityView,
         adminReportView = window.AdminReportView,
         adminRoomView = window.AdminRoomView,
-        adminDashboardView = window.AdminDashboardView
+        adminDashboardView = window.AdminDashboardView,
+        adminReceiptView = window.AdminReceiptView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -33,6 +34,7 @@ class MilkSchoolApplication {
         this.adminReportView = adminReportView;
         this.adminRoomView = adminRoomView;
         this.adminDashboardView = adminDashboardView;
+        this.adminReceiptView = adminReceiptView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -231,6 +233,16 @@ class MilkSchoolApplication {
         return this.adminDashboardView;
     }
 
+    async ensureAdminReceiptView() {
+        if (!window.AdminReceiptService) await import("../admin/adminReceiptService.js");
+        if (!window.AdminReceiptManager) await import("../admin/adminReceiptManager.js");
+        if (!this.adminReceiptView) {
+            await import("../admin/adminReceiptView.js");
+            this.adminReceiptView = window.AdminReceiptView;
+        }
+        return this.adminReceiptView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -277,6 +289,8 @@ class MilkSchoolApplication {
         if (adminRoomView?.initialize) adminRoomView.initialize();
         const adminDashboardView = await this.ensureAdminDashboardView();
         if (adminDashboardView?.initialize) adminDashboardView.initialize();
+        const adminReceiptView = await this.ensureAdminReceiptView();
+        if (adminReceiptView?.initialize) adminReceiptView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

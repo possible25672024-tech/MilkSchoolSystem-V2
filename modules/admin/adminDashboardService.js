@@ -40,25 +40,38 @@ class AdminDashboardService {
         return (Array.isArray(report.roomSummary) ? report.roomSummary : [])
             .map(summary => {
                 const actual = this.roomStockValue(roomStocks, summary.roomId);
-                const expected = this.toNumber(summary.remaining);
-                const difference = actual - expected;
+                const distributed = this.toNumber(summary.distTotal);
+                const attendance = this.toNumber(summary.usedChk);
+                const pending = this.toNumber(summary.usedPending);
+                const retroactive = this.toNumber(summary.usedRetro);
+                const vacation = this.toNumber(summary.usedVacation);
+                const consumed = attendance + pending + retroactive + vacation;
+                const historyBalance = distributed - consumed;
+                const openingBalance = actual - historyBalance;
                 const state = actual < 0
                     ? "negative"
-                    : difference !== 0
-                        ? "mismatch"
+                    : openingBalance !== 0
+                        ? "baseline"
                         : actual === 0 ? "empty" : "ready";
                 return {
                     roomId: String(summary.roomId || ""),
                     roomName: String(summary.roomName || summary.roomId || "—"),
                     students: this.toNumber(summary.students),
                     actual,
-                    expected,
-                    difference,
+                    distributed,
+                    attendance,
+                    pending,
+                    retroactive,
+                    vacation,
+                    consumed,
+                    historyBalance,
+                    openingBalance,
+                    reconciledBalance: openingBalance + distributed - consumed,
                     state
                 };
             })
             .sort((left, right) => {
-                const priority = { negative: 0, mismatch: 1, empty: 2, ready: 3 };
+                const priority = { negative: 0, baseline: 1, empty: 2, ready: 3 };
                 return (priority[left.state] - priority[right.state])
                     || left.roomName.localeCompare(right.roomName, "th");
             });
@@ -74,7 +87,7 @@ class AdminDashboardService {
         const counts = rooms.reduce((result, room) => {
             result[room.state] += 1;
             return result;
-        }, { ready: 0, empty: 0, mismatch: 0, negative: 0 });
+        }, { ready: 0, empty: 0, baseline: 0, negative: 0 });
 
         return {
             schoolName: String(report.schoolName || "โรงเรียน"),
@@ -91,7 +104,7 @@ class AdminDashboardService {
                     - this.toNumber(report.schoolTotal.remaining)
             },
             counts,
-            healthy: counts.negative === 0 && counts.mismatch === 0,
+            healthy: counts.negative === 0 && counts.baseline === 0,
             rooms
         };
     }

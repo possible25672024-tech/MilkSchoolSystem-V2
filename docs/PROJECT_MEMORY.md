@@ -8,13 +8,18 @@ Last updated: 2026-07-31
 
 ## Current Sprint State
 
-Sprint 5.3 Admin System and Stock Dashboard is automated PASS at 63/63 on
-`feature/sprint-5.3-admin-dashboard`.
+Sprint 5.4 Milk Receipt and Receipt History is automated PASS at 64/64 on
+`feature/sprint-5.4-stock-audit-receipts`.
 
 - Admin Attendance history uses normalized actual room rosters.
 - generated `student_*` fallback rows are not merged with real student IDs.
 - the system Dashboard is read-only and shows actual Main Stock and Room Stock.
 - per-room differences are surfaced but never repaired automatically.
+- the Dashboard now exposes the complete stock path and a read-only
+  opening-balance candidate.
+- the 83-room real-data audit found 26 history-complete rooms, 54 opening
+  balance/legacy-history candidates, and three negative rooms.
+- Admin receipt increases Main Stock only and records receipt plus ledger.
 - browser validation remains pending.
 
 ## Project Goal

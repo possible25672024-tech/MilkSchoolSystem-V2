@@ -76,7 +76,7 @@ Completed boundary:
 - compatible ledger calculations
 - Main Stock and Room Stock separation
 
-### Report and Admin Operations — Sprint 5.3 Dashboard Gate Active
+### Report and Admin Operations — Sprint 5.4 Receipt Gate Active
 
 Modules:
 
@@ -88,6 +88,9 @@ Modules:
 - `modules/admin/adminDashboardService.js`
 - `modules/admin/adminDashboardManager.js`
 - `modules/admin/adminDashboardView.js`
+- `modules/admin/adminReceiptService.js`
+- `modules/admin/adminReceiptManager.js`
+- `modules/admin/adminReceiptView.js`
 
 Current boundary:
 
@@ -98,6 +101,9 @@ Current boundary:
 - per-room actual-versus-history status without rebuild or repair
 - ready, empty, mismatch, and negative stock visibility
 - scalable Report snapshot reuse without historical media hydration
+- per-room stock trace and read-only opening-balance candidate
+- Admin Main Stock receipt and media-free receipt history
+- receipt writes Main Stock, receive record, and `RECEIVE` ledger only
 
 - read-only classroom, grade, and whole-school Admin reports;
 - browser-local Pending, Retroactive, and Vacation report normalization;
@@ -529,9 +535,9 @@ Rebuild
 - Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Browser PASS
 - Sprint 5.0 — Browser-local Report adapter and operational Admin report UI — Completed
 - Sprint 5.1 — Scalable Admin Attendance and report reads — Browser PASS
-- Sprint 5.2 — Admin inline exact-date Attendance edit — Active
-- Sprint 5.3 — Admin overview and stock Dashboard — Planned
-- Sprint 5.4 — Milk receipt and receipt history — Planned
+- Sprint 5.2 — Admin inline exact-date Attendance edit — Automated PASS
+- Sprint 5.3 — Admin overview and stock Dashboard — Automated PASS
+- Sprint 5.4 — Milk receipt and receipt history — Active, automated PASS
 - Sprint 5.5 — Student import, room management, and student reports — Planned
 - Sprint 5.6 — Classroom distribution and distribution history — Planned
 - Sprint 5.7 — Operational summaries and report-period parity — Planned

@@ -113,6 +113,33 @@ assert.equal(roomResult.r1.expected, 91, "Room r1 must subtract attendance, pend
 assert.equal(roomResult.r2.expected, 40, "Room r2 must subtract vacation milk");
 assert.equal(calculationService.validateSnapshot(snapshot).valid, true, "Matching stock snapshot must validate");
 
+let receiptUpdates = null;
+const receiptService = makeService({
+    loadMainStock: async () => 100,
+    applyMultiLocationUpdate: async updates => {
+        receiptUpdates = updates;
+        return updates;
+    }
+});
+const receipt = await receiptService.receiveMilk({
+    crates: 2,
+    extra: 4,
+    perCrate: 36,
+    record: { date: "2026-07-31", supplier: "อบต." },
+    user: "admin"
+});
+assert.equal(receipt.total, 76, "Receipt must use crates × perCrate + extra");
+assert.equal(receipt.stockBefore, 100);
+assert.equal(receipt.stockAfter, 176, "Receipt must increase Main Stock");
+assert.equal(receiptUpdates.stock, 176);
+assert.equal(receiptUpdates[`receives/${receipt.record.id}`].total, 76);
+assert.equal(receipt.ledger.type, "RECEIVE");
+assert.equal(
+    Object.keys(receiptUpdates).some(key => key.startsWith("roomStock/")),
+    false,
+    "Receipt must never change Room Stock"
+);
+
 let capturedUpdates = null;
 const distributionRepository = {
     loadMainStock: async () => 500,

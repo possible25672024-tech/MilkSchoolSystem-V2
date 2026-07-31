@@ -39,6 +39,44 @@ class StockRepository extends BaseRepository {
         return this.get(this.path("receives"));
     }
 
+    async loadReceiptSummaries(options = {}) {
+        const concurrency = Number.isInteger(options.concurrency)
+            ? Math.max(1, Math.min(12, options.concurrency))
+            : 6;
+        const fields = [
+            "date",
+            "createdAt",
+            "crates",
+            "extra",
+            "perCrate",
+            "total",
+            "note",
+            "supplier"
+        ];
+        const keyIndex = await this.get(this.path("receives"), { shallow: true });
+        const keys = Object.keys(keyIndex || {}).sort((left, right) => left.localeCompare(right));
+        const summaries = Object.fromEntries(keys.map(key => [key, { id: key }]));
+        const tasks = keys.flatMap(key => fields.map(field => ({ key, field })));
+        let cursor = 0;
+
+        const worker = async () => {
+            while (cursor < tasks.length) {
+                const index = cursor;
+                cursor += 1;
+                const { key, field } = tasks[index];
+                const value = await this.get(this.path(`receives/${key}/${field}`));
+                if (value !== null && value !== undefined) summaries[key][field] = value;
+            }
+        };
+        await Promise.all(
+            Array.from(
+                { length: Math.min(concurrency, tasks.length || 1) },
+                () => worker()
+            )
+        );
+        return summaries;
+    }
+
     loadDistributions() {
         return this.get(this.path("distributes"));
     }

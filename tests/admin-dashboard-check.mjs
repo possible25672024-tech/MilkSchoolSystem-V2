@@ -21,9 +21,11 @@ for (const id of [
     "admin-dashboard-used",
     "admin-dashboard-ready",
     "admin-dashboard-empty",
-    "admin-dashboard-mismatch",
+    "admin-dashboard-baseline",
     "admin-dashboard-negative",
-    "admin-dashboard-room-body"
+    "admin-dashboard-room-body",
+    "admin-stock-trace",
+    "admin-stock-trace-equation"
 ]) {
     assert.ok(html.includes(`id="${id}"`), `Admin Dashboard element ${id} is required`);
 }
@@ -31,6 +33,18 @@ assert.ok(
     html.includes('data-admin-menu="system-dashboard"'),
     "Admin navigation must expose the system overview"
 );
+for (const stockPathStep of [
+    "รับนมจาก อบต.",
+    "Admin จ่ายให้ห้อง",
+    "ครูเช็กดื่มนม",
+    "ครูจ่ายนมค้าง",
+    "ครูจ่ายย้อนหลัง",
+    "ครูจ่ายปิดเทอม",
+    "ลบรายการ",
+    "รายงาน"
+]) {
+    assert.ok(html.includes(stockPathStep), `Stock path must show ${stockPathStep}`);
+}
 
 const context = vm.createContext({
     console,
@@ -70,10 +84,10 @@ const report = {
         remaining: 35
     },
     roomSummary: [
-        { roomId: "r1", roomName: "อ.3-1", students: 20, remaining: 20 },
-        { roomId: "r2", roomName: "อ.3-2", students: 20, remaining: 10 },
-        { roomId: "r3", roomName: "ป.1-1", students: 20, remaining: -2 },
-        { roomId: "r4", roomName: "ป.1-2", students: 20, remaining: 0 }
+        { roomId: "r1", roomName: "อ.3-1", students: 20, distTotal: 30, usedChk: 10, usedPending: 0, usedRetro: 0, usedVacation: 0 },
+        { roomId: "r2", roomName: "อ.3-2", students: 20, distTotal: 15, usedChk: 5, usedPending: 0, usedRetro: 0, usedVacation: 0 },
+        { roomId: "r3", roomName: "ป.1-1", students: 20, distTotal: 5, usedChk: 7, usedPending: 0, usedRetro: 0, usedVacation: 0 },
+        { roomId: "r4", roomName: "ป.1-2", students: 20, distTotal: 0, usedChk: 0, usedPending: 0, usedRetro: 0, usedVacation: 0 }
     ]
 };
 const model = await service.load(
@@ -90,12 +104,15 @@ assert.equal(model.totals.students, 80);
 assert.equal(model.totals.used, 165);
 assert.deepEqual(
     JSON.parse(JSON.stringify(model.counts)),
-    { ready: 1, empty: 1, mismatch: 1, negative: 1 }
+    { ready: 1, empty: 1, baseline: 1, negative: 1 }
 );
 assert.equal(model.healthy, false);
 assert.equal(model.rooms[0].state, "negative");
-assert.equal(model.rooms[1].state, "mismatch");
-assert.equal(model.rooms[1].difference, -3);
+assert.equal(model.rooms[1].state, "baseline");
+assert.equal(model.rooms[1].openingBalance, -3);
+assert.equal(model.rooms[1].reconciledBalance, 7);
+assert.equal(model.rooms[1].distributed, 15);
+assert.equal(model.rooms[1].attendance, 5);
 assert.equal(model.generatedAt, "2026-07-31T02:00:00.000Z");
 
 await assert.rejects(
@@ -121,6 +138,8 @@ const manager = new AdminDashboardManager(
 const cached = await manager.refresh();
 assert.equal(cached.selectedReport, report);
 assert.equal(reportRefreshes, 0, "Cached report must avoid a duplicate oversized refresh");
+manager.current = model;
+assert.equal(manager.getRoomTrace("r2").openingBalance, -3);
 await manager.refresh({ forceReport: true });
 assert.equal(reportRefreshes, 1);
 

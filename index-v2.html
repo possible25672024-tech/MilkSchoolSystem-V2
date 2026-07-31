@@ -592,14 +592,155 @@
             text-align: left;
         }
 
-        .admin-dashboard-table tr[data-state="mismatch"] td:last-child {
+        .admin-dashboard-table tr[data-state="baseline"] td:nth-last-child(2) {
             color: #9a3412;
             font-weight: 800;
         }
 
-        .admin-dashboard-table tr[data-state="negative"] td:last-child {
+        .admin-dashboard-table tr[data-state="negative"] td:nth-last-child(2) {
             color: #b91c1c;
             font-weight: 800;
+        }
+
+        .admin-dashboard-table button {
+            width: 100%;
+            min-width: 88px;
+            margin: 0;
+            padding: 7px 9px;
+            font-size: 0.8rem;
+        }
+
+        .admin-stock-trace {
+            margin-top: 18px;
+            border: 2px solid #1a5276;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f8fbfd;
+        }
+
+        .admin-stock-trace-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-stock-trace-header h3 {
+            margin: 0;
+        }
+
+        .admin-stock-trace-header button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-stock-trace-flow {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .admin-stock-trace-step {
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .admin-stock-trace-step span,
+        .admin-stock-trace-step strong {
+            display: block;
+        }
+
+        .admin-stock-trace-step span {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .admin-stock-trace-step strong {
+            margin-top: 6px;
+            color: #123b56;
+            font-size: 1.1rem;
+        }
+
+        .admin-stock-trace-equation,
+        .admin-stock-trace-warning {
+            margin: 14px 0 0;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .admin-stock-trace-equation {
+            color: #123b56;
+            font-weight: 800;
+            text-align: center;
+            background: #e8f1f7;
+        }
+
+        .admin-stock-trace-warning {
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .admin-receipt-summary,
+        .admin-receipt-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .admin-receipt-summary {
+            grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+            margin-top: 14px;
+        }
+
+        .admin-receipt-form-grid {
+            margin-top: 16px;
+        }
+
+        .admin-receipt-field {
+            min-width: 0;
+        }
+
+        .admin-receipt-field label {
+            margin-bottom: 6px;
+        }
+
+        .admin-receipt-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .admin-receipt-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .admin-receipt-actions button {
+            width: auto;
+            min-width: 180px;
+        }
+
+        .admin-receipt-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .admin-receipt-table th,
+        .admin-receipt-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-receipt-table th {
+            color: #ffffff;
+            background: #1a5276;
         }
 
         .admin-operation-panel {
@@ -1110,6 +1251,14 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .admin-stock-trace-flow {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-receipt-form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .admin-attendance-editor-row {
                 grid-template-columns: 1fr;
             }
@@ -1169,6 +1318,9 @@
             .admin-room-dashboard,
             .admin-dashboard-metrics,
             .admin-dashboard-status-grid,
+            .admin-stock-trace-flow,
+            .admin-receipt-summary,
+            .admin-receipt-form-grid,
             .admin-menu {
                 grid-template-columns: 1fr;
             }
@@ -1373,6 +1525,7 @@
                         </div>
                         <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
                             <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
+                            <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
                             <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมห้อง</button>
                             <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
                             <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
@@ -1417,20 +1570,86 @@
                                 <strong id="admin-dashboard-health" data-state="ready">กำลังตรวจสอบยอด Room Stock</strong>
                                 <span>เปรียบเทียบยอดจริงกับประวัติการจ่ายและการใช้</span>
                             </div>
+                            <section class="admin-stock-trace">
+                                <header class="admin-stock-trace-header">
+                                    <h3>เส้นทางการตัดสต็อกตั้งแต่ต้นจนจบ</h3>
+                                </header>
+                                <div class="admin-stock-trace-flow">
+                                    <article class="admin-stock-trace-step"><span>1. รับนมจาก อบต.</span><strong>Main Stock + จำนวนรับ</strong></article>
+                                    <article class="admin-stock-trace-step"><span>2. Admin จ่ายให้ห้อง</span><strong>Main −N · Room +N</strong></article>
+                                    <article class="admin-stock-trace-step"><span>3. ครูเช็กดื่มนม</span><strong>Room − คนที่ดื่ม</strong></article>
+                                    <article class="admin-stock-trace-step"><span>4. ครูจ่ายนมค้าง</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>5. ครูจ่ายย้อนหลัง</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>6. ครูจ่ายปิดเทอม</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>7. ลบรายการ</span><strong>Room + จำนวนที่คืน</strong></article>
+                                    <article class="admin-stock-trace-step"><span>8. รายงาน</span><strong>อ่านอย่างเดียว · Stock ไม่เปลี่ยน</strong></article>
+                                </div>
+                            </section>
                             <div class="admin-dashboard-status-grid">
-                                <article class="admin-dashboard-status-card"><span>ปกติ</span><strong id="admin-dashboard-ready">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>ประวัติครบ</span><strong id="admin-dashboard-ready">0 ห้อง</strong></article>
                                 <article class="admin-dashboard-status-card"><span>สต็อกหมด</span><strong id="admin-dashboard-empty">0 ห้อง</strong></article>
-                                <article class="admin-dashboard-status-card"><span>ยอดไม่ตรง</span><strong id="admin-dashboard-mismatch">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>ต้องระบุยอดยกมา</span><strong id="admin-dashboard-baseline">0 ห้อง</strong></article>
                                 <article class="admin-dashboard-status-card"><span>สต็อกติดลบ</span><strong id="admin-dashboard-negative">0 ห้อง</strong></article>
                             </div>
                             <div class="admin-dashboard-table-wrap">
                                 <table class="admin-dashboard-table">
-                                    <thead><tr><th>ห้องเรียน</th><th>นักเรียน</th><th>คงเหลือจริง</th><th>ตามประวัติ</th><th>ส่วนต่าง</th><th>สถานะ</th></tr></thead>
+                                    <thead><tr><th>ห้องเรียน</th><th>นักเรียน</th><th>คงเหลือจริง</th><th>จากประวัติ V2</th><th>ยอดยกมา/รายการขาด</th><th>สถานะ</th><th>เส้นทาง</th></tr></thead>
                                     <tbody id="admin-dashboard-room-body"></tbody>
                                 </table>
                             </div>
+                            <section id="admin-stock-trace" class="admin-stock-trace" hidden>
+                                <header class="admin-stock-trace-header">
+                                    <h3>เส้นทางสต็อกห้อง <span id="admin-stock-trace-room">—</span></h3>
+                                    <button id="admin-stock-trace-close" class="secondary" type="button">ปิดเส้นทาง</button>
+                                </header>
+                                <div class="admin-stock-trace-flow">
+                                    <article class="admin-stock-trace-step"><span>1. ยอดยกมา/รายการก่อน V2</span><strong><span id="admin-stock-trace-opening">0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>2. Admin จ่ายเข้าห้อง</span><strong>+<span id="admin-stock-trace-distributed">0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>3. ครูเช็กดื่มนม</span><strong><span id="admin-stock-trace-attendance">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>4. ครูจ่ายนมค้าง</span><strong><span id="admin-stock-trace-pending">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>5. ครูจ่ายย้อนหลัง</span><strong><span id="admin-stock-trace-retroactive">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>6. ครูจ่ายช่วงปิดเทอม</span><strong><span id="admin-stock-trace-vacation">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>7. Room Stock จริง</span><strong><span id="admin-stock-trace-actual">0</span> กล่อง</strong></article>
+                                </div>
+                                <p id="admin-stock-trace-equation" class="admin-stock-trace-equation"></p>
+                                <p id="admin-stock-trace-warning" class="admin-stock-trace-warning" hidden></p>
+                            </section>
                             <p id="admin-dashboard-status" class="status" aria-live="polite"></p>
                             <p id="admin-dashboard-error" class="error" role="alert" hidden></p>
+                        </section>
+
+                        <section data-admin-section="receipts" class="admin-operation-panel" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รับนมจาก อบต.</h2>
+                                    <p>รับเข้า Main Stock เท่านั้น และบันทึกประวัติรับนมพร้อม Ledger</p>
+                                </div>
+                                <button id="admin-receipt-refresh" class="secondary" type="button">โหลดประวัติใหม่</button>
+                            </div>
+                            <div class="admin-receipt-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-receipt-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนที่จะรับเข้า</p><p id="admin-receipt-preview" class="metric-value">—</p></article>
+                            </div>
+                            <form id="admin-receipt-form">
+                                <div class="admin-receipt-form-grid">
+                                    <div class="admin-receipt-field"><label for="admin-receipt-date">วันที่รับนม</label><input id="admin-receipt-date" type="date" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-crates">จำนวนลัง</label><input id="admin-receipt-crates" type="number" min="1" step="1" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-extra">กล่องเศษ</label><input id="admin-receipt-extra" type="number" min="0" step="1" value="0"></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-per-crate">กล่องต่อลัง</label><input id="admin-receipt-per-crate" type="number" min="1" step="1" value="36" required></div>
+                                    <div class="admin-receipt-field full"><label for="admin-receipt-note">หมายเหตุ</label><input id="admin-receipt-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการส่งนม"></div>
+                                </div>
+                                <div class="admin-receipt-actions">
+                                    <button type="submit">บันทึกรับเข้า Main Stock</button>
+                                </div>
+                            </form>
+                            <p id="admin-receipt-status" class="status" aria-live="polite"></p>
+                            <p id="admin-receipt-error" class="error" role="alert" hidden></p>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-receipt-table">
+                                    <thead><tr><th>วันที่รับ</th><th>แหล่งรับ</th><th>ลัง/เศษ</th><th>รวม</th><th>หมายเหตุ</th></tr></thead>
+                                    <tbody id="admin-receipt-body"></tbody>
+                                </table>
+                            </div>
                         </section>
 
                         <section data-admin-section="dashboard" hidden>

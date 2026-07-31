@@ -4,17 +4,31 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.3-admin-dashboard`
+Current Branch: `feature/sprint-5.4-stock-audit-receipts`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.3 — Admin System and Stock Dashboard
+Sprint 5.4 — Milk Receipt and Receipt History
 
-Status: **AUTOMATED PASS — 63/63 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 64/64 / LIVE SERVER BROWSER GATE PENDING**
 
-Approved predecessor: Sprint 5.2 — Admin Inline Attendance Edit
+Approved predecessor: Sprint 5.3 — Admin System and Stock Dashboard
+
+## Sprint 5.4 Current Boundary
+
+- Admin receipt form calculates crates × per-crate + extra boxes.
+- receipt increases Main Stock only.
+- Room Stock remains unchanged.
+- receipt and `RECEIVE` ledger share the accepted multi-location update.
+- receipt history uses shallow key discovery and media-free summaries.
+- Dashboard shows the end-to-end stock path.
+- room trace includes a read-only opening-balance/legacy-history candidate.
+- real data remains 26 history-complete, 54 opening-balance candidates, and
+  three negative rooms pending explicit reconciliation.
+- all 64 discovered regression checks pass.
+- Live Server browser acceptance is pending.
 
 ## Sprint 5.3 Current Boundary
 
