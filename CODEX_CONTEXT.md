@@ -34,9 +34,18 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports are active
 
-Current Sprint 5.6 boundary:
+Current Sprint 5.7 boundary:
+
+- day, week, half-month, month, and explicit-semester report periods;
+- read-only management summary and classroom-distribution detail report;
+- receipts, distributions, Attendance, Pending, Retroactive, and Vacation totals;
+- shallow key discovery with out-of-range detail hydration blocked;
+- no report media/signature hydration and no Firebase write ownership;
+- A4 landscape and UTF-8 BOM CSV output.
+
+Preserved Sprint 5.6 boundary:
 
 - calculate distribution from the actual non-fallback roster × days;
 - transfer exactly one quantity from Main Stock to the selected Room Stock;

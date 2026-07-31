@@ -2,14 +2,22 @@
 
 ## Project Memory
 
-Version: 3.3
+Version: 3.4
 
 Last updated: 2026-07-31
 
 ## Current Sprint State
 
-Sprint 5.6 Classroom Distribution and Distribution History is automated PASS at
-69/69 on `feature/sprint-5.6-room-distribution`.
+Sprint 5.7 Operational Summaries and Period Reports is automated PASS at 73/73
+on `feature/sprint-5.7-operational-reports`.
+
+- period reports support day, week, half-month, month, and explicit semester;
+- management totals include receipts, distributions, Attendance, Pending,
+  Retroactive, and Vacation operations;
+- report reads use shallow key discovery, exclude out-of-range detail, and do
+  not hydrate media or signatures;
+- A4 and UTF-8 BOM CSV outputs are read-only;
+- browser validation remains pending.
 
 - Admin Attendance history uses normalized actual room rosters.
 - generated `student_*` fallback rows are not merged with real student IDs.
@@ -25,7 +33,7 @@ Sprint 5.6 Classroom Distribution and Distribution History is automated PASS at
 - an ETag/If-Match lock plus stable operation id prevents the V2 Admin workflow
   from deducting Main Stock twice.
 - distribution history discovers shallow keys and excludes media fields.
-- browser validation remains pending.
+- Sprint 5.6 controlled-write browser validation remains pending.
 
 ## Project Goal
 

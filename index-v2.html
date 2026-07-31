@@ -1296,6 +1296,25 @@
             font-size: 0.82rem;
         }
 
+        .admin-report-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-report-filter-grid label {
+            display: grid;
+            gap: 6px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .admin-report-filter-grid button {
+            align-self: end;
+            margin: 0;
+        }
+
         [hidden] {
             display: none !important;
         }
@@ -1456,6 +1475,10 @@
             }
 
             .admin-report-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-report-filter-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -1687,6 +1710,8 @@
                             <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
                             <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้อง</button>
                             <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 ประวัติการจ่ายนม</button>
+                            <button type="button" data-admin-menu="operational-summary" data-active="false" aria-pressed="false">📊 สรุปบริหารจัดการนม</button>
+                            <button type="button" data-admin-menu="distribution-report" data-active="false" aria-pressed="false">🧾 รายงานการจ่ายนม</button>
                             <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้านักเรียน</button>
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
                             <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
@@ -2056,6 +2081,96 @@
                                 </div>
                             </section>
                         </section>
+
+                <section data-admin-section="operational-summary" class="admin-operation-panel" hidden>
+                    <h2>สรุปการบริหารจัดการนม</h2>
+                    <p class="subtitle"><span id="admin-operational-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-operational-year">—</span> · ภาคเรียน <span id="admin-operational-semester">—</span></p>
+                    <p>สรุปการรับเข้า จ่ายให้ห้อง และการใช้นมตามช่วงเวลา · อ่านอย่างเดียว</p>
+                    <div class="admin-report-filter-grid" data-report-controls="admin-operational">
+                        <label>รอบรายงาน
+                            <select id="admin-operational-period">
+                                <option value="day">รายวัน</option>
+                                <option value="week">รายสัปดาห์</option>
+                                <option value="fortnight">รอบ 15 วัน</option>
+                                <option value="month">รายเดือน</option>
+                                <option value="semester">รายภาคเรียน</option>
+                            </select>
+                        </label>
+                        <label>วันที่อ้างอิง<input id="admin-operational-anchor" type="date"></label>
+                        <label data-period-range="admin-operational" hidden>เริ่มภาคเรียน<input id="admin-operational-start" type="date"></label>
+                        <label data-period-range="admin-operational" hidden>สิ้นสุดภาคเรียน<input id="admin-operational-end" type="date"></label>
+                        <label>มุมมอง
+                            <select id="admin-operational-view">
+                                <option value="room">รายห้องเรียน</option>
+                                <option value="grade">รายระดับชั้น</option>
+                                <option value="school">ทั้งโรงเรียน</option>
+                            </select>
+                        </label>
+                        <button id="admin-operational-refresh" type="button">โหลดสรุป</button>
+                    </div>
+                    <p id="admin-operational-period-label" class="admin-report-source-status">—</p>
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">รับนมเข้าในช่วง</p><p id="admin-operational-received" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายให้ห้องในช่วง</p><p id="admin-operational-distributed" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ใช้รวมในช่วง</p><p id="admin-operational-used" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">สุทธิช่วง (จ่าย − ใช้)</p><p id="admin-operational-net" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-operational-main-stock" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Room Stock รวมปัจจุบัน</p><p id="admin-operational-room-stock" class="metric-value">0 กล่อง</p></article>
+                    </div>
+                    <p id="admin-operational-source" class="admin-report-source-status"></p>
+                    <p id="admin-operational-status" class="status" aria-live="polite"></p>
+                    <p id="admin-operational-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead><tr><th>ห้อง/ระดับ</th><th>นักเรียน</th><th>จ่ายให้ห้อง</th><th>ดื่มปกติ</th><th>นมค้าง</th><th>ย้อนหลัง</th><th>ปิดเทอม</th><th>ใช้รวม</th><th>สุทธิช่วง</th></tr></thead>
+                            <tbody id="admin-operational-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-report-actions">
+                        <button id="admin-operational-print" type="button">พิมพ์ A4</button>
+                        <button id="admin-operational-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
+
+                <section data-admin-section="distribution-report" class="admin-operation-panel" hidden>
+                    <h2>รายงานการจ่ายนมให้ห้องเรียน</h2>
+                    <p class="subtitle"><span id="admin-distribution-report-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-distribution-report-year">—</span></p>
+                    <p>รายละเอียดการจ่ายนมตามช่วงเวลา · ไม่แก้ไขประวัติและสต็อก</p>
+                    <div class="admin-report-filter-grid" data-report-controls="admin-distribution-report">
+                        <label>รอบรายงาน
+                            <select id="admin-distribution-report-period">
+                                <option value="day">รายวัน</option>
+                                <option value="week">รายสัปดาห์</option>
+                                <option value="fortnight">รอบ 15 วัน</option>
+                                <option value="month">รายเดือน</option>
+                                <option value="semester">รายภาคเรียน</option>
+                            </select>
+                        </label>
+                        <label>วันที่อ้างอิง<input id="admin-distribution-report-anchor" type="date"></label>
+                        <label data-period-range="admin-distribution-report" hidden>เริ่มภาคเรียน<input id="admin-distribution-report-start" type="date"></label>
+                        <label data-period-range="admin-distribution-report" hidden>สิ้นสุดภาคเรียน<input id="admin-distribution-report-end" type="date"></label>
+                        <button id="admin-distribution-report-refresh" type="button">โหลดรายงาน</button>
+                    </div>
+                    <p id="admin-distribution-report-period-label" class="admin-report-source-status">—</p>
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-distribution-report-count" class="metric-value">0 รายการ</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายรวมในช่วง</p><p id="admin-distribution-report-total" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ห้องที่ได้รับนม</p><p id="admin-distribution-report-rooms" class="metric-value">0 ห้อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-report-main-stock" class="metric-value">0 กล่อง</p></article>
+                    </div>
+                    <p id="admin-distribution-report-status" class="status" aria-live="polite"></p>
+                    <p id="admin-distribution-report-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead><tr><th>#</th><th>วันที่</th><th>ห้องเรียน</th><th>นักเรียน</th><th>จำนวนวัน</th><th>ลัง/เศษ</th><th>รวม</th><th>Main Stock</th><th>หมายเหตุ</th></tr></thead>
+                            <tbody id="admin-distribution-report-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-report-actions">
+                        <button id="admin-distribution-report-print" type="button">พิมพ์ A4</button>
+                        <button id="admin-distribution-report-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
 
                 <section id="admin-report-panel" data-admin-section="school-report" class="admin-report-panel" aria-labelledby="admin-report-title" hidden>
                     <h2 id="admin-report-title">รายงานการจ่ายและใช้ประโยชน์นม</h2>

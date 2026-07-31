@@ -1,5 +1,17 @@
 # Changelog
 
+## Sprint 5.7 — Operational Summaries and Period Reports
+
+- added separate Admin management-summary and distribution-report screens;
+- added day, week, half-month, month, and explicit-semester period contracts;
+- summarized receipts, distributions, Attendance, Pending, Retroactive, and
+  Vacation operations by room, grade, and whole school;
+- added scalable shallow key discovery and blocked out-of-range detail reads;
+- excluded photos, media, signatures, and evidence from report hydration;
+- added landscape A4 and Thai UTF-8 BOM CSV exports;
+- added four Sprint 5.7 gates and raised complete regression to 73 checks;
+- kept reports read-only and protected legacy files unchanged.
+
 ## Sprint 5.6 — Classroom Distribution and Distribution History
 
 - added Admin V2 classroom distribution using actual roster count × days;

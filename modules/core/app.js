@@ -18,7 +18,8 @@ class MilkSchoolApplication {
         adminDashboardView = window.AdminDashboardView,
         adminReceiptView = window.AdminReceiptView,
         adminStudentView = window.AdminStudentView,
-        adminDistributionView = window.AdminDistributionView
+        adminDistributionView = window.AdminDistributionView,
+        adminOperationalReportView = window.AdminOperationalReportView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -39,6 +40,7 @@ class MilkSchoolApplication {
         this.adminReceiptView = adminReceiptView;
         this.adminStudentView = adminStudentView;
         this.adminDistributionView = adminDistributionView;
+        this.adminOperationalReportView = adminOperationalReportView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -268,6 +270,23 @@ class MilkSchoolApplication {
         return this.adminDistributionView;
     }
 
+    async ensureAdminOperationalReportView() {
+        if (!window.OperationalReportRepository) {
+            await import("../repositories/operationalReportRepository.js");
+        }
+        if (!window.AdminOperationalReportService) {
+            await import("../admin/adminOperationalReportService.js");
+        }
+        if (!window.AdminOperationalReportManager) {
+            await import("../admin/adminOperationalReportManager.js");
+        }
+        if (!this.adminOperationalReportView) {
+            await import("../admin/adminOperationalReportView.js");
+            this.adminOperationalReportView = window.AdminOperationalReportView;
+        }
+        return this.adminOperationalReportView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -320,6 +339,8 @@ class MilkSchoolApplication {
         if (adminStudentView?.initialize) adminStudentView.initialize();
         const adminDistributionView = await this.ensureAdminDistributionView();
         if (adminDistributionView?.initialize) adminDistributionView.initialize();
+        const adminOperationalReportView = await this.ensureAdminOperationalReportView();
+        if (adminOperationalReportView?.initialize) adminOperationalReportView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

@@ -6,8 +6,12 @@ import { fileURLToPath } from "node:url";
 
 const currentFile = fileURLToPath(import.meta.url);
 const testsDirectory = path.dirname(currentFile);
-const minimumExpectedChecks = 69;
+const minimumExpectedChecks = 73;
 const requiredSprint49Checks = [
+    "operational-report-period-check.mjs",
+    "operational-report-query-check.mjs",
+    "operational-report-ui-check.mjs",
+    "sprint-5.7-plan-check.mjs",
     "milk-operation-print-ui-check.mjs",
     "admin-distribution-check.mjs",
     "distribution-concurrency-check.mjs",

@@ -79,7 +79,7 @@ Completed boundary:
 - stable operation idempotency and completion markers
 - scalable distribution summary history without media hydration
 
-### Report and Admin Operations — Sprint 5.6 Distribution Gate Active
+### Report and Admin Operations — Sprint 5.7 Period Report Gate Active
 
 Modules:
 
@@ -97,6 +97,10 @@ Modules:
 - `modules/admin/adminDistributionService.js`
 - `modules/admin/adminDistributionManager.js`
 - `modules/admin/adminDistributionView.js`
+- `modules/repositories/operationalReportRepository.js`
+- `modules/admin/adminOperationalReportService.js`
+- `modules/admin/adminOperationalReportManager.js`
+- `modules/admin/adminOperationalReportView.js`
 
 Current boundary:
 
@@ -114,6 +118,11 @@ Current boundary:
 - distribution record, `DISTRIBUTE` ledger, and completion marker share one update
 - ETag lock and stable operation id block duplicate Main Stock deductions
 - distribution history uses shallow discovery and media-free summaries
+- day, week, half-month, month, and explicit-semester operational reports
+- receipt, distribution, Attendance, Pending, Retroactive, and Vacation period totals
+- out-of-range detail hydration prevention and media/signature exclusion
+- separate management summary and classroom-distribution report screens
+- landscape A4 and Thai UTF-8 BOM CSV exports
 
 - read-only classroom, grade, and whole-school Admin reports;
 - browser-local Pending, Retroactive, and Vacation report normalization;
@@ -566,8 +575,8 @@ Rebuild
 - Sprint 5.3 — Admin overview and stock Dashboard — Automated PASS
 - Sprint 5.4 — Milk receipt and receipt history — Automated PASS
 - Sprint 5.5 — Student import, room management, and student reports — Automated PASS
-- Sprint 5.6 — Classroom distribution and distribution history — Active, automated PASS
-- Sprint 5.7 — Operational summaries and report-period parity — Planned
+- Sprint 5.6 — Classroom distribution and distribution history — Automated PASS
+- Sprint 5.7 — Operational summaries and report-period parity — Active, automated PASS
 - Sprint 5.8 — Documents, settings, backup/restore, and Drive sync — Planned
 - Legacy Removal — Blocked pending production-cutover approval
 

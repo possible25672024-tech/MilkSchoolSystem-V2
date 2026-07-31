@@ -4,17 +4,30 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.6-room-distribution`
+Current Branch: `feature/sprint-5.7-operational-reports`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.6 — Classroom Distribution and Distribution History
+Sprint 5.7 — Operational Summaries and Period Reports
 
-Status: **AUTOMATED PASS — 69/69 / LIVE SERVER WRITE GATE PENDING**
+Status: **AUTOMATED PASS — 73/73 / LIVE SERVER BROWSER GATE PENDING**
 
-Approved predecessor: Sprint 5.5 — Student Import, Room Management and Student Report
+Approved predecessor: Sprint 5.6 — Classroom Distribution and Distribution History
+
+## Sprint 5.7 Current Boundary
+
+- separate Admin management-summary and distribution-report screens;
+- day, Monday-Sunday week, half-month, month, and explicit-semester ranges;
+- received, distributed, Attendance, Pending, Retroactive, Vacation, used, and
+  period-net totals by room, grade, and school;
+- current Main Stock and Room Stock are labeled as current balances only;
+- scalable shallow discovery with out-of-range detail hydration blocked;
+- no media, photo, signature, evidence, Stock write, or history mutation;
+- A4 landscape and UTF-8 BOM CSV output;
+- all 73 discovered regression checks pass;
+- Live Server browser acceptance remains pending.
 
 ## Sprint 5.6 Current Boundary
 
