@@ -15,6 +15,7 @@ class AdminRoomView {
         this.activeSection = "dashboard";
         this.attendanceEditor = null;
         this.attendanceEditorRows = new Map();
+        this.recordDetail = null;
     }
 
     element(id) {
@@ -42,6 +43,9 @@ class AdminRoomView {
         });
         this.element("admin-attendance-editor-close")?.addEventListener("click", () => {
             this.closeAttendanceEditor();
+        });
+        this.element("admin-record-detail-close")?.addEventListener("click", () => {
+            this.closeRecordDetail();
         });
         this.document.querySelectorAll?.("[data-admin-menu]")?.forEach(button => {
             button.addEventListener("click", () => this.showSection(button.dataset.adminMenu));
@@ -89,6 +93,7 @@ class AdminRoomView {
     async loadRoom(roomId) {
         if (!roomId) return;
         this.closeAttendanceEditor();
+        this.closeRecordDetail();
         this.setBusy(true);
         this.showError("");
         this.setStatus("กำลังโหลดข้อมูลห้อง...");
@@ -105,6 +110,7 @@ class AdminRoomView {
     }
 
     showSection(section) {
+        this.closeRecordDetail();
         this.activeSection = String(section || "dashboard");
         this.document.querySelectorAll?.("[data-admin-section]")?.forEach(panel => {
             panel.hidden = panel.dataset.adminSection !== this.activeSection;
@@ -197,12 +203,7 @@ class AdminRoomView {
             date: row.dataset.recordDate
         };
         if (button.dataset.adminRecordAction === "view") {
-            this.alert([
-                `ประเภท: ${this.typeLabel(type)}`,
-                `วันที่: ${input.date || "—"}`,
-                `รหัสรายการ: ${input.recordId || "—"}`,
-                `หมายเหตุ: ${row.dataset.recordNote || "—"}`
-            ].join("\n"));
+            await this.openRecordDetail(type, input);
             return;
         }
         if (button.dataset.adminRecordAction === "edit") {
@@ -229,7 +230,318 @@ class AdminRoomView {
         }
     }
 
+    async openRecordDetail(type, input = {}) {
+        this.closeAttendanceEditor();
+        this.setBusy(true);
+        this.showError("");
+        try {
+            const detail = await this.manager.loadRecordDetail(type, input);
+            this.renderRecordDetail(detail);
+            this.setStatus(`แสดงข้อมูลที่บันทึกไว้ทั้งรายการ ${this.typeLabel(type)}`);
+        } catch (error) {
+            this.showError(error?.message || "เปิดรายละเอียดรายการไม่สำเร็จ");
+        } finally {
+            this.setBusy(false);
+        }
+    }
+
+    renderRecordDetail(detail) {
+        this.recordDetail = detail;
+        const record = detail?.record || {};
+        this.setText("admin-record-detail-title", this.typeLabel(detail?.type));
+        this.setText(
+            "admin-record-detail-subtitle",
+            `${record.roomName || detail?.room?.name || "—"} · ${record.teacher || detail?.room?.teacher || "—"}`
+        );
+        this.renderRecordDetailFacts(detail);
+        this.renderRecordDetailSummary(detail);
+        this.renderRecordDetailStudents(detail);
+        this.renderRecordDetailEvidence(detail);
+        const panel = this.element("admin-record-detail");
+        panel?.removeAttribute("hidden");
+        panel?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    }
+
+    renderRecordDetailFacts(detail) {
+        const record = detail?.record || {};
+        const facts = [
+            ["ห้องเรียน", record.roomName || detail?.room?.name || "—"],
+            ["ครูประจำชั้น", record.teacher || detail?.room?.teacher || "—"],
+            ["วันที่/ช่วงที่บันทึก", this.recordPeriod(detail)],
+            ["รหัสรายการ", detail?.id || "—"],
+            ["บันทึกล่าสุด", this.formatDateTime(record.savedAt)]
+        ];
+        const container = this.element("admin-record-detail-facts");
+        if (!container) return;
+        container.replaceChildren(...facts.map(([label, value]) => {
+            const item = this.document.createElement("article");
+            item.className = "admin-record-detail-fact";
+            const name = this.document.createElement("span");
+            name.textContent = label;
+            const text = this.document.createElement("strong");
+            text.textContent = String(value || "—");
+            item.append(name, text);
+            return item;
+        }));
+    }
+
+    renderRecordDetailSummary(detail) {
+        const record = detail?.record || {};
+        const type = detail?.type;
+        const data = record.data && typeof record.data === "object" ? record.data : {};
+        const statusValues = Object.values(data);
+        const checkedCount = statusValues.filter(
+            value => value === "present" || value === "absent"
+        ).length;
+        const summaries = type === "attendance"
+            ? [
+                ["ดื่มนม", statusValues.filter(value => value === "present").length, "คน"],
+                ["ไม่ดื่มนม", statusValues.filter(value => value === "absent").length, "คน"],
+                ["ยังไม่ตรวจ", Math.max(0, (detail?.students?.length || 0) - checkedCount), "คน"],
+                ["ปี/ภาคเรียน", `${record.year || "—"} / ${record.term || "—"}`, ""]
+            ]
+            : [
+                ["นักเรียน", record.studentCount ?? Object.keys(record.students || {}).length, "คน"],
+                ["จำนวนวัน", record.days ?? this.pendingDayCount(record), "วัน"],
+                ["จ่ายนม", record.totalBoxes ?? 0, "กล่อง"],
+                ["หมายเหตุ", record.note || "—", ""]
+            ];
+        const container = this.element("admin-record-detail-summary");
+        if (!container) return;
+        container.replaceChildren(...summaries.map(([label, value, suffix]) => {
+            const item = this.document.createElement("article");
+            item.className = "admin-record-detail-metric";
+            const name = this.document.createElement("span");
+            name.textContent = label;
+            const text = this.document.createElement("strong");
+            text.textContent = `${value ?? "—"}${suffix ? ` ${suffix}` : ""}`;
+            item.append(name, text);
+            return item;
+        }));
+    }
+
+    renderRecordDetailStudents(detail) {
+        const container = this.element("admin-record-detail-students");
+        const heading = this.element("admin-record-detail-students-heading");
+        if (!container || !heading) return;
+        const record = detail?.record || {};
+        const roster = Array.isArray(detail?.students) ? detail.students : [];
+        const rosterMap = new Map(roster.map((student, index) => [
+            this.studentId(student, index),
+            { ...student, _index: index }
+        ]));
+        let rows = [];
+
+        if (detail?.type === "attendance") {
+            const data = record.data && typeof record.data === "object" ? record.data : {};
+            const notes = record.notes && typeof record.notes === "object" ? record.notes : {};
+            const ids = [...new Set([...rosterMap.keys(), ...Object.keys(data)])];
+            rows = ids.map((studentId, index) => {
+                const student = rosterMap.get(studentId) || {};
+                return {
+                    studentId,
+                    number: student.num || student.number || student._index + 1 || index + 1,
+                    name: student.name || student.fullName || studentId,
+                    status: data[studentId] === "present"
+                        ? "ดื่มนม"
+                        : data[studentId] === "absent" ? "ไม่ดื่มนม" : "ยังไม่ตรวจ",
+                    statusClass: data[studentId] === "present"
+                        ? "present"
+                        : data[studentId] === "absent" ? "absent" : "unchecked",
+                    note: notes[studentId] || ""
+                };
+            });
+            heading.textContent = "รายชื่อนักเรียนและผลการเช็กที่บันทึก";
+        } else if (detail?.type === "pending") {
+            rows = Object.entries(record.students || {}).map(([studentId, saved], index) => ({
+                studentId,
+                number: rosterMap.get(studentId)?.num || index + 1,
+                name: saved?.name || rosterMap.get(studentId)?.name || studentId,
+                status: `${Array.isArray(saved?.days) ? saved.days.length : 0} กล่อง`,
+                statusClass: "present",
+                note: Array.isArray(saved?.days) ? saved.days.join(", ") : ""
+            }));
+            heading.textContent = "นักเรียนและวันที่รับนมค้างที่บันทึก";
+        } else {
+            const signatures = record.signatures && typeof record.signatures === "object"
+                ? record.signatures
+                : {};
+            const count = Math.max(0, Number(record.studentCount) || 0);
+            const signedIds = Object.keys(signatures);
+            const ids = [...new Set([
+                ...signedIds,
+                ...[...rosterMap.keys()].slice(0, Math.max(count, signedIds.length))
+            ])];
+            rows = ids.map((studentId, index) => {
+                const student = rosterMap.get(studentId) || {};
+                const signature = this.signatureValue(signatures[studentId]);
+                return {
+                    studentId,
+                    number: student.num || student.number || student._index + 1 || index + 1,
+                    name: student.name || student.fullName || studentId,
+                    status: signature ? "มีลายเซ็นรับนม" : "ไม่มีลายเซ็น",
+                    statusClass: signature ? "present" : "unchecked",
+                    note: detail?.type === "retroactive"
+                        ? `${record.retroStart || "—"} – ${record.retroEnd || "—"}`
+                        : `${record.days || 0} วัน`
+                };
+            });
+            heading.textContent = "รายชื่อนักเรียนตามห้องและลายเซ็นที่บันทึก";
+        }
+
+        container.replaceChildren(...rows.map(row => this.createRecordDetailStudent(row)));
+        if (!rows.length) {
+            const empty = this.document.createElement("p");
+            empty.className = "admin-record-detail-empty";
+            empty.textContent = "รายการเดิมไม่ได้เก็บรายชื่อนักเรียนแยกไว้";
+            container.appendChild(empty);
+        }
+    }
+
+    createRecordDetailStudent(row) {
+        const item = this.document.createElement("article");
+        item.className = "admin-record-detail-student";
+        const number = this.document.createElement("span");
+        number.className = "admin-record-detail-number";
+        number.textContent = String(row.number || "—");
+        const identity = this.document.createElement("div");
+        const name = this.document.createElement("strong");
+        name.textContent = String(row.name || row.studentId || "—");
+        const note = this.document.createElement("small");
+        note.textContent = String(row.note || "ไม่มีหมายเหตุ");
+        identity.append(name, note);
+        const status = this.document.createElement("span");
+        status.className = `admin-record-detail-status ${row.statusClass || "unchecked"}`;
+        status.textContent = String(row.status || "—");
+        item.append(number, identity, status);
+        return item;
+    }
+
+    renderRecordDetailEvidence(detail) {
+        const record = detail?.record || {};
+        const photos = Array.isArray(record.photos) ? record.photos : [];
+        const photoContainer = this.element("admin-record-detail-photos");
+        const signatureContainer = this.element("admin-record-detail-signatures");
+        this.setText("admin-record-detail-photo-count", `${photos.length} รูป`);
+
+        if (photoContainer) {
+            const images = photos
+                .map((photo, index) => this.createEvidenceImage(photo, `รูปหลักฐาน ${index + 1}`))
+                .filter(Boolean);
+            photoContainer.replaceChildren(...images);
+            if (!images.length) this.appendEvidenceEmpty(photoContainer, "ไม่มีรูปหลักฐานในรายการนี้");
+        }
+
+        if (signatureContainer) {
+            const signatures = [];
+            if (this.signatureValue(record.signature)) {
+                signatures.push(["ลายเซ็นครู", record.signature]);
+            }
+            Object.entries(record.signatures || {}).forEach(([studentId, value]) => {
+                const student = (detail?.students || []).find(
+                    (candidate, index) => this.studentId(candidate, index) === studentId
+                );
+                const label = value?.receiverName || student?.name || studentId;
+                if (this.signatureValue(value)) signatures.push([label, value]);
+            });
+            signatureContainer.replaceChildren(...signatures.map(([label, value]) => {
+                const item = this.document.createElement("article");
+                item.className = "admin-record-detail-signature";
+                const title = this.document.createElement("strong");
+                title.textContent = String(label);
+                const image = this.createEvidenceImage(
+                    this.signatureValue(value),
+                    `ลายเซ็น ${label}`
+                );
+                item.appendChild(title);
+                if (image) item.appendChild(image);
+                return item;
+            }));
+            if (!signatures.length) {
+                this.appendEvidenceEmpty(signatureContainer, "ไม่มีลายเซ็นในรายการนี้");
+            }
+        }
+    }
+
+    createEvidenceImage(value, alt) {
+        const source = this.safeImageSource(this.signatureValue(value) || value);
+        if (!source) return null;
+        const image = this.document.createElement("img");
+        image.src = source;
+        image.alt = alt;
+        image.loading = "lazy";
+        return image;
+    }
+
+    appendEvidenceEmpty(container, message) {
+        const empty = this.document.createElement("p");
+        empty.className = "admin-record-detail-empty";
+        empty.textContent = message;
+        container.appendChild(empty);
+    }
+
+    safeImageSource(value) {
+        const source = typeof value === "string" ? value.trim() : "";
+        return /^(data:image\/|blob:|https?:\/\/)/i.test(source) ? source : "";
+    }
+
+    signatureValue(value) {
+        if (typeof value === "string") return value;
+        if (!value || typeof value !== "object") return "";
+        return String(value.sig || value.signature || value.dataUrl || "");
+    }
+
+    studentId(student = {}, index = 0) {
+        return String(student.id || student.studentId || student.code || `student_${index + 1}`);
+    }
+
+    pendingDayCount(record = {}) {
+        const dates = new Set();
+        Object.values(record.students || {}).forEach(student => {
+            (student?.days || []).forEach(date => dates.add(String(date)));
+        });
+        return dates.size;
+    }
+
+    recordPeriod(detail) {
+        const record = detail?.record || {};
+        if (detail?.type === "attendance") return record.date || "—";
+        if (detail?.type === "pending") {
+            return `${record.weekStart || record.date || "—"} – ${record.weekEnd || "—"}`;
+        }
+        if (detail?.type === "retroactive") {
+            return `${record.retroStart || "—"} – ${record.retroEnd || "—"} (จ่าย ${record.date || "—"})`;
+        }
+        if (detail?.type === "vacation") {
+            return `ปี ${record.academicYear || "—"} ภาค ${record.semester || "—"} (จ่าย ${record.date || "—"})`;
+        }
+        return record.date || "—";
+    }
+
+    formatDateTime(value) {
+        const date = new Date(value);
+        return value && !Number.isNaN(date.getTime())
+            ? date.toLocaleString("th-TH")
+            : String(value || "—");
+    }
+
+    closeRecordDetail() {
+        this.recordDetail = null;
+        const panel = this.element("admin-record-detail");
+        if (panel) panel.hidden = true;
+        for (const id of [
+            "admin-record-detail-facts",
+            "admin-record-detail-summary",
+            "admin-record-detail-students",
+            "admin-record-detail-photos",
+            "admin-record-detail-signatures"
+        ]) {
+            this.element(id)?.replaceChildren?.();
+        }
+    }
+
     async openAttendanceEditor(date) {
+        this.closeRecordDetail();
         this.setBusy(true);
         this.showError("");
         try {
@@ -414,7 +726,7 @@ class AdminRoomView {
             if (element) element.disabled = Boolean(busy);
         }
         this.document.querySelectorAll?.(
-            "[data-admin-record-action], #admin-attendance-editor-form button, #admin-attendance-editor-form input"
+            "[data-admin-record-action], #admin-attendance-editor-form button, #admin-attendance-editor-form input, #admin-record-detail-close"
         )?.forEach(element => {
             element.disabled = Boolean(busy);
         });
@@ -423,6 +735,7 @@ class AdminRoomView {
     reset() {
         this.manager.clear?.();
         this.closeAttendanceEditor();
+        this.closeRecordDetail();
         this.setStatus("");
         this.showError("");
     }

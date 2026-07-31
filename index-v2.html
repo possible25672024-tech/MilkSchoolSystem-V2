@@ -640,6 +640,208 @@
             margin-top: 14px;
         }
 
+        .admin-record-detail {
+            margin-top: 18px;
+            border: 1px solid #bfd2e3;
+            border-radius: 16px;
+            padding: 18px;
+            background: #f6f9fc;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .admin-record-detail-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            border-radius: 12px;
+            padding: 16px;
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-record-detail-header h2,
+        .admin-record-detail-header p {
+            margin: 0 0 4px;
+            color: inherit;
+        }
+
+        .admin-record-detail-header button {
+            width: auto;
+            margin: 0;
+            color: #123b56;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-facts,
+        .admin-record-detail-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-record-detail-fact,
+        .admin-record-detail-metric {
+            display: grid;
+            gap: 5px;
+            min-width: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-fact:first-child {
+            grid-column: span 2;
+        }
+
+        .admin-record-detail-fact span,
+        .admin-record-detail-metric span {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .admin-record-detail-fact strong,
+        .admin-record-detail-metric strong {
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-metric strong {
+            color: #1a5276;
+            font-size: 1.08rem;
+        }
+
+        .admin-record-detail-section {
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 14px;
+            padding: 15px;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-section h3 {
+            margin: 0 0 12px;
+        }
+
+        .admin-record-detail-students {
+            display: grid;
+            gap: 8px;
+        }
+
+        .admin-record-detail-student {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) minmax(130px, auto);
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: #fbfdff;
+        }
+
+        .admin-record-detail-number {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 50%;
+            color: #1a5276;
+            font-weight: 800;
+            background: #dff1ff;
+        }
+
+        .admin-record-detail-student div {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .admin-record-detail-student small {
+            color: #64748b;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-status {
+            justify-self: end;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .admin-record-detail-status.present {
+            border-color: #86efac;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .admin-record-detail-status.absent {
+            border-color: #fecaca;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .admin-record-detail-status.unchecked {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        .admin-record-detail-evidence {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .admin-record-detail-evidence-card {
+            min-width: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .admin-record-detail-evidence-card h4 {
+            margin: 0 0 10px;
+        }
+
+        .admin-record-detail-gallery,
+        .admin-record-detail-signatures {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .admin-record-detail-gallery img,
+        .admin-record-detail-signature img {
+            display: block;
+            width: 100%;
+            height: 150px;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            object-fit: contain;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-signature {
+            display: grid;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .admin-record-detail-signature strong {
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-empty {
+            margin: 0;
+            border-radius: 10px;
+            padding: 14px;
+            color: #64748b;
+            text-align: center;
+            background: #f8fafc;
+        }
+
         .admin-report-toolbar,
         .admin-report-actions {
             display: flex;
@@ -796,6 +998,16 @@
                 grid-template-columns: 1fr;
             }
 
+            .admin-record-detail-facts,
+            .admin-record-detail-summary,
+            .admin-record-detail-evidence {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .admin-record-detail-fact:first-child {
+                grid-column: auto;
+            }
+
             .attendance-summary {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -905,6 +1117,30 @@
             }
 
             .admin-operation-table button {
+                white-space: normal;
+            }
+
+            .admin-record-detail-header {
+                display: grid;
+            }
+
+            .admin-record-detail-header button {
+                width: 100%;
+            }
+
+            .admin-record-detail-facts,
+            .admin-record-detail-summary,
+            .admin-record-detail-evidence {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-record-detail-student {
+                grid-template-columns: 38px minmax(0, 1fr);
+            }
+
+            .admin-record-detail-status {
+                grid-column: 2;
+                justify-self: start;
                 white-space: normal;
             }
 
@@ -1090,6 +1326,36 @@
                             <div class="admin-report-table-wrap">
                                 <table class="admin-operation-table"><thead><tr><th>วันที่จ่าย</th><th>ปีการศึกษา</th><th>จำนวน</th><th>จัดการ</th></tr></thead><tbody id="admin-vacation-body" data-admin-record-body></tbody></table>
                             </div>
+                        </section>
+
+                        <section id="admin-record-detail" class="admin-record-detail" aria-labelledby="admin-record-detail-title" hidden>
+                            <header class="admin-record-detail-header">
+                                <div>
+                                    <p>ข้อมูลต้นฉบับที่บันทึกไว้</p>
+                                    <h2 id="admin-record-detail-title">รายละเอียดรายการ</h2>
+                                    <p id="admin-record-detail-subtitle">—</p>
+                                </div>
+                                <button id="admin-record-detail-close" type="button">ปิดรายละเอียด</button>
+                            </header>
+                            <div id="admin-record-detail-facts" class="admin-record-detail-facts"></div>
+                            <div id="admin-record-detail-summary" class="admin-record-detail-summary"></div>
+                            <section class="admin-record-detail-section">
+                                <h3 id="admin-record-detail-students-heading">รายชื่อนักเรียนที่บันทึก</h3>
+                                <div id="admin-record-detail-students" class="admin-record-detail-students"></div>
+                            </section>
+                            <section class="admin-record-detail-section">
+                                <h3>หลักฐานที่บันทึก</h3>
+                                <div class="admin-record-detail-evidence">
+                                    <article class="admin-record-detail-evidence-card">
+                                        <h4>รูปถ่าย (<span id="admin-record-detail-photo-count">0 รูป</span>)</h4>
+                                        <div id="admin-record-detail-photos" class="admin-record-detail-gallery"></div>
+                                    </article>
+                                    <article class="admin-record-detail-evidence-card">
+                                        <h4>ลายเซ็น</h4>
+                                        <div id="admin-record-detail-signatures" class="admin-record-detail-signatures"></div>
+                                    </article>
+                                </div>
+                            </section>
                         </section>
 
                 <section id="admin-report-panel" data-admin-section="school-report" class="admin-report-panel" aria-labelledby="admin-report-title" hidden>

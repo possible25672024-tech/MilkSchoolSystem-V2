@@ -74,8 +74,11 @@ class AdminRoomService {
             [this.repositories.attendance, "loadRoomAttendanceSummaries"],
             [this.repositories.attendance, "loadAttendanceRecord"],
             [this.repositories.pending, "loadRoomPendingRecords"],
+            [this.repositories.pending, "loadPendingRecord"],
             [this.repositories.retroactive, "loadRoomRecords"],
-            [this.repositories.vacation, "loadRoomRecords"]
+            [this.repositories.retroactive, "loadRecord"],
+            [this.repositories.vacation, "loadRoomRecords"],
+            [this.repositories.vacation, "loadRecord"]
         ];
         const missingRepository = requiredRepositories.find(([owner, method]) => !owner?.[method]);
         if (missingRepository) {
@@ -270,6 +273,68 @@ class AdminRoomService {
                 ...record,
                 clsId: resolved.room.id,
                 date: normalizedDate
+            }
+        };
+    }
+
+    async loadRecordDetail(adminSession, roomId, type, input = {}) {
+        this.ensureDependencies();
+        const resolved = await this.resolveRoom(adminSession, roomId);
+        const normalizedType = String(type || "").trim();
+        let record;
+        let recordId = String(input.recordId || input.id || "").trim();
+
+        if (normalizedType === "attendance") {
+            const date = String(input.date || "").trim();
+            record = await this.repositories.attendance.loadAttendanceRecord(
+                resolved.room.id,
+                date
+            );
+            recordId = `${resolved.room.id}_${date}`;
+        } else {
+            const loader = {
+                pending: [this.repositories.pending, "loadPendingRecord"],
+                retroactive: [this.repositories.retroactive, "loadRecord"],
+                vacation: [this.repositories.vacation, "loadRecord"]
+            }[normalizedType];
+            if (!loader) {
+                throw this.businessError(
+                    "ADMIN_OPERATION_TYPE_INVALID",
+                    "ไม่รองรับประเภทรายการนี้"
+                );
+            }
+            record = await loader[0][loader[1]](recordId);
+        }
+
+        if (!record) {
+            throw this.businessError(
+                "ADMIN_OPERATION_NOT_FOUND",
+                "ไม่พบรายละเอียดรายการที่เลือก"
+            );
+        }
+        const recordRoomId = normalizedType === "attendance"
+            ? resolved.room.id
+            : String(record.roomId || record.classId || record.clsId || "");
+        if (recordRoomId !== resolved.room.id) {
+            throw this.businessError(
+                "ADMIN_ROOM_MISMATCH",
+                "รายการนี้ไม่ได้อยู่ในห้องที่เลือก"
+            );
+        }
+
+        return {
+            type: normalizedType,
+            id: recordId,
+            room: resolved.room,
+            delegatedSession: resolved.session,
+            students: Array.isArray(resolved.room.students)
+                ? resolved.room.students.map(student => ({ ...student }))
+                : [],
+            record: {
+                ...record,
+                roomId: resolved.room.id,
+                roomName: String(record.roomName || resolved.room.name),
+                teacher: String(record.teacher || resolved.room.teacher)
             }
         };
     }

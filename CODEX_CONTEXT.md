@@ -40,6 +40,8 @@ Current Sprint 5.2 boundary:
 
 - Attendance edit must not change the active Admin session to Teacher;
 - edit one explicit date inside the selected-room Admin panel;
+- history `ดู` must render the complete selected saved record inside Admin;
+- full details load lazily one record at a time and must match the selected room;
 - preserve existing photos and signature through the Service boundary;
 - reuse Attendance Room Stock difference, ETag, audit, and Queue recovery;
 - record Admin legacy-menu parity as Sprints 5.3–5.8.
@@ -289,6 +291,9 @@ Required local evidence:
 - save updates only the selected room/date;
 - Room Stock changes only by the present-count difference;
 - existing photos and signature remain in the report;
+- `ดู` renders students, saved statuses/periods, notes, photos, and signatures
+  inside Admin for Attendance, Pending, Retroactive, and Vacation;
+- full-record Firebase reads occur only after clicking one explicit history row;
 - desktop and Chrome Responsive layout stays inside the viewport;
 - clean Console and scoped Firebase traffic.
 

@@ -4,7 +4,7 @@ Date: 2026-07-30
 
 Branch: `feature/sprint-5.2-admin-inline-attendance`
 
-Status: **AUTOMATED PASS — 61/61 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 62/62 / LIVE SERVER BROWSER GATE PENDING**
 
 ## Goal
 
@@ -54,6 +54,16 @@ Admin โดยไม่เปลี่ยน session ไปหน้า Teacher
 responsive browser, Console/Network และ complete regression ก่อนเริ่ม Sprint
 ถัดไป
 
+## Gate E — Full saved-record history
+
+- ปุ่ม `ดู` ไม่ใช้ browser alert และไม่สลับไปหน้า Teacher;
+- Admin โหลด record เต็มเฉพาะรายการที่กดผ่าน Service/Repository;
+- ประวัติดื่มนมแสดงรายชื่อ สถานะ หมายเหตุ รูป และลายเซ็นครู;
+- นมค้าง ย้อนหลัง และปิดเทอมแสดงช่วงเวลา จำนวน รายชื่อนักเรียนที่หาได้
+  รูป และลายเซ็นที่บันทึก;
+- recordId ต้องตรงกับห้องที่เลือกก่อนแสดง;
+- ตารางรายการทั่วไปยังโหลดเฉพาะ summary และไม่ดึง media ทั้งห้อง.
+
 ## Browser acceptance
 
 1. เข้าระบบด้วย Admin และเลือกห้อง;
@@ -63,8 +73,10 @@ responsive browser, Console/Network และ complete regression ก่อน�
 5. ตาราง Admin โหลดค่าใหม่;
 6. Room Stock เปลี่ยนเฉพาะส่วนต่างที่ถูกต้อง;
 7. รูปและลายเซ็นเดิมยังอยู่เมื่อเปิดรายงาน;
-8. Console ไม่มี application error;
-9. หน้าจอ desktop และ Responsive ไม่ตกขอบ.
+8. กด `ดู` แล้วข้อมูลต้นฉบับทั้งรายการเปิดในหน้า Admin โดยไม่แสดง alert;
+9. ทดสอบ `ดู` ในทั้ง 4 เมนู และตรวจว่าห้อง/รายการตรงกัน;
+10. Console ไม่มี application error;
+11. หน้าจอ desktop และ Responsive ไม่ตกขอบ.
 
 Sprint นี้ไม่อนุญาตให้แก้ `index.html` หรือ `teacher.html`, เปลี่ยน Firebase
 schema/rules, deploy `main`, หรือเปิด Production traffic.

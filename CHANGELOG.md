@@ -8,6 +8,10 @@ All notable modular migration changes are recorded here.
 
 - Admin-owned exact-date Attendance editor inside the selected-room workspace
 - explicit one-record evidence hydration after the edit action
+- full saved-record detail pages for Attendance, Pending, Retroactive, and
+  Vacation Admin histories
+- read-only student status, notes, photos, teacher signature, and
+  per-student receiver signature rendering
 - Sprint 5.2 plan, parity roadmap, and automated gate
 
 ### Changed
@@ -22,11 +26,15 @@ All notable modular migration changes are recorded here.
 - Protected quarantine, Main Stock isolation, `index.html`, and `teacher.html`
   remain unchanged.
 - Recorded Admin parity delivery order for Sprints 5.3–5.8.
+- History `ดู` actions now hydrate only the selected record and render it
+  inside the Admin workspace instead of showing a short browser alert.
+- Full-record reads verify selected-room ownership while room history tables
+  remain summary-only to preserve the Sprint 5.1 Firebase 413 boundary.
 
 ### Validation
 
 - Admin room operations and Sprint 5.2 plan checks pass.
-- All 61 discovered regression checks pass.
+- All 62 discovered regression checks pass.
 - Live Server browser acceptance remains pending.
 
 ## 2026-07-30 — Sprint 5.1 Large Attendance Payload Resilience

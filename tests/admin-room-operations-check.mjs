@@ -28,6 +28,10 @@ for (const expected of [
     'id="admin-attendance-editor"',
     'id="admin-attendance-editor-form"',
     'id="admin-attendance-editor-list"',
+    'id="admin-record-detail"',
+    'id="admin-record-detail-students"',
+    'id="admin-record-detail-photos"',
+    'id="admin-record-detail-signatures"',
     'id="admin-pending-body"',
     'id="admin-retroactive-body"',
     'id="admin-vacation-body"',
@@ -71,6 +75,7 @@ assert.ok(serviceSource.includes("buildDelegatedSession"), "Admin access must us
 assert.ok(serviceSource.includes("ADMIN_ROOM_QUARANTINED"), "Known quarantined room must block delegated edit mode");
 assert.ok(serviceSource.includes("assertAttendanceMutationAllowed"), "Quarantine must protect Admin Attendance edit and delete");
 assert.ok(serviceSource.includes("loadAttendanceEditor"), "Admin must explicitly hydrate one full Attendance record for editing");
+assert.ok(serviceSource.includes("loadRecordDetail"), "Admin View actions must hydrate only the selected full record");
 assert.ok(serviceSource.includes("mainStockDelta: 0"), "Admin metadata edits must not change Main Stock");
 
 const context = vm.createContext({
@@ -150,10 +155,26 @@ const attendanceRepo = {
     )
 };
 const retroRepo = {
-    loadRoomRecords: async () => ({})
+    loadRoomRecords: async () => ({}),
+    loadRecord: async recordId => ({
+        roomId: "room-1",
+        date: "2026-07-31",
+        retroStart: "2026-07-01",
+        retroEnd: "2026-07-03",
+        totalBoxes: 3,
+        id: recordId
+    })
 };
 const vacationRepo = {
-    loadRoomRecords: async () => ({})
+    loadRoomRecords: async () => ({}),
+    loadRecord: async recordId => ({
+        roomId: "room-1",
+        date: "2026-07-31",
+        academicYear: "2569",
+        semester: "1",
+        totalBoxes: 30,
+        id: recordId
+    })
 };
 const service = new AdminRoomService(
     { loadLoginOptions: async () => ({ rooms: [room] }) },
@@ -217,6 +238,26 @@ const editor = await service.loadAttendanceEditor(admin, "room-1", "2026-07-30")
 assert.equal(editor.date, "2026-07-30");
 assert.equal(editor.students.length, 1);
 assert.equal(editor.record.photos[0], "photo-a");
+
+const attendanceDetail = await service.loadRecordDetail(
+    admin,
+    "room-1",
+    "attendance",
+    { date: "2026-07-30" }
+);
+assert.equal(attendanceDetail.type, "attendance");
+assert.equal(attendanceDetail.record.photos[0], "photo-a");
+assert.equal(attendanceDetail.record.signature, "signature-a");
+assert.equal(attendanceDetail.students[0].name, "นักเรียนหนึ่ง");
+
+const pendingDetail = await service.loadRecordDetail(
+    admin,
+    "room-1",
+    "pending",
+    { recordId: "p1" }
+);
+assert.equal(pendingDetail.type, "pending");
+assert.equal(pendingDetail.record.roomId, "room-1");
 
 await service.saveAttendanceEditor(admin, "room-1", {
     date: "2026-07-30",

@@ -120,6 +120,15 @@ class AdminRoomManager {
         );
     }
 
+    async loadRecordDetail(type, input = {}) {
+        return this.adminRoomService.loadRecordDetail(
+            this.getAdminSession(),
+            this.selectedRoomId,
+            type,
+            input
+        );
+    }
+
     async saveAttendanceEditor(input = {}) {
         let result;
         try {
