@@ -340,13 +340,62 @@ class AdminSystemView {
     }
 
     downloadJson(value, filename) {
-        const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json;charset=utf-8" });
+        const blob = new Blob(this.jsonChunks(value), { type: "application/json;charset=utf-8" });
         const url = URL.createObjectURL(blob);
         const anchor = this.document.createElement("a");
         anchor.href = url;
         anchor.download = filename;
         anchor.click();
         setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    *jsonTokens(value) {
+        if (value === null || typeof value !== "object") {
+            yield JSON.stringify(value);
+            return;
+        }
+        if (Array.isArray(value)) {
+            yield "[";
+            for (let index = 0; index < value.length; index += 1) {
+                if (index) yield ",";
+                yield* this.jsonTokens(value[index] === undefined ? null : value[index]);
+            }
+            yield "]";
+            return;
+        }
+        yield "{";
+        let first = true;
+        for (const key of Object.keys(value)) {
+            if (value[key] === undefined || typeof value[key] === "function") continue;
+            if (!first) yield ",";
+            first = false;
+            yield JSON.stringify(key);
+            yield ":";
+            yield* this.jsonTokens(value[key]);
+        }
+        yield "}";
+    }
+
+    jsonChunks(value, targetBytes = 512 * 1024) {
+        const chunks = [];
+        let buffer = "";
+        for (const token of this.jsonTokens(value)) {
+            if (buffer && buffer.length + token.length > targetBytes) {
+                chunks.push(buffer);
+                buffer = "";
+            }
+            if (token.length > targetBytes) {
+                if (buffer) {
+                    chunks.push(buffer);
+                    buffer = "";
+                }
+                chunks.push(token);
+            } else {
+                buffer += token;
+            }
+        }
+        if (buffer) chunks.push(buffer);
+        return chunks;
     }
 
     formatBytes(bytes) {

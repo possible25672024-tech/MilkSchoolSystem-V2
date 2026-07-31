@@ -23,6 +23,7 @@ assert.deepEqual(menus, [
     "system-dashboard",
     "documents",
     "receipts",
+    "receipt-history",
     "student-import",
     "room-management",
     "student-report",

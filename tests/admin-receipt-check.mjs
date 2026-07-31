@@ -30,12 +30,17 @@ for (const id of [
     "admin-receipt-crates",
     "admin-receipt-extra",
     "admin-receipt-per-crate",
+    "admin-receipt-year",
     "admin-receipt-note",
-    "admin-receipt-body"
+    "admin-receipt-photos",
+    "admin-receipt-receiver-signature",
+    "admin-receipt-sender-signature",
+    "admin-receipt-history-body"
 ]) {
     assert.ok(html.includes(`id="${id}"`), `Admin Receipt element ${id} is required`);
 }
 assert.ok(html.includes('data-admin-menu="receipts"'));
+assert.ok(html.includes('data-admin-menu="receipt-history"'));
 for (const boundary of [
     "Main Stock",
     "Room Stock",

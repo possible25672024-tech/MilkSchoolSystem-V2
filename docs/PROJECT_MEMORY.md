@@ -2,11 +2,26 @@
 
 ## Project Memory
 
-Version: 3.6
+Version: 3.7
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 ## Current Sprint State
+
+Sprint 5.9.2 Receipt, Print and Large Backup Corrections is automated PASS at
+87/87.
+
+- receipt create stores year, processed photos, and receiver/sender signatures;
+- receipt history is a separate menu with full view/edit/delete details;
+- receipt edit/delete uses ETag lock protection, Main Stock delta updates, and
+  audit ledger entries, while insufficient Main Stock blocks destructive edits;
+- both distribution list/report outputs paginate A4 at 30 rows per page and
+  export UTF-8 BOM CSV;
+- the Admin V2 layout uses the available screen width;
+- backup checksum and Blob generation avoid a whole-database JSON string,
+  preventing `Invalid string length` for large photo/signature datasets;
+- protected `index.html` and `teacher.html` remain unchanged;
+- Live Server and isolated Firebase controlled-write/Backup UAT remain pending.
 
 Sprint 5.9.1 Admin Parity Corrections is automated PASS at 84/84.
 

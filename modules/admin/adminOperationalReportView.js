@@ -215,16 +215,19 @@ class AdminOperationalReportView {
         if (!this.report) return;
         const model = this.manager.buildPrintModel(kind);
         const columns = Object.keys(model.rows[0] || {});
+        const pages = [];
+        for (let index = 0; index < model.rows.length; index += 30) {
+            pages.push(model.rows.slice(index, index + 30));
+        }
+        if (!pages.length) pages.push([]);
         const popup = this.window.open("", "_blank");
         if (!popup) {
             this.showError(this.prefix(kind), "เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต Pop-up");
             return;
         }
         popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${this.escape(model.title)}</title>
-<style>@page{size:A4 landscape;margin:9mm}body{font-family:Sarabun,sans-serif;color:#111}h1,p{text-align:center;margin:4px}table{width:100%;border-collapse:collapse;margin-top:12px;font-size:8.5pt}th,td{border:1px solid #555;padding:4px;text-align:center}th{background:#e8f1f7}</style></head><body>
-<h1>${this.escape(model.title)}</h1><p>${this.escape(model.schoolName)}</p><p>ปีการศึกษา ${this.escape(model.academicYear || "ไม่ระบุ")} · ${this.escape(model.periodLabel)}</p>
-<table><thead><tr>${columns.map(column => `<th>${this.escape(column)}</th>`).join("")}</tr></thead>
-<tbody>${model.rows.map(row => `<tr>${columns.map(column => `<td>${this.escape(row[column])}</td>`).join("")}</tr>`).join("")}</tbody></table>
+<style>@page{size:A4 landscape;margin:9mm}body{font-family:Sarabun,sans-serif;color:#111;margin:0}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}h1,p{text-align:center;margin:4px}.page-no{text-align:right;font-size:8pt}table{width:100%;border-collapse:collapse;margin-top:9px;font-size:8.5pt}th,td{border:1px solid #555;padding:4px;text-align:center}th{background:#e8f1f7}</style></head><body>
+${pages.map((page, pageIndex) => `<section class="print-page"><h1>${this.escape(model.title)}</h1><p>${this.escape(model.schoolName)}</p><p>ปีการศึกษา ${this.escape(model.academicYear || "ไม่ระบุ")} · ${this.escape(model.periodLabel)}</p><p class="page-no">หน้า ${pageIndex + 1}/${pages.length} · ไม่เกิน 30 แถว/หน้า</p><table><thead><tr>${columns.map(column => `<th>${this.escape(column)}</th>`).join("")}</tr></thead><tbody>${page.map(row => `<tr>${columns.map(column => `<td>${this.escape(row[column])}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`).join("")}
 <script>window.addEventListener("load",()=>window.print())<\/script></body></html>`);
         popup.document.close();
     }

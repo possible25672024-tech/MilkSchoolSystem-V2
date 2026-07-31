@@ -6,6 +6,7 @@ class StockService {
             Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
         ));
         this.distributionLockTtlMs = Number(options.distributionLockTtlMs) || 120_000;
+        this.receiptLockTtlMs = Number(options.receiptLockTtlMs) || 120_000;
         this.allowedRoomConsumptionTypes = new Set([
             "ATTENDANCE",
             "PENDING",
@@ -337,6 +338,143 @@ class StockService {
         });
 
         return { record, ledger, stockBefore, stockAfter, total };
+    }
+
+    async acquireReceiptLock(operationId) {
+        const repository = this.ensureRepository();
+        if (!repository.loadReceiptLockVersioned || !repository.setReceiptLockIfMatch) {
+            throw this.businessError(
+                "RECEIPT_CONCURRENCY_UNAVAILABLE",
+                "Milk receipt concurrency protection is unavailable."
+            );
+        }
+        const snapshot = await repository.loadReceiptLockVersioned();
+        const current = snapshot?.value;
+        const now = this.clock();
+        const expiresAt = current?.expiresAt ? new Date(current.expiresAt) : null;
+        if (current?.owner && expiresAt && expiresAt.getTime() > now.getTime()) {
+            throw this.businessError(
+                "RECEIPT_LOCKED",
+                "Another milk receipt is currently being changed."
+            );
+        }
+        const lock = {
+            owner: operationId,
+            acquiredAt: now.toISOString(),
+            expiresAt: new Date(now.getTime() + this.receiptLockTtlMs).toISOString()
+        };
+        const write = await repository.setReceiptLockIfMatch(lock, snapshot?.etag);
+        if (write?.status !== "ok") {
+            throw this.businessError(
+                "RECEIPT_LOCKED",
+                "Another milk receipt changed the Main Stock first."
+            );
+        }
+        return lock;
+    }
+
+    async adjustReceiptGuarded(command = {}) {
+        const repository = this.ensureRepository();
+        const operationId = String(command.operationId || "").trim();
+        const referenceId = String(command.referenceId || "").trim();
+        const action = String(command.action || "edit").trim().toLowerCase();
+        if (!operationId) {
+            throw this.businessError("RECEIPT_OPERATION_REQUIRED", "A receipt operation id is required.");
+        }
+        if (!referenceId) {
+            throw this.businessError("RECEIPT_REFERENCE_REQUIRED", "A receipt reference id is required.");
+        }
+        if (!new Set(["edit", "delete"]).has(action)) {
+            throw this.businessError("RECEIPT_ACTION_INVALID", "Receipt action must be edit or delete.");
+        }
+
+        await this.acquireReceiptLock(operationId);
+        try {
+            const versioned = await repository.loadReceiptWithEtag(referenceId);
+            const current = versioned?.value;
+            if (!current || typeof current !== "object") {
+                throw this.businessError("RECEIPT_NOT_FOUND", "Milk receipt was not found.");
+            }
+            const expectedEtag = String(command.expectedEtag || "").trim();
+            if (expectedEtag && expectedEtag !== String(versioned.etag || "")) {
+                throw this.businessError(
+                    "RECEIPT_CONFLICT",
+                    "Milk receipt changed after it was opened. Reload it before saving."
+                );
+            }
+
+            const previousTotal = this.requirePositiveInteger(current.total, "previousTotal");
+            const nextTotal = action === "delete"
+                ? 0
+                : this.requirePositiveInteger(command.record?.total, "total");
+            const stockBefore = this.toNumber(await repository.loadMainStock());
+            const delta = nextTotal - previousTotal;
+            const stockAfter = stockBefore + delta;
+            if (stockAfter < 0) {
+                throw this.businessError(
+                    "INSUFFICIENT_MAIN_STOCK_FOR_RECEIPT_CHANGE",
+                    "Main Stock is too low to reduce or delete this receipt."
+                );
+            }
+
+            const now = this.nowIso();
+            const nextRecord = action === "delete" ? null : {
+                ...current,
+                ...command.record,
+                id: referenceId,
+                total: nextTotal,
+                createdAt: current.createdAt || now,
+                updatedAt: now
+            };
+            const ledger = this.buildLedgerEntry({
+                type: action === "delete" ? "RECEIVE_DELETE" : "RECEIVE_EDIT",
+                quantity: delta,
+                stockBefore,
+                stockAfter,
+                source: command.source || "admin",
+                user: command.user || "admin",
+                referenceId
+            });
+            ledger.previousTotal = previousTotal;
+            ledger.nextTotal = nextTotal;
+            ledger.operationId = operationId;
+
+            await repository.applyReceiptUpdate({
+                stock: stockAfter,
+                [`receives/${referenceId}`]: nextRecord,
+                [`stockTransactions/${ledger.id}`]: ledger
+            });
+            return {
+                action,
+                record: nextRecord,
+                ledger,
+                delta,
+                stockBefore,
+                stockAfter,
+                previousTotal,
+                nextTotal
+            };
+        } finally {
+            if (repository.releaseReceiptLock) {
+                await repository.releaseReceiptLock(operationId).catch(() => {});
+            }
+        }
+    }
+
+    async receiveMilkGuarded(command = {}) {
+        const repository = this.ensureRepository();
+        const operationId = String(command.operationId || "").trim();
+        if (!operationId) {
+            throw this.businessError("RECEIPT_OPERATION_REQUIRED", "A receipt operation id is required.");
+        }
+        await this.acquireReceiptLock(operationId);
+        try {
+            return await this.receiveMilk(command);
+        } finally {
+            if (repository.releaseReceiptLock) {
+                await repository.releaseReceiptLock(operationId).catch(() => {});
+            }
+        }
     }
 
     normalizeDistributionCommand(command = {}) {

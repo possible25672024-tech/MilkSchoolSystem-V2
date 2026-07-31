@@ -39,6 +39,20 @@ class StockRepository extends BaseRepository {
         return this.get(this.path("receives"));
     }
 
+    loadReceipt(receiptId) {
+        const id = String(receiptId || "").trim();
+        if (!id) throw new Error("A receipt id is required.");
+        return this.get(this.path(`receives/${encodeURIComponent(id)}`));
+    }
+
+    loadReceiptWithEtag(receiptId) {
+        const id = String(receiptId || "").trim();
+        if (!id) throw new Error("A receipt id is required.");
+        return this.ensureService().getWithEtag(
+            this.path(`receives/${encodeURIComponent(id)}`)
+        );
+    }
+
     async loadReceiptSummaries(options = {}) {
         const concurrency = Number.isInteger(options.concurrency)
             ? Math.max(1, Math.min(12, options.concurrency))
@@ -50,6 +64,7 @@ class StockRepository extends BaseRepository {
             "extra",
             "perCrate",
             "total",
+            "year",
             "note",
             "supplier"
         ];
@@ -75,6 +90,32 @@ class StockRepository extends BaseRepository {
             )
         );
         return summaries;
+    }
+
+    loadReceiptLockVersioned() {
+        return this.ensureService().getWithEtag(
+            this.path("stockOperations/receiptLock")
+        );
+    }
+
+    setReceiptLockIfMatch(lock, etag) {
+        return this.ensureService().setIfMatch(
+            this.path("stockOperations/receiptLock"),
+            lock,
+            etag
+        );
+    }
+
+    async releaseReceiptLock(owner) {
+        const current = await this.loadReceiptLockVersioned();
+        if (String(current?.value?.owner || "") !== String(owner || "")) {
+            return { status: "not-owner" };
+        }
+        return this.setReceiptLockIfMatch(null, current.etag);
+    }
+
+    applyReceiptUpdate(updates) {
+        return this.applyMultiLocationUpdate(updates);
     }
 
     loadDistributions() {

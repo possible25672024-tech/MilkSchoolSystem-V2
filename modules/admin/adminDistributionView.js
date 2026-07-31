@@ -9,6 +9,7 @@ class AdminDistributionView {
         this.authService = authService;
         this.eventTarget = eventTarget;
         this.document = options.document || document;
+        this.window = options.window || window;
         this.confirm = options.confirm || (message => window.confirm(message));
         this.bound = false;
         this.photos = [];
@@ -34,6 +35,8 @@ class AdminDistributionView {
             ?.addEventListener("click", () => this.loadHistory());
         this.element("admin-distribution-refresh")?.addEventListener("click", () => this.load());
         this.element("admin-distribution-history-refresh")?.addEventListener("click", () => this.loadHistory());
+        this.element("admin-distribution-history-print")?.addEventListener("click", () => this.printHistory());
+        this.element("admin-distribution-history-export")?.addEventListener("click", () => this.exportHistoryCsv());
         this.element("admin-distribution-form")?.addEventListener("input", () => this.renderPreview());
         this.element("admin-distribution-room")?.addEventListener("change", () => this.renderPreview());
         this.element("admin-distribution-form")?.addEventListener("submit", event => this.submit(event));
@@ -171,6 +174,8 @@ class AdminDistributionView {
         try {
             const preview = this.manager.preview(this.formInput());
             this.setText("admin-distribution-students", `${preview.students} คน`);
+            const studentCount = this.element("admin-distribution-student-count");
+            if (studentCount) studentCount.value = String(preview.students);
             this.setText("admin-distribution-total", `${preview.total} กล่อง`);
             this.setText("admin-distribution-package", `${preview.crates} ลัง + ${preview.boxes} กล่อง`);
             this.setText("admin-distribution-main-after", `${preview.mainStockAfter} กล่อง`);
@@ -182,6 +187,8 @@ class AdminDistributionView {
             return preview;
         } catch (error) {
             this.setText("admin-distribution-students", "—");
+            const studentCount = this.element("admin-distribution-student-count");
+            if (studentCount) studentCount.value = "0";
             this.setText("admin-distribution-total", "—");
             this.setText("admin-distribution-package", "—");
             this.setText("admin-distribution-main-after", "—");
@@ -272,6 +279,79 @@ class AdminDistributionView {
             row.appendChild(cell);
             body.appendChild(row);
         }
+    }
+
+    historyRows() {
+        return (this.manager.history?.distributions || []).map((record, index) => ({
+            "#": index + 1,
+            "วันที่": record.date || "—",
+            "ห้องเรียน": record.roomName,
+            "นักเรียน": record.students,
+            "จำนวนวัน": record.days,
+            "ลัง/เศษ": `${record.crates} ลัง + ${record.boxes} กล่อง`,
+            "รวม (กล่อง)": record.total,
+            "Main Stock": `${record.stockBefore} → ${record.stockAfter}`,
+            "หมายเหตุ": record.note || "—"
+        }));
+    }
+
+    escape(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    chunks(rows, size = 30) {
+        const pages = [];
+        for (let index = 0; index < rows.length; index += size) {
+            pages.push(rows.slice(index, index + size));
+        }
+        return pages.length ? pages : [[]];
+    }
+
+    printHistory() {
+        const rows = this.historyRows();
+        const columns = Object.keys(rows[0] || {
+            "#": "", "วันที่": "", "ห้องเรียน": "", "นักเรียน": "", "จำนวนวัน": "",
+            "ลัง/เศษ": "", "รวม (กล่อง)": "", "Main Stock": "", "หมายเหตุ": ""
+        });
+        const popup = this.window.open("", "_blank");
+        if (!popup) {
+            this.showHistoryError("เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต Pop-up");
+            return;
+        }
+        const pages = this.chunks(rows, 30);
+        popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายการจ่ายนมให้ห้องเรียนทั้งหมด</title>
+<style>@page{size:A4 landscape;margin:8mm}body{font-family:Sarabun,sans-serif;color:#111;margin:0}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}h1,p{text-align:center;margin:3px}table{width:100%;border-collapse:collapse;margin-top:9px;font-size:8pt}th,td{border:1px solid #555;padding:3px;text-align:center}th{background:#e8f1f7}.page-no{text-align:right;font-size:8pt}</style></head><body>
+${pages.map((page, pageIndex) => `<section class="print-page"><h1>รายการจ่ายนมให้ห้องเรียนทั้งหมด</h1><p>หน้าละไม่เกิน 30 แถว</p><p class="page-no">หน้า ${pageIndex + 1}/${pages.length}</p><table><thead><tr>${columns.map(column => `<th>${this.escape(column)}</th>`).join("")}</tr></thead><tbody>${page.map(row => `<tr>${columns.map(column => `<td>${this.escape(row[column])}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`).join("")}
+<script>window.addEventListener("load",()=>window.print())<\/script></body></html>`);
+        popup.document.close();
+    }
+
+    csvCell(value) {
+        return `"${String(value ?? "").replaceAll('"', '""')}"`;
+    }
+
+    exportHistoryCsv() {
+        const rows = this.historyRows();
+        const columns = Object.keys(rows[0] || {
+            "#": "", "วันที่": "", "ห้องเรียน": "", "นักเรียน": "", "จำนวนวัน": "",
+            "ลัง/เศษ": "", "รวม (กล่อง)": "", "Main Stock": "", "หมายเหตุ": ""
+        });
+        const lines = [
+            columns.map(column => this.csvCell(column)).join(","),
+            ...rows.map(row => columns.map(column => this.csvCell(row[column])).join(","))
+        ];
+        const blob = new Blob([`\uFEFF${lines.join("\r\n")}`], { type: "text/csv;charset=utf-8" });
+        const url = this.window.URL.createObjectURL(blob);
+        const anchor = this.document.createElement("a");
+        anchor.href = url;
+        anchor.download = `milk-distributions-${new Date().toISOString().slice(0, 10)}.csv`;
+        anchor.click();
+        this.window.URL.revokeObjectURL(url);
     }
 
     clearForm() {

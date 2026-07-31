@@ -2,19 +2,37 @@
 
 # Sprint Status
 
-Last Update: 2026-07-31
+Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-5.9.1-admin-parity-corrections`
+Current Branch: `feature/sprint-5.9.2-receipt-print-backup-fixes`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.9.1 — Admin Parity Corrections
+Sprint 5.9.2 — Receipt, Print and Large Backup Corrections
 
-Status: **AUTOMATED PASS — 84/84 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
+Status: **AUTOMATED PASS — 87/87 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
 
-Approved predecessor: Sprint 5.9 — Integration, Security and UAT
+Approved predecessor: Sprint 5.9.1 — Admin Parity Corrections
+
+## Sprint 5.9.2 Current Boundary
+
+- add receipt academic year, processed evidence photos, and receiver/sender
+  names plus signatures;
+- add separate receipt history with full view/edit/delete details;
+- apply receipt edits/deletes as guarded Main Stock deltas with ETag lock and
+  ledger audit, never as an untracked direct stock overwrite;
+- block destructive receipt changes when Main Stock is insufficient;
+- add 30-row-per-page A4 and UTF-8 BOM CSV to distribution history and retain
+  the same outputs on the period distribution report;
+- expand Admin V2 to the available viewport width;
+- avoid whole-database backup strings through canonical large-value checksum
+  hashing and chunked JSON Blob output;
+- all 87 discovered regression checks pass;
+- Live Server browser and isolated Firebase controlled-write/Backup UAT remain
+  pending;
+- Production restore, Firebase Rules deployment, `main`, and cutover remain blocked.
 
 ## Sprint 5.9.1 Current Boundary
 

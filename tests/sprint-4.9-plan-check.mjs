@@ -52,7 +52,7 @@ assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
 assert.match(
     sprint,
-    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance|5\.3-admin-dashboard|5\.4-stock-audit-receipts|5\.5-student-room-management|5\.6-room-distribution|5\.7-operational-reports|5\.7\.1-report-ordering|5\.8-admin-system-tools|5\.9-integration-security-uat|5\.9\.1-admin-parity-corrections)`/,
+    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance|5\.3-admin-dashboard|5\.4-stock-audit-receipts|5\.5-student-room-management|5\.6-room-distribution|5\.7-operational-reports|5\.7\.1-report-ordering|5\.8-admin-system-tools|5\.9-integration-security-uat|5\.9\.1-admin-parity-corrections|5\.9\.2-receipt-print-backup-fixes)`/,
     "Sprint status must identify the accepted 4.9 branch or its approved successor"
 );
 assert.ok(
@@ -70,7 +70,9 @@ assert.ok(
                 sprint.includes("Sprint 5.7 — Operational Summaries and Period Reports") ||
                 sprint.includes("Sprint 5.7.1 — Report Ordering Correction") ||
                 sprint.includes("Sprint 5.8 — Admin System Tools") ||
-                sprint.includes("Sprint 5.9 — Integration, Security and UAT")
+                sprint.includes("Sprint 5.9 — Integration, Security and UAT") ||
+                sprint.includes("Sprint 5.9.1 — Admin Parity Corrections") ||
+                sprint.includes("Sprint 5.9.2 — Receipt, Print and Large Backup Corrections")
             )
         ),
     "Sprint status must preserve the accepted Sprint 4.9 scope"

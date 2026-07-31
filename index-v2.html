@@ -29,7 +29,7 @@
         }
 
         main {
-            width: min(960px, 100%);
+            width: min(1860px, 100%);
         }
 
         .panel {
@@ -732,6 +732,81 @@
             min-width: 180px;
         }
 
+        .admin-receipt-calculation {
+            display: grid;
+            gap: 0;
+            margin-top: 16px;
+            border: 1px solid #93c5fd;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #123b56;
+            background: #eaf4ff;
+        }
+
+        .admin-receipt-calculation span {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            border-bottom: 1px solid #cfe3f5;
+            padding: 7px 0;
+        }
+
+        .admin-receipt-calculation span:last-child {
+            border-bottom: 0;
+        }
+
+        .admin-receipt-detail {
+            margin-top: 20px;
+            border: 2px solid #1a5276;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f8fbfd;
+        }
+
+        .admin-receipt-evidence-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .admin-receipt-evidence-gallery figure {
+            margin: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 8px;
+            background: #ffffff;
+        }
+
+        .admin-receipt-evidence-gallery img {
+            display: block;
+            width: 100%;
+            height: 130px;
+            object-fit: contain;
+        }
+
+        .admin-receipt-evidence-gallery figcaption {
+            margin-top: 6px;
+            color: #475569;
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        .admin-row-actions {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .admin-row-actions button {
+            width: auto;
+            min-width: 58px;
+            min-height: 34px;
+            margin: 0;
+            padding: 6px 8px;
+            font-size: 0.78rem;
+        }
+
         .admin-system-tools-header,
         .admin-system-actions {
             display: flex;
@@ -842,7 +917,7 @@
 
         .admin-receipt-table {
             width: 100%;
-            table-layout: fixed;
+            min-width: 920px;
             border-collapse: collapse;
         }
 
@@ -1730,6 +1805,12 @@
                 grid-template-columns: 1fr;
             }
 
+            .admin-receipt-calculation span,
+            .admin-row-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
             .admin-student-import-actions,
             .admin-student-report-actions {
                 align-items: stretch;
@@ -1958,6 +2039,7 @@
                             <button type="button" data-admin-menu="documents" data-active="false" aria-pressed="false">📁 เอกสารที่เกี่ยวข้อง</button>
                             <span class="admin-menu-group">รับนม</span>
                             <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
+                            <button type="button" data-admin-menu="receipt-history" data-active="false" aria-pressed="false">📋 รายการรับนมทั้งหมด</button>
                             <span class="admin-menu-group">นักเรียน</span>
                             <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้าข้อมูลนักเรียน</button>
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
@@ -2072,7 +2154,7 @@
                                     <h2>รับนมจาก อบต.</h2>
                                     <p>รับเข้า Main Stock เท่านั้น และบันทึกประวัติรับนมพร้อม Ledger</p>
                                 </div>
-                                <button id="admin-receipt-refresh" class="secondary" type="button">โหลดประวัติใหม่</button>
+                                <button id="admin-receipt-refresh" class="secondary" type="button">โหลดสต็อกใหม่</button>
                             </div>
                             <div class="admin-receipt-summary">
                                 <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-receipt-main-stock" class="metric-value">0 กล่อง</p></article>
@@ -2080,24 +2162,103 @@
                             </div>
                             <form id="admin-receipt-form">
                                 <div class="admin-receipt-form-grid">
-                                    <div class="admin-receipt-field"><label for="admin-receipt-date">วันที่รับนม</label><input id="admin-receipt-date" type="date" required></div>
-                                    <div class="admin-receipt-field"><label for="admin-receipt-crates">จำนวนลัง</label><input id="admin-receipt-crates" type="number" min="1" step="1" required></div>
-                                    <div class="admin-receipt-field"><label for="admin-receipt-extra">กล่องเศษ</label><input id="admin-receipt-extra" type="number" min="0" step="1" value="0"></div>
-                                    <div class="admin-receipt-field"><label for="admin-receipt-per-crate">กล่องต่อลัง</label><input id="admin-receipt-per-crate" type="number" min="1" step="1" value="36" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-date">วันที่รับนม *</label><input id="admin-receipt-date" type="date" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-crates">จำนวนหีบที่รับ *</label><input id="admin-receipt-crates" type="number" min="1" step="1" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-extra">กล่องย่อยพิเศษ (นอกจากหีบ)</label><input id="admin-receipt-extra" type="number" min="0" step="1" value="0"></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-year">ปีการศึกษา</label><input id="admin-receipt-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
+                                    <input id="admin-receipt-per-crate" type="hidden" value="36">
                                     <div class="admin-receipt-field full"><label for="admin-receipt-note">หมายเหตุ</label><input id="admin-receipt-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการส่งนม"></div>
                                 </div>
+                                <div class="admin-receipt-calculation" aria-live="polite">
+                                    <span>จำนวนหีบ <strong id="admin-receipt-summary-crates">0 หีบ</strong></span>
+                                    <span>กล่องย่อยในหีบ (×36) <strong id="admin-receipt-summary-contained">0 กล่อง</strong></span>
+                                    <span>กล่องย่อยพิเศษ <strong id="admin-receipt-summary-extra">0 กล่อง</strong></span>
+                                    <span>รวมกล่องย่อยทั้งหมด <strong id="admin-receipt-summary-total">0 กล่อง</strong></span>
+                                </div>
+                                <section class="admin-distribution-evidence" aria-labelledby="admin-receipt-evidence-title">
+                                    <h3 id="admin-receipt-evidence-title">รูปถ่ายและลายเซ็นการรับ–ส่งนม</h3>
+                                    <p>แนบรูปหลักฐานได้สูงสุด 5 รูป (แนะนำ 3–5 รูป) และลงลายเซ็นผู้รับกับผู้ส่งแยกกัน</p>
+                                    <label for="admin-receipt-photos">แนบรูปถ่าย</label>
+                                    <input id="admin-receipt-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                    <p id="admin-receipt-photo-summary" class="admin-system-compact">ยังไม่ได้เลือกรูป</p>
+                                    <div class="admin-distribution-evidence-grid">
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-receipt-receiver-name">ชื่อผู้รับนม</label>
+                                            <input id="admin-receipt-receiver-name" type="text" maxlength="120" placeholder="ชื่อผู้รับนม">
+                                            <canvas id="admin-receipt-receiver-signature" width="640" height="240" aria-label="ลายเซ็นผู้รับนม"></canvas>
+                                            <button id="admin-receipt-receiver-clear" class="secondary" type="button">ล้างลายเซ็นผู้รับ</button>
+                                        </div>
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-receipt-sender-name">ชื่อผู้ส่งนม</label>
+                                            <input id="admin-receipt-sender-name" type="text" maxlength="120" placeholder="ชื่อผู้ส่งนม">
+                                            <canvas id="admin-receipt-sender-signature" width="640" height="240" aria-label="ลายเซ็นผู้ส่งนม"></canvas>
+                                            <button id="admin-receipt-sender-clear" class="secondary" type="button">ล้างลายเซ็นผู้ส่ง</button>
+                                        </div>
+                                    </div>
+                                </section>
                                 <div class="admin-receipt-actions">
                                     <button type="submit">บันทึกรับเข้า Main Stock</button>
                                 </div>
                             </form>
                             <p id="admin-receipt-status" class="status" aria-live="polite"></p>
                             <p id="admin-receipt-error" class="error" role="alert" hidden></p>
+                        </section>
+
+                        <section data-admin-section="receipt-history" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div><h2>รายการรับนมทั้งหมด</h2><p>ดู แก้ไข และลบรายการ พร้อมปรับ Main Stock ตามผลต่างและบันทึก Ledger</p></div>
+                                <button id="admin-receipt-history-refresh" class="secondary" type="button">โหลดรายการใหม่</button>
+                            </div>
+                            <div class="admin-student-import-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-receipt-history-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-receipt-history-count" class="metric-value">0 รายการ</p></article>
+                                <article class="metric-card"><p class="metric-label">รับรวม</p><p id="admin-receipt-history-total" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <p id="admin-receipt-history-status" class="status" aria-live="polite"></p>
+                            <p id="admin-receipt-history-error" class="error" role="alert" hidden></p>
                             <div class="admin-dashboard-table-wrap">
                                 <table class="admin-receipt-table">
-                                    <thead><tr><th>วันที่รับ</th><th>แหล่งรับ</th><th>ลัง/เศษ</th><th>รวม</th><th>หมายเหตุ</th></tr></thead>
-                                    <tbody id="admin-receipt-body"></tbody>
+                                    <thead><tr><th>#</th><th>วันที่รับ</th><th>ปีการศึกษา</th><th>หีบ/เศษ</th><th>รวม</th><th>หมายเหตุ</th><th>การจัดการ</th></tr></thead>
+                                    <tbody id="admin-receipt-history-body"></tbody>
                                 </table>
                             </div>
+                            <section id="admin-receipt-detail" class="admin-receipt-detail" hidden>
+                                <div class="admin-system-dashboard-header">
+                                    <h3 id="admin-receipt-detail-title">รายละเอียดรายการรับนม</h3>
+                                    <button id="admin-receipt-detail-close" class="secondary" type="button">ปิด</button>
+                                </div>
+                                <form id="admin-receipt-detail-form">
+                                    <div class="admin-receipt-form-grid">
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-date">วันที่รับนม *</label><input id="admin-receipt-detail-date" type="date" required></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-crates">จำนวนหีบ *</label><input id="admin-receipt-detail-crates" type="number" min="1" step="1" required></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-extra">กล่องย่อยพิเศษ</label><input id="admin-receipt-detail-extra" type="number" min="0" step="1"></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-year">ปีการศึกษา</label><input id="admin-receipt-detail-year" type="text" maxlength="10"></div>
+                                        <input id="admin-receipt-detail-per-crate" type="hidden" value="36">
+                                        <div class="admin-receipt-field full"><label for="admin-receipt-detail-note">หมายเหตุ</label><input id="admin-receipt-detail-note" type="text" maxlength="300"></div>
+                                    </div>
+                                    <section class="admin-distribution-evidence">
+                                        <label for="admin-receipt-detail-photos">เปลี่ยนรูปหลักฐาน (สูงสุด 5 รูป)</label>
+                                        <input id="admin-receipt-detail-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                        <p id="admin-receipt-detail-photo-summary" class="admin-system-compact">0 รูป</p>
+                                        <div id="admin-receipt-detail-gallery" class="admin-receipt-evidence-gallery"></div>
+                                        <div class="admin-distribution-evidence-grid">
+                                            <div class="admin-distribution-signature">
+                                                <label for="admin-receipt-detail-receiver-name">ชื่อผู้รับนม</label>
+                                                <input id="admin-receipt-detail-receiver-name" type="text" maxlength="120">
+                                                <canvas id="admin-receipt-detail-receiver-signature" width="640" height="240"></canvas>
+                                                <button id="admin-receipt-detail-receiver-clear" class="secondary" type="button">ลงลายเซ็นผู้รับใหม่</button>
+                                            </div>
+                                            <div class="admin-distribution-signature">
+                                                <label for="admin-receipt-detail-sender-name">ชื่อผู้ส่งนม</label>
+                                                <input id="admin-receipt-detail-sender-name" type="text" maxlength="120">
+                                                <canvas id="admin-receipt-detail-sender-signature" width="640" height="240"></canvas>
+                                                <button id="admin-receipt-detail-sender-clear" class="secondary" type="button">ลงลายเซ็นผู้ส่งใหม่</button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <div class="admin-receipt-actions"><button id="admin-receipt-detail-save" type="submit">บันทึกการแก้ไข</button></div>
+                                </form>
+                            </section>
                         </section>
 
                         <section data-admin-section="distribution" class="admin-operation-panel" aria-busy="false" hidden>
@@ -2122,6 +2283,7 @@
                                 <div class="admin-receipt-form-grid">
                                     <div class="admin-receipt-field"><label for="admin-distribution-date">วันที่จ่ายนม</label><input id="admin-distribution-date" type="date" required></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-room">ห้องเรียน</label><select id="admin-distribution-room" required><option value="">-- เลือกห้องเรียน --</option></select></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-student-count">จำนวนนักเรียน</label><input id="admin-distribution-student-count" type="number" value="0" disabled></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-days">จำนวนวัน</label><input id="admin-distribution-days" type="number" min="1" step="1" value="1" required></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-per-crate">กล่องต่อลัง</label><input id="admin-distribution-per-crate" type="number" min="1" step="1" value="36" required></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-year">ปีการศึกษา</label><input id="admin-distribution-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
@@ -2170,6 +2332,10 @@
                             </div>
                             <p id="admin-distribution-history-status" class="status" aria-live="polite"></p>
                             <p id="admin-distribution-history-error" class="error" role="alert" hidden></p>
+                            <div class="admin-report-actions">
+                                <button id="admin-distribution-history-print" type="button">พิมพ์ A4 (30 แถว/หน้า)</button>
+                                <button id="admin-distribution-history-export" class="secondary" type="button">ส่งออก CSV</button>
+                            </div>
                             <div class="admin-dashboard-table-wrap">
                                 <table class="admin-distribution-history-table">
                                     <thead><tr><th>#</th><th>วันที่</th><th>ห้องเรียน</th><th>นักเรียน</th><th>จำนวนวัน</th><th>ลัง/เศษ</th><th>รวม</th><th>Main Stock</th><th>หมายเหตุ</th></tr></thead>

@@ -189,6 +189,36 @@ class AdminSystemService {
         return JSON.stringify(data ?? {});
     }
 
+    async canonicalizeForDigest(value, largeStringThreshold = 64 * 1024) {
+        if (typeof value === "string") {
+            if (value.length <= largeStringThreshold) return value;
+            return {
+                $milkAppLargeValue: true,
+                length: value.length,
+                sha256: await this.sha256(value)
+            };
+        }
+        if (Array.isArray(value)) {
+            return Promise.all(value.map(item => this.canonicalizeForDigest(item, largeStringThreshold)));
+        }
+        if (value && typeof value === "object") {
+            const entries = [];
+            for (const key of Object.keys(value).sort((left, right) => left.localeCompare(right))) {
+                entries.push([
+                    key,
+                    await this.canonicalizeForDigest(value[key], largeStringThreshold)
+                ]);
+            }
+            return Object.fromEntries(entries);
+        }
+        return value;
+    }
+
+    async checksumData(data) {
+        const canonical = await this.canonicalizeForDigest(data ?? {});
+        return this.sha256(JSON.stringify(canonical));
+    }
+
     async sha256(value) {
         if (this.digestOverride) return this.digestOverride(value);
         const cryptoApi = globalThis.crypto || window.crypto;
@@ -240,7 +270,7 @@ class AdminSystemService {
         this.assertAdmin(session);
         const snapshot = await this.ensureRepository().loadRootWithEtag();
         const data = snapshot.value || {};
-        const checksum = await this.sha256(this.stableDataJson(data));
+        const checksum = await this.checksumData(data);
         const createdAt = this.clock().toISOString();
         return {
             envelope: {
@@ -250,7 +280,11 @@ class AdminSystemService {
                 purpose: String(purpose || "download"),
                 school: String(data.settings?.school || data.settings?.schoolName || ""),
                 summary: this.summarizeRoot(data),
-                integrity: { algorithm: "SHA-256", checksum },
+                integrity: {
+                    algorithm: "SHA-256",
+                    serialization: "MilkSchoolSystemV2-large-value-canonical-v1",
+                    checksum
+                },
                 data
             },
             etag: snapshot.etag,
@@ -271,7 +305,9 @@ class AdminSystemService {
         if (!expected || envelope.integrity?.algorithm !== "SHA-256") {
             throw this.businessError("BACKUP_CHECKSUM_MISSING", "ไฟล์สำรองไม่มี SHA-256 สำหรับตรวจความสมบูรณ์");
         }
-        const actual = await this.sha256(this.stableDataJson(envelope.data));
+        const actual = envelope.integrity?.serialization === "MilkSchoolSystemV2-large-value-canonical-v1"
+            ? await this.checksumData(envelope.data)
+            : await this.sha256(this.stableDataJson(envelope.data));
         if (actual !== expected) {
             throw this.businessError("BACKUP_CHECKSUM_MISMATCH", "ไฟล์สำรองถูกแก้ไขหรือเสียหาย (SHA-256 ไม่ตรง)");
         }
