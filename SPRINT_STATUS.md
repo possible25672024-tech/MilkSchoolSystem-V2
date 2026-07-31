@@ -553,3 +553,49 @@ Automated result:
 ```text
 ALL 61 REGRESSION CHECKS PASSED
 ```
+
+## Sprint 5.8 Goal
+
+Complete the planned Admin parity sequence with document management, guarded
+general settings, complete backup/restore, and explicit Google Drive file
+transfer without changing stock business rules or protected legacy pages.
+
+## Sprint 5.8 Current Implementation
+
+- document metadata loads separately from file content;
+- PDF/JPG/PNG content loads only after explicit download and writes through the
+  Repository boundary;
+- general settings preserve Firebase credentials and use ETag conflict checks;
+- backup covers the complete `milkApp` root and includes SHA-256 integrity;
+- restore requires valid preview, current safety backup, typed confirmation,
+  final confirmation, and the preview ETag;
+- concurrent changes reject the root restore without overwriting new data;
+- Drive transfer uses an explicit JSON handoff and stores no Google credential;
+- Main Stock and Room Stock formulas are unchanged;
+- `index.html` and `teacher.html` remain protected.
+
+Artifact:
+
+```text
+docs/SPRINT_5_8_PLAN.md
+tests/admin-system-settings-check.mjs
+tests/admin-document-tools-check.mjs
+tests/admin-backup-restore-check.mjs
+tests/sprint-5.8-plan-check.mjs
+```
+
+Pending:
+
+- Desktop and Responsive Live Server validation;
+- isolated Firebase settings concurrency and restore rehearsal;
+- explicit production approval remains required.
+
+Automated result:
+
+```text
+ALL 78 REGRESSION CHECKS PASSED
+```
+
+Remaining current-release plan: Sprint 5.9 Integration/Security/UAT and Sprint
+6.0 Production Readiness/Release. Advanced Plugin/Language/Multi-school work is
+future product expansion and is not a current-school deployment blocker.

@@ -724,6 +724,114 @@
             min-width: 180px;
         }
 
+        .admin-system-tools-header,
+        .admin-system-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-system-tools-header h2,
+        .admin-system-tools-header p {
+            margin: 0 0 5px;
+        }
+
+        .admin-system-tools-header button,
+        .admin-system-actions button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-system-summary,
+        .admin-system-notice {
+            display: grid;
+            gap: 5px;
+            margin-top: 14px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 14px;
+            color: #123b56;
+            background: #eff6ff;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-system-form,
+        .admin-system-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .admin-system-form .wide {
+            grid-column: 1 / -1;
+        }
+
+        .admin-system-tool-card {
+            display: grid;
+            align-content: start;
+            gap: 10px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .admin-system-tool-card h3,
+        .admin-system-tool-card p {
+            margin: 0;
+        }
+
+        .admin-system-tool-card button {
+            width: 100%;
+            margin: 0;
+        }
+
+        .admin-system-tool-card.danger-zone {
+            border-color: #fecaca;
+            background: #fff7f7;
+        }
+
+        .admin-system-tool-card button.danger {
+            background: #b91c1c;
+        }
+
+        .admin-system-tool-card button.danger:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .admin-restore-preview {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.86rem;
+            background: #ffffff;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-restore-preview p {
+            margin: 5px 0;
+        }
+
+        .admin-system-compact {
+            color: #475569;
+            font-size: 0.84rem;
+            overflow-wrap: anywhere;
+        }
+
+        #admin-document-body td:last-child {
+            display: flex;
+            gap: 6px;
+        }
+
+        #admin-document-body td:last-child button {
+            width: auto;
+            margin: 0;
+            padding: 7px 9px;
+            font-size: 0.8rem;
+        }
+
         .admin-receipt-table {
             width: 100%;
             table-layout: fixed;
@@ -1416,6 +1524,11 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .admin-system-form,
+            .admin-system-tool-grid {
+                grid-template-columns: 1fr;
+            }
+
             .admin-student-metrics,
             .admin-student-import-summary,
             .admin-room-create-grid {
@@ -1513,6 +1626,17 @@
             }
 
             .admin-system-dashboard-header button {
+                width: 100%;
+            }
+
+            .admin-system-tools-header,
+            .admin-system-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-system-tools-header button,
+            .admin-system-actions button {
                 width: 100%;
             }
 
@@ -1715,6 +1839,10 @@
                             <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้านักเรียน</button>
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
                             <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
+                            <button type="button" data-admin-menu="documents" data-active="false" aria-pressed="false">📁 เอกสารที่เกี่ยวข้อง</button>
+                            <button type="button" data-admin-menu="system-settings" data-active="false" aria-pressed="false">⚙️ ตั้งค่าระบบ</button>
+                            <button type="button" data-admin-menu="backup-restore" data-active="false" aria-pressed="false">💾 สำรอง/กู้คืน</button>
+                            <button type="button" data-admin-menu="drive-sync" data-active="false" aria-pressed="false">☁️ Google Drive</button>
                             <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมห้อง</button>
                             <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
                             <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
@@ -2170,6 +2298,84 @@
                         <button id="admin-distribution-report-print" type="button">พิมพ์ A4</button>
                         <button id="admin-distribution-report-export" class="secondary" type="button">ส่งออก CSV</button>
                     </div>
+                </section>
+
+                <section data-admin-section="documents" class="admin-operation-panel admin-system-tools" hidden>
+                    <div class="admin-system-tools-header">
+                        <div><h2>เอกสารที่เกี่ยวข้อง</h2><p>รองรับ PDF, JPG, JPEG และ PNG · โหลดไฟล์จริงเมื่อกดดาวน์โหลดเท่านั้น</p></div>
+                        <button id="admin-document-refresh" class="secondary" type="button" data-admin-documents-control>โหลดรายการใหม่</button>
+                    </div>
+                    <div class="admin-system-summary"><strong id="admin-document-count">0 รายการ</strong><span>ไฟล์จริงเก็บแยกจากข้อมูลรายการ</span></div>
+                    <form id="admin-document-form" class="admin-system-form">
+                        <label>ชื่อเอกสาร<input id="admin-document-title" type="text" maxlength="200" required data-admin-documents-control></label>
+                        <label>ผู้อัปโหลด<input id="admin-document-uploader" type="text" maxlength="120" data-admin-documents-control></label>
+                        <label class="wide">รายละเอียด<input id="admin-document-description" type="text" maxlength="500" data-admin-documents-control></label>
+                        <label class="wide">ไฟล์เอกสาร (ไม่เกิน 12 MB)<input id="admin-document-file" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required data-admin-documents-control></label>
+                        <div class="admin-system-actions wide"><button type="submit" data-admin-documents-control>อัปโหลดเอกสาร</button></div>
+                    </form>
+                    <p id="admin-documents-status" class="status" aria-live="polite"></p>
+                    <p id="admin-documents-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap"><table class="admin-report-table">
+                        <thead><tr><th>ชื่อเอกสาร</th><th>ชื่อไฟล์</th><th>ขนาด</th><th>วันที่</th><th>ผู้อัปโหลด</th><th>จัดการ</th></tr></thead>
+                        <tbody id="admin-document-body"></tbody>
+                    </table></div>
+                </section>
+
+                <section data-admin-section="system-settings" class="admin-operation-panel admin-system-tools" hidden>
+                    <div class="admin-system-tools-header">
+                        <div><h2>ตั้งค่าระบบ</h2><p>แก้เฉพาะค่าทั่วไป รักษาค่าเชื่อมต่อและรหัสเดิมไว้</p></div>
+                        <button id="admin-settings-refresh" class="secondary" type="button" data-admin-settings-control>โหลดค่าใหม่</button>
+                    </div>
+                    <div class="admin-system-notice"><strong>Firebase URL ปัจจุบัน</strong><span id="admin-settings-firebase-url">—</span><small>หน้านี้ไม่แสดงหรือแก้รหัส Firebase</small></div>
+                    <form id="admin-settings-form" class="admin-system-form">
+                        <label class="wide">ชื่อโรงเรียน<input id="admin-settings-school" type="text" maxlength="200" required data-admin-settings-control></label>
+                        <label>ปีการศึกษา<input id="admin-settings-year" type="text" maxlength="20" required data-admin-settings-control></label>
+                        <label>ภาคเรียน<input id="admin-settings-semester" type="text" maxlength="20" data-admin-settings-control></label>
+                        <label>จำนวนกล่องต่อลัง<input id="admin-settings-per-crate" type="number" min="1" max="500" required data-admin-settings-control></label>
+                        <label>แจ้งเตือนเมื่อ Main Stock ต่ำกว่า<input id="admin-settings-warn-level" type="number" min="0" max="10000000" required data-admin-settings-control></label>
+                        <div class="admin-system-actions wide"><button type="submit" data-admin-settings-control>บันทึกการตั้งค่า</button></div>
+                    </form>
+                    <p id="admin-settings-status" class="status" aria-live="polite"></p>
+                    <p id="admin-settings-error" class="error" role="alert" hidden></p>
+                </section>
+
+                <section data-admin-section="backup-restore" class="admin-operation-panel admin-system-tools" hidden>
+                    <h2>สำรองและกู้คืนข้อมูล</h2>
+                    <p>ไฟล์สำรองครอบคลุมข้อมูลใต้ <code>milkApp</code> ทั้งหมด รวมเอกสารและหลักฐาน พร้อม SHA-256</p>
+                    <div class="admin-system-tool-grid">
+                        <article class="admin-system-tool-card">
+                            <h3>1. สำรองข้อมูล</h3>
+                            <p>อ่านข้อมูลจริงทั้งหมดและดาวน์โหลดเป็น JSON โดยไม่เปลี่ยน Stock</p>
+                            <button id="admin-backup-download" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลสำรอง</button>
+                            <p id="admin-backup-summary" class="admin-system-compact">—</p>
+                        </article>
+                        <article class="admin-system-tool-card danger-zone">
+                            <h3>2. ตรวจและกู้คืน</h3>
+                            <label>เลือกไฟล์สำรอง<input id="admin-restore-file" type="file" accept=".json,application/json" data-admin-backup-control></label>
+                            <div id="admin-restore-preview" class="admin-restore-preview" hidden>
+                                <p><strong>วันที่ไฟล์:</strong> <span id="admin-restore-source-date">—</span></p>
+                                <p><strong>SHA-256:</strong> <span id="admin-restore-checksum">—</span></p>
+                                <p><strong>ข้อมูลในไฟล์:</strong> <span id="admin-restore-source-summary">—</span></p>
+                                <p><strong>ข้อมูลปัจจุบัน:</strong> <span id="admin-restore-current-summary">—</span></p>
+                            </div>
+                            <button id="admin-restore-safety" class="secondary" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลปัจจุบันก่อนกู้คืน</button>
+                            <label>พิมพ์ “กู้คืนข้อมูล”<input id="admin-restore-confirm" type="text" autocomplete="off" data-admin-backup-control></label>
+                            <button id="admin-restore-run" class="danger" type="button" disabled data-admin-backup-control>กู้คืนข้อมูลที่ตรวจแล้ว</button>
+                        </article>
+                    </div>
+                    <p id="admin-backup-status" class="status" aria-live="polite"></p>
+                    <p id="admin-backup-error" class="error" role="alert" hidden></p>
+                </section>
+
+                <section data-admin-section="drive-sync" class="admin-operation-panel admin-system-tools" hidden>
+                    <h2>ถ่ายโอนข้อมูลผ่าน Google Drive</h2>
+                    <div class="admin-system-notice"><strong>ไม่เก็บบัญชีหรือรหัสผ่าน Google</strong><span>ระบบใช้ไฟล์สำรอง JSON เป็นตัวกลาง คุณเป็นผู้เลือกอัปโหลด/ดาวน์โหลดใน Google Drive</span></div>
+                    <div class="admin-system-tool-grid">
+                        <article class="admin-system-tool-card"><h3>ส่งออกไป Google Drive</h3><p>ดาวน์โหลดไฟล์พร้อม SHA-256 แล้วเปิด Drive เพื่ออัปโหลด</p><button id="admin-drive-export" type="button" data-admin-drive-control>ดาวน์โหลดไฟล์สำหรับ Drive</button><button id="admin-drive-open" class="secondary" type="button" data-admin-drive-control>เปิด Google Drive</button></article>
+                        <article class="admin-system-tool-card"><h3>นำไฟล์จาก Google Drive มาตรวจ</h3><p>ดาวน์โหลดไฟล์จาก Drive ก่อน แล้วเลือกเพื่อตรวจความสมบูรณ์ ยังไม่กู้คืนอัตโนมัติ</p><label>เลือกไฟล์ JSON<input id="admin-drive-import" type="file" accept=".json,application/json" data-admin-drive-control></label><p id="admin-drive-summary" class="admin-system-compact">—</p></article>
+                    </div>
+                    <p id="admin-drive-status" class="status" aria-live="polite"></p>
+                    <p id="admin-drive-error" class="error" role="alert" hidden></p>
                 </section>
 
                 <section id="admin-report-panel" data-admin-section="school-report" class="admin-report-panel" aria-labelledby="admin-report-title" hidden>

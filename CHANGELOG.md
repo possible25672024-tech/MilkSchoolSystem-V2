@@ -1,5 +1,19 @@
 # Changelog
 
+## Sprint 5.8 — Admin System Tools
+
+- added Admin document metadata listing with on-demand file download;
+- added guarded PDF/JPG/PNG upload and atomic metadata/file deletion;
+- added general settings editing with ETag conflict protection while preserving
+  Firebase connection values;
+- added full `milkApp` JSON backup envelopes with SHA-256 integrity;
+- added preview-only restore inspection, mandatory current backup, typed
+  confirmation, ETag-protected root replacement, and restore audit;
+- added explicit manual Google Drive export/import transfer without storing
+  Google credentials;
+- added four Sprint 5.8 gates and raised complete regression to 78 checks;
+- kept stock formulas and protected legacy files unchanged.
+
 ## Sprint 5.7.1 — Report Ordering Correction
 
 - sorted classroom reports by Thai education level from kindergarten upward;

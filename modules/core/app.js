@@ -19,7 +19,8 @@ class MilkSchoolApplication {
         adminReceiptView = window.AdminReceiptView,
         adminStudentView = window.AdminStudentView,
         adminDistributionView = window.AdminDistributionView,
-        adminOperationalReportView = window.AdminOperationalReportView
+        adminOperationalReportView = window.AdminOperationalReportView,
+        adminSystemView = window.AdminSystemView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -41,6 +42,7 @@ class MilkSchoolApplication {
         this.adminStudentView = adminStudentView;
         this.adminDistributionView = adminDistributionView;
         this.adminOperationalReportView = adminOperationalReportView;
+        this.adminSystemView = adminSystemView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -287,6 +289,23 @@ class MilkSchoolApplication {
         return this.adminOperationalReportView;
     }
 
+    async ensureAdminSystemView() {
+        if (!window.AdminSystemRepository) {
+            await import("../repositories/adminSystemRepository.js");
+        }
+        if (!window.AdminSystemService) {
+            await import("../admin/adminSystemService.js");
+        }
+        if (!window.AdminSystemManager) {
+            await import("../admin/adminSystemManager.js");
+        }
+        if (!this.adminSystemView) {
+            await import("../admin/adminSystemView.js");
+            this.adminSystemView = window.AdminSystemView;
+        }
+        return this.adminSystemView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -341,6 +360,8 @@ class MilkSchoolApplication {
         if (adminDistributionView?.initialize) adminDistributionView.initialize();
         const adminOperationalReportView = await this.ensureAdminOperationalReportView();
         if (adminOperationalReportView?.initialize) adminOperationalReportView.initialize();
+        const adminSystemView = await this.ensureAdminSystemView();
+        if (adminSystemView?.initialize) adminSystemView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

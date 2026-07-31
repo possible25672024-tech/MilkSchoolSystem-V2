@@ -461,6 +461,22 @@ Sprint 5.0 operational Admin/report integration is active:
 - The quarantined real-data incident must be closed before production.
 - `main` merge and production cutover require explicit approval.
 
+## Sprint 5.8 — Admin System Tools
+
+- Admin parity scope closes with Documents, Settings, Backup/Restore, and
+  Google Drive file transfer.
+- Document metadata and content remain separate; content is loaded on demand.
+- Settings edits preserve connection credentials and require an ETag match.
+- Full `milkApp` backups use a versioned JSON envelope and SHA-256.
+- Restore is destructive and therefore requires preview validation, a current
+  safety backup, the phrase `กู้คืนข้อมูล`, final confirmation, and ETag match.
+- Restore rehearsal is authorized only against an isolated Firebase instance.
+- Backup/restore does not repair legacy stock-history anomalies automatically.
+- Protected `index.html` and `teacher.html` remain unchanged.
+- Sprint 5.8 automated gate passes 78/78; browser acceptance remains pending.
+- Two current-release Sprints remain after 5.8: Sprint 5.9
+  Integration/Security/UAT and Sprint 6.0 Production Readiness/Release.
+
 ## Development Rules
 
 - Never commit directly to `main`.
