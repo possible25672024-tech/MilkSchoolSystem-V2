@@ -112,12 +112,29 @@ class AdminDistributionService {
                 "Main Stock ไม่เพียงพอสำหรับรายการนี้"
             );
         }
+        const photos = (Array.isArray(input.photos) ? input.photos : [])
+            .filter(photo => typeof photo === "string" && /^data:image\//i.test(photo))
+            .slice(0, 5);
+        const signatures = Object.fromEntries(
+            Object.entries(input.signatures || {})
+                .filter(([, signature]) => (
+                    signature && typeof signature === "object"
+                    && typeof signature.dataUrl === "string"
+                    && /^data:image\//i.test(signature.dataUrl)
+                ))
+                .map(([key, signature]) => [key, {
+                    receiverName: String(signature.receiverName || "").trim().slice(0, 120),
+                    signature: signature.dataUrl
+                }])
+        );
         return {
             date,
             roomId: room.id,
             roomName: room.name,
             year: String(input.year || "").trim(),
             note: String(input.note || "").trim().slice(0, 300),
+            photos,
+            signatures,
             ...calculation
         };
     }
@@ -212,7 +229,9 @@ class AdminDistributionService {
             record: {
                 date: distribution.date,
                 year: distribution.year,
-                note: distribution.note
+                note: distribution.note,
+                photos: distribution.photos,
+                signatures: distribution.signatures
             }
         });
     }

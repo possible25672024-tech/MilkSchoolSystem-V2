@@ -1,5 +1,20 @@
 # Changelog
 
+## Sprint 5.9.1 — Admin Parity Corrections
+
+- added up to five processed distribution photos and separate receiver/sender
+  signatures to the guarded classroom distribution record;
+- routed Admin Pending, Retroactive, and Vacation menus to the full selected
+  Teacher-room workflow with an explicit return-to-Admin action;
+- added school-wide drinking metrics, latest checks, per-room daily status, and
+  room/month Attendance history with selected-record detail hydration;
+- changed anomaly output to show the calculated Main Stock result and retain the
+  original stored result separately for audit;
+- fixed Backup root consistency reads by using ETag plus `print=silent` and a
+  separate shallow key request, eliminating Firebase's unsupported mixed mode;
+- added three corrective acceptance gates and raised regression to 84 checks;
+- kept protected legacy pages, historical Stock, and Production Restore unchanged.
+
 ## Sprint 5.9 — Integration, Security and UAT
 
 - fixed room-management `ดูรายชื่อ` so the selected roster opens visibly in

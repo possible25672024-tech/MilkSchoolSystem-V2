@@ -144,8 +144,8 @@ class AdminOperationalReportView {
         const stockCheck = this.element("admin-distribution-report-stock-check");
         if (stockCheck) {
             stockCheck.textContent = anomalies.length
-                ? `⚠️ พบ ${anomalies.length} รายการที่ Main Stock หลัง ไม่เท่ากับ Main Stock ก่อน − จำนวนจ่าย ระบบแสดงเพื่อให้ตรวจสอบและยังไม่แก้ข้อมูลย้อนหลัง`
-                : "ตรวจสูตร Main Stock ของทุกรายการแล้ว ไม่พบยอดผิดปกติ";
+                ? `⚠️ พบ ${anomalies.length} รายการที่ยอดบันทึกเดิมผิดสูตร ตารางใช้ยอดคำนวณ “ก่อน − จ่าย” เป็นค่าตรวจสอบ และคงยอดเดิมไว้เป็นหลักฐาน โดย Main Stock ปัจจุบันอ่านจาก milkApp/stock เท่านั้น`
+                : "ตรวจสูตร Main Stock ของทุกรายการแล้ว · Main Stock ปัจจุบันอ่านจาก milkApp/stock เท่านั้น";
             stockCheck.dataset.state = anomalies.length ? "error" : "ok";
         }
         const body = this.element("admin-distribution-report-body");
@@ -159,7 +159,7 @@ class AdminOperationalReportView {
             `${record.crates} ลัง + ${record.boxes} กล่อง`,
             record.total,
             record.stockValid === false
-                ? `⚠ ${record.stockBefore} → ${record.stockAfter} (ควร ${record.expectedStockAfter})`
+                ? `⚠ ${record.stockBefore} → ${record.effectiveStockAfter} (บันทึกเดิม ${record.stockAfter})`
                 : `${record.stockBefore} → ${record.stockAfter}`,
             record.note || "—"
         ])));

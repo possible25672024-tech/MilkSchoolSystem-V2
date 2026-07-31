@@ -52,7 +52,10 @@ class FirebaseService {
                 return;
             }
 
-            params.set(key, this.encodeQueryValue(value));
+            const rawParameters = new Set(["print", "format", "download"]);
+            params.set(key, rawParameters.has(key)
+                ? String(value)
+                : this.encodeQueryValue(value));
         });
 
         if (this.authToken) {

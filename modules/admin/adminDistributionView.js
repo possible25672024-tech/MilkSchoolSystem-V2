@@ -11,6 +11,9 @@ class AdminDistributionView {
         this.document = options.document || document;
         this.confirm = options.confirm || (message => window.confirm(message));
         this.bound = false;
+        this.photos = [];
+        this.receiverSignature = null;
+        this.senderSignature = null;
     }
 
     element(id) {
@@ -20,6 +23,7 @@ class AdminDistributionView {
     initialize() {
         this.bindEvents();
         this.setDefaultDate();
+        this.attachSignaturePads();
     }
 
     bindEvents() {
@@ -33,19 +37,78 @@ class AdminDistributionView {
         this.element("admin-distribution-form")?.addEventListener("input", () => this.renderPreview());
         this.element("admin-distribution-room")?.addEventListener("change", () => this.renderPreview());
         this.element("admin-distribution-form")?.addEventListener("submit", event => this.submit(event));
+        this.element("admin-distribution-photos")?.addEventListener("change", event => this.processPhotos(event));
+        this.element("admin-distribution-receiver-clear")?.addEventListener("click", () => this.receiverSignature?.clear?.());
+        this.element("admin-distribution-sender-clear")?.addEventListener("click", () => this.senderSignature?.clear?.());
         this.eventTarget.addEventListener?.("milkapp:logout", () => this.reset());
         this.bound = true;
     }
 
     formInput() {
+        const signatures = {};
+        const receiver = this.receiverSignature?.exportSignature?.({ required: false });
+        const sender = this.senderSignature?.exportSignature?.({ required: false });
+        if (receiver && !receiver.empty) {
+            signatures.receiver = {
+                receiverName: this.element("admin-distribution-receiver-name")?.value,
+                dataUrl: receiver.dataUrl
+            };
+        }
+        if (sender && !sender.empty) {
+            signatures.sender = {
+                receiverName: this.element("admin-distribution-sender-name")?.value,
+                dataUrl: sender.dataUrl
+            };
+        }
         return {
             date: this.element("admin-distribution-date")?.value,
             roomId: this.element("admin-distribution-room")?.value,
             days: this.element("admin-distribution-days")?.value,
             perCrate: this.element("admin-distribution-per-crate")?.value,
             year: this.element("admin-distribution-year")?.value,
-            note: this.element("admin-distribution-note")?.value
+            note: this.element("admin-distribution-note")?.value,
+            photos: this.photos.map(photo => photo.dataUrl),
+            signatures
         };
+    }
+
+    attachSignaturePads() {
+        const Pad = window.SignaturePadClass;
+        if (!Pad || !window.MediaPolicy) return;
+        const receiverCanvas = this.element("admin-distribution-receiver-signature");
+        const senderCanvas = this.element("admin-distribution-sender-signature");
+        if (receiverCanvas && !this.receiverSignature) {
+            this.receiverSignature = new Pad(receiverCanvas, window.MediaPolicy);
+            this.receiverSignature.initialize();
+        }
+        if (senderCanvas && !this.senderSignature) {
+            this.senderSignature = new Pad(senderCanvas, window.MediaPolicy);
+            this.senderSignature.initialize();
+        }
+    }
+
+    async processPhotos(event) {
+        const files = Array.from(event?.target?.files || []);
+        if (!files.length) {
+            this.photos = [];
+            this.setText("admin-distribution-photo-summary", "ยังไม่ได้เลือกรูป");
+            return;
+        }
+        this.setBusy(true);
+        this.showError("");
+        this.setText("admin-distribution-photo-summary", "กำลังย่อและตรวจรูปภาพ...");
+        try {
+            if (!window.MediaProcessor?.processFiles) throw new Error("ระบบประมวลผลรูปภาพยังไม่พร้อม");
+            this.photos = await window.MediaProcessor.processFiles(files);
+            this.setText("admin-distribution-photo-summary", `พร้อมบันทึก ${this.photos.length} รูป`);
+        } catch (error) {
+            this.photos = [];
+            if (event?.target) event.target.value = "";
+            this.showError(error?.message || "ประมวลผลรูปภาพไม่สำเร็จ");
+            this.setText("admin-distribution-photo-summary", "ยังไม่ได้เลือกรูป");
+        } finally {
+            this.setBusy(false);
+        }
     }
 
     async load() {
@@ -112,6 +175,9 @@ class AdminDistributionView {
             this.setText("admin-distribution-package", `${preview.crates} ลัง + ${preview.boxes} กล่อง`);
             this.setText("admin-distribution-main-after", `${preview.mainStockAfter} กล่อง`);
             this.setText("admin-distribution-room-after", `${preview.roomStockBefore} → ${preview.roomStockAfter} กล่อง`);
+            const receiver = this.element("admin-distribution-receiver-name");
+            const room = this.manager.current?.rooms?.find(item => item.id === preview.roomId);
+            if (receiver && !receiver.value) receiver.value = room?.teacher || "";
             this.showError("");
             return preview;
         } catch (error) {
@@ -210,6 +276,10 @@ class AdminDistributionView {
 
     clearForm() {
         this.element("admin-distribution-form")?.reset?.();
+        this.photos = [];
+        this.receiverSignature?.clear?.();
+        this.senderSignature?.clear?.();
+        this.setText("admin-distribution-photo-summary", "ยังไม่ได้เลือกรูป");
         this.setDefaultDate();
         this.renderPreview();
     }
@@ -268,6 +338,9 @@ class AdminDistributionView {
         this.setHistoryStatus("");
         this.showError("");
         this.showHistoryError("");
+        this.photos = [];
+        this.receiverSignature?.clear?.();
+        this.senderSignature?.clear?.();
     }
 }
 

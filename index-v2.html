@@ -1443,6 +1443,87 @@
             margin: 0;
         }
 
+        .admin-consumption-toolbar {
+            display: flex;
+            align-items: end;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-consumption-toolbar label {
+            min-width: 190px;
+            margin: 0;
+        }
+
+        .admin-consumption-toolbar button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-consumption-metrics {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .admin-consumption-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .admin-consumption-card,
+        .admin-distribution-evidence {
+            border: 1px solid #dbe5ef;
+            border-radius: 14px;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .admin-consumption-card h3,
+        .admin-distribution-evidence h3 {
+            margin: 0 0 10px;
+        }
+
+        .admin-consumption-card .admin-report-table {
+            min-width: 640px;
+        }
+
+        .admin-distribution-evidence {
+            margin-top: 16px;
+            background: #f8fbfd;
+        }
+
+        .admin-distribution-evidence-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        .admin-distribution-signature {
+            display: grid;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .admin-distribution-signature canvas {
+            display: block;
+            width: 100%;
+            height: 150px;
+            border: 1px dashed #64748b;
+            border-radius: 10px;
+            background: #ffffff;
+            touch-action: none;
+        }
+
+        .admin-distribution-signature button {
+            width: auto;
+            margin: 0;
+        }
+
         [hidden] {
             display: none !important;
         }
@@ -1577,6 +1658,15 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .admin-consumption-metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-consumption-grid,
+            .admin-distribution-evidence-grid {
+                grid-template-columns: 1fr;
+            }
+
             .attendance-student-row {
                 grid-template-columns: 1fr;
             }
@@ -1613,6 +1703,18 @@
 
             .admin-report-filter-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .admin-consumption-toolbar,
+            .admin-consumption-metrics {
+                align-items: stretch;
+                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+
+            .admin-consumption-toolbar label,
+            .admin-consumption-toolbar button {
+                width: 100%;
             }
 
             .admin-room-dashboard,
@@ -1861,7 +1963,7 @@
                             <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
                             <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
                             <span class="admin-menu-group">จ่ายนม</span>
-                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้อง</button>
+                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้องเรียน</button>
                             <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 รายการจ่ายนมทั้งหมด</button>
                             <button type="button" data-admin-menu="pending" data-active="false" aria-pressed="false">🧾 นมค้างรายสัปดาห์</button>
                             <button type="button" data-admin-menu="vacation" data-active="false" aria-pressed="false">🏖️ จ่ายนมช่วงปิดเทอม</button>
@@ -1872,7 +1974,7 @@
                             <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
                             <span class="admin-menu-group">เช็กดื่มนม</span>
                             <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมการดื่มนม</button>
-                            <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
+                            <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">📋 ประวัติการเช็ก</button>
                             <span class="admin-menu-group">ตั้งค่า</span>
                             <button type="button" data-admin-menu="system-settings" data-active="false" aria-pressed="false">⚙️ ตั้งค่าระบบ</button>
                             <button type="button" data-admin-menu="backup-restore" data-active="false" aria-pressed="false">💾 สำรอง/กู้คืน</button>
@@ -2025,6 +2127,27 @@
                                     <div class="admin-receipt-field"><label for="admin-distribution-year">ปีการศึกษา</label><input id="admin-distribution-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
                                     <div class="admin-receipt-field full"><label for="admin-distribution-note">หมายเหตุ</label><input id="admin-distribution-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการจ่ายนม"></div>
                                 </div>
+                                <section class="admin-distribution-evidence" aria-labelledby="admin-distribution-evidence-title">
+                                    <h3 id="admin-distribution-evidence-title">รูปถ่ายและลายเซ็นการรับ–ส่งนม</h3>
+                                    <p>แนบรูปหลักฐานได้สูงสุด 5 รูป และลงลายเซ็นผู้รับกับผู้ส่งแยกกัน ข้อมูลจะเก็บพร้อมรายการจ่ายนม</p>
+                                    <label for="admin-distribution-photos">แนบรูปถ่าย (แนะนำ 3–5 รูป)</label>
+                                    <input id="admin-distribution-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                    <p id="admin-distribution-photo-summary" class="admin-system-compact">ยังไม่ได้เลือกรูป</p>
+                                    <div class="admin-distribution-evidence-grid">
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-distribution-receiver-name">ชื่อครูประจำชั้น/ผู้รับ</label>
+                                            <input id="admin-distribution-receiver-name" type="text" maxlength="120" placeholder="ชื่อผู้รับนม">
+                                            <canvas id="admin-distribution-receiver-signature" width="640" height="240" aria-label="ลายเซ็นครูประจำชั้นผู้รับนม"></canvas>
+                                            <button id="admin-distribution-receiver-clear" class="secondary" type="button">ล้างลายเซ็นผู้รับ</button>
+                                        </div>
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-distribution-sender-name">ชื่อผู้ส่งมอบ</label>
+                                            <input id="admin-distribution-sender-name" type="text" maxlength="120" value="ผู้ดูแลระบบ">
+                                            <canvas id="admin-distribution-sender-signature" width="640" height="240" aria-label="ลายเซ็นผู้ส่งมอบนม"></canvas>
+                                            <button id="admin-distribution-sender-clear" class="secondary" type="button">ล้างลายเซ็นผู้ส่ง</button>
+                                        </div>
+                                    </div>
+                                </section>
                                 <div class="admin-receipt-actions"><button type="submit">ยืนยันจ่ายนมให้ห้อง</button></div>
                             </form>
                             <p id="admin-distribution-status" class="status" aria-live="polite"></p>
@@ -2148,23 +2271,39 @@
                             </div>
                         </section>
 
-                        <section data-admin-section="dashboard" hidden>
-                            <div class="admin-room-dashboard">
-                                <article class="metric-card"><p class="metric-label">นักเรียน</p><p id="admin-room-students" class="metric-value">0 คน</p></article>
-                                <article class="metric-card"><p class="metric-label">Room Stock</p><p id="admin-room-stock" class="metric-value">0 กล่อง</p></article>
-                                <article class="metric-card"><p class="metric-label">วันที่เช็กแล้ว</p><p id="admin-attendance-days" class="metric-value">0 วัน</p></article>
-                                <article class="metric-card"><p class="metric-label">ใช้รวม</p><p id="admin-room-used" class="metric-value">0 กล่อง</p></article>
+                        <section data-admin-section="dashboard" class="admin-operation-panel" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div><h2>📊 ภาพรวมการดื่มนม</h2><p>สถานะการเช็กทุกห้องในวันที่เลือกและอัตราการดื่มนมของเดือน</p></div>
+                                <div class="admin-consumption-toolbar">
+                                    <label for="admin-consumption-date">วันที่<input id="admin-consumption-date" type="date"></label>
+                                    <button id="admin-consumption-refresh" type="button">เช็กข้อมูลวันนี้</button>
+                                </div>
                             </div>
-                            <div class="admin-operation-panel">
-                                <h2>การทำงานของผู้ดูแล</h2>
-                                <p>เลือกห้องจากเมนูด้านซ้ายเพื่อดู Dashboard หรือตรวจรายการ เมื่อกด “เปิดเมนูครูห้องนี้” จะใช้เมนูครูครบทุกเมนูด้วยสิทธิ์ผู้ดูแล และกลับมาหน้านี้ได้โดยไม่ต้องเข้าสู่ระบบใหม่</p>
+                            <div class="admin-consumption-metrics">
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-consumption-rooms" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียนทั้งหมด</p><p id="admin-consumption-students" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">ดื่มนมวันนี้</p><p id="admin-consumption-present" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">ไม่ได้ดื่มวันนี้</p><p id="admin-consumption-absent" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">อัตราดื่มนม (เดือนนี้)</p><p id="admin-consumption-rate" class="metric-value">0%</p></article>
                             </div>
+                            <div class="admin-consumption-grid">
+                                <section class="admin-consumption-card"><h3>🗓️ การเช็กล่าสุด</h3><div class="admin-report-table-wrap"><table class="admin-report-table"><thead><tr><th>วันที่</th><th>ห้อง</th><th>ครู</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>รายละเอียด</th></tr></thead><tbody id="admin-consumption-latest"></tbody></table></div></section>
+                                <section class="admin-consumption-card"><h3>🏫 สถานะรายห้อง (วันที่เลือก)</h3><div class="admin-report-table-wrap"><table class="admin-report-table"><thead><tr><th>ห้อง</th><th>ครู</th><th>นักเรียน</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>ยังไม่เช็ก</th><th>สถานะ</th></tr></thead><tbody id="admin-consumption-room-status"></tbody></table></div></section>
+                            </div>
+                            <p id="admin-consumption-status" class="status" aria-live="polite"></p>
+                            <span id="admin-room-students" hidden>0</span><span id="admin-room-stock" hidden>0</span><span id="admin-attendance-days" hidden>0</span><span id="admin-room-used" hidden>0</span>
                         </section>
 
                         <section data-admin-section="attendance" class="admin-operation-panel" hidden>
-                            <h2>ประวัติเช็กดื่มนมรายวัน</h2>
+                            <h2>📋 ประวัติการเช็กดื่มนม</h2>
+                            <div class="admin-consumption-toolbar">
+                                <label for="admin-attendance-room-filter">ห้องเรียน<select id="admin-attendance-room-filter"><option value="">ทุกห้อง</option></select></label>
+                                <label for="admin-attendance-month">เดือน<input id="admin-attendance-month" type="month"></label>
+                                <button id="admin-attendance-filter" type="button">โหลดประวัติ</button>
+                            </div>
+                            <p id="admin-attendance-status" class="status" aria-live="polite"></p>
                             <div class="admin-report-table-wrap">
-                                <table class="admin-operation-table"><thead><tr><th>วันที่</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>จัดการ</th></tr></thead><tbody id="admin-attendance-body" data-admin-record-body></tbody></table>
+                                <table class="admin-report-table"><thead><tr><th>วันที่</th><th>ห้องเรียน</th><th>ครู</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>ยังไม่เช็ก</th><th>บันทึกล่าสุด</th><th>รายละเอียด</th></tr></thead><tbody id="admin-attendance-body"></tbody></table>
                             </div>
                             <section id="admin-attendance-editor" class="admin-attendance-editor" hidden>
                                 <div class="admin-attendance-editor-header">

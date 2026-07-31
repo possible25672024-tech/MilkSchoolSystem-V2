@@ -381,6 +381,7 @@ class AdminOperationalReportService {
             return {
                 ...record,
                 expectedStockAfter,
+                effectiveStockAfter: expectedStockAfter,
                 stockDifference,
                 stockValid: stockDifference === 0
             };
@@ -404,7 +405,9 @@ class AdminOperationalReportService {
         const remaining = [...records];
         const ordered = [];
         while (remaining.length) {
-            const afterBalances = new Set(remaining.map(record => this.number(record.stockAfter)));
+            const afterBalances = new Set(remaining.map(
+                record => this.number(record.stockBefore) - this.number(record.total)
+            ));
             const starts = remaining.filter(record => !afterBalances.has(this.number(record.stockBefore)));
             const candidates = starts.length ? starts : remaining;
             candidates.sort((left, right) => this.compareDistributionFallback(left, right));
@@ -413,7 +416,9 @@ class AdminOperationalReportService {
                 ordered.push(current);
                 remaining.splice(remaining.indexOf(current), 1);
                 const next = remaining.filter(record => (
-                    this.number(record.stockBefore) === this.number(current.stockAfter)
+                    this.number(record.stockBefore) === (
+                        this.number(current.stockBefore) - this.number(current.total)
+                    )
                 )).sort((left, right) => this.compareDistributionFallback(left, right))[0];
                 current = next || null;
             }
@@ -512,7 +517,8 @@ class AdminOperationalReportService {
             "กล่องเศษ": record.boxes,
             "รวมกล่อง": record.total,
             "Main Stock ก่อน": record.stockBefore,
-            "Main Stock หลัง": record.stockAfter,
+            "Main Stock หลัง (คำนวณ)": record.effectiveStockAfter,
+            "Main Stock หลัง (บันทึกเดิม)": record.stockAfter,
             "ตรวจยอด": record.stockValid
                 ? "ถูกต้อง"
                 : `ผิดปกติ: ควรเหลือ ${record.expectedStockAfter}`,

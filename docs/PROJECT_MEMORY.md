@@ -2,11 +2,25 @@
 
 ## Project Memory
 
-Version: 3.5
+Version: 3.6
 
 Last updated: 2026-07-31
 
 ## Current Sprint State
+
+Sprint 5.9.1 Admin Parity Corrections is automated PASS at 84/84.
+
+- classroom distribution stores processed photos plus receiver/sender signatures;
+- Admin Pending, Retroactive, and Vacation open the full selected-room Teacher
+  workflow and can return to Admin without a new login;
+- the drinking overview and check history aggregate all rooms but hydrate full
+  media-bearing details only for one explicitly selected record;
+- distribution audit rows show `stockBefore - total` as the calculated result
+  and retain a different stored `stockAfter` as historical evidence;
+- current Main Stock remains sourced only from `milkApp/stock`;
+- Backup root ETag reads use `print=silent`; shallow root key discovery is a
+  separate request because Firebase rejects ETag and shallow together;
+- Live Server and isolated Firebase Backup/Restore UAT remain pending.
 
 Sprint 5.9 Integration, Security and UAT is automated PASS at 81/81.
 

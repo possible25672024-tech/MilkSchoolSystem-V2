@@ -18,7 +18,9 @@ for (const marker of [
 ]) {
     assert.ok(plan.includes(marker), `Sprint 5.9 plan is missing ${marker}`);
 }
-assert.match(repository, /getWithEtag\(this\.appRoot, \{ shallow: true \}\)/);
+assert.match(repository, /getWithEtag\(this\.appRoot, \{ print: "silent" \}\)/);
+assert.match(repository, /loadRootKeys/);
+assert.doesNotMatch(repository, /getWithEtag\([^\n]+shallow: true/);
 assert.match(repository, /loadChunked/);
 assert.match(repository, /BACKUP_SNAPSHOT_CHANGED/);
 assert.match(studentView, /openStudentReport/);

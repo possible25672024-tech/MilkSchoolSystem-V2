@@ -42,6 +42,7 @@ class TeacherParityView {
         this.handleSettingsSave = this.handleSettingsSave.bind(this);
         this.handleTeacherProfileSave = this.handleTeacherProfileSave.bind(this);
         this.handleHistoryEditRequested = this.handleHistoryEditRequested.bind(this);
+        this.handleSectionRequested = this.handleSectionRequested.bind(this);
     }
 
     ensureDependencies() {
@@ -196,6 +197,7 @@ class TeacherParityView {
                 <p id="teacher-topbar-school">โรงเรียน</p>
             </div>
             <div class="teacher-parity-topbar-actions">
+                <button id="teacher-admin-return" class="teacher-parity-home" type="button" hidden>← กลับหน้าผู้ดูแล</button>
                 <button class="teacher-parity-home" type="button" data-teacher-section="overview">🏠 หน้าหลัก</button>
                 <span id="teacher-topbar-room" class="teacher-parity-room-badge">ห้องเรียน</span>
             </div>`;
@@ -426,6 +428,7 @@ class TeacherParityView {
             "milkapp:attendance-history-edit-requested",
             this.handleHistoryEditRequested
         );
+        this.eventTarget.addEventListener?.("milkapp:teacher-section-requested", this.handleSectionRequested);
         this.element("teacher-parity-nav")?.addEventListener?.("click", this.handleNavigation);
         this.element("teacher-parity-topbar")?.addEventListener?.("click", this.handleNavigation);
         this.element("student-report-load-button")?.addEventListener?.("click", this.handleStudentReportLoad);
@@ -434,6 +437,9 @@ class TeacherParityView {
         this.element("room-stock-detail-refresh")?.addEventListener?.("click", this.handleRoomStockRefresh);
         this.element("teacher-settings-save")?.addEventListener?.("click", this.handleSettingsSave);
         this.element("teacher-profile-save")?.addEventListener?.("click", this.handleTeacherProfileSave);
+        this.element("teacher-admin-return")?.addEventListener?.("click", () => {
+            window.AdminRoomManager?.restoreAdmin?.();
+        });
         this.bound = true;
     }
 
@@ -464,6 +470,13 @@ class TeacherParityView {
         }
     }
 
+    handleSectionRequested(event) {
+        if (this.activeSession?.role !== "teacher") return;
+        const section = String(event?.detail?.section || "");
+        if (!this.navigationItems().some(item => item.id === section)) return;
+        this.showSection(section);
+    }
+
     handleNavigation(event) {
         const button = event?.target?.closest?.("[data-teacher-section]");
         const section = button?.dataset?.teacherSection;
@@ -483,6 +496,8 @@ class TeacherParityView {
         this.element("teacher-parity-topbar")?.removeAttribute?.("hidden");
         this.element("teacher-parity-nav")?.removeAttribute?.("hidden");
         this.renderSidebarIdentity(session);
+        const returnButton = this.element("teacher-admin-return");
+        if (returnButton) returnButton.hidden = !(session.adminOverride && session.delegatedByAdmin);
         this.renderTeacherProfile(session);
         this.renderOverview();
         this.populateStudents();
@@ -981,6 +996,8 @@ class TeacherParityView {
 
     clear() {
         this.activeSession = null;
+        const returnButton = this.element("teacher-admin-return");
+        if (returnButton) returnButton.hidden = true;
         this.activeSection = "overview";
         this.currentStudentReport = null;
         this.manager?.clear?.();

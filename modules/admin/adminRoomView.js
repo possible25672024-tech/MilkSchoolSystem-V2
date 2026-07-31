@@ -48,7 +48,7 @@ class AdminRoomView {
             this.closeRecordDetail();
         });
         this.document.querySelectorAll?.("[data-admin-menu]")?.forEach(button => {
-            button.addEventListener("click", () => this.showSection(button.dataset.adminMenu));
+            button.addEventListener("click", () => this.openAdminMenu(button.dataset.adminMenu));
         });
         this.document.querySelectorAll?.("[data-admin-record-body]")?.forEach(body => {
             body.addEventListener("click", event => this.handleRecordAction(event));
@@ -108,6 +108,8 @@ class AdminRoomView {
         this.setStatus("กำลังโหลดข้อมูลห้อง...");
         try {
             const current = await this.manager.selectRoom(roomId);
+            const select = this.element("admin-room-select");
+            if (select) select.value = this.manager.selectedRoomId;
             this.render(current);
             this.setStatus(`โหลดข้อมูล ${current.room.name} สำเร็จ`);
         } catch (error) {
@@ -131,6 +133,28 @@ class AdminRoomView {
         });
     }
 
+    async openAdminMenu(section) {
+        const teacherSection = {
+            pending: "pending",
+            retroactive: "retroactive",
+            vacation: "vacation"
+        }[String(section || "")];
+        if (!teacherSection) {
+            this.showSection(section);
+            return;
+        }
+        this.setBusy(true);
+        this.showError("");
+        this.setStatus("กำลังเปิดหน้าครูของห้องที่เลือก...");
+        try {
+            await this.manager.enterSelectedRoom({ teacherSection });
+        } catch (error) {
+            this.showError(error?.message || "เปิดหน้าครูของห้องที่เลือกไม่สำเร็จ");
+        } finally {
+            this.setBusy(false);
+        }
+    }
+
     render(current) {
         if (!current) return;
         const dashboard = current.dashboard || {};
@@ -140,7 +164,6 @@ class AdminRoomView {
         this.setText("admin-room-stock", `${dashboard.actualRoomStock || 0} กล่อง`);
         this.setText("admin-attendance-days", `${dashboard.attendanceDays || 0} วัน`);
         this.setText("admin-room-used", `${dashboard.usedTotal || 0} กล่อง`);
-        this.renderRecords("attendance", current.records.attendance);
         this.renderRecords("pending", current.records.pending);
         this.renderRecords("retroactive", current.records.retroactive);
         this.renderRecords("vacation", current.records.vacation);

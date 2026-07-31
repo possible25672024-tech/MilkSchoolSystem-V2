@@ -4,17 +4,33 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.9-integration-security-uat`
+Current Branch: `feature/sprint-5.9.1-admin-parity-corrections`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.9 — Integration, Security and UAT
+Sprint 5.9.1 — Admin Parity Corrections
 
-Status: **AUTOMATED PASS — 81/81 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
+Status: **AUTOMATED PASS — 84/84 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
 
-Approved predecessor: Sprint 5.8 — Admin System Tools
+Approved predecessor: Sprint 5.9 — Integration, Security and UAT
+
+## Sprint 5.9.1 Current Boundary
+
+- add classroom distribution photos plus receiver/sender signatures;
+- route Pending, Retroactive, and Vacation Admin menus to the full selected-room
+  Teacher workflow instead of a reduced duplicate table;
+- show a school-wide drinking overview and filterable all-room check history;
+- hydrate full student/evidence detail only after one explicit detail action;
+- calculate the correct per-row Main Stock result while preserving the original
+  malformed stored value as audit evidence;
+- read current Main Stock only from `milkApp/stock` and never auto-repair history;
+- separate root ETag (`print=silent`) from root key discovery (`shallow=true`) so
+  Backup no longer sends an unsupported Firebase query/header combination;
+- all 84 discovered regression checks pass;
+- Live Server browser and isolated Firebase Backup/Restore UAT remain pending;
+- Production restore, Firebase Rules deployment, `main`, and cutover remain blocked.
 
 ## Sprint 5.9 Current Boundary
 

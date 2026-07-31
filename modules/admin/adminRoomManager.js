@@ -69,6 +69,11 @@ class AdminRoomManager {
         window.dispatchEvent(new CustomEvent("milkapp:login-success", {
             detail: { session: delegated }
         }));
+        if (options.teacherSection) {
+            window.dispatchEvent(new CustomEvent("milkapp:teacher-section-requested", {
+                detail: { section: String(options.teacherSection) }
+            }));
+        }
         if (options.attendanceDate) {
             window.dispatchEvent(new CustomEvent("milkapp:attendance-history-edit-requested", {
                 detail: { date: String(options.attendanceDate) }

@@ -43,6 +43,67 @@ class AttendanceRepository extends BaseRepository {
         });
     }
 
+    async loadAttendanceSummaries(options = {}) {
+        const roomId = String(options.roomId || "").trim();
+        if (roomId) this.requireRoomId(roomId);
+        const startDate = options.startDate ? this.requireDate(options.startDate) : "";
+        const endDate = options.endDate ? this.requireDate(options.endDate) : "";
+        if (startDate && endDate && startDate > endDate) {
+            throw new Error("Attendance start date must not be after end date.");
+        }
+        const concurrency = Number.isInteger(options.concurrency)
+            ? Math.max(1, Math.min(16, options.concurrency))
+            : 10;
+        const keyIndex = await this.get(this.path("mcAttendance"), { shallow: true });
+        const keys = Object.keys(keyIndex || {})
+            .map(key => {
+                const match = String(key).match(/^(.*)_(\d{4}-\d{2}-\d{2})$/);
+                return match ? { key, roomId: match[1], date: match[2] } : null;
+            })
+            .filter(item => item
+                && (!roomId || item.roomId === roomId)
+                && (!startDate || item.date >= startDate)
+                && (!endDate || item.date <= endDate))
+            .sort((left, right) => left.key.localeCompare(right.key));
+        const summaries = new Array(keys.length);
+        let cursor = 0;
+
+        const worker = async () => {
+            while (cursor < keys.length) {
+                const index = cursor;
+                cursor += 1;
+                const item = keys[index];
+                const recordPath = this.path(`mcAttendance/${item.key}`);
+                const [data, teacher, roomName, savedAt] = await Promise.all([
+                    this.get(`${recordPath}/data`),
+                    this.get(`${recordPath}/teacher`),
+                    this.get(`${recordPath}/roomName`),
+                    this.get(`${recordPath}/savedAt`)
+                ]);
+                if (!data || typeof data !== "object" || Array.isArray(data)) {
+                    summaries[index] = null;
+                    continue;
+                }
+                summaries[index] = {
+                    id: item.key,
+                    key: item.key,
+                    roomId: item.roomId,
+                    date: item.date,
+                    data,
+                    teacher: String(teacher || ""),
+                    roomName: String(roomName || ""),
+                    savedAt: String(savedAt || "")
+                };
+            }
+        };
+
+        await Promise.all(Array.from(
+            { length: Math.min(concurrency, keys.length || 1) },
+            () => worker()
+        ));
+        return summaries.filter(Boolean);
+    }
+
     async loadRoomAttendanceSummaries(roomId, options = {}) {
         const normalizedRoomId = this.requireRoomId(roomId);
         const concurrency = Number.isInteger(options.concurrency)

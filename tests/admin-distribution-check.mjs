@@ -101,11 +101,20 @@ const preview = service.preview(admin, model, {
     date: "2026-07-31",
     roomId: "r1",
     days: 2,
-    perCrate: 36
+    perCrate: 36,
+    photos: ["data:image/jpeg;base64,PHOTO"],
+    signatures: {
+        receiver: {
+            receiverName: "ครูผู้รับ",
+            dataUrl: "data:image/png;base64,SIGNATURE"
+        }
+    }
 });
 assert.equal(preview.total, 4, "Distribution formula must be students × days");
 assert.equal(preview.mainStockAfter, 496);
 assert.equal(preview.roomStockAfter, 16);
+assert.equal(preview.photos.length, 1);
+assert.equal(preview.signatures.receiver.receiverName, "ครูผู้รับ");
 const history = await service.loadHistory(admin);
 assert.equal(history.distributions.length, 1);
 assert.equal(history.totalBoxes, 4);
@@ -114,13 +123,22 @@ await service.distribute(admin, {
     roomId: "r1",
     days: 34,
     perCrate: 36,
-    year: "2569"
+    year: "2569",
+    photos: ["data:image/jpeg;base64,PHOTO"],
+    signatures: {
+        receiver: {
+            receiverName: "ครูผู้รับ",
+            dataUrl: "data:image/png;base64,SIGNATURE"
+        }
+    }
 }, "operation-1");
 assert.equal(calls.length, 1);
 assert.equal(calls[0].operationId, "operation-1");
 assert.equal(calls[0].students, 2);
 assert.equal(calls[0].source, "admin");
 assert.equal(calls[0].record.date, "2026-07-31");
+assert.equal(calls[0].record.photos.length, 1);
+assert.equal(calls[0].record.signatures.receiver.receiverName, "ครูผู้รับ");
 await assert.rejects(
     service.load({ role: "teacher", isAdmin: false }),
     error => error.code === "ADMIN_SESSION_REQUIRED"

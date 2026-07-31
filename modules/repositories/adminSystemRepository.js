@@ -86,22 +86,32 @@ class AdminSystemRepository extends BaseRepository {
     }
 
     async loadRootMarker() {
-        return this.ensureService().getWithEtag(this.appRoot, { shallow: true });
+        // Firebase does not allow X-Firebase-ETag together with shallow=true.
+        // print=silent returns the root ETag without downloading the oversized
+        // root payload, while key discovery remains a separate shallow GET.
+        return this.ensureService().getWithEtag(this.appRoot, { print: "silent" });
+    }
+
+    async loadRootKeys() {
+        const value = await this.get(this.appRoot, { shallow: true });
+        return Object.keys(value || {}).sort((left, right) => left.localeCompare(right));
     }
 
     async loadRootWithEtag(options = {}) {
         const attempts = Math.max(1, Number(options.attempts) || 2);
         for (let attempt = 1; attempt <= attempts; attempt += 1) {
             const before = await this.loadRootMarker();
-            const rootKeys = before?.value && typeof before.value === "object"
-                ? Object.keys(before.value)
-                : [];
+            const rootKeys = await this.loadRootKeys();
             const entries = [];
             for (const key of rootKeys) {
                 entries.push([key, await this.loadChunked(this.path(key))]);
             }
             const after = await this.loadRootMarker();
-            if (String(before?.etag || "") === String(after?.etag || "")) {
+            const afterKeys = await this.loadRootKeys();
+            if (
+                String(before?.etag || "") === String(after?.etag || "")
+                && JSON.stringify(rootKeys) === JSON.stringify(afterKeys)
+            ) {
                 return {
                     value: Object.fromEntries(entries),
                     etag: String(after?.etag || ""),
@@ -122,6 +132,7 @@ class AdminSystemRepository extends BaseRepository {
         ];
         for (let attempt = 1; attempt <= attempts; attempt += 1) {
             const before = await this.loadRootMarker();
+            const beforeKeys = await this.loadRootKeys();
             const value = {
                 settings: await this.get(this.path("settings")) || {},
                 stock: await this.get(this.path("stock")) || 0
@@ -130,7 +141,11 @@ class AdminSystemRepository extends BaseRepository {
                 value[key] = await this.get(this.path(key), { shallow: true }) || {};
             }
             const after = await this.loadRootMarker();
-            if (String(before?.etag || "") === String(after?.etag || "")) {
+            const afterKeys = await this.loadRootKeys();
+            if (
+                String(before?.etag || "") === String(after?.etag || "")
+                && JSON.stringify(beforeKeys) === JSON.stringify(afterKeys)
+            ) {
                 return { value, etag: String(after?.etag || ""), status: after?.status };
             }
         }

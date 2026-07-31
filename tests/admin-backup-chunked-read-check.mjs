@@ -14,8 +14,9 @@ const service = {
     async getWithEtag(path, query = {}) {
         calls.push({ method: "etag", path, query });
         assert.equal(path, "milkApp");
-        assert.equal(query.shallow, true, "Root ETag reads must be shallow");
-        return { value: rootKeys, etag: "root-etag-stable", status: 200 };
+        assert.equal(query.print, "silent", "Root ETag reads must suppress the oversized body");
+        assert.equal(query.shallow, undefined, "Firebase forbids mixing shallow and ETag reads");
+        return { value: null, etag: "root-etag-stable", status: 204 };
     },
     async get(path, query = {}) {
         calls.push({ method: "get", path, query });
@@ -29,6 +30,7 @@ const service = {
             "milkApp/documentFiles/d1": "data:application/pdf;base64,AA==",
             "milkApp/documentFiles/d2": "data:image/png;base64,BB=="
         };
+        if (path === "milkApp" && query.shallow) return structuredClone(rootKeys);
         if (path === "milkApp/documentFiles" && !query.shallow) {
             throw new Error('Firebase request failed (413): {"error":"Payload is too large"}');
         }
@@ -72,6 +74,10 @@ assert.equal(
     calls.filter(call => call.method === "etag").length,
     2,
     "A chunked backup must verify the root ETag before and after reading"
+);
+assert.ok(
+    calls.some(call => call.method === "get" && call.path === "milkApp" && call.query.shallow === true),
+    "Root key discovery must use a separate shallow GET"
 );
 assert.ok(
     calls.some(call => call.path === "milkApp/documentFiles" && call.query.shallow === true),
