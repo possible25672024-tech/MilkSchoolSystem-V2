@@ -1,5 +1,17 @@
 # Changelog
 
+## Sprint 5.5 — Student Import, Room Management and Student Report
+
+- added a local vendored XLSX/XLS/CSV reader with Thai school-header handling;
+- added complete import preview, header validation, and duplicate-student gates;
+- added ETag-bound confirmation with explicit stale-preview conflict handling;
+- preserved immutable room IDs and Room Stock across repeated imports;
+- added Admin V2 room creation, metadata edit, and dependency-protected delete;
+- added room/gender/student report, A4 print, and UTF-8 CSV export;
+- added three Sprint 5.5 gates and raised complete regression to 67 checks;
+- kept Main Stock, Room Stock, Queue, ledger, milk history, and protected legacy
+  files unchanged.
+
 All notable modular migration changes are recorded here.
 
 ## 2026-07-31 — Sprint 5.4 Milk Receipt and Stock Trace

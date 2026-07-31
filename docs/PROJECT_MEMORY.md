@@ -173,7 +173,9 @@ Known production gap: browser-local pending, retroactive, and vacation adapter.
 - parsed-sheet import preparation
 - deletion safety
 
-Known production gaps: XLSX binary parsing remains legacy and complete-room multi-admin concurrency remains unresolved.
+This Sprint 3.5 gap was resolved at the modular code level in Sprint 5.5 with a
+local XLSX/XLS/CSV parser and ETag-bound import confirmation. Browser and real
+isolated two-Admin evidence remain pending.
 
 ### Sprint 3.6 — Teacher Service Foundation
 
@@ -423,7 +425,18 @@ Sprint 5.0 operational Admin/report integration is active:
 
 - Physical iPad testing is deferred and is not PASS.
 - Report browser-local adapter moves to an operational Admin/report sprint.
-- XLSX binary parsing remains in the protected legacy flow.
+- Sprint 5.5 vendors the XLSX browser reader locally and moves `.xlsx`, `.xls`,
+  and `.csv` roster parsing into the modular Admin V2 path.
+- Student import requires a complete preview and binds confirmation to the
+  `milkApp/rooms` ETag; a 412 conflict writes nothing and requires a fresh
+  preview.
+- Repeated imports preserve `roomId` and Room Stock, reject duplicate students
+  within and across rooms, and never persist generated `student_*` fallback
+  rows.
+- Admin V2 now includes room management plus real-student room/gender/roster
+  reporting with A4 and UTF-8 CSV.
+- Sprint 5.5 passes all 67 automated regression checks; Live Server and
+  isolated real two-Admin ETag evidence remain pending.
 - Real Firebase concurrency validation must use an isolated environment.
 - Backup and restore rehearsal is required before production.
 - The quarantined real-data incident must be closed before production.

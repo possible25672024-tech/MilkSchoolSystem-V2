@@ -4,17 +4,30 @@
 
 Last Update: 2026-07-31
 
-Current Branch: `feature/sprint-5.4-stock-audit-receipts`
+Current Branch: `feature/sprint-5.5-student-room-management`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.4 — Milk Receipt and Receipt History
+Sprint 5.5 — Student Import, Room Management and Student Report
 
-Status: **AUTOMATED PASS — 64/64 / LIVE SERVER BROWSER GATE PENDING**
+Status: **AUTOMATED PASS — 67/67 / LIVE SERVER BROWSER GATE PENDING**
 
-Approved predecessor: Sprint 5.3 — Admin System and Stock Dashboard
+Approved predecessor: Sprint 5.4 — Milk Receipt and Receipt History
+
+## Sprint 5.5 Current Boundary
+
+- local `.xlsx`, `.xls`, and `.csv` parsing without a CDN;
+- validated headers and complete multi-room preview before write;
+- duplicate student protection within and across imported rooms;
+- ETag-bound confirmation that blocks stale-preview overwrites;
+- repeated imports preserve existing `roomId` and Room Stock;
+- Admin V2 room creation/edit/dependency-protected deletion;
+- real-student room/gender/roster report with A4 and UTF-8 CSV;
+- Main Stock, Room Stock, ledger, Queue, and milk records remain untouched;
+- all 67 discovered regression checks pass;
+- Live Server browser acceptance is pending.
 
 ## Sprint 5.4 Current Boundary
 

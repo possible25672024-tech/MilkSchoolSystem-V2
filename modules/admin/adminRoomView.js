@@ -54,6 +54,14 @@ class AdminRoomView {
             body.addEventListener("click", event => this.handleRecordAction(event));
         });
         this.window.addEventListener?.("milkapp:login-success", event => this.handleSession(event?.detail?.session));
+        ["milkapp:rooms-imported", "milkapp:room-created", "milkapp:room-updated", "milkapp:room-deleted"]
+            .forEach(eventName => {
+                this.window.addEventListener?.(eventName, () => {
+                    if (this.authService?.getSession?.()?.role === "admin") {
+                        this.loadRooms(true);
+                    }
+                });
+            });
         this.window.addEventListener?.("milkapp:logout", () => this.reset());
         this.bound = true;
     }

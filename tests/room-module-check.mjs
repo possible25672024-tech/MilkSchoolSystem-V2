@@ -172,11 +172,22 @@ const createId = () => `generated-room-${++generatedId}`;
 
 const normalizationService = new RoomService(null, { idFactory: createId });
 const normalizedObjectRooms = normalizationService.normalizeCollection({
-    alpha: { name: " อ.1-1 ", teacher: " ครู ก ", count: 5, stock: 3 }
+    alpha: {
+        name: " อ.1-1 ",
+        teacher: " ครู ก ",
+        count: 5,
+        stock: 3,
+        students: {
+            s1: { "รหัสประจำตัว": "001", "ชื่อ": "เด็กหนึ่ง" },
+            s2: { "รหัสประจำตัว": "002", "ชื่อ": "เด็กสอง" }
+        }
+    }
 });
 assert.equal(normalizedObjectRooms[0].id, "alpha", "Object-keyed Firebase rooms must retain their key as the room id");
 assert.equal(normalizedObjectRooms[0].name, "อ.1-1", "Room names must be trimmed");
 assert.equal(normalizedObjectRooms[0].stock, 3, "Room normalization must preserve Room Stock");
+assert.equal(normalizedObjectRooms[0].students.length, 2, "Object-keyed student rosters must remain available");
+assert.equal(normalizedObjectRooms[0].count, 2, "Actual object-keyed roster size must drive the room count");
 
 const createRepository = new MockRoomRepository([
     { id: "r1", name: "อ.3-1", level: "อ.3", teacher: "ครูเดิม", count: 2, students: [], stock: 7 }

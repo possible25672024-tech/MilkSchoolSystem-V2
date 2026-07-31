@@ -23,7 +23,7 @@ Status values:
 | Logout | legacy pages | Auth/Login modules | PASS | browser logout | desktop and 820 x 1180 Logout evidence recorded |
 | Room list loading | `index.html`, `teacher.html` | Login/Room modules | PASS | 83-room dataset | desktop and responsive shell evidence recorded |
 | Room creation/edit | `index.html` | Room modules | PARTIAL | operational form parity | operational Admin UI deferred under D-05; blocks production, not `develop` integration |
-| Student import | `index.html` XLSX parser | RoomService parsed-data boundary | PARTIAL | import fixture + Room ID preservation | binary parser remains in legacy flow under D-03 |
+| Student import | `index.html` XLSX parser | Local XLSX adapter + RoomService ETag boundary + Admin Student UI | PARTIAL | Live Server workbook/CSV + isolated two-Admin conflict | automated parser, duplicate, Room ID, Room Stock, and ETag gates pass under Sprint 5.5 |
 | Main Stock receive | `index.html` | Stock modules | PARTIAL | end-to-end operational UI test | operational Admin UI deferred under D-05 |
 | Classroom distribution | `index.html` | Stock modules | PARTIAL | Main Stock decrease + Room Stock increase | operational Admin UI deferred under D-05 |
 | Attendance save | `teacher.html` | Attendance modules | PARTIAL | create/edit/delete + Room Stock delta | operational UI and isolated gates pass; deferred real-data incident and isolated production-confidence work remain open |

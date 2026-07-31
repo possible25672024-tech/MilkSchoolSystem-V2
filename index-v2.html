@@ -743,6 +743,125 @@
             background: #1a5276;
         }
 
+        .admin-student-metrics,
+        .admin-student-import-summary,
+        .admin-room-create-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .admin-student-file-box {
+            border: 2px dashed #9fb7ca;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f5f9fc;
+        }
+
+        .admin-student-file-box input {
+            margin-top: 8px;
+        }
+
+        .admin-student-import-actions,
+        .admin-student-report-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-student-import-actions button,
+        .admin-student-report-actions button {
+            width: auto;
+        }
+
+        .admin-student-import-messages {
+            display: grid;
+            gap: 8px;
+            margin: 12px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .admin-student-import-messages li {
+            border-radius: 9px;
+            padding: 9px 12px;
+            color: #854d0e;
+            background: #fef3c7;
+        }
+
+        .admin-student-import-messages li[data-state="error"] {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .admin-student-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-student-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .admin-student-table th,
+        .admin-student-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-student-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-student-detail {
+            margin-top: 18px;
+            border-top: 1px solid #dbe5ef;
+            padding-top: 16px;
+        }
+
+        .admin-student-detail h3,
+        .admin-student-detail p {
+            margin: 0 0 6px;
+        }
+
+        .admin-room-create-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            [data-admin-section="student-report"],
+            [data-admin-section="student-report"] * {
+                visibility: visible;
+            }
+
+            [data-admin-section="student-report"] {
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                border: 0;
+                padding: 0;
+            }
+
+            .admin-student-report-actions,
+            #admin-student-report-refresh,
+            #admin-student-report-table th:last-child,
+            #admin-student-report-table td:last-child {
+                display: none !important;
+            }
+        }
+
         .admin-operation-panel {
             min-width: 0;
             margin-top: 16px;
@@ -1259,6 +1378,12 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .admin-student-metrics,
+            .admin-student-import-summary,
+            .admin-room-create-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .admin-attendance-editor-row {
                 grid-template-columns: 1fr;
             }
@@ -1321,8 +1446,22 @@
             .admin-stock-trace-flow,
             .admin-receipt-summary,
             .admin-receipt-form-grid,
+            .admin-student-metrics,
+            .admin-student-import-summary,
+            .admin-room-create-grid,
             .admin-menu {
                 grid-template-columns: 1fr;
+            }
+
+            .admin-student-import-actions,
+            .admin-student-report-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-student-import-actions button,
+            .admin-student-report-actions button {
+                width: 100%;
             }
 
             .admin-system-dashboard-header,
@@ -1440,6 +1579,7 @@
     <script defer src="config/app-config.js"></script>
     <script defer src="config/firebase-config.js"></script>
     <script defer src="modules/config/configManager.js"></script>
+    <script defer src="assets/vendor/xlsx.full.min.js"></script>
 
     <script defer src="modules/services/firebaseService.js"></script>
     <script defer src="modules/repositories/baseRepository.js"></script>
@@ -1526,6 +1666,9 @@
                         <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
                             <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
                             <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
+                            <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้านักเรียน</button>
+                            <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
+                            <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
                             <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมห้อง</button>
                             <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
                             <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">🥛 ประวัติดื่มนม</button>
@@ -1549,6 +1692,7 @@
                         </header>
                         <p id="admin-room-status" class="status" aria-live="polite"></p>
                         <p id="admin-room-error" class="error" role="alert" hidden></p>
+                        <p id="admin-student-error" class="error" role="alert" hidden></p>
 
                         <section data-admin-section="system-dashboard" class="admin-operation-panel">
                             <div class="admin-system-dashboard-header">
@@ -1649,6 +1793,99 @@
                                     <thead><tr><th>วันที่รับ</th><th>แหล่งรับ</th><th>ลัง/เศษ</th><th>รวม</th><th>หมายเหตุ</th></tr></thead>
                                     <tbody id="admin-receipt-body"></tbody>
                                 </table>
+                            </div>
+                        </section>
+
+                        <section id="admin-student-import-panel" data-admin-section="student-import" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>นำเข้าข้อมูลนักเรียน</h2>
+                                    <p>รองรับ .xlsx, .xls และ .csv ด้วยตัวอ่านไฟล์ภายในระบบ · ต้องดูตัวอย่างก่อนยืนยัน</p>
+                                </div>
+                            </div>
+                            <div class="admin-student-file-box">
+                                <label for="admin-student-file">เลือกไฟล์รายชื่อนักเรียน</label>
+                                <input id="admin-student-file" type="file" accept=".xlsx,.xls,.csv">
+                                <p>Excel: หนึ่ง Sheet ต่อหนึ่งห้อง · CSV: ชื่อไฟล์เป็นชื่อห้อง หัวตารางต้องมีเลขที่/รหัสและชื่อ</p>
+                            </div>
+                            <p id="admin-student-import-status" class="status" aria-live="polite"></p>
+                            <section id="admin-student-import-preview" hidden>
+                                <h3>ตัวอย่างก่อนเขียน · <span id="admin-student-import-file-name">ไฟล์ที่เลือก</span></h3>
+                                <div class="admin-student-import-summary">
+                                    <article class="metric-card"><p class="metric-label">ห้องที่ผ่าน</p><p id="admin-student-import-rooms" class="metric-value">0 ห้อง</p></article>
+                                    <article class="metric-card"><p class="metric-label">นักเรียนรวม</p><p id="admin-student-import-total" class="metric-value">0 คน</p></article>
+                                    <article class="metric-card"><p class="metric-label">สถานะ</p><p id="admin-student-import-mode" class="metric-value">—</p></article>
+                                    <article class="metric-card"><p class="metric-label">Stock</p><p class="metric-value">ไม่เปลี่ยน</p></article>
+                                </div>
+                                <ul id="admin-student-import-messages" class="admin-student-import-messages" hidden></ul>
+                                <div class="admin-student-table-wrap">
+                                    <table class="admin-student-table">
+                                        <thead><tr><th>#</th><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>นักเรียน</th><th>การดำเนินการ</th></tr></thead>
+                                        <tbody id="admin-student-import-body"></tbody>
+                                    </table>
+                                </div>
+                                <div class="admin-student-import-actions">
+                                    <button id="admin-student-import-cancel" class="secondary" type="button">ยกเลิก</button>
+                                    <button id="admin-student-import-confirm" type="button" disabled>ยืนยันนำเข้า</button>
+                                </div>
+                            </section>
+                        </section>
+
+                        <section id="admin-room-management" data-admin-section="room-management" class="admin-operation-panel" aria-busy="false" hidden>
+                            <h2>จัดการห้องเรียน</h2>
+                            <p>ห้องใหม่เริ่ม Room Stock = 0 · การแก้ไขรักษา roomId, รายชื่อ และ Room Stock เดิม · การลบจะถูกบล็อกเมื่อมีข้อมูลอ้างอิง</p>
+                            <form id="admin-room-create-form">
+                                <div class="admin-room-create-grid">
+                                    <div><label for="admin-room-create-name">ชื่อห้อง *</label><input id="admin-room-create-name" type="text" required></div>
+                                    <div><label for="admin-room-create-level">ระดับชั้น</label><input id="admin-room-create-level" type="text"></div>
+                                    <div><label for="admin-room-create-teacher">ครูประจำชั้น</label><input id="admin-room-create-teacher" type="text"></div>
+                                    <div><label for="admin-room-create-count">จำนวนนักเรียน *</label><input id="admin-room-create-count" type="number" min="0" step="1" required></div>
+                                </div>
+                                <div class="admin-student-import-actions"><button type="submit">เพิ่มห้องเรียน</button></div>
+                            </form>
+                            <p id="admin-room-management-status" class="status" aria-live="polite"></p>
+                            <div class="admin-student-table-wrap">
+                                <table class="admin-student-table">
+                                    <thead><tr><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>นักเรียน</th><th>จัดการ</th></tr></thead>
+                                    <tbody id="admin-room-management-body"></tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section id="admin-student-report-panel" data-admin-section="student-report" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รายงานนักเรียน</h2>
+                                    <p>ข้อมูลรายห้อง เพศ และรายชื่อจริง · ไม่รวมแถว fallback แบบ student_* ที่ระบบสร้างเพื่อแสดงผล</p>
+                                </div>
+                                <button id="admin-student-report-refresh" class="secondary" type="button">โหลดรายงานใหม่</button>
+                            </div>
+                            <div class="admin-student-metrics">
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-student-report-rooms" class="metric-value">0 ห้อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียน</p><p id="admin-student-report-total" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ชาย</p><p id="admin-student-report-male" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">หญิง</p><p id="admin-student-report-female" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ไม่ระบุ</p><p id="admin-student-report-unknown" class="metric-value">0 คน</p></article>
+                            </div>
+                            <div class="admin-student-table-wrap">
+                                <table id="admin-student-report-table" class="admin-student-table">
+                                    <thead><tr><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>ชาย</th><th>หญิง</th><th>ไม่ระบุ</th><th>รวม</th><th>รายชื่อ</th></tr></thead>
+                                    <tbody id="admin-student-report-body"></tbody>
+                                </table>
+                            </div>
+                            <section class="admin-student-detail">
+                                <h3 id="admin-student-detail-title">รายชื่อนักเรียน</h3>
+                                <p id="admin-student-detail-meta">—</p>
+                                <div class="admin-student-table-wrap">
+                                    <table class="admin-student-table">
+                                        <thead><tr><th>เลขที่</th><th>รหัสนักเรียน</th><th>ชื่อ-นามสกุล</th><th>เพศ</th><th>เลขประจำตัวประชาชน</th></tr></thead>
+                                        <tbody id="admin-student-detail-body"></tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <div class="admin-student-report-actions">
+                                <button id="admin-student-report-print" type="button">พิมพ์รายงาน A4</button>
+                                <button id="admin-student-report-export" class="secondary" type="button">ส่งออก CSV</button>
                             </div>
                         </section>
 

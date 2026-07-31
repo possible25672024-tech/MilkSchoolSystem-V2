@@ -68,6 +68,16 @@ Decision:
 
 Owner: future Room/Admin import sprint.
 
+Sprint 5.5 update (2026-07-31):
+
+- the V2 import adapter now uses a vendored local XLSX reader;
+- `.xlsx`, `.xls`, and `.csv` parsing plus Thai header validation pass
+  representative workbook tests;
+- complete preview is bound to the `milkApp/rooms` ETag;
+- confirmation uses `If-Match` and blocks HTTP 412 without overwrite;
+- D-03 remains a Production blocker only until Live Server and isolated real
+  two-Admin conflict evidence pass.
+
 ## D-04 — Operational Teacher UI
 
 Decision: DEFERRED TO DEDICATED UI SPRINTS / APPROVED FOR DEVELOP / BLOCKS PRODUCTION

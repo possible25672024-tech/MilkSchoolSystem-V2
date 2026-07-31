@@ -149,13 +149,17 @@ Resolved Sprint 5.0 gap:
 - browser-local Pending, Retroactive, and Vacation report adapter under cutover
   decision D-02 is implemented; local browser acceptance remains pending.
 
-### Room — Foundation Completed, Operational Import/UI Deferred
+### Room and Student Administration — Sprint 5.5 Automated Gate Passed
 
 Modules:
 
 - `modules/room/roomManager.js`
 - `modules/services/roomService.js`
 - `modules/repositories/roomRepository.js`
+- `modules/admin/studentImportParser.js`
+- `modules/admin/adminStudentService.js`
+- `modules/admin/adminStudentManager.js`
+- `modules/admin/adminStudentView.js`
 
 Completed boundary:
 
@@ -165,11 +169,24 @@ Completed boundary:
 - parsed-sheet import preparation
 - deletion safety
 
-Deferred production gaps:
+Sprint 5.5 boundary:
 
-- XLSX binary parser remains in protected legacy Admin flow under D-03
-- complete-room multi-admin optimistic concurrency remains unresolved
-- operational Admin room UI remains in `index.html`
+- vendored local XLSX/XLS/CSV parsing with header validation
+- complete preview before any write
+- immutable Room ID and Room Stock preservation on repeated import
+- within-room and cross-room student duplicate gates
+- Firebase ETag read and conditional room-collection confirmation
+- explicit stale-preview conflict without automatic overwrite
+- operational Admin V2 import, room management, and student report
+- UTF-8 CSV and browser A4 output
+- no generated `student_*` persistence
+- no Main Stock, Room Stock, Queue, ledger, or milk-history mutation
+
+Remaining production gaps:
+
+- Live Server browser acceptance
+- real isolated two-Admin ETag conflict evidence
+- Production cutover approval
 
 ### Teacher Service Foundation — Completed
 
@@ -537,8 +554,8 @@ Rebuild
 - Sprint 5.1 — Scalable Admin Attendance and report reads — Browser PASS
 - Sprint 5.2 — Admin inline exact-date Attendance edit — Automated PASS
 - Sprint 5.3 — Admin overview and stock Dashboard — Automated PASS
-- Sprint 5.4 — Milk receipt and receipt history — Active, automated PASS
-- Sprint 5.5 — Student import, room management, and student reports — Planned
+- Sprint 5.4 — Milk receipt and receipt history — Automated PASS
+- Sprint 5.5 — Student import, room management, and student reports — Active, automated PASS
 - Sprint 5.6 — Classroom distribution and distribution history — Planned
 - Sprint 5.7 — Operational summaries and report-period parity — Planned
 - Sprint 5.8 — Documents, settings, backup/restore, and Drive sync — Planned

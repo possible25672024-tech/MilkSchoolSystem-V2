@@ -34,7 +34,17 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace is active
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management is active
+
+Current Sprint 5.5 boundary:
+
+- parse `.xlsx`, `.xls`, and `.csv` with the vendored local XLSX reader;
+- require complete preview before one ETag-guarded room-collection write;
+- preserve existing `roomId`, students outside imported rooms, and Room Stock;
+- block within-room and cross-room strong-id duplicates;
+- never persist generated `student_*` fallback rows;
+- provide Admin V2 room management and read-only student report/CSV/A4;
+- do not write Main Stock, Room Stock, ledger, Queue, or milk-operation history.
 
 Current Sprint 5.4 boundary:
 
@@ -101,7 +111,9 @@ Production gap: browser-local adapter remains deferred.
 - parsed-sheet import boundary
 - deletion safety
 
-Production gaps: XLSX binary parsing remains legacy; complete-room multi-admin concurrency remains unresolved.
+Sprint 5.5 resolves the modular XLSX/XLS/CSV parser and adds ETag protection for
+preview-to-confirm imports. Live Server and isolated real two-Admin evidence
+remain required before Production cutover.
 
 ### Sprint 3.6 — Teacher Service Foundation
 

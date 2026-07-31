@@ -14,8 +14,16 @@ class RoomRepository extends BaseRepository {
         return this.get(this.path("rooms"));
     }
 
+    loadRoomsWithEtag() {
+        return this.ensureService().getWithEtag(this.path("rooms"));
+    }
+
     saveRooms(rooms) {
         return this.set(this.path("rooms"), rooms);
+    }
+
+    replaceRoomsIfMatch(rooms, etag) {
+        return this.ensureService().setIfMatch(this.path("rooms"), rooms, etag);
     }
 
     async loadRoom(roomId) {

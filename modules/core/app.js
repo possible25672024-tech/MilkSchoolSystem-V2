@@ -16,7 +16,8 @@ class MilkSchoolApplication {
         adminReportView = window.AdminReportView,
         adminRoomView = window.AdminRoomView,
         adminDashboardView = window.AdminDashboardView,
-        adminReceiptView = window.AdminReceiptView
+        adminReceiptView = window.AdminReceiptView,
+        adminStudentView = window.AdminStudentView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -35,6 +36,7 @@ class MilkSchoolApplication {
         this.adminRoomView = adminRoomView;
         this.adminDashboardView = adminDashboardView;
         this.adminReceiptView = adminReceiptView;
+        this.adminStudentView = adminStudentView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -243,6 +245,17 @@ class MilkSchoolApplication {
         return this.adminReceiptView;
     }
 
+    async ensureAdminStudentView() {
+        if (!window.StudentImportParser) await import("../admin/studentImportParser.js");
+        if (!window.AdminStudentService) await import("../admin/adminStudentService.js");
+        if (!window.AdminStudentManager) await import("../admin/adminStudentManager.js");
+        if (!this.adminStudentView) {
+            await import("../admin/adminStudentView.js");
+            this.adminStudentView = window.AdminStudentView;
+        }
+        return this.adminStudentView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
@@ -291,6 +304,8 @@ class MilkSchoolApplication {
         if (adminDashboardView?.initialize) adminDashboardView.initialize();
         const adminReceiptView = await this.ensureAdminReceiptView();
         if (adminReceiptView?.initialize) adminReceiptView.initialize();
+        const adminStudentView = await this.ensureAdminStudentView();
+        if (adminStudentView?.initialize) adminStudentView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");
