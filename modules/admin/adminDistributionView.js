@@ -170,7 +170,24 @@ class AdminDistributionView {
         this.renderPreview();
     }
 
+    selectedRoom() {
+        const roomId = String(this.element("admin-distribution-room")?.value || "");
+        return this.manager.current?.rooms?.find(room => room.id === roomId) || null;
+    }
+
+    renderSelectedRoom() {
+        const room = this.selectedRoom();
+        const students = Number(room?.students) || 0;
+        this.setText("admin-distribution-students", room ? `${students} คน` : "—");
+        const studentCount = this.element("admin-distribution-student-count");
+        if (studentCount) studentCount.value = String(students);
+        const receiver = this.element("admin-distribution-receiver-name");
+        if (receiver && room && !receiver.value) receiver.value = room.teacher || "";
+        return room;
+    }
+
     renderPreview() {
+        this.renderSelectedRoom();
         try {
             const preview = this.manager.preview(this.formInput());
             this.setText("admin-distribution-students", `${preview.students} คน`);
@@ -182,16 +199,19 @@ class AdminDistributionView {
             this.setText("admin-distribution-stock-before", `${preview.mainStockBefore} กล่อง`);
             this.setText("admin-distribution-main-after", `${preview.mainStockAfter} กล่อง`);
             this.setText("admin-distribution-room-after", `${preview.roomStockBefore} → ${preview.roomStockAfter} กล่อง`);
-            const receiver = this.element("admin-distribution-receiver-name");
-            const room = this.manager.current?.rooms?.find(item => item.id === preview.roomId);
-            if (receiver && !receiver.value) receiver.value = room?.teacher || "";
-            this.showError("");
+            if (preview.hasSufficientMainStock === false) {
+                this.showError(`Main Stock ไม่เพียงพอ ขาดอีก ${preview.shortage} กล่อง ระบบยังคำนวณให้ตรวจสอบได้ แต่จะไม่อนุญาตให้บันทึก`);
+            } else {
+                this.showError("");
+            }
             return preview;
         } catch (error) {
-            this.setText("admin-distribution-students", "—");
-            this.setText("admin-distribution-summary-days", "—");
-            const studentCount = this.element("admin-distribution-student-count");
-            if (studentCount) studentCount.value = "0";
+            this.renderSelectedRoom();
+            const days = Number(this.element("admin-distribution-days")?.value);
+            this.setText(
+                "admin-distribution-summary-days",
+                Number.isInteger(days) && days > 0 ? `${days} วัน` : "—"
+            );
             this.setText("admin-distribution-total", "—");
             this.setText("admin-distribution-package", "—");
             this.setText("admin-distribution-stock-before", `${this.manager.current?.mainStock || 0} กล่อง`);
@@ -206,6 +226,10 @@ class AdminDistributionView {
         const preview = this.renderPreview();
         if (!preview) {
             this.showError("กรุณาเลือกห้อง วันที่ และจำนวนวันให้ถูกต้อง");
+            return;
+        }
+        if (preview.hasSufficientMainStock === false) {
+            this.showError(`ไม่สามารถจ่ายนมได้ เนื่องจาก Main Stock ขาดอีก ${preview.shortage} กล่อง`);
             return;
         }
         const message = [

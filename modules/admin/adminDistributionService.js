@@ -143,11 +143,17 @@ class AdminDistributionService {
         this.assertAdmin(adminSession);
         this.ensureDependencies();
         const room = model?.rooms?.find(candidate => candidate.id === String(input.roomId || ""));
-        const distribution = this.normalizeInput(input, room, model?.mainStock);
+        // A preview must remain visible even when Main Stock is insufficient.
+        // The guarded write still validates the latest stock again before save.
+        const distribution = this.normalizeInput(input, room);
+        const mainStockBefore = Number(model?.mainStock) || 0;
+        const mainStockAfter = mainStockBefore - distribution.total;
         return {
             ...distribution,
-            mainStockBefore: Number(model?.mainStock) || 0,
-            mainStockAfter: (Number(model?.mainStock) || 0) - distribution.total,
+            mainStockBefore,
+            mainStockAfter,
+            hasSufficientMainStock: mainStockAfter >= 0,
+            shortage: Math.max(0, -mainStockAfter),
             roomStockBefore: Number(room?.roomStock) || 0,
             roomStockAfter: (Number(room?.roomStock) || 0) + distribution.total
         };

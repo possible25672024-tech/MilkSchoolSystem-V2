@@ -52,7 +52,7 @@ assert.ok(rehearsal.includes("PRODUCTION REHEARSAL NOT EXECUTED"));
 assert.ok(rehearsal.includes("PRODUCTION_ROLLBACK_PLAN.md"));
 assert.match(
     sprint,
-    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance|5\.3-admin-dashboard|5\.4-stock-audit-receipts|5\.5-student-room-management|5\.6-room-distribution|5\.7-operational-reports|5\.7\.1-report-ordering|5\.8-admin-system-tools|5\.9-integration-security-uat|5\.9\.1-admin-parity-corrections|5\.9\.2-receipt-print-backup-fixes|5\.9\.3-a4-distribution-backup-optimization)`/,
+    /Current Branch: `feature\/sprint-(?:4\.9-teacher-parity-cutover|5\.0-admin-report-ui|5\.1-attendance-scalability|5\.2-admin-inline-attendance|5\.3-admin-dashboard|5\.4-stock-audit-receipts|5\.5-student-room-management|5\.6-room-distribution|5\.7-operational-reports|5\.7\.1-report-ordering|5\.8-admin-system-tools|5\.9-integration-security-uat|5\.9\.1-admin-parity-corrections|5\.9\.2-receipt-print-backup-fixes|5\.9\.3-a4-distribution-backup-optimization|6\.0-production-readiness-release)`/,
     "Sprint status must identify the accepted 4.9 branch or its approved successor"
 );
 assert.ok(

@@ -8,6 +8,19 @@ Last updated: 2026-08-01
 
 ## Current Sprint State
 
+Sprint 6.0 Production Readiness and Release has started on
+`feature/sprint-6.0-production-readiness-release`.
+
+- classroom selection now preserves and displays the saved student count even
+  when Main Stock is zero or insufficient;
+- manual days drive the complete preview without requiring sufficient stock;
+- the preview shows total boxes, crate/remainder, Main Stock before/after, Room
+  Stock before/after, and the exact shortage;
+- insufficient stock blocks submission, and the guarded Stock Service retains
+  the final latest-balance check before write;
+- Production actions remain blocked pending live browser and isolated Firebase
+  UAT plus explicit product-owner approval.
+
 Sprint 5.9.3 Receipt A4, Distribution Summary and Backup Profiles is automated
 PASS at 88/88.
 

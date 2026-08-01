@@ -4,11 +4,32 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-5.9.3-a4-distribution-backup-optimization`
+Current Branch: `feature/sprint-6.0-production-readiness-release`
 
 Current Version: V2
 
 ## Current Sprint
+
+Sprint 6.0 — Production Readiness and Release
+
+Status: **STARTED — DISTRIBUTION LIVE CALCULATION FIXED / AUTOMATED AND LIVE BROWSER VALIDATION IN PROGRESS**
+
+Approved predecessor: Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
+
+## Sprint 6.0 Current Boundary
+
+- selecting a classroom displays its saved real/configured student count even
+  when Main Stock is insufficient;
+- manually entered days calculate students × days, crate/remainder, Main Stock
+  before/after, and Room Stock before/after immediately;
+- an insufficient balance remains visible as a negative projection plus a
+  shortage warning, while submission stays blocked;
+- the guarded Stock Service still validates the latest balance before any write;
+- fast/full backup download work remains accepted from Sprint 5.9.3;
+- Production Restore, Production deployment, `main`, tag, cutover, and incident
+  closure remain blocked pending live and isolated UAT plus explicit approval.
+
+## Approved Predecessor
 
 Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
 

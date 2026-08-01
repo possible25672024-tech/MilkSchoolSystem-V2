@@ -1,5 +1,16 @@
 # Changelog
 
+## Sprint 6.0 — Production Readiness and Release
+
+- fixed classroom selection so the saved student count remains visible when
+  Main Stock is zero or insufficient;
+- kept the students × manually entered days preview available for total boxes,
+  crate/remainder, Main Stock before/after, and Room Stock before/after;
+- added an exact shortage warning and blocked submission while retaining the
+  guarded Stock Service latest-balance check;
+- started the final release-readiness sprint without authorizing Production
+  Restore, `main`, tag, deployment, cutover, or incident closure.
+
 ## Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
 
 - added A4 portrait printing to the explicitly viewed receipt detail;
