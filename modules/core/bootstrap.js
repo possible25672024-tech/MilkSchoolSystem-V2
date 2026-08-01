@@ -19,6 +19,12 @@ class Bootstrap {
                 window.FirebaseService.initialize(firebaseConfig);
             }
 
+            if (!window.FirebaseAuthService?.initialize) {
+                throw new Error("Firebase Authentication service is not available.");
+            }
+            window.FirebaseAuthService.initialize(firebaseConfig, window.FirebaseService);
+            await window.FirebaseAuthService.restoreAuth();
+
             if (!window.App?.start) {
                 throw new Error("Application start method is not available.");
             }

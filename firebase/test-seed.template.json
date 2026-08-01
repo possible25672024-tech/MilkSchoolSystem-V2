@@ -1,0 +1,64 @@
+{
+  "milkApp": {
+    "public": {
+      "loginDirectory": {
+        "schoolName": "โรงเรียนทดสอบ Sprint 6.4",
+        "accounts": {
+          "__admin__": {
+            "name": "ผู้ดูแลระบบ",
+            "authEmail": "admin@example.invalid"
+          },
+          "room_test_1": {
+            "name": "ป.1/1",
+            "teacher": "ครูทดสอบ",
+            "authEmail": "room-test-1@example.invalid"
+          }
+        }
+      },
+      "appSettings": {
+        "school": "โรงเรียนทดสอบ Sprint 6.4",
+        "year": "2569",
+        "semester": "1",
+        "perCrate": 36
+      }
+    },
+    "accessControl": {
+      "users": {
+        "REPLACE_WITH_ADMIN_FIREBASE_UID": {
+          "role": "admin",
+          "enabled": true
+        },
+        "REPLACE_WITH_TEACHER_FIREBASE_UID": {
+          "role": "teacher",
+          "roomId": "room_test_1",
+          "enabled": true
+        }
+      }
+    },
+    "settings": {
+      "school": "โรงเรียนทดสอบ Sprint 6.4",
+      "year": "2569",
+      "semester": "1",
+      "perCrate": 36
+    },
+    "rooms": {
+      "room_test_1": {
+        "id": "room_test_1",
+        "name": "ป.1/1",
+        "teacher": "ครูทดสอบ",
+        "students": {
+          "student_1": { "id": "student_1", "name": "นักเรียนทดสอบ" }
+        }
+      },
+      "room_test_2": {
+        "id": "room_test_2",
+        "name": "ป.1/2",
+        "teacher": "ครูห้องอื่น"
+      }
+    },
+    "roomStock": {
+      "room_test_1": 36,
+      "room_test_2": 72
+    }
+  }
+}

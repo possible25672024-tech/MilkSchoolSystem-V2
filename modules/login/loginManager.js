@@ -129,8 +129,7 @@ class LoginManager {
     }
 
     logout() {
-        this.authService.clearSession();
-        this.authService.clearParentAdminSession?.();
+        this.authService.signOut?.();
         this.currentUser = null;
 
         document.getElementById("app-panel")?.setAttribute("hidden", "");

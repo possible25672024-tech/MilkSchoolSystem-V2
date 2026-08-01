@@ -1,0 +1,116 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "milkApp": {
+      ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+      ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+      "public": {
+        "loginDirectory": {
+          ".read": true,
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'"
+        },
+        "appSettings": {
+          ".read": true,
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+          "adminPassword": { ".validate": false },
+          "teacherPassword": { ".validate": false },
+          "firebaseKey": { ".validate": false }
+        }
+      },
+      "accessControl": {
+        "users": {
+          "$uid": {
+            ".read": "auth != null && auth.uid == $uid && data.child('enabled').val() == true",
+            ".write": false,
+            ".validate": "newData.hasChildren(['role', 'enabled']) && (newData.child('role').val() == 'admin' || (newData.child('role').val() == 'teacher' && newData.child('roomId').isString()))"
+          }
+        }
+      },
+      "settings": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+        ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+        "adminPassword": { ".validate": false },
+        "teacherPassword": { ".validate": false },
+        "firebaseKey": { ".validate": false }
+      },
+      "rooms": {
+        "$roomId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && (root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin' || root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() == $roomId)",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+          "teacher": {
+            ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() == $roomId && newData.isString() && newData.val().length <= 120"
+          }
+        }
+      },
+      "roomStock": {
+        "$roomId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && (root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin' || root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() == $roomId)",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && (root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin' || root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() == $roomId) && newData.isNumber()"
+        }
+      },
+      "mcAttendance": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByKey == true && query.startAt == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() + '_' && query.endAt == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() + '_'",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && $recordId.beginsWith(root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() + '_')",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && $recordId.beginsWith(root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() + '_')"
+        },
+        ".indexOn": ["roomId"]
+      },
+      "absentMilk": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByChild == 'roomId' && query.equalTo == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && (data.exists() ? data.child('roomId').val() : newData.child('roomId').val()) == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() && (!newData.exists() || newData.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val())"
+        },
+        ".indexOn": ["roomId"]
+      },
+      "retroMilk": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByChild == 'roomId' && query.equalTo == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && (data.exists() ? data.child('roomId').val() : newData.child('roomId').val()) == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() && (!newData.exists() || newData.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val())"
+        },
+        ".indexOn": ["roomId"]
+      },
+      "vacationMilk": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByChild == 'roomId' && query.equalTo == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && (data.exists() ? data.child('roomId').val() : newData.child('roomId').val()) == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val() && (!newData.exists() || newData.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val())"
+        },
+        ".indexOn": ["roomId"]
+      },
+      "distributes": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByChild == 'roomId' && query.equalTo == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": false
+        },
+        ".indexOn": ["roomId"]
+      },
+      "stockTransactions": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && query.orderByChild == 'roomId' && query.equalTo == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && (!data.exists() || data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()) && newData.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()"
+        },
+        ".indexOn": ["roomId"]
+      },
+      "stockLog": {
+        "$recordId": {
+          ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()",
+          ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'teacher' && (!data.exists() || data.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()) && newData.child('roomId').val() == root.child('milkApp/accessControl/users').child(auth.uid).child('roomId').val()"
+        }
+      },
+      "updatedAt": {
+        ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true",
+        ".write": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true"
+      },
+      "$other": {
+        ".read": false,
+        ".write": false
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ const plan = fs.readFileSync("docs/SPRINT_6_3_UAT_SECURITY_READINESS.md", "utf8"
 const firebaseConfig = fs.readFileSync("config/firebase-config.js", "utf8");
 const loginService = fs.readFileSync("modules/services/loginService.js", "utf8");
 const authService = fs.readFileSync("modules/login/authService.js", "utf8");
+const firebaseAuthService = fs.readFileSync("modules/services/firebaseAuthService.js", "utf8");
 const adminService = fs.readFileSync("modules/admin/adminSystemService.js", "utf8");
 const adminRepository = fs.readFileSync("modules/repositories/adminSystemRepository.js", "utf8");
 const index = fs.readFileSync("index-v2.html", "utf8");
@@ -20,16 +21,21 @@ for (const marker of [
     "Sprint 6.4"
 ]) assert.ok(plan.includes(marker), `Sprint 6.3 readiness record is missing ${marker}`);
 
-assert.match(firebaseConfig, /authToken:\s*""/);
+assert.match(firebaseConfig, /firebase-email-password/);
 assert.match(firebaseConfig, /firebasedatabase\.app/);
-assert.match(loginService, /settings\.adminPassword/);
-assert.match(loginService, /settings\.teacherPassword/);
+assert.doesNotMatch(loginService, /settings\.adminPassword/);
+assert.doesNotMatch(loginService, /settings\.teacherPassword/);
+assert.match(loginService, /loadAuthorizedUser/);
+assert.match(firebaseAuthService, /accounts:signInWithPassword/);
+assert.match(firebaseAuthService, /refresh_token/);
 assert.match(authService, /sessionStorage/);
 assert.match(plan, /client-side password/i);
 assert.match(plan, /Firebase Authentication/i);
 assert.match(plan, /Firebase Rules/i);
 
 assert.match(adminService, /RESTORE_SAFETY_BACKUP_REQUIRED/);
+assert.match(adminService, /RESTORE_SECURITY_CONTEXT_REQUIRED/);
+assert.match(adminService, /RESTORE_LEGACY_SECRET_BLOCKED/);
 assert.match(adminService, /RESTORE_CONFIRMATION_INVALID/);
 assert.match(adminService, /CORE_BACKUP_RESTORE_BLOCKED/);
 assert.match(adminRepository, /restoreRootIfMatch/);

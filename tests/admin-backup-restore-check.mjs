@@ -3,8 +3,13 @@ import fs from "node:fs";
 import vm from "node:vm";
 
 const source = fs.readFileSync("modules/admin/adminSystemService.js", "utf8");
-const admin = { role: "admin", username: "owner" };
+const admin = { role: "admin", username: "owner", firebaseUid: "uid-admin" };
 const root = {
+    public: {
+        loginDirectory: { schoolName: "โรงเรียนทดสอบ", accounts: {} },
+        appSettings: { school: "โรงเรียนทดสอบ", perCrate: 36 }
+    },
+    accessControl: { users: { "uid-admin": { role: "admin", enabled: true } } },
     settings: { school: "โรงเรียนทดสอบ", perCrate: 36 },
     stock: 500,
     rooms: { r1: { id: "r1", name: "ป.1-1" } },
@@ -68,6 +73,15 @@ const result = await service.restoreBackup(admin, preview, {
 assert.equal(result.restored, true);
 assert.equal(restoreEtag, "root-etag-1", "Restore must use preview ETag");
 assert.ok(restored.systemAudit.restores[result.restoreId], "Restore must record an audit entry");
+
+const insecure = structuredClone(backup.envelope);
+delete insecure.data.accessControl;
+insecure.integrity.checksum = await service.checksumData(insecure.data);
+const insecurePreview = await service.validateBackup(admin, insecure);
+await assert.rejects(
+    service.restoreBackup(admin, insecurePreview, { confirmation: "กู้คืนข้อมูล", safetyBackupReady: true }),
+    error => error.code === "RESTORE_SECURITY_CONTEXT_REQUIRED"
+);
 
 const tampered = structuredClone(backup.envelope);
 tampered.data.stock = 999;

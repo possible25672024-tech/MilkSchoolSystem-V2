@@ -91,19 +91,23 @@ assert.equal(firebaseFetchCount, 4, "Different room queries must remain independ
 let loginRepositoryCalls = 0;
 let loginClock = 1000;
 const loginRepository = {
-    async loadLoginContext() {
+    async loadPublicLoginDirectory() {
         loginRepositoryCalls += 1;
         return {
-            settings: {
-                school: "โรงเรียนทดสอบ",
-                adminPassword: "admin-pass",
-                teacherPassword: "teacher-pass"
-            },
-            rooms: [
-                { id: "r1", name: "อ.3-1", teacher: "ครูหนึ่ง" }
-            ]
+            schoolName: "โรงเรียนทดสอบ",
+            accounts: {
+                __admin__: { name: "ผู้ดูแลระบบ", authEmail: "admin@example.invalid" },
+                r1: { name: "อ.3-1", teacher: "ครูหนึ่ง", authEmail: "r1@example.invalid" }
+            }
         };
-    }
+    },
+    async loadAuthorizedUser() { return { role: "admin", enabled: true }; },
+    async loadSettings() { return { school: "โรงเรียนทดสอบ" }; },
+    async loadRoom() { return null; }
+};
+const loginAuth = {
+    async signIn(email) { return { uid: "uid-admin", email }; },
+    signOut() {}
 };
 const loginContext = {
     window: { LoginRepository: null },
@@ -117,7 +121,7 @@ const loginContext = {
 };
 vm.runInNewContext(loginServiceCode, loginContext);
 const LoginService = loginContext.window.LoginService.constructor;
-const loginService = new LoginService(loginRepository, {
+const loginService = new LoginService(loginRepository, loginAuth, {
     clock: () => loginClock,
     cacheTtlMs: 1000
 });
@@ -130,7 +134,7 @@ assert.equal(loginRepositoryCalls, 1, "Repeated login-option reads inside the TT
 assert.equal(cachedOptions.rooms[0].name, "อ.3-1", "Login cache must not be mutated by consumers");
 const adminLogin = await loginService.login("__admin__", "admin-pass");
 assert.equal(adminLogin.ok, true, "Cached login context must preserve Admin authentication");
-assert.equal(loginRepositoryCalls, 1, "Credential validation after room-option loading must not download settings and rooms again");
+assert.equal(loginRepositoryCalls, 1, "Credential validation must reuse the cached public login directory");
 loginClock = 2501;
 await loginService.loadLoginOptions();
 assert.equal(loginRepositoryCalls, 2, "Expired login context must reload from the repository");
@@ -139,8 +143,8 @@ const teacherCalls = [];
 const teacherFirebase = {
     get(pathName, query = {}) {
         teacherCalls.push({ path: pathName, query: { ...query } });
-        if (pathName.endsWith("/rooms")) {
-            return Promise.resolve([{ id: "r1", name: "อ.3-1", students: [] }]);
+        if (pathName.endsWith("/rooms/r1")) {
+            return Promise.resolve({ id: "r1", name: "อ.3-1", students: [] });
         }
         if (pathName.includes("roomStock/")) {
             return Promise.resolve(12);
@@ -184,6 +188,10 @@ teacherCalls.length = 0;
 const fullSnapshot = await teacherRepository.loadTeacherSnapshot("r1", { includeExtras: true });
 assert.equal(teacherCalls.length, 10, "Explicit full Teacher snapshot must load the five deferred collections in addition to core data");
 assert.equal(fullSnapshot.extrasLoaded, true, "Explicit full Teacher snapshot must declare complete extras");
+for (const deferredPath of ["distributes", "absentMilk", "retroMilk", "vacationMilk", "stockTransactions"]) {
+    const call = teacherCalls.find(item => item.path.endsWith(`/${deferredPath}`));
+    assert.deepEqual(call?.query, { orderBy: "roomId", equalTo: "r1" }, `${deferredPath} must use an authenticated-room query`);
+}
 
 const managerOptions = [];
 const managerEvents = [];

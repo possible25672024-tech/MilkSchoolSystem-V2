@@ -4,37 +4,43 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-6.3-uat-security-readiness`
+Current Branch: `feature/sprint-6.4-firebase-auth-rules-uat`
 
 Current Version: V2
 
 ## Current Sprint
 
+Sprint 6.4 — Firebase Authentication, Security Rules and UAT
+
+Status: **PARTIAL PASS — 100/100 AUTOMATED / AUTH IMPLEMENTED / EXTERNAL RULES AND LIVE UAT BLOCKED**
+
+Approved predecessor: Sprint 6.3 — UAT, Security and Isolated Restore Readiness
+
+## Sprint 6.4 Current Boundary
+
+- Firebase Email/Password REST authentication, ID-token refresh, restore, and
+  sign-out are implemented without storing a password;
+- compatible sessions are bound to the authenticated Firebase UID;
+- browser-side Admin/Teacher password comparison and static database secrets
+  are removed from the V2 runtime;
+- Teacher reads use authenticated-room queries;
+- deny-by-default active Rules, freeze-writes rollback Rules, an Emulator UAT,
+  and a destructive real isolated-project Backup/Restore UAT are included;
+- all 100 discovered regression checks pass;
+- official Rules Emulator execution is blocked because its Java artifact could
+  not be downloaded through this environment's network boundary;
+- real isolated-project and Live Browser evidence remain blocked because no
+  test project/configuration or browser executable is available;
+- the quarantined room/date incident remains open;
+- no Rules were deployed and Production Restore, deployment, `main`, tag, and
+  cutover remain blocked;
+- final release status is **NOT READY FOR DEPLOYMENT**.
+
+## Approved Predecessor
+
 Sprint 6.3 — UAT, Security and Isolated Restore Readiness
 
 Status: **PARTIAL PASS — 95/95 AUTOMATED / LOCAL ISOLATED RESTORE PASS / EXTERNAL RELEASE GATES BLOCKED**
-
-Approved predecessor: Sprint 6.2 — Safe PDF Upload Optimization
-
-## Sprint 6.3 Current Boundary
-
-- Live HTTP serves the complete V2 page and eager/lazy runtime assets;
-- Responsive source contracts cover Desktop, Tablet, and Phone breakpoints,
-  overflow containment, 44 px controls, and unique HTML IDs;
-- full Backup/Restore passes against a disposable localhost
-  Firebase REST-compatible instance with SHA-256, root ETag, Restore audit, and
-  stale-preview conflict rejection;
-- the isolated rehearsal contacts no Production Firebase host;
-- all 95 discovered regression checks pass;
-- real Live Browser evidence remains blocked because this environment has no
-  installed browser executable;
-- a real Google Firebase test-project rehearsal remains blocked because no
-  isolated project/configuration was provided;
-- server-side authorization remains a critical blocker because current login
-  passwords and sessions are verified in client JavaScript and no deployed
-  Firebase Authentication/Rules evidence exists;
-- the quarantined room/date incident remains open;
-- Production Restore, deployment, `main`, tag, and cutover remain blocked.
 
 ## Approved Predecessor
 

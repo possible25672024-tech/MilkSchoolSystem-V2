@@ -1,6 +1,7 @@
 class AuthService {
-    constructor(loginService = window.LoginService) {
+    constructor(loginService = window.LoginService, firebaseAuthService = window.FirebaseAuthService) {
         this.loginService = loginService;
+        this.firebaseAuthService = firebaseAuthService;
         this.sessionKey = "milkApp_loginSession";
         this.parentAdminSessionKey = "milkApp_parentAdminSession";
     }
@@ -40,7 +41,8 @@ class AuthService {
             }
 
             const session = JSON.parse(raw);
-            if (!session?.classId || !session?.role) {
+            const auth = this.firebaseAuthService?.getCurrentAuth?.();
+            if (!session?.classId || !session?.role || !session?.firebaseUid || auth?.uid !== session.firebaseUid) {
                 this.clearSession();
                 return null;
             }
@@ -86,6 +88,12 @@ class AuthService {
 
     isAuthenticated() {
         return Boolean(this.getSession());
+    }
+
+    signOut() {
+        this.clearSession();
+        this.clearParentAdminSession();
+        this.firebaseAuthService?.signOut?.();
     }
 }
 

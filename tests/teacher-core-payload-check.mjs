@@ -26,22 +26,28 @@ const loginContext = {
 vm.runInNewContext(loginServiceCode, loginContext);
 const LoginService = loginContext.window.LoginService.constructor;
 const loginService = new LoginService({
-    async loadLoginContext() {
+    async loadPublicLoginDirectory() {
         return {
-            settings: {
-                school: "โรงเรียนทดสอบ",
-                teacherPassword: "1234"
-            },
-            rooms: [
-                {
-                    id: "r1",
-                    name: "อ.3-1",
-                    teacher: "ครูหนึ่ง",
-                    students: [{ id: "s1", name: "นักเรียนหนึ่ง" }]
-                }
-            ]
+            schoolName: "โรงเรียนทดสอบ",
+            accounts: {
+                __admin__: { name: "ผู้ดูแลระบบ", authEmail: "admin@example.invalid" },
+                r1: { name: "อ.3-1", teacher: "ครูหนึ่ง", authEmail: "r1@example.invalid" }
+            }
+        };
+    },
+    async loadAuthorizedUser() { return { role: "teacher", roomId: "r1", enabled: true }; },
+    async loadSettings() { return { school: "โรงเรียนทดสอบ" }; },
+    async loadRoom() {
+        return {
+            id: "r1",
+            name: "อ.3-1",
+            teacher: "ครูหนึ่ง",
+            students: [{ id: "s1", name: "นักเรียนหนึ่ง" }]
         };
     }
+}, {
+    async signIn(email) { return { uid: "uid-r1", email }; },
+    signOut() {}
 });
 const loginResult = await loginService.login("r1", "1234");
 assert.equal(loginResult.ok, true, "Teacher login fixture must succeed");
@@ -53,7 +59,7 @@ const firebase = {
     get(pathName, query = {}) {
         calls.push({ path: pathName, query: { ...query } });
 
-        if (pathName.endsWith("/settings")) {
+        if (pathName.endsWith("/public/appSettings")) {
             return Promise.resolve({ school: "โรงเรียนทดสอบ" });
         }
         if (pathName.endsWith("/rooms")) {

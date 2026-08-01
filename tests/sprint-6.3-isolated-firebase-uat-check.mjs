@@ -6,6 +6,11 @@ import vm from "node:vm";
 
 const clone = value => structuredClone(value);
 const initialRoot = {
+    public: {
+        loginDirectory: { schoolName: "โรงเรียนทดสอบ Sprint 6.3", accounts: {} },
+        appSettings: { school: "โรงเรียนทดสอบ Sprint 6.3", year: "2569", semester: "1", perCrate: 36 }
+    },
+    accessControl: { users: { "uid-uat-admin": { role: "admin", enabled: true } } },
     settings: {
         school: "โรงเรียนทดสอบ Sprint 6.3",
         year: "2569",
@@ -179,7 +184,7 @@ try {
     const service = new Service(repository, {
         clock: () => new Date("2026-08-01T08:00:00.000+07:00")
     });
-    const admin = { role: "admin", isAdmin: true, username: "uat-admin" };
+    const admin = { role: "admin", isAdmin: true, username: "uat-admin", firebaseUid: "uid-uat-admin" };
 
     const backup = await service.createBackup(admin, "sprint-6.3-isolated-uat", "full");
     assert.equal(backup.envelope.profile, "full");

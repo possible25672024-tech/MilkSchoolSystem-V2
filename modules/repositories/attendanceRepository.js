@@ -114,8 +114,13 @@ class AttendanceRepository extends BaseRepository {
         // A room-prefix query still returns those children and can exceed the
         // Firebase response limit. Read only the shallow key index first, then
         // hydrate the small `/data` child for each matching room/date.
-        const keyIndex = await this.get(this.path("mcAttendance"), { shallow: true });
         const prefix = `${normalizedRoomId}_`;
+        const keyIndex = await this.get(this.path("mcAttendance"), {
+            orderBy: "$key",
+            startAt: prefix,
+            endAt: `${prefix}\uf8ff`,
+            shallow: true
+        });
         const keys = Object.keys(keyIndex || {})
             .filter(key => (
                 key.startsWith(prefix) &&

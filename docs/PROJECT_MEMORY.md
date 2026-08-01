@@ -8,6 +8,22 @@ Last updated: 2026-08-01
 
 ## Current Sprint State
 
+Sprint 6.4 Firebase Authentication, Security Rules and UAT is partial PASS at
+100/100 on `feature/sprint-6.4-firebase-auth-rules-uat`.
+
+- Firebase Email/Password now issues the ID token used by Realtime Database;
+- session restore and refresh remain session-scoped and never store passwords;
+- UID authorization profiles enforce Admin versus Teacher room identity;
+- legacy browser password comparison and static database-secret loading are
+  removed from V2;
+- active and freeze-writes rollback Rules plus Emulator and real-project UAT
+  programs are included;
+- official Emulator execution, real isolated-project rehearsal, and Live
+  Browser evidence remain external blockers and are not claimed as PASS;
+- no Rules, Production, `main`, tag, Restore, or cutover action was performed;
+- room `mqn0z13eyx5b` on `2026-07-28` remains quarantined;
+- final status is **NOT READY FOR DEPLOYMENT**.
+
 Sprint 6.3 UAT, Security and Isolated Restore Readiness is partial PASS at
 95/95 on `feature/sprint-6.3-uat-security-readiness`.
 

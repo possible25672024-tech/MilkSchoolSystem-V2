@@ -32,15 +32,19 @@ Modules:
 - `modules/login/loginManager.js`
 - `modules/login/authService.js`
 - `modules/services/loginService.js`
+- `modules/services/firebaseAuthService.js`
 - `modules/repositories/loginRepository.js`
 
 Completed boundary:
 
-- Admin and Teacher login
-- compatible session storage
-- cached settings and rooms context
+- Firebase Email/Password Admin and Teacher login
+- short-lived ID token and session-scoped refresh token
+- compatible session storage bound to Firebase UID
+- public password-free login directory cache
+- server authorization profile under `accessControl/users/{uid}`
 - authenticated Teacher room snapshot
 - Admin and Teacher role routing
+- no browser comparison of Admin/Teacher operational passwords
 
 ### Firebase Foundation — Completed
 
@@ -49,6 +53,8 @@ Modules:
 - `modules/services/firebaseService.js`
 - `modules/repositories/baseRepository.js`
 - `modules/config/configManager.js`
+- `firebase/database.rules.json`
+- `firebase/database.rules.rollback.json`
 
 Completed boundary:
 
@@ -59,6 +65,9 @@ Completed boundary:
 - ETag reads through `X-Firebase-ETag: true`
 - conditional writes through `If-Match`
 - HTTP 412 conflict exposure
+- dynamic Firebase ID token on every REST request
+- deny-by-default Admin/Teacher room-scoped Rules
+- safe freeze-writes rollback Rules
 
 ### Stock — Sprint 5.6 Distribution Gate Active
 

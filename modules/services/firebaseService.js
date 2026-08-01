@@ -2,6 +2,7 @@ class FirebaseService {
     constructor() {
         this.databaseURL = "";
         this.authToken = "";
+        this.authTokenProvider = null;
         this.requestTimeoutMs = 15000;
         this.inflightGets = new Map();
     }
@@ -10,9 +11,7 @@ class FirebaseService {
         this.databaseURL = String(
             config.databaseURL || window.ConfigManager?.getDatabaseURL?.() || ""
         ).trim().replace(/\/+$/, "");
-        this.authToken = String(
-            config.authToken || window.ConfigManager?.getAuthToken?.() || ""
-        ).trim();
+        this.authToken = "";
         this.requestTimeoutMs = Number(config.requestTimeoutMs) || 15000;
         this.inflightGets.clear();
 
@@ -25,6 +24,25 @@ class FirebaseService {
 
     isConfigured() {
         return Boolean(this.databaseURL || window.ConfigManager?.getDatabaseURL?.());
+    }
+
+    setAuthToken(token = "") {
+        const normalized = String(token || "").trim();
+        if (normalized !== this.authToken) this.inflightGets.clear();
+        this.authToken = normalized;
+        return this;
+    }
+
+    setAuthTokenProvider(provider = null) {
+        this.authTokenProvider = typeof provider === "function" ? provider : null;
+        return this;
+    }
+
+    async refreshAuthToken() {
+        if (!this.authTokenProvider) return this.authToken;
+        const token = await this.authTokenProvider();
+        this.setAuthToken(token || "");
+        return this.authToken;
     }
 
     encodeQueryValue(value) {
@@ -79,6 +97,7 @@ class FirebaseService {
     }
 
     async performRequest(path, options = {}, query = {}) {
+        await this.refreshAuthToken();
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
         const method = String(options.method || "GET").toUpperCase();

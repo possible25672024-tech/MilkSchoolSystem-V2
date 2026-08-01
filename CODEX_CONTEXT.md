@@ -36,7 +36,34 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
 
-Current Sprint 6.2 boundary:
+Current Sprint 6.4 boundary:
+
+- Firebase Email/Password REST authentication owns sign-in and short-lived ID
+  token refresh;
+- compatible browser sessions are bound to the current Firebase UID;
+- authorization profiles distinguish Admin from a Teacher's exact room;
+- legacy Admin/Teacher password comparison and static database-secret loading
+  are removed from V2;
+- Teacher collection reads use room-scoped queries compatible with Rules;
+- active deny-by-default Rules and freeze-writes rollback Rules are included;
+- automated regression passes 100/100;
+- official Emulator, real isolated Firebase project, and Live Browser UAT remain
+  external blockers and are not represented as PASS;
+- no Production, Rules deployment, `main`, tag, Restore, or cutover action is
+  authorized;
+- protected legacy files, Stock ownership, data quarantine, and rollback remain
+  intact;
+- final status: **NOT READY FOR DEPLOYMENT**.
+
+Preserved Sprint 6.3 boundary:
+
+- Live HTTP and Responsive source gates pass;
+- local Firebase-compatible Backup/Restore and stale ETag rejection pass;
+- the local rehearsal contacted no Production host;
+- automated regression passed 95/95;
+- real Browser and Google Firebase evidence remained blocked.
+
+Preserved Sprint 6.2 boundary:
 
 - eligible new PDFs use lossless structural optimization before Cloud upload;
 - output must reopen with the same page count and save at least 4 KB and 1%;

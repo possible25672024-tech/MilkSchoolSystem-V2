@@ -4,7 +4,7 @@ Date initialized: 2026-07-28
 
 Last updated: 2026-08-01
 
-Active parity branch: `feature/sprint-4.9-teacher-parity-cutover`
+Active readiness branch: `feature/sprint-6.4-firebase-auth-rules-uat`
 
 Decision register: `docs/CUTOVER_DECISIONS.md`
 
@@ -53,7 +53,7 @@ Status values:
 | Complete Teacher navigation | `teacher.html` | TeacherParityView | PARTIAL | 12-item navigation + responsive | all 12 items present in automated gate; local responsive evidence pending |
 | Backup | legacy Admin workflow | Admin System Service + documented cutover process | PARTIAL | Firebase export verification | full app Backup and local Firebase-compatible REST rehearsal pass; real isolated Google Firebase export remains required under D-09 |
 | Restore | legacy Admin workflow | ETag-guarded Admin System Restore + rollback plan | PARTIAL | isolated restore rehearsal | local full-root Restore, audit, and stale-ETag rejection pass; real isolated Google Firebase project/Rules rehearsal remains required under D-09 |
-| Server-side authorization | legacy client password comparison | Firebase Authentication + Rules target | BLOCKED | anonymous/admin/teacher/cross-room allow-deny evidence | current browser password comparison and sessionStorage session do not authorize Firebase REST access; no deployable Rules and rollback Rules version are present |
+| Server-side authorization | legacy client password comparison | Firebase Authentication + UID profiles + Rules | PARTIAL | official Emulator and real-project anonymous/admin/teacher/cross-room allow-deny evidence | runtime implementation, active Rules, rollback Rules, and automated contracts exist; official Emulator, real isolated project, and Live Browser evidence remain blocked |
 | Desktop performance | legacy/V2 comparison | Sprint 3.9 | PASS | Network evidence | observed 4 requests / approximately 1.6 KB core refresh |
 | Desktop browser shell | legacy/V2 comparison | `index-v2.html` | PASS | Admin, Teacher, Logout, Console | recorded desktop workflow passes |
 | 820 x 1180 responsive shell | legacy/V2 comparison | `index-v2.html` | PASS | Teacher login, Logout, Console, layout | complete current-shell workflow passes |

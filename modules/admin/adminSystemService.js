@@ -294,6 +294,32 @@ class AdminSystemService {
         return true;
     }
 
+    validateSecureRestoreBoundary(session, data) {
+        const uid = String(session?.firebaseUid || "").trim();
+        const profile = uid ? data?.accessControl?.users?.[uid] : null;
+        if (!uid || profile?.role !== "admin" || profile?.enabled !== true) {
+            throw this.businessError(
+                "RESTORE_SECURITY_CONTEXT_REQUIRED",
+                "ไฟล์สำรองต้องคง Firebase UID ของผู้ดูแลและโปรไฟล์ Admin ที่เปิดใช้งาน"
+            );
+        }
+        if (!data?.public?.loginDirectory || !data?.public?.appSettings) {
+            throw this.businessError(
+                "RESTORE_SECURITY_CONTEXT_REQUIRED",
+                "ไฟล์สำรองไม่มี public login directory หรือ safe app settings"
+            );
+        }
+        for (const key of ["adminPassword", "teacherPassword", "firebaseKey"]) {
+            if (Object.prototype.hasOwnProperty.call(data.settings || {}, key)) {
+                throw this.businessError(
+                    "RESTORE_LEGACY_SECRET_BLOCKED",
+                    "ไฟล์สำรองยังมีรหัสผ่านหรือ Firebase key แบบเดิม จึงห้ามกู้คืน"
+                );
+            }
+        }
+        return true;
+    }
+
     async createBackup(session, purpose = "download", profile = "full") {
         this.assertAdmin(session);
         const normalizedProfile = profile === "core" ? "core" : "full";
@@ -379,6 +405,7 @@ class AdminSystemService {
                 "ไฟล์ข้อมูลหลักแบบเร็วใช้ตรวจสอบและเก็บประจำวัน แต่ไม่ใช้เขียนทับฐานทั้งก้อน กรุณาเลือกไฟล์สำรองครบถ้วน"
             );
         }
+        this.validateSecureRestoreBoundary(session, preview.envelope.data);
         const restoreId = `restore_${this.clock().getTime()}`;
         const restoredData = {
             ...preview.envelope.data,

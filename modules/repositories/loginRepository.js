@@ -8,27 +8,39 @@ class LoginRepository extends BaseRepository {
         return `${this.appRoot}/${String(child || "").replace(/^\/+/, "")}`;
     }
 
+    loadPublicLoginDirectory() {
+        return this.get(this.path("public/loginDirectory"));
+    }
+
+    loadAuthorizedUser(uid) {
+        const normalized = String(uid || "").trim();
+        if (!normalized) throw new Error("An authenticated Firebase UID is required.");
+        return this.get(this.path(`accessControl/users/${normalized}`));
+    }
+
     loadSettings() {
         return this.get(this.path("settings"));
     }
 
-    loadRooms() {
-        return this.get(this.path("rooms"));
+    loadRoom(roomId) {
+        const normalized = String(roomId || "").trim();
+        if (!normalized || normalized === "__admin__") {
+            throw new Error("A valid room id is required.");
+        }
+        return this.get(this.path(`rooms/${normalized}`));
     }
 
-    loadUsers() {
-        return this.get(this.path("users"));
-    }
-
-    async loadLoginContext() {
-        const [settings, rooms] = await Promise.all([
+    async loadAuthenticatedContext(uid, roomId = null) {
+        const profile = await this.loadAuthorizedUser(uid);
+        const [settings, room] = await Promise.all([
             this.loadSettings(),
-            this.loadRooms()
+            roomId ? this.loadRoom(roomId) : Promise.resolve(null)
         ]);
 
         return {
+            profile: profile || null,
             settings: settings || {},
-            rooms: rooms || []
+            room: room || null
         };
     }
 }

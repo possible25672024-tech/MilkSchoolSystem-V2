@@ -1,5 +1,11 @@
 # MilkSchoolSystem V2
 
+Current release-security records:
+
+- `SPRINT_6_4_FIREBASE_AUTH_RULES_UAT.md`
+- `FIREBASE_AUTH_RULES_UAT_GUIDE.md`
+- `SPRINT_6_3_UAT_SECURITY_READINESS.md`
+
 ## Overview
 
 MilkSchoolSystem V2 is a configurable school milk management platform.

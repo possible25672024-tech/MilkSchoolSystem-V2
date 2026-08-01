@@ -1,5 +1,22 @@
 # Changelog
 
+## Sprint 6.4 — Firebase Authentication, Security Rules and UAT
+
+- replaced browser password comparison with Firebase Email/Password ID-token
+  authentication, refresh, restore, and sign-out;
+- bound compatible sessions to Firebase UID authorization profiles;
+- removed static database-secret loading and plaintext Admin/Teacher password
+  checks from V2 runtime;
+- changed Teacher collection reads to room-scoped queries;
+- added deny-by-default active Rules and freeze-writes rollback Rules;
+- added official Emulator and real isolated-project allow/deny plus
+  Backup/Restore UAT programs;
+- raised automated regression to 100/100;
+- recorded Emulator artifact download, real test project, Live Browser, data
+  incident, and explicit Production approval as remaining blockers;
+- changed no protected legacy page and performed no deployment or Production
+  request.
+
 ## Sprint 6.3 — UAT, Security and Isolated Restore Readiness
 
 - added a disposable Firebase REST-compatible Backup/Restore rehearsal with

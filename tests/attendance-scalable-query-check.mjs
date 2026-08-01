@@ -13,8 +13,8 @@ const adminServiceSource = read("modules/admin/adminRoomService.js");
 
 assert.doesNotThrow(() => new vm.Script(repositorySource));
 assert.ok(
-    repositorySource.includes('{ shallow: true }'),
-    "Scalable Attendance history must read a shallow key index before record children"
+    repositorySource.includes('orderBy: "$key"') && repositorySource.includes("shallow: true"),
+    "Scalable Attendance history must read a room-scoped shallow key index before record children"
 );
 assert.ok(
     repositorySource.includes("mcAttendance/${key}/data"),
@@ -43,7 +43,12 @@ const firebaseService = {
                 true,
                 "The Attendance collection must use a shallow key index"
             );
-            assert.deepEqual(Object.keys(query), ["shallow"]);
+            assert.equal(JSON.stringify(query), JSON.stringify({
+                orderBy: "$key",
+                startAt: "room-1_",
+                endAt: "room-1_\uf8ff",
+                shallow: true
+            }));
             return {
                 "room-1_2026-07-01": true,
                 "room-1_2026-07-02": true,
