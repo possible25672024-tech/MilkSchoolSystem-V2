@@ -16,6 +16,8 @@
   incident, and explicit Production approval as remaining blockers;
 - changed no protected legacy page and performed no deployment or Production
   request.
+- added Git attributes that preserve byte-exact vendored PDF/XLSX libraries on
+  Windows checkouts and prevent the prior LF-to-CRLF integrity mismatch.
 
 ## Sprint 6.3 — UAT, Security and Isolated Restore Readiness
 

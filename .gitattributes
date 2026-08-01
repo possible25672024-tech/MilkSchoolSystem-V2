@@ -1,0 +1,10 @@
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+
+# Vendored minified assets are integrity-checked byte for byte.
+assets/vendor/pdf-lib.min.js -text
+assets/vendor/xlsx.full.min.js -text

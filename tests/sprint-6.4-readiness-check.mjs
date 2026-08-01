@@ -10,6 +10,7 @@ const auth = read("modules/services/firebaseAuthService.js");
 const login = read("modules/services/loginService.js");
 const firebase = read("modules/services/firebaseService.js");
 const realProject = read("tests/firebase-real-test-project-uat.mjs");
+const attributes = read(".gitattributes");
 const indexHash = crypto.createHash("sha256").update(fs.readFileSync("index.html")).digest("hex");
 const teacherHash = crypto.createHash("sha256").update(fs.readFileSync("teacher.html")).digest("hex");
 
@@ -36,6 +37,8 @@ assert.match(guide, /ISOLATED_TEST_PROJECT/);
 assert.match(realProject, /assert\.notEqual\(databaseURL, productionURL/);
 assert.match(realProject, /realtime-database-9fc52/);
 assert.match(realProject, /status, 412/);
+assert.match(attributes, /assets\/vendor\/pdf-lib\.min\.js -text/);
+assert.match(attributes, /assets\/vendor\/xlsx\.full\.min\.js -text/);
 assert.equal(indexHash, "bba9948bc8b7bb0334b1da552490d3ae085b960c983346f6690739a7dfb3c365");
 assert.equal(teacherHash, "7c64cdc8777b7303281263cfb414b427b7fc1395c5aa65673c40a51b6591a154");
 
