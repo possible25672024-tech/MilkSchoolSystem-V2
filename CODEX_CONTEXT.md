@@ -36,7 +36,21 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
 
-Current Sprint 6.4 boundary:
+Current Sprint 6.5 boundary:
+
+- external UAT and approval controls are repeatable and fail closed;
+- official Emulator requires Java 21+ and its external artifact;
+- real-project UAT requires an explicitly confirmed isolated Firebase project;
+- incident `INC-2026-07-28-MQN0Z13EYX5B` has a read-only Backup audit but
+  remains open without authoritative evidence and signed disposition;
+- Production approval is bound to the exact commit and separately names every
+  release action;
+- automated regression passes 101/101;
+- blocker 3 Live Browser/device evidence remains mandatory;
+- no Production, Rules, `main`, tag, Restore, repair, or cutover is authorized;
+- final status: **NOT READY FOR DEPLOYMENT**.
+
+Preserved Sprint 6.4 boundary:
 
 - Firebase Email/Password REST authentication owns sign-in and short-lived ID
   token refresh;

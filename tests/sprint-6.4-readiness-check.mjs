@@ -23,7 +23,10 @@ for (const marker of [
     "2026-07-28"
 ]) assert.ok(plan.includes(marker), `Sprint 6.4 report is missing ${marker}`);
 
-assert.match(status, /Current Branch: `feature\/sprint-6\.4-firebase-auth-rules-uat`/);
+assert.match(
+    status,
+    /Current Branch: `feature\/sprint-(?:6\.4-firebase-auth-rules-uat|6\.5-deployment-closure)`/
+);
 assert.match(auth, /accounts:signInWithPassword/);
 assert.match(auth, /refresh_token/);
 assert.match(login, /firebase-uid-profile/);

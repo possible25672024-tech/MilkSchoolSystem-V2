@@ -4,17 +4,42 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-6.4-firebase-auth-rules-uat`
+Current Branch: `feature/sprint-6.5-deployment-closure`
 
 Current Version: V2
 
 ## Current Sprint
 
+Sprint 6.5 — External UAT, Incident Closure and Production Approval
+
+Status: **GATES IMPLEMENTED / EXTERNAL EXECUTION AND APPROVAL PENDING**
+
+Approved predecessor: Sprint 6.4 — Firebase Authentication, Security Rules and UAT
+
+## Sprint 6.5 Current Boundary
+
+- one PowerShell gate now enforces Java 21+, a clean Sprint 6.5 branch,
+  official Rules Emulator UAT, isolated real-project UAT, room-incident audit,
+  and full regression in a fixed order;
+- room `mqn0z13eyx5b` on `2026-07-28` has a read-only SHA-256-bound forensic
+  audit and explicit closure requirements;
+- the Production approval template separates `main`, tag, Rules, application,
+  traffic cutover, and post-release authorization;
+- approval verification is bound to the exact release commit and performs no
+  deployment action;
+- all 101 discovered regression checks pass;
+- official Emulator execution, Firebase test-project credentials/evidence,
+  authoritative incident Backup, Live Browser/device evidence, and signed
+  Production approval remain unavailable;
+- no Rules, Production, `main`, tag, Restore, incident repair, or cutover action
+  was performed;
+- final release status is **NOT READY FOR DEPLOYMENT**.
+
+## Approved Predecessor
+
 Sprint 6.4 — Firebase Authentication, Security Rules and UAT
 
 Status: **PARTIAL PASS — 100/100 AUTOMATED / AUTH IMPLEMENTED / EXTERNAL RULES AND LIVE UAT BLOCKED**
-
-Approved predecessor: Sprint 6.3 — UAT, Security and Isolated Restore Readiness
 
 ## Sprint 6.4 Current Boundary
 

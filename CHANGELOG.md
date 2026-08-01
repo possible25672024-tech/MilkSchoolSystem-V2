@@ -1,5 +1,13 @@
 # Changelog
 
+## Sprint 6.5 — External UAT and deployment closure gates
+
+- add one-command external Rules/project/incident/regression gate;
+- add read-only forensic audit for room `mqn0z13eyx5b` on `2026-07-28`;
+- add commit-bound Production approval template and verifier;
+- preserve all Production, `main`, tag, Restore, and cutover blocks until
+  external evidence and explicit authorization exist.
+
 ## Sprint 6.4 — Firebase Authentication, Security Rules and UAT
 
 - replaced browser password comparison with Firebase Email/Password ID-token

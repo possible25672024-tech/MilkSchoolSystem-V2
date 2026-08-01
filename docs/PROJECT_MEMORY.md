@@ -8,6 +8,24 @@ Last updated: 2026-08-01
 
 ## Current Sprint State
 
+Sprint 6.5 External UAT, Incident Closure and Production Approval has
+implemented fail-closed release gates on
+`feature/sprint-6.5-deployment-closure`.
+
+- a one-command PowerShell runner enforces Java 21+, official Emulator UAT,
+  isolated real-project UAT, incident audit, and regression;
+- the quarantined room Backup audit is read-only, SHA-256-bound, and cannot
+  claim closure automatically;
+- the Production approval template and verifier bind every authorization to
+  the exact release commit;
+- automated regression passes 101/101;
+- official Emulator evidence, isolated-project credentials/evidence,
+  authoritative room Backup, Live Browser/device evidence, and signed approval
+  remain external inputs;
+- no Production, Rules, `main`, tag, Restore, incident repair, or cutover action
+  was performed;
+- final status is **NOT READY FOR DEPLOYMENT**.
+
 Sprint 6.4 Firebase Authentication, Security Rules and UAT is partial PASS at
 100/100 on `feature/sprint-6.4-firebase-auth-rules-uat`.
 
