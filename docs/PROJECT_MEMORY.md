@@ -2,11 +2,33 @@
 
 ## Project Memory
 
-Version: 3.8
+Version: 4.0
 
 Last updated: 2026-08-01
 
 ## Current Sprint State
+
+Sprint 6.2 Safe PDF Upload Optimization is automated PASS at 92/92 on
+`feature/sprint-6.2-pdf-upload-optimization`.
+
+- eligible PDFs are structurally recompressed without rasterizing pages or
+  reducing quality;
+- generated output is reopened and must preserve page count;
+- output is accepted only when it saves at least 4 KB and 1%;
+- digitally signed, encrypted, non-beneficial, or validation-failing PDFs use
+  the original file automatically;
+- `pdf-lib` 1.17.1 is vendored locally and no runtime CDN is required;
+- historical PDFs are unchanged;
+- two Sprints remain: Sprint 6.3 Live Browser and isolated Firebase UAT, then
+  Sprint 6.4 approved Release Candidate/cutover and post-release verification;
+- Production actions remain blocked pending UAT and explicit approval.
+
+Sprint 6.1 Image Upload Optimization is automated PASS at 91/91.
+
+- every new V2 JPG/PNG upload uses the accepted 1,000 px, JPEG 0.70, 400 KB
+  pipeline;
+- signatures remain PNG 640 × 240 and at most 120 KB;
+- historical images are unchanged.
 
 Sprint 6.0 Production Readiness and Release has started on
 `feature/sprint-6.0-production-readiness-release`.

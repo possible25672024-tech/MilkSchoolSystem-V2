@@ -12,6 +12,7 @@ class AdminSystemView {
         this.document = options.document || document;
         this.confirm = options.confirm || (message => window.confirm(message));
         this.documentImageOptimizer = options.documentImageOptimizer || window.DocumentImageOptimizer;
+        this.documentPdfOptimizer = options.documentPdfOptimizer || window.DocumentPdfOptimizer;
         this.documents = [];
         this.preparedDocument = null;
         this.bound = false;
@@ -145,15 +146,16 @@ class AdminSystemView {
                 imageHeight: prepared.imageHeight,
                 originalFileName: prepared.originalFileName,
                 originalFileType: prepared.originalFileType,
-                originalFileSize: prepared.originalFileSize
+                originalFileSize: prepared.originalFileSize,
+                optimizationType: prepared.optimizationType,
+                optimizationReason: prepared.optimizationReason,
+                pageCount: prepared.pageCount
             });
             this.element("admin-document-form")?.reset?.();
             this.preparedDocument = null;
             this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
             await this.loadDocuments();
-            this.setStatus("documents", prepared.optimized
-                ? `บันทึกเอกสารสำเร็จ · ย่อรูปจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`
-                : "บันทึกเอกสารและไฟล์ PDF ต้นฉบับขึ้น Cloud สำเร็จ");
+            this.setStatus("documents", this.savedDocumentStatus(prepared));
         } catch (error) {
             this.showError("documents", error?.message || "บันทึกเอกสารไม่สำเร็จ");
         } finally {
@@ -176,7 +178,7 @@ class AdminSystemView {
         this.showError("documents", "");
         this.setText("admin-document-file-summary", /^image\//i.test(file.type)
             ? "กำลังย่อและตรวจรูปภาพ..."
-            : "เลือก PDF แล้ว · ระบบจะเก็บไฟล์ต้นฉบับ");
+            : "กำลังบีบอัดและตรวจความสมบูรณ์ของ PDF...");
         try {
             const prepared = await this.prepareDocument(file, { force: true });
             this.renderPreparedDocument(prepared);
@@ -207,6 +209,15 @@ class AdminSystemView {
             return this.preparedDocument;
         }
 
+        if (/^application\/pdf$/i.test(String(file?.type || "")) || /\.pdf$/i.test(String(file?.name || ""))) {
+            if (!this.documentPdfOptimizer?.process) {
+                throw new Error("ระบบบีบอัด PDF ยังไม่พร้อมใช้งาน");
+            }
+            const optimized = await this.documentPdfOptimizer.process(file);
+            this.preparedDocument = { ...optimized, identity };
+            return this.preparedDocument;
+        }
+
         this.preparedDocument = {
             identity,
             fileName: String(file.name || ""),
@@ -214,6 +225,9 @@ class AdminSystemView {
             fileSize: Number(file.size) || 0,
             fileData: null,
             optimized: false,
+            optimizationType: "original",
+            optimizationReason: "unsupported",
+            pageCount: 0,
             imageWidth: 0,
             imageHeight: 0,
             originalFileName: String(file.name || ""),
@@ -224,7 +238,17 @@ class AdminSystemView {
     }
 
     renderPreparedDocument(prepared = {}) {
-        if (prepared.optimized) {
+        if (prepared.optimizationType === "pdf-lossless" && prepared.optimized) {
+            const percent = prepared.originalFileSize > 0
+                ? Math.max(0, Math.round((1 - prepared.fileSize / prepared.originalFileSize) * 100))
+                : 0;
+            this.setText(
+                "admin-document-file-summary",
+                `บีบอัด PDF แบบไม่ลดคุณภาพ ${prepared.pageCount || 0} หน้า · ${this.formatBytes(prepared.originalFileSize)} → ${this.formatBytes(prepared.fileSize)} (ลด ${percent}%)`
+            );
+            return;
+        }
+        if (prepared.optimizationType === "image-lossy" && prepared.optimized) {
             const percent = prepared.originalFileSize > 0
                 ? Math.max(0, Math.round((1 - prepared.fileSize / prepared.originalFileSize) * 100))
                 : 0;
@@ -234,13 +258,31 @@ class AdminSystemView {
             );
             return;
         }
-        this.setText("admin-document-file-summary", `PDF ต้นฉบับ · ${this.formatBytes(prepared.fileSize)}`);
+        const reason = prepared.optimizationReason === "digital-signature"
+            ? "มีลายเซ็นดิจิทัล จึงเก็บต้นฉบับเพื่อไม่ให้ลายเซ็นเสีย"
+            : prepared.optimizationReason === "encrypted"
+                ? "มีการเข้ารหัส จึงเก็บต้นฉบับ"
+                : prepared.optimizationReason === "compression-failed"
+                    ? "ไม่สามารถบีบอัดอย่างปลอดภัย จึงใช้ต้นฉบับ"
+                    : "บีบอัดแล้วไม่เล็กลง จึงใช้ต้นฉบับ";
+        this.setText("admin-document-file-summary", `PDF ต้นฉบับ · ${this.formatBytes(prepared.fileSize)} · ${reason}`);
+    }
+
+    savedDocumentStatus(prepared = {}) {
+        if (prepared.optimizationType === "pdf-lossless" && prepared.optimized) {
+            return `บันทึก PDF สำเร็จ · บีบอัดจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`;
+        }
+        if (prepared.optimizationType === "image-lossy" && prepared.optimized) {
+            return `บันทึกเอกสารสำเร็จ · ย่อรูปจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`;
+        }
+        return "บันทึกเอกสารและไฟล์ PDF ต้นฉบับขึ้น Cloud สำเร็จ";
     }
 
     documentSizeText(documentModel = {}) {
         const current = this.formatBytes(documentModel.fileSize);
         if (!documentModel.optimized || !documentModel.originalFileSize) return current;
-        return `${current} (ย่อจาก ${this.formatBytes(documentModel.originalFileSize)})`;
+        const action = documentModel.optimizationType === "pdf-lossless" ? "บีบอัดจาก" : "ย่อจาก";
+        return `${current} (${action} ${this.formatBytes(documentModel.originalFileSize)})`;
     }
 
     async downloadDocument(documentModel) {

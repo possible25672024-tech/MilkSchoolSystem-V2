@@ -66,11 +66,11 @@ for (const marker of [
 ]) {
     assert.ok(viewSource.includes(marker), `Admin document View is missing ${marker}`);
 }
-assert.match(viewSource, /fileData: null,[\s\S]*optimized: false/, "PDF must remain an unmodified source file");
+assert.ok(viewSource.includes("documentPdfOptimizer.process(file)"), "PDF uploads must use the dedicated optimizer");
 assert.match(serviceSource, /DOCUMENT_CONTENT_TYPE_MISMATCH/, "Service must reject mismatched Data URL MIME metadata");
 assert.match(serviceSource, /optimized: document\.optimized === true/, "Document metadata reads must expose optimization state");
 assert.ok(appSource.includes('import("../media/documentImageOptimizer.js")'));
 assert.ok(html.includes('id="admin-document-file-summary"'));
 assert.ok(html.includes("รูป JPG/PNG จะย่อด้านยาวไม่เกิน 1,000 px"));
 
-console.log("Admin image upload optimization and PDF preservation checks passed.");
+console.log("Admin image upload optimization and PDF handoff checks passed.");

@@ -297,6 +297,9 @@ class MilkSchoolApplication {
         if (!window.DocumentImageOptimizer) {
             await import("../media/documentImageOptimizer.js");
         }
+        if (!window.DocumentPdfOptimizer) {
+            await import("../media/documentPdfOptimizer.js");
+        }
         if (!window.AdminSystemRepository) {
             await import("../repositories/adminSystemRepository.js");
         }

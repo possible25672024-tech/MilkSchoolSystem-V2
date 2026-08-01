@@ -208,7 +208,7 @@ Sprint 5.5 boundary:
 - Sprint 5.9 fixes room-management roster navigation so the selected room opens
   visibly in the student-report section.
 
-### Admin System Tools — Sprint 5.9.3 Integration/UAT Gate Active
+### Admin System Tools — Sprint 6.2 PDF Optimization Gate Active
 
 Modules:
 
@@ -216,6 +216,9 @@ Modules:
 - `modules/admin/adminSystemService.js`
 - `modules/admin/adminSystemManager.js`
 - `modules/admin/adminSystemView.js`
+- `modules/media/documentImageOptimizer.js`
+- `modules/media/documentPdfOptimizer.js`
+- `assets/vendor/pdf-lib.min.js`
 
 Current boundary:
 
@@ -232,6 +235,11 @@ Current boundary:
   Teacher-operation history plus `documentFiles`;
 - full backup retains complete `milkApp` coverage;
 - core files are reference-only and cannot enter whole-root Restore.
+- every new Admin JPG/PNG document uses the bounded shared image pipeline;
+- eligible PDF documents use local lossless structural optimization;
+- compressed PDFs must reopen with the same page count and meet the minimum
+  savings threshold, otherwise the original is retained;
+- digitally signed and encrypted PDFs are never rewritten.
 
 Remaining production gaps:
 

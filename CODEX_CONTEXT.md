@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.9
+Version: 4.0
 Last Updated: 2026-08-01
 
 ---
@@ -36,13 +36,26 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
 
-Current Sprint 6.1 boundary:
+Current Sprint 6.2 boundary:
+
+- eligible new PDFs use lossless structural optimization before Cloud upload;
+- output must reopen with the same page count and save at least 4 KB and 1%;
+- digital signatures, encryption, non-beneficial compression, and validation
+  failures preserve the source PDF automatically;
+- source-file limit remains 12 MB and the screen shows original/saved size;
+- local `pdf-lib` avoids a CDN runtime dependency;
+- automated regression passes 92/92; Live Browser UAT remains pending;
+- two release Sprints remain: Sprint 6.3 isolated/live UAT and Sprint 6.4
+  approved Release Candidate/cutover;
+- protected legacy files, Stock ownership, and Production blocks remain intact.
+
+Preserved Sprint 6.1 boundary:
 
 - every new V2 operational photo upload uses the shared 1,000 px, JPEG 0.70,
   maximum 400 KB image pipeline;
 - Admin JPG/PNG documents now use the same bounded pipeline and show before and
   after byte sizes;
-- Admin PDF documents remain original uploads up to 12 MB;
+- Admin PDF documents were original uploads up to 12 MB before Sprint 6.2;
 - historical images and documents are never rewritten automatically;
 - automated regression passes 91/91; interactive live/isolated UAT remains
   required before release approval;

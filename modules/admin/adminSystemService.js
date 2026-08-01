@@ -119,6 +119,9 @@ class AdminSystemService {
             originalFileName: String(document.originalFileName || ""),
             originalFileType: String(document.originalFileType || ""),
             originalFileSize: Math.max(0, Number(document.originalFileSize) || 0),
+            optimizationType: String(document.optimizationType || ""),
+            optimizationReason: String(document.optimizationReason || ""),
+            pageCount: Math.max(0, Number(document.pageCount) || 0),
             cloudSynced: document.cloudSynced !== false
         })).sort((left, right) => (
             String(right.uploadedAt || right.updatedAt).localeCompare(String(left.uploadedAt || left.updatedAt))
@@ -161,6 +164,11 @@ class AdminSystemService {
         }
         const optimized = input.optimized === true;
         const originalFileSize = Math.max(0, Number(input.originalFileSize) || fileSize);
+        const optimizationType = String(input.optimizationType || (optimized ? "image-lossy" : "original"));
+        const allowedOptimizationTypes = new Set(["original", "image-lossy", "pdf-lossless", "pdf-original"]);
+        if (!allowedOptimizationTypes.has(optimizationType)) {
+            throw this.businessError("DOCUMENT_OPTIMIZATION_TYPE_INVALID", "ข้อมูลวิธีบีบอัดเอกสารไม่ถูกต้อง");
+        }
         return {
             title,
             description: String(input.description || "").trim(),
@@ -175,7 +183,10 @@ class AdminSystemService {
             imageHeight: optimized ? Math.max(0, Number(input.imageHeight) || 0) : 0,
             originalFileName: String(input.originalFileName || fileName).trim(),
             originalFileType: String(input.originalFileType || contentType).trim().toLowerCase(),
-            originalFileSize
+            originalFileSize,
+            optimizationType,
+            optimizationReason: String(input.optimizationReason || "").trim(),
+            pageCount: contentType === "application/pdf" ? Math.max(0, Number(input.pageCount) || 0) : 0
         };
     }
 

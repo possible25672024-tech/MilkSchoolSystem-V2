@@ -1,5 +1,27 @@
 # Changelog
 
+## Sprint 6.2 — Safe PDF Upload Optimization
+
+- added browser-side lossless PDF structural compression with local pdf-lib;
+- reopens compressed output and requires the original page count;
+- accepts compressed bytes only when at least 4 KB and 1% smaller;
+- preserves original signed, encrypted, non-beneficial, or failed-validation PDFs;
+- shows PDF page count and original-to-saved byte size before upload;
+- added one acceptance gate and raised regression to 92 checks;
+- kept historical files, protected legacy pages, Stock rules, Backup/Restore,
+  Production, main, tag, and cutover unchanged.
+
+## Sprint 6.1 — Image Upload Optimization and Storage Control
+
+- applied the accepted 1,000 px, JPEG 0.70, 400 KB image pipeline to new
+  Admin JPG/PNG document uploads;
+- displayed source and optimized size before upload;
+- preserved PDF source files during Sprint 6.1;
+- kept all historical images and documents unchanged;
+- added one acceptance gate and raised regression to 91 checks;
+- kept protected legacy pages, Stock rules, Production, main, tag, and cutover
+  unchanged.
+
 ## Sprint 6.0 — Production Readiness and Release
 
 - fixed classroom selection so the saved student count remains visible when

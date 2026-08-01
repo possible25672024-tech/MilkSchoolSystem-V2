@@ -1949,6 +1949,7 @@
     <script defer src="config/firebase-config.js"></script>
     <script defer src="modules/config/configManager.js"></script>
     <script defer src="assets/vendor/xlsx.full.min.js"></script>
+    <script defer src="assets/vendor/pdf-lib.min.js"></script>
 
     <script defer src="modules/services/firebaseService.js"></script>
     <script defer src="modules/repositories/baseRepository.js"></script>
@@ -2647,7 +2648,7 @@
                         <label>ชื่อเอกสาร<input id="admin-document-title" type="text" maxlength="200" required data-admin-documents-control></label>
                         <label>ผู้อัปโหลด<input id="admin-document-uploader" type="text" maxlength="120" data-admin-documents-control></label>
                         <label class="wide">รายละเอียด<input id="admin-document-description" type="text" maxlength="500" data-admin-documents-control></label>
-                        <label class="wide">ไฟล์เอกสาร (ไม่เกิน 12 MB)<input id="admin-document-file" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required data-admin-documents-control><small>รูป JPG/PNG จะย่อด้านยาวไม่เกิน 1,000 px และบีบอัดเป็น JPEG ก่อนอัปโหลด · PDF คงไฟล์ต้นฉบับ</small></label>
+                        <label class="wide">ไฟล์เอกสาร (ไม่เกิน 12 MB)<input id="admin-document-file" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required data-admin-documents-control><small>รูป JPG/PNG จะย่อด้านยาวไม่เกิน 1,000 px · PDF จะบีบอัดแบบไม่ลดคุณภาพก่อนอัปโหลด และใช้ต้นฉบับอัตโนมัติหากไฟล์ไม่เล็กลงหรือมีการป้องกัน</small></label>
                         <p id="admin-document-file-summary" class="admin-system-compact wide" aria-live="polite">ยังไม่ได้เลือกไฟล์</p>
                         <div class="admin-system-actions wide"><button type="submit" data-admin-documents-control>อัปโหลดเอกสาร</button></div>
                     </form>

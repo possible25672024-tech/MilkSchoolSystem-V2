@@ -4,11 +4,36 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-6.1-image-upload-optimization`
+Current Branch: `feature/sprint-6.2-pdf-upload-optimization`
 
 Current Version: V2
 
 ## Current Sprint
+
+Sprint 6.2 — Safe PDF Upload Optimization
+
+Status: **AUTOMATED PASS — 92/92 / LIVE BROWSER UAT PENDING**
+
+Approved predecessor: Sprint 6.1 — Image Upload Optimization and Storage Control
+
+## Sprint 6.2 Current Boundary
+
+- eligible new PDF uploads are structurally compressed in the browser without
+  rasterizing pages or reducing image quality;
+- compressed output is re-opened and must preserve the original page count;
+- compressed bytes are used only when at least 4 KB and 1% smaller;
+- digitally signed, encrypted, non-beneficial, or safely uncompressible PDFs
+  retain their original bytes;
+- original and saved sizes plus page count are shown before upload;
+- local vendored `pdf-lib` 1.17.1 removes runtime CDN dependency;
+- all 92 discovered regression checks pass;
+- historical PDFs remain unchanged;
+- two release Sprints remain: 6.3 isolated/live UAT and 6.4 approved Release
+  Candidate/cutover;
+- Production Restore, deployment, `main`, tag, cutover, and incident closure
+  remain blocked pending UAT and explicit approval.
+
+## Approved Predecessor
 
 Sprint 6.1 — Image Upload Optimization and Storage Control
 
