@@ -19,3 +19,5 @@ backup-ai/
 # Sprint 6.5 external UAT evidence and local test-project material
 evidence/
 firebase/test-seed.generated.json
+/docs/uid.txt
+/database-debug.log
