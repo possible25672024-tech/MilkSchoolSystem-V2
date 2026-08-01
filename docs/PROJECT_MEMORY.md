@@ -8,6 +8,26 @@ Last updated: 2026-08-01
 
 ## Current Sprint State
 
+Sprint 6.3 UAT, Security and Isolated Restore Readiness is partial PASS at
+95/95 on `feature/sprint-6.3-uat-security-readiness`.
+
+- local HTTP asset and Responsive source-contract gates pass;
+- full Backup/Restore and stale-ETag rejection pass against a disposable
+  localhost Firebase REST-compatible instance without contacting Production;
+- this local contract rehearsal is not a substitute for a real isolated Google
+  Firebase project with deployed Rules;
+- Live Browser layout, Console, Network, print, image/PDF, and touch evidence
+  remains blocked because no browser executable is installed in the execution
+  environment;
+- security review confirms that client-side password comparison and
+  `sessionStorage` sessions do not provide server-side database authorization;
+- Firebase Authentication, role/room-scoped Rules, allow/deny tests, and a
+  Rules rollback version are mandatory before Production;
+- the quarantined room `mqn0z13eyx5b` on `2026-07-28` remains open;
+- Sprint 6.4 may prepare a Release Candidate, but no Production action is
+  authorized until every blocker is closed or explicitly accepted by the
+  product owner and data verifier.
+
 Sprint 6.2 Safe PDF Upload Optimization is automated PASS at 92/92 on
 `feature/sprint-6.2-pdf-upload-optimization`.
 

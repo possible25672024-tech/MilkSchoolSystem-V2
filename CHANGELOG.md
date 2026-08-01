@@ -1,5 +1,19 @@
 # Changelog
 
+## Sprint 6.3 — UAT, Security and Isolated Restore Readiness
+
+- added a disposable Firebase REST-compatible Backup/Restore rehearsal with
+  SHA-256, root ETag, Restore audit, safety confirmation, and stale-write
+  conflict evidence;
+- added Live HTTP asset, Responsive contract, unique-ID, and local dependency
+  gates without contacting Production;
+- recorded that real Live Browser and real isolated Google Firebase evidence
+  remain pending because those environments are not available here;
+- recorded client-side password/session handling and missing server-enforced
+  Firebase authorization evidence as a critical Production blocker;
+- retained the quarantined room/date incident and blocked Production, `main`,
+  tag, deployment, Restore, and cutover pending explicit acceptance.
+
 ## Sprint 6.2 — Safe PDF Upload Optimization
 
 - added browser-side lossless PDF structural compression with local pdf-lib;

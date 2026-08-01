@@ -4,11 +4,39 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-6.2-pdf-upload-optimization`
+Current Branch: `feature/sprint-6.3-uat-security-readiness`
 
 Current Version: V2
 
 ## Current Sprint
+
+Sprint 6.3 — UAT, Security and Isolated Restore Readiness
+
+Status: **PARTIAL PASS — 95/95 AUTOMATED / LOCAL ISOLATED RESTORE PASS / EXTERNAL RELEASE GATES BLOCKED**
+
+Approved predecessor: Sprint 6.2 — Safe PDF Upload Optimization
+
+## Sprint 6.3 Current Boundary
+
+- Live HTTP serves the complete V2 page and eager/lazy runtime assets;
+- Responsive source contracts cover Desktop, Tablet, and Phone breakpoints,
+  overflow containment, 44 px controls, and unique HTML IDs;
+- full Backup/Restore passes against a disposable localhost
+  Firebase REST-compatible instance with SHA-256, root ETag, Restore audit, and
+  stale-preview conflict rejection;
+- the isolated rehearsal contacts no Production Firebase host;
+- all 95 discovered regression checks pass;
+- real Live Browser evidence remains blocked because this environment has no
+  installed browser executable;
+- a real Google Firebase test-project rehearsal remains blocked because no
+  isolated project/configuration was provided;
+- server-side authorization remains a critical blocker because current login
+  passwords and sessions are verified in client JavaScript and no deployed
+  Firebase Authentication/Rules evidence exists;
+- the quarantined room/date incident remains open;
+- Production Restore, deployment, `main`, tag, and cutover remain blocked.
+
+## Approved Predecessor
 
 Sprint 6.2 — Safe PDF Upload Optimization
 
