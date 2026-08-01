@@ -292,6 +292,11 @@ class MilkSchoolApplication {
     }
 
     async ensureAdminSystemView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.DocumentImageOptimizer) {
+            await import("../media/documentImageOptimizer.js");
+        }
         if (!window.AdminSystemRepository) {
             await import("../repositories/adminSystemRepository.js");
         }

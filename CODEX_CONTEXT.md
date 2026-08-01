@@ -1,7 +1,7 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.8
+Version: 3.9
 Last Updated: 2026-08-01
 
 ---
@@ -36,7 +36,27 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
 
-Current Sprint 5.9.3 boundary:
+Current Sprint 6.1 boundary:
+
+- every new V2 operational photo upload uses the shared 1,000 px, JPEG 0.70,
+  maximum 400 KB image pipeline;
+- Admin JPG/PNG documents now use the same bounded pipeline and show before and
+  after byte sizes;
+- Admin PDF documents remain original uploads up to 12 MB;
+- historical images and documents are never rewritten automatically;
+- automated regression passes 91/91; interactive live/isolated UAT remains
+  required before release approval;
+- protected legacy files, Stock ownership, and Production blocks remain intact.
+
+Preserved Sprint 6.0 boundary:
+
+- selected classroom students remain visible when Main Stock is insufficient;
+- manual days calculate total boxes, crate remainder, Main and Room projections;
+- insufficient stock blocks save without hiding the calculation;
+- automated regression passes 90/90;
+- live browser and isolated Firebase UAT remain pending.
+
+Preserved Sprint 5.9.3 boundary:
 
 - viewed receipt detail prints as A4 with its evidence and signatures;
 - distribution preview exposes the six requested calculation facts before save;

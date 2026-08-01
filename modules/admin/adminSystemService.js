@@ -113,6 +113,12 @@ class AdminSystemService {
             fileName: String(document.fileName || ""),
             fileType: String(document.fileType || document.contentType || ""),
             fileSize: Math.max(0, Number(document.fileSize) || 0),
+            optimized: document.optimized === true,
+            imageWidth: Math.max(0, Number(document.imageWidth) || 0),
+            imageHeight: Math.max(0, Number(document.imageHeight) || 0),
+            originalFileName: String(document.originalFileName || ""),
+            originalFileType: String(document.originalFileType || ""),
+            originalFileSize: Math.max(0, Number(document.originalFileSize) || 0),
             cloudSynced: document.cloudSynced !== false
         })).sort((left, right) => (
             String(right.uploadedAt || right.updatedAt).localeCompare(String(left.uploadedAt || left.updatedAt))
@@ -150,6 +156,11 @@ class AdminSystemService {
         if (typeof fileData !== "string" || !fileData.startsWith("data:")) {
             throw this.businessError("DOCUMENT_CONTENT_INVALID", "อ่านไฟล์เอกสารไม่สำเร็จ");
         }
+        if (!fileData.toLowerCase().startsWith(`data:${contentType};`)) {
+            throw this.businessError("DOCUMENT_CONTENT_TYPE_MISMATCH", "ชนิดข้อมูลภายในไฟล์ไม่ตรงกับชนิดเอกสาร");
+        }
+        const optimized = input.optimized === true;
+        const originalFileSize = Math.max(0, Number(input.originalFileSize) || fileSize);
         return {
             title,
             description: String(input.description || "").trim(),
@@ -158,7 +169,13 @@ class AdminSystemService {
             fileType: contentType,
             contentType,
             fileSize,
-            fileData
+            fileData,
+            optimized,
+            imageWidth: optimized ? Math.max(0, Number(input.imageWidth) || 0) : 0,
+            imageHeight: optimized ? Math.max(0, Number(input.imageHeight) || 0) : 0,
+            originalFileName: String(input.originalFileName || fileName).trim(),
+            originalFileType: String(input.originalFileType || contentType).trim().toLowerCase(),
+            originalFileSize
         };
     }
 

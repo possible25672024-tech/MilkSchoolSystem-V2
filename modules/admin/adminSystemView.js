@@ -11,7 +11,9 @@ class AdminSystemView {
         this.window = options.window || window;
         this.document = options.document || document;
         this.confirm = options.confirm || (message => window.confirm(message));
+        this.documentImageOptimizer = options.documentImageOptimizer || window.DocumentImageOptimizer;
         this.documents = [];
+        this.preparedDocument = null;
         this.bound = false;
     }
 
@@ -34,6 +36,7 @@ class AdminSystemView {
         this.document.querySelector?.('[data-admin-menu="drive-sync"]')
             ?.addEventListener("click", () => this.resetDriveStatus());
         this.element("admin-document-form")?.addEventListener("submit", event => this.saveDocument(event));
+        this.element("admin-document-file")?.addEventListener("change", event => this.prepareSelectedDocument(event));
         this.element("admin-document-refresh")?.addEventListener("click", () => this.loadDocuments());
         this.element("admin-settings-form")?.addEventListener("submit", event => this.saveSettings(event));
         this.element("admin-settings-refresh")?.addEventListener("click", () => this.loadSettings());
@@ -83,7 +86,7 @@ class AdminSystemView {
             [
                 documentModel.title,
                 documentModel.fileName || "—",
-                this.formatBytes(documentModel.fileSize),
+                this.documentSizeText(documentModel),
                 this.formatDate(documentModel.uploadedAt),
                 documentModel.uploadedBy || "—"
             ].forEach(value => {
@@ -127,24 +130,117 @@ class AdminSystemView {
         this.showError("documents", "");
         this.setStatus("documents", "กำลังอ่านและอัปโหลดเอกสาร...");
         try {
-            const fileData = await this.readFile(file);
+            const prepared = await this.prepareDocument(file);
+            const fileData = prepared.fileData || await this.readFile(file);
             await this.manager.saveDocument({
                 title: this.element("admin-document-title")?.value,
                 description: this.element("admin-document-description")?.value,
                 uploadedBy: this.element("admin-document-uploader")?.value,
-                fileName: file.name,
-                contentType: file.type,
-                fileSize: file.size,
-                fileData
+                fileName: prepared.fileName,
+                contentType: prepared.contentType,
+                fileSize: prepared.fileSize,
+                fileData,
+                optimized: prepared.optimized,
+                imageWidth: prepared.imageWidth,
+                imageHeight: prepared.imageHeight,
+                originalFileName: prepared.originalFileName,
+                originalFileType: prepared.originalFileType,
+                originalFileSize: prepared.originalFileSize
             });
             this.element("admin-document-form")?.reset?.();
+            this.preparedDocument = null;
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
             await this.loadDocuments();
-            this.setStatus("documents", "บันทึกเอกสารและไฟล์จริงขึ้น Cloud สำเร็จ");
+            this.setStatus("documents", prepared.optimized
+                ? `บันทึกเอกสารสำเร็จ · ย่อรูปจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`
+                : "บันทึกเอกสารและไฟล์ PDF ต้นฉบับขึ้น Cloud สำเร็จ");
         } catch (error) {
             this.showError("documents", error?.message || "บันทึกเอกสารไม่สำเร็จ");
         } finally {
             this.setBusy("documents", false);
         }
+    }
+
+    fileIdentity(file = {}) {
+        return [file.name, file.type, Number(file.size) || 0, Number(file.lastModified) || 0].join("|");
+    }
+
+    async prepareSelectedDocument(event) {
+        const file = event?.target?.files?.[0];
+        this.preparedDocument = null;
+        if (!file) {
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
+            return null;
+        }
+        this.setBusy("documents", true);
+        this.showError("documents", "");
+        this.setText("admin-document-file-summary", /^image\//i.test(file.type)
+            ? "กำลังย่อและตรวจรูปภาพ..."
+            : "เลือก PDF แล้ว · ระบบจะเก็บไฟล์ต้นฉบับ");
+        try {
+            const prepared = await this.prepareDocument(file, { force: true });
+            this.renderPreparedDocument(prepared);
+            return prepared;
+        } catch (error) {
+            if (event?.target) event.target.value = "";
+            this.preparedDocument = null;
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
+            this.showError("documents", error?.message || "เตรียมไฟล์เอกสารไม่สำเร็จ");
+            return null;
+        } finally {
+            this.setBusy("documents", false);
+        }
+    }
+
+    async prepareDocument(file, options = {}) {
+        const identity = this.fileIdentity(file);
+        if (!options.force && this.preparedDocument?.identity === identity) {
+            return this.preparedDocument;
+        }
+
+        if (/^image\/(?:jpeg|png)$/i.test(String(file?.type || ""))) {
+            if (!this.documentImageOptimizer?.process) {
+                throw new Error("ระบบย่อรูปเอกสารยังไม่พร้อมใช้งาน");
+            }
+            const optimized = await this.documentImageOptimizer.process(file);
+            this.preparedDocument = { ...optimized, identity };
+            return this.preparedDocument;
+        }
+
+        this.preparedDocument = {
+            identity,
+            fileName: String(file.name || ""),
+            contentType: String(file.type || "application/pdf"),
+            fileSize: Number(file.size) || 0,
+            fileData: null,
+            optimized: false,
+            imageWidth: 0,
+            imageHeight: 0,
+            originalFileName: String(file.name || ""),
+            originalFileType: String(file.type || "application/pdf"),
+            originalFileSize: Number(file.size) || 0
+        };
+        return this.preparedDocument;
+    }
+
+    renderPreparedDocument(prepared = {}) {
+        if (prepared.optimized) {
+            const percent = prepared.originalFileSize > 0
+                ? Math.max(0, Math.round((1 - prepared.fileSize / prepared.originalFileSize) * 100))
+                : 0;
+            this.setText(
+                "admin-document-file-summary",
+                `ย่อแล้ว ${prepared.imageWidth} × ${prepared.imageHeight} px · ${this.formatBytes(prepared.originalFileSize)} → ${this.formatBytes(prepared.fileSize)} (ลด ${percent}%)`
+            );
+            return;
+        }
+        this.setText("admin-document-file-summary", `PDF ต้นฉบับ · ${this.formatBytes(prepared.fileSize)}`);
+    }
+
+    documentSizeText(documentModel = {}) {
+        const current = this.formatBytes(documentModel.fileSize);
+        if (!documentModel.optimized || !documentModel.originalFileSize) return current;
+        return `${current} (ย่อจาก ${this.formatBytes(documentModel.originalFileSize)})`;
     }
 
     async downloadDocument(documentModel) {

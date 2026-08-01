@@ -4,17 +4,37 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-6.0-production-readiness-release`
+Current Branch: `feature/sprint-6.1-image-upload-optimization`
 
 Current Version: V2
 
 ## Current Sprint
 
+Sprint 6.1 — Image Upload Optimization and Storage Control
+
+Status: **AUTOMATED PASS — 91/91 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
+
+Approved predecessor: Sprint 6.0 — Distribution Live Calculation and Release Readiness
+
+## Sprint 6.1 Current Boundary
+
+- every new operational evidence photo still uses the accepted shared pipeline:
+  JPEG quality 0.70, longest edge 1,000 px, and maximum 400 KB per photo;
+- Admin JPG/PNG documents now use the same bounded pipeline before Cloud upload;
+- the document screen shows original and optimized byte sizes before save;
+- document metadata records original name/type/size and saved dimensions/size;
+- Admin PDF documents remain byte-for-byte source uploads up to 12 MB;
+- historical images and documents are not rewritten automatically;
+- all 91 discovered regression checks pass and Live Server serves the updated
+  page plus image-optimizer modules successfully;
+- Production Restore, Production deployment, `main`, tag, cutover, and incident
+  closure remain blocked pending live and isolated UAT plus explicit approval.
+
+## Approved Predecessor
+
 Sprint 6.0 — Production Readiness and Release
 
-Status: **STARTED — DISTRIBUTION LIVE CALCULATION FIXED / AUTOMATED AND LIVE BROWSER VALIDATION IN PROGRESS**
-
-Approved predecessor: Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
+Status: **AUTOMATED PASS — 90/90 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
 
 ## Sprint 6.0 Current Boundary
 
