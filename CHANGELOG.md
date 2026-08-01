@@ -1,5 +1,17 @@
 # Changelog
 
+## Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
+
+- added A4 portrait printing to the explicitly viewed receipt detail;
+- exposed students, manually entered days, total boxes, crate remainder, and
+  Main Stock before/after in the classroom distribution preview;
+- added a fast legacy-like core backup that skips Teacher operation history and
+  document file bodies;
+- retained complete evidence backup as a separate explicit action;
+- marked core files reference-only and blocked them from whole-root Restore;
+- added one acceptance gate and raised regression to 88 checks;
+- kept protected legacy pages, Stock ownership, and Production Restore unchanged.
+
 ## Sprint 5.9.1 — Admin Parity Corrections
 
 - added up to five processed distribution photos and separate receiver/sender

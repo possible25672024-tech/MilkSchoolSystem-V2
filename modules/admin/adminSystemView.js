@@ -38,6 +38,7 @@ class AdminSystemView {
         this.element("admin-settings-form")?.addEventListener("submit", event => this.saveSettings(event));
         this.element("admin-settings-refresh")?.addEventListener("click", () => this.loadSettings());
         this.element("admin-backup-download")?.addEventListener("click", () => this.downloadBackup("download"));
+        this.element("admin-backup-download-full")?.addEventListener("click", () => this.downloadBackup("download", "full"));
         this.element("admin-restore-file")?.addEventListener("change", event => this.inspectRestoreFile(event));
         this.element("admin-restore-safety")?.addEventListener("click", () => this.downloadBackup("pre-restore"));
         this.element("admin-restore-confirm")?.addEventListener("input", () => this.updateRestoreButton());
@@ -218,15 +219,20 @@ class AdminSystemView {
         }
     }
 
-    async downloadBackup(purpose) {
+    async downloadBackup(purpose, requestedProfile = "") {
         const prefix = purpose === "google-drive" ? "drive" : "backup";
+        const profile = purpose === "pre-restore"
+            ? "full"
+            : requestedProfile || (purpose === "download" ? "core" : "full");
         this.setBusy(prefix, true);
         this.showError(prefix, "");
-        this.setStatus(prefix, "กำลังอ่านข้อมูลทั้งหมดและคำนวณ SHA-256...");
+        this.setStatus(prefix, profile === "core"
+            ? "กำลังอ่านข้อมูลหลักแบบเร็ว (ไม่ดึงประวัติครูและเนื้อไฟล์เอกสารก้อนใหญ่)..."
+            : "กำลังอ่านข้อมูลทั้งหมดรวมรูป/เอกสารและคำนวณ SHA-256...");
         try {
-            const backup = await this.manager.createBackup(purpose);
+            const backup = await this.manager.createBackup(purpose, profile);
             const date = String(backup.envelope.createdAt).slice(0, 10);
-            const name = `milk-v2-backup-${date}.json`;
+            const name = `milk-v2-${profile}-backup-${date}.json`;
             this.downloadJson(backup.envelope, name);
             this.renderBackupSummary(backup.summary, prefix);
             this.setStatus(prefix, `ดาวน์โหลด ${name} สำเร็จ · SHA-256 ${backup.envelope.integrity.checksum.slice(0, 12)}…`);
@@ -289,6 +295,11 @@ class AdminSystemView {
         this.setText("admin-restore-checksum", preview.checksum);
         this.setText("admin-restore-source-summary", this.summaryText(preview.summary));
         this.setText("admin-restore-current-summary", this.summaryText(preview.currentSummary));
+        const full = preview.envelope?.profile !== "core"
+            && preview.envelope?.restoreScope !== "reference-only";
+        this.setText("admin-restore-profile", full
+            ? "ครบถ้วนพร้อมรูป/เอกสาร — ใช้กู้คืนได้"
+            : "ข้อมูลหลักแบบเร็ว — ตรวจสอบได้ แต่ไม่อนุญาตให้เขียนทับฐานทั้งก้อน");
     }
 
     renderBackupSummary(summary, prefix) {
@@ -304,6 +315,8 @@ class AdminSystemView {
         if (!button) return;
         button.disabled = !this.manager.restorePreview
             || !this.manager.safetyBackupReady
+            || this.manager.restorePreview?.envelope?.profile === "core"
+            || this.manager.restorePreview?.envelope?.restoreScope === "reference-only"
             || this.element("admin-restore-confirm")?.value !== "กู้คืนข้อมูล";
     }
 

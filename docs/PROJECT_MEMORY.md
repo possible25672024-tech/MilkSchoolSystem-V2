@@ -2,11 +2,24 @@
 
 ## Project Memory
 
-Version: 3.7
+Version: 3.8
 
 Last updated: 2026-08-01
 
 ## Current Sprint State
+
+Sprint 5.9.3 Receipt A4, Distribution Summary and Backup Profiles is automated
+PASS at 88/88.
+
+- viewed receipt detail prints A4 with facts, evidence and signatures;
+- selected-room distribution preview shows students, manual days, total boxes,
+  crate remainder and Main Stock before/after;
+- the fast core backup matches the legacy operational scope more closely and
+  avoids Teacher-operation history plus document-file bodies;
+- the full profile retains all evidence and is the only profile allowed into
+  whole-root Restore;
+- protected `index.html` and `teacher.html` remain unchanged;
+- Live Server and isolated Firebase Backup UAT remain pending.
 
 Sprint 5.9.2 Receipt, Print and Large Backup Corrections is automated PASS at
 87/87.

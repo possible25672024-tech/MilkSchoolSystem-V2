@@ -1,8 +1,8 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.5
-Last Updated: 2026-07-31
+Version: 3.8
+Last Updated: 2026-08-01
 
 ---
 
@@ -36,7 +36,16 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
 
-Current Sprint 5.9 boundary:
+Current Sprint 5.9.3 boundary:
+
+- viewed receipt detail prints as A4 with its evidence and signatures;
+- distribution preview exposes the six requested calculation facts before save;
+- fast core backup avoids Teacher history and document-file hydration;
+- full backup remains the only profile accepted for guarded whole-root Restore;
+- automated regression passes 88/88;
+- live browser and isolated Firebase UAT remain pending.
+
+Preserved Sprint 5.9 boundary:
 
 - selected room roster navigation is visible and deterministic;
 - Admin navigation is grouped in reference order without removing a section;

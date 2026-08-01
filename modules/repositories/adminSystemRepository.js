@@ -124,6 +124,41 @@ class AdminSystemRepository extends BaseRepository {
         throw error;
     }
 
+    async loadCoreWithEtag(options = {}) {
+        const attempts = Math.max(1, Number(options.attempts) || 2);
+        // Mirrors the legacy JSON's operational scope. Evidence-heavy Teacher
+        // history and binary document contents deliberately remain in Cloud.
+        const coreKeys = [
+            "settings", "stock", "rooms", "roomStock", "receives",
+            "distributes", "stockTransactions", "users",
+            "documents", "updatedAt"
+        ];
+        const defaults = {
+            settings: {}, stock: 0, rooms: {}, roomStock: {}, receives: {},
+            distributes: {}, stockTransactions: {}, users: {}, documents: {}
+        };
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+            const before = await this.loadRootMarker();
+            const entries = [];
+            for (const key of coreKeys) {
+                const value = await this.loadChunked(this.path(key));
+                if (value !== null && value !== undefined) entries.push([key, value]);
+                else if (Object.prototype.hasOwnProperty.call(defaults, key)) entries.push([key, defaults[key]]);
+            }
+            const after = await this.loadRootMarker();
+            if (String(before?.etag || "") === String(after?.etag || "")) {
+                return {
+                    value: Object.fromEntries(entries),
+                    etag: String(after?.etag || ""),
+                    status: after?.status
+                };
+            }
+        }
+        const error = new Error("Firebase data changed while the core backup was being read. Please try again.");
+        error.code = "BACKUP_SNAPSHOT_CHANGED";
+        throw error;
+    }
+
     async loadRootSummaryWithEtag(options = {}) {
         const attempts = Math.max(1, Number(options.attempts) || 2);
         const collections = [

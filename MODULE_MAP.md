@@ -2,7 +2,7 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 ## Protected Legacy Files
 
@@ -79,7 +79,7 @@ Completed boundary:
 - stable operation idempotency and completion markers
 - scalable distribution summary history without media hydration
 
-### Report and Admin Operations — Sprint 5.9 Integration/UAT Gate Active
+### Report and Admin Operations — Sprint 5.9.3 Integration/UAT Gate Active
 
 Modules:
 
@@ -140,6 +140,9 @@ Current boundary:
 - Firebase array/object normalization before Dashboard totals;
 - no automatic historical photo or signature hydration;
 - protected `index.html` and `teacher.html` unchanged.
+- viewed receipt detail provides a read-only A4 portrait output with evidence;
+- distribution preview shows actual room students, manual days, boxes, crates,
+  and Main Stock before/after before the guarded command;
 - exact-date Attendance edit remains inside the Admin shell;
 - explicit single-record evidence hydration only after the edit action;
 - Service-owned preservation of existing Attendance photos and signature;
@@ -205,7 +208,7 @@ Sprint 5.5 boundary:
 - Sprint 5.9 fixes room-management roster navigation so the selected room opens
   visibly in the student-report section.
 
-### Admin System Tools — Sprint 5.9 Integration/UAT Gate Active
+### Admin System Tools — Sprint 5.9.3 Integration/UAT Gate Active
 
 Modules:
 
@@ -225,6 +228,10 @@ Current boundary:
   typed confirmation, final confirmation, and root If-Match protection;
 - Google Drive remains an explicit user-owned file transfer;
 - Production restore and Firebase Rules changes remain blocked pending isolated UAT.
+- fast core backup uses an explicit legacy-like allowlist and avoids hydrating
+  Teacher-operation history plus `documentFiles`;
+- full backup retains complete `milkApp` coverage;
+- core files are reference-only and cannot enter whole-root Restore.
 
 Remaining production gaps:
 

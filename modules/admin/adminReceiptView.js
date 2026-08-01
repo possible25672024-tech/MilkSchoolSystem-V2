@@ -9,6 +9,7 @@ class AdminReceiptView {
         this.authService = authService;
         this.eventTarget = eventTarget;
         this.document = options.document || document;
+        this.window = options.window || window;
         this.confirm = options.confirm || (message => window.confirm(message));
         this.bound = false;
         this.photos = [];
@@ -44,6 +45,7 @@ class AdminReceiptView {
         this.element("admin-receipt-history-body")?.addEventListener("click", event => this.handleHistoryAction(event));
         this.element("admin-receipt-detail-form")?.addEventListener("submit", event => this.saveDetail(event));
         this.element("admin-receipt-detail-close")?.addEventListener("click", () => this.closeDetail());
+        this.element("admin-receipt-detail-print")?.addEventListener("click", () => this.printDetail());
         this.element("admin-receipt-detail-photos")?.addEventListener("change", event => this.processPhotos(event, "detail"));
         this.element("admin-receipt-detail-receiver-clear")?.addEventListener("click", () => this.detailReceiverSignature?.clear?.());
         this.element("admin-receipt-detail-sender-clear")?.addEventListener("click", () => this.detailSenderSignature?.clear?.());
@@ -340,6 +342,45 @@ class AdminReceiptView {
             paragraph.textContent = "รายการนี้ไม่มีรูปหรือลายเซ็นแนบ";
             gallery.appendChild(paragraph);
         }
+    }
+
+    escape(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    printDetail() {
+        const receipt = this.manager.detail?.receipt;
+        if (!receipt) {
+            this.showHistoryError("กรุณาเปิดดูรายการรับนมก่อนพิมพ์");
+            return;
+        }
+        const popup = this.window.open("", "_blank");
+        if (!popup) {
+            this.showHistoryError("เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต Pop-up");
+            return;
+        }
+        const receiver = receipt.signatures?.receiver || {};
+        const sender = receipt.signatures?.sender || {};
+        const evidence = (receipt.photos || []).map((src, index) => (
+            `<figure><img src="${src}" alt="รูปหลักฐาน ${index + 1}"><figcaption>รูปหลักฐาน ${index + 1}</figcaption></figure>`
+        )).join("");
+        const signatures = [
+            ["ผู้รับนม", receiver], ["ผู้ส่งนม", sender]
+        ].map(([label, signature]) => `<div class="signature"><strong>${label}</strong>${signature.signature
+            ? `<img src="${signature.signature}" alt="ลายเซ็น${label}">`
+            : '<div class="signature-space"></div>'}<span>${this.escape(signature.receiverName || "........................................................")}</span></div>`).join("");
+        popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายละเอียดรายการรับนม</title>
+<style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Sarabun,Tahoma,sans-serif;color:#111;margin:0}h1,p{text-align:center;margin:3px}.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.fact{border:1px solid #777;border-radius:6px;padding:9px}.fact.wide{grid-column:1/-1}.fact small{display:block;color:#555}.total{font-size:16pt;font-weight:700;color:#174a6a}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}figure{margin:0;border:1px solid #aaa;padding:5px}figure img{display:block;width:100%;height:125px;object-fit:contain}figcaption{text-align:center;font-size:8pt}.signatures{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px}.signature{text-align:center}.signature img,.signature-space{display:block;width:100%;height:85px;object-fit:contain;border-bottom:1px solid #555;margin:6px 0}.signature span{font-size:10pt}@media print{button{display:none}}</style></head><body>
+<h1>รายละเอียดรายการรับนมจาก อบต.</h1><p>ปีการศึกษา ${this.escape(receipt.year || "—")}</p>
+<div class="facts"><div class="fact"><small>วันที่รับนม</small><strong>${this.escape(receipt.date || "—")}</strong></div><div class="fact"><small>จำนวนหีบ</small><strong>${this.escape(receipt.crates)} หีบ</strong></div><div class="fact"><small>กล่องต่อหีบ / กล่องย่อย</small><strong>${this.escape(receipt.perCrate)} / ${this.escape(receipt.extra)} กล่อง</strong></div><div class="fact total"><small>รวมทั้งหมด</small>${this.escape(receipt.total)} กล่อง</div><div class="fact wide"><small>หมายเหตุ</small><strong>${this.escape(receipt.note || "—")}</strong></div></div>
+${evidence ? `<h2>รูปหลักฐาน</h2><div class="gallery">${evidence}</div>` : ""}<div class="signatures">${signatures}</div>
+<script>window.addEventListener("load",()=>setTimeout(()=>window.print(),300))<\/script></body></html>`);
+        popup.document.close();
     }
 
     async saveDetail(event) {

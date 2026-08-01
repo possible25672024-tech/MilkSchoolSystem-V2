@@ -2225,7 +2225,10 @@
                             <section id="admin-receipt-detail" class="admin-receipt-detail" hidden>
                                 <div class="admin-system-dashboard-header">
                                     <h3 id="admin-receipt-detail-title">รายละเอียดรายการรับนม</h3>
-                                    <button id="admin-receipt-detail-close" class="secondary" type="button">ปิด</button>
+                                    <div class="admin-report-actions">
+                                        <button id="admin-receipt-detail-print" type="button">พิมพ์ A4</button>
+                                        <button id="admin-receipt-detail-close" class="secondary" type="button">ปิด</button>
+                                    </div>
                                 </div>
                                 <form id="admin-receipt-detail-form">
                                     <div class="admin-receipt-form-grid">
@@ -2269,23 +2272,23 @@
                                 </div>
                                 <button id="admin-distribution-refresh" class="secondary" type="button">โหลดสต็อกใหม่</button>
                             </div>
-                            <div class="admin-receipt-summary">
-                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-main-stock" class="metric-value">0 กล่อง</p></article>
-                                <article class="metric-card"><p class="metric-label">จำนวนที่จะจ่าย</p><p id="admin-distribution-total" class="metric-value">—</p></article>
+                            <div class="admin-receipt-calculation" aria-live="polite">
+                                <span><strong>จำนวนนักเรียน</strong><b id="admin-distribution-students">—</b></span>
+                                <span><strong>จำนวนวัน</strong><b id="admin-distribution-summary-days">—</b></span>
+                                <span><strong>กล่องนมที่ต้องใช้ทั้งหมด</strong><b id="admin-distribution-total">—</b></span>
+                                <span><strong>คิดเป็นหีบ</strong><b id="admin-distribution-package">—</b></span>
+                                <span><strong>นมในสต็อกปัจจุบัน</strong><b id="admin-distribution-stock-before">0 กล่อง</b></span>
+                                <span><strong>นมคงเหลือหลังจ่าย</strong><b id="admin-distribution-main-after">—</b></span>
+                                <span><strong>Room Stock ก่อน → หลัง</strong><b id="admin-distribution-room-after">—</b></span>
                             </div>
-                            <div class="admin-student-import-summary">
-                                <article class="metric-card"><p class="metric-label">นักเรียนจริง</p><p id="admin-distribution-students" class="metric-value">—</p></article>
-                                <article class="metric-card"><p class="metric-label">ลัง + กล่องเศษ</p><p id="admin-distribution-package" class="metric-value">—</p></article>
-                                <article class="metric-card"><p class="metric-label">Main Stock หลังจ่าย</p><p id="admin-distribution-main-after" class="metric-value">—</p></article>
-                                <article class="metric-card"><p class="metric-label">Room Stock ก่อน → หลัง</p><p id="admin-distribution-room-after" class="metric-value">—</p></article>
-                            </div>
+                            <span id="admin-distribution-main-stock" hidden>0 กล่อง</span>
                             <form id="admin-distribution-form">
                                 <div class="admin-receipt-form-grid">
                                     <div class="admin-receipt-field"><label for="admin-distribution-date">วันที่จ่ายนม</label><input id="admin-distribution-date" type="date" required></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-room">ห้องเรียน</label><select id="admin-distribution-room" required><option value="">-- เลือกห้องเรียน --</option></select></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-student-count">จำนวนนักเรียน</label><input id="admin-distribution-student-count" type="number" value="0" disabled></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-days">จำนวนวัน</label><input id="admin-distribution-days" type="number" min="1" step="1" value="1" required></div>
-                                    <div class="admin-receipt-field"><label for="admin-distribution-per-crate">กล่องต่อลัง</label><input id="admin-distribution-per-crate" type="number" min="1" step="1" value="36" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-per-crate">กล่องต่อหีบ</label><input id="admin-distribution-per-crate" type="number" min="1" step="1" value="36" required></div>
                                     <div class="admin-receipt-field"><label for="admin-distribution-year">ปีการศึกษา</label><input id="admin-distribution-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
                                     <div class="admin-receipt-field full"><label for="admin-distribution-note">หมายเหตุ</label><input id="admin-distribution-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการจ่ายนม"></div>
                                 </div>
@@ -2675,12 +2678,13 @@
 
                 <section data-admin-section="backup-restore" class="admin-operation-panel admin-system-tools" hidden>
                     <h2>สำรองและกู้คืนข้อมูล</h2>
-                    <p>ไฟล์สำรองครอบคลุมข้อมูลใต้ <code>milkApp</code> ทั้งหมด รวมเอกสารและหลักฐาน พร้อม SHA-256</p>
+                    <p>เลือกสำรองข้อมูลหลักแบบเร็วสำหรับใช้งานประจำวัน หรือสำรองครบถ้วนพร้อมรูป เอกสาร และหลักฐานสำหรับการกู้คืนทั้งระบบ</p>
                     <div class="admin-system-tool-grid">
                         <article class="admin-system-tool-card">
                             <h3>1. สำรองข้อมูล</h3>
-                            <p>อ่านข้อมูลจริงทั้งหมดและดาวน์โหลดเป็น JSON โดยไม่เปลี่ยน Stock</p>
-                            <button id="admin-backup-download" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลสำรอง</button>
+                            <p><strong>แบบเร็ว:</strong> ขอบเขตใกล้เคียงไฟล์ระบบเก่า เก็บข้อมูลรับ–จ่ายหลักและรูปที่อยู่ในรายการเหล่านั้น แต่ไม่ดึงประวัติเช็กดื่ม/นมค้าง/ย้อนหลัง/ปิดเทอมและเนื้อไฟล์เอกสาร จึงเล็กและเร็วกว่า แต่ไม่ใช้กู้คืนทั้งระบบ</p>
+                            <button id="admin-backup-download" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลหลักแบบเร็ว</button>
+                            <button id="admin-backup-download-full" class="secondary" type="button" data-admin-backup-control>ดาวน์โหลดครบถ้วนพร้อมรูป/เอกสาร</button>
                             <p id="admin-backup-summary" class="admin-system-compact">—</p>
                         </article>
                         <article class="admin-system-tool-card danger-zone">
@@ -2688,6 +2692,7 @@
                             <label>เลือกไฟล์สำรอง<input id="admin-restore-file" type="file" accept=".json,application/json" data-admin-backup-control></label>
                             <div id="admin-restore-preview" class="admin-restore-preview" hidden>
                                 <p><strong>วันที่ไฟล์:</strong> <span id="admin-restore-source-date">—</span></p>
+                                <p><strong>ชนิดไฟล์:</strong> <span id="admin-restore-profile">—</span></p>
                                 <p><strong>SHA-256:</strong> <span id="admin-restore-checksum">—</span></p>
                                 <p><strong>ข้อมูลในไฟล์:</strong> <span id="admin-restore-source-summary">—</span></p>
                                 <p><strong>ข้อมูลปัจจุบัน:</strong> <span id="admin-restore-current-summary">—</span></p>

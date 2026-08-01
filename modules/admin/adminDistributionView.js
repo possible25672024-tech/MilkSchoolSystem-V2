@@ -174,10 +174,12 @@ class AdminDistributionView {
         try {
             const preview = this.manager.preview(this.formInput());
             this.setText("admin-distribution-students", `${preview.students} คน`);
+            this.setText("admin-distribution-summary-days", `${preview.days} วัน`);
             const studentCount = this.element("admin-distribution-student-count");
             if (studentCount) studentCount.value = String(preview.students);
             this.setText("admin-distribution-total", `${preview.total} กล่อง`);
-            this.setText("admin-distribution-package", `${preview.crates} ลัง + ${preview.boxes} กล่อง`);
+            this.setText("admin-distribution-package", `${preview.crates} หีบ + ${preview.boxes} กล่อง`);
+            this.setText("admin-distribution-stock-before", `${preview.mainStockBefore} กล่อง`);
             this.setText("admin-distribution-main-after", `${preview.mainStockAfter} กล่อง`);
             this.setText("admin-distribution-room-after", `${preview.roomStockBefore} → ${preview.roomStockAfter} กล่อง`);
             const receiver = this.element("admin-distribution-receiver-name");
@@ -187,10 +189,12 @@ class AdminDistributionView {
             return preview;
         } catch (error) {
             this.setText("admin-distribution-students", "—");
+            this.setText("admin-distribution-summary-days", "—");
             const studentCount = this.element("admin-distribution-student-count");
             if (studentCount) studentCount.value = "0";
             this.setText("admin-distribution-total", "—");
             this.setText("admin-distribution-package", "—");
+            this.setText("admin-distribution-stock-before", `${this.manager.current?.mainStock || 0} กล่อง`);
             this.setText("admin-distribution-main-after", "—");
             this.setText("admin-distribution-room-after", "—");
             return null;

@@ -266,9 +266,16 @@ class AdminSystemService {
         return true;
     }
 
-    async createBackup(session, purpose = "download") {
+    async createBackup(session, purpose = "download", profile = "full") {
         this.assertAdmin(session);
-        const snapshot = await this.ensureRepository().loadRootWithEtag();
+        const normalizedProfile = profile === "core" ? "core" : "full";
+        const repository = this.ensureRepository();
+        if (normalizedProfile === "core" && !repository.loadCoreWithEtag) {
+            throw this.businessError("CORE_BACKUP_UNAVAILABLE", "ระบบสำรองข้อมูลหลักแบบเร็วยังไม่พร้อม");
+        }
+        const snapshot = normalizedProfile === "core"
+            ? await repository.loadCoreWithEtag()
+            : await repository.loadRootWithEtag();
         const data = snapshot.value || {};
         const checksum = await this.checksumData(data);
         const createdAt = this.clock().toISOString();
@@ -278,6 +285,8 @@ class AdminSystemService {
                 formatVersion: this.backupVersion,
                 createdAt,
                 purpose: String(purpose || "download"),
+                profile: normalizedProfile,
+                restoreScope: normalizedProfile === "full" ? "full-root" : "reference-only",
                 school: String(data.settings?.school || data.settings?.schoolName || ""),
                 summary: this.summarizeRoot(data),
                 integrity: {
@@ -335,6 +344,12 @@ class AdminSystemService {
         }
         if (options.safetyBackupReady !== true) {
             throw this.businessError("RESTORE_SAFETY_BACKUP_REQUIRED", "ต้องดาวน์โหลดข้อมูลสำรองปัจจุบันก่อนกู้คืน");
+        }
+        if (preview.envelope?.profile === "core" || preview.envelope?.restoreScope === "reference-only") {
+            throw this.businessError(
+                "CORE_BACKUP_RESTORE_BLOCKED",
+                "ไฟล์ข้อมูลหลักแบบเร็วใช้ตรวจสอบและเก็บประจำวัน แต่ไม่ใช้เขียนทับฐานทั้งก้อน กรุณาเลือกไฟล์สำรองครบถ้วน"
+            );
         }
         const restoreId = `restore_${this.clock().getTime()}`;
         const restoredData = {

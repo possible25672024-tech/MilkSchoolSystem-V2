@@ -48,8 +48,8 @@ class AdminSystemManager {
         return this.service.deleteDocument(this.session(), id);
     }
 
-    async createBackup(purpose = "download") {
-        const backup = await this.service.createBackup(this.session(), purpose);
+    async createBackup(purpose = "download", profile = "full") {
+        const backup = await this.service.createBackup(this.session(), purpose, profile);
         if (purpose === "pre-restore") this.safetyBackupReady = true;
         return backup;
     }

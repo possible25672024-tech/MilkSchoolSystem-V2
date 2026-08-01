@@ -4,17 +4,31 @@
 
 Last Update: 2026-08-01
 
-Current Branch: `feature/sprint-5.9.2-receipt-print-backup-fixes`
+Current Branch: `feature/sprint-5.9.3-a4-distribution-backup-optimization`
 
 Current Version: V2
 
 ## Current Sprint
 
-Sprint 5.9.2 — Receipt, Print and Large Backup Corrections
+Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
 
-Status: **AUTOMATED PASS — 87/87 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
+Status: **AUTOMATED PASS — 88/88 / LIVE BROWSER AND ISOLATED FIREBASE UAT PENDING**
 
-Approved predecessor: Sprint 5.9.1 — Admin Parity Corrections
+Approved predecessor: Sprint 5.9.2 — Receipt, Print and Large Backup Corrections
+
+## Sprint 5.9.3 Current Boundary
+
+- print the explicitly viewed receipt as A4 with facts, photos, names, and
+  signatures;
+- show selected-room students, manual days, total boxes, crate remainder,
+  current Main Stock, and post-distribution Main Stock before save;
+- provide a fast legacy-like core backup without hydrating Teacher operation
+  history or document file bodies;
+- retain a separate full-evidence backup for whole-root recovery;
+- block whole-root Restore for the reference-only core profile;
+- all 88 discovered regression checks pass;
+- Live Server and isolated Firebase Backup UAT remain pending;
+- Production Restore, Firebase Rules deployment, `main`, and cutover remain blocked.
 
 ## Sprint 5.9.2 Current Boundary
 
