@@ -1,0 +1,16 @@
+{
+  "name": "milk-school-system-v2-release-gates",
+  "private": true,
+  "scripts": {
+    "test:regression": "node tests/run-sprint-4.9-regression.mjs",
+    "test:firebase-rules": "firebase emulators:exec --only database --project demo-milk-school-v2 \"node tests/firebase-rules-emulator-uat.mjs\"",
+    "test:firebase-project": "node tests/firebase-real-test-project-uat.mjs",
+    "audit:room-incident": "node scripts/audit-room-incident.mjs",
+    "verify:production-approval": "node scripts/verify-production-approval.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.1",
+    "firebase": "12.17.0",
+    "firebase-tools": "15.25.1"
+  }
+}

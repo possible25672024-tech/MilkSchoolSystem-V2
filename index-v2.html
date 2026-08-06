@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="milkapp-foundation" content="Sprint 4.0 Cutover Readiness and Compatibility">
     <meta name="milkapp-teacher-shell" content="Sprint 4.1 Teacher UI Shell and Read-Only State">
+    <meta name="milkapp-attendance-ui" content="Sprint 4.2 Teacher Daily Attendance CRUD UI">
+    <meta name="milkapp-admin-report-ui" content="Sprint 5.0 Operational Admin Report Integration">
     <title>MilkSchoolSystem V2</title>
     <link rel="icon" href="data:,">
     <style>
@@ -27,7 +29,7 @@
         }
 
         main {
-            width: min(960px, 100%);
+            width: min(1860px, 100%);
         }
 
         .panel {
@@ -387,13 +389,1357 @@
             width: min(220px, 100%);
         }
 
+        .admin-report-panel {
+            margin-top: 26px;
+            padding-top: 24px;
+            border-top: 1px solid #dbe5ef;
+        }
+
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 270px minmax(0, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .admin-sidebar {
+            position: sticky;
+            top: 18px;
+            overflow: hidden;
+            border-radius: 16px;
+            color: #ffffff;
+            background: #123b56;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+        }
+
+        .admin-sidebar-header {
+            padding: 20px;
+            background: #0c2d43;
+        }
+
+        .admin-sidebar-header h1,
+        .admin-sidebar-header p {
+            margin: 0 0 6px;
+            color: #ffffff;
+        }
+
+        .admin-room-picker {
+            display: grid;
+            gap: 9px;
+            padding: 16px;
+        }
+
+        .admin-room-picker label {
+            color: #dbeafe;
+        }
+
+        .admin-room-picker select {
+            min-width: 0;
+        }
+
+        .admin-room-picker button,
+        .admin-menu button {
+            width: 100%;
+            margin: 0;
+        }
+
+        .admin-menu {
+            display: grid;
+            gap: 4px;
+            padding: 0 10px 14px;
+        }
+
+        .admin-menu-group {
+            margin: 10px 8px 2px;
+            color: #8fb3c9;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .admin-menu button {
+            border-left: 4px solid transparent;
+            border-radius: 8px;
+            text-align: left;
+            color: #e2e8f0;
+            background: transparent;
+        }
+
+        .admin-menu button[data-active="true"] {
+            border-left-color: #f59e0b;
+            color: #ffffff;
+            background: #315d78;
+        }
+
+        .admin-content {
+            min-width: 0;
+        }
+
+        .admin-room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            border-radius: 14px;
+            padding: 18px;
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-room-header h2,
+        .admin-room-header p {
+            margin: 0 0 4px;
+            color: inherit;
+        }
+
+        .admin-room-dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-system-dashboard-header,
+        .admin-dashboard-health-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .admin-system-dashboard-header h2,
+        .admin-system-dashboard-header p {
+            margin: 0 0 5px;
+        }
+
+        .admin-system-dashboard-header button {
+            width: auto;
+            min-width: 160px;
+            margin: 0;
+        }
+
+        .admin-dashboard-metrics,
+        .admin-dashboard-status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .admin-dashboard-status-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .admin-dashboard-health-row {
+            margin-top: 18px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: #f8fafc;
+        }
+
+        #admin-dashboard-health {
+            font-weight: 800;
+        }
+
+        #admin-dashboard-health[data-state="ready"] {
+            color: #166534;
+        }
+
+        #admin-dashboard-health[data-state="warning"] {
+            color: #9a3412;
+        }
+
+        .admin-dashboard-status-card {
+            border-radius: 12px;
+            padding: 14px;
+            background: #eef6fb;
+        }
+
+        .admin-dashboard-status-card span,
+        .admin-dashboard-status-card strong {
+            display: block;
+        }
+
+        .admin-dashboard-status-card span {
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .admin-dashboard-status-card strong {
+            margin-top: 5px;
+            color: #123b56;
+            font-size: 1.15rem;
+        }
+
+        .admin-dashboard-table-wrap {
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .admin-dashboard-table th,
+        .admin-dashboard-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 11px 10px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-dashboard-table th:first-child,
+        .admin-dashboard-table td:first-child {
+            width: 26%;
+            text-align: left;
+        }
+
+        .admin-dashboard-table tr[data-state="baseline"] td:nth-last-child(2) {
+            color: #9a3412;
+            font-weight: 800;
+        }
+
+        .admin-dashboard-table tr[data-state="negative"] td:nth-last-child(2) {
+            color: #b91c1c;
+            font-weight: 800;
+        }
+
+        .admin-dashboard-table button {
+            width: 100%;
+            min-width: 88px;
+            margin: 0;
+            padding: 7px 9px;
+            font-size: 0.8rem;
+        }
+
+        .admin-stock-trace {
+            margin-top: 18px;
+            border: 2px solid #1a5276;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f8fbfd;
+        }
+
+        .admin-stock-trace-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-stock-trace-header h3 {
+            margin: 0;
+        }
+
+        .admin-stock-trace-header button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-stock-trace-flow {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .admin-stock-trace-step {
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .admin-stock-trace-step span,
+        .admin-stock-trace-step strong {
+            display: block;
+        }
+
+        .admin-stock-trace-step span {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .admin-stock-trace-step strong {
+            margin-top: 6px;
+            color: #123b56;
+            font-size: 1.1rem;
+        }
+
+        .admin-stock-trace-equation,
+        .admin-stock-trace-warning {
+            margin: 14px 0 0;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .admin-stock-trace-equation {
+            color: #123b56;
+            font-weight: 800;
+            text-align: center;
+            background: #e8f1f7;
+        }
+
+        .admin-stock-trace-warning {
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .admin-receipt-summary,
+        .admin-receipt-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .admin-receipt-summary {
+            grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+            margin-top: 14px;
+        }
+
+        .admin-receipt-form-grid {
+            margin-top: 16px;
+        }
+
+        .admin-receipt-field {
+            min-width: 0;
+        }
+
+        .admin-receipt-field label {
+            margin-bottom: 6px;
+        }
+
+        .admin-receipt-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .admin-receipt-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .admin-receipt-actions button {
+            width: auto;
+            min-width: 180px;
+        }
+
+        .admin-receipt-calculation {
+            display: grid;
+            gap: 0;
+            margin-top: 16px;
+            border: 1px solid #93c5fd;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #123b56;
+            background: #eaf4ff;
+        }
+
+        .admin-receipt-calculation span {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            border-bottom: 1px solid #cfe3f5;
+            padding: 7px 0;
+        }
+
+        .admin-receipt-calculation span:last-child {
+            border-bottom: 0;
+        }
+
+        .admin-receipt-detail {
+            margin-top: 20px;
+            border: 2px solid #1a5276;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f8fbfd;
+        }
+
+        .admin-receipt-evidence-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .admin-receipt-evidence-gallery figure {
+            margin: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 8px;
+            background: #ffffff;
+        }
+
+        .admin-receipt-evidence-gallery img {
+            display: block;
+            width: 100%;
+            height: 130px;
+            object-fit: contain;
+        }
+
+        .admin-receipt-evidence-gallery figcaption {
+            margin-top: 6px;
+            color: #475569;
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        .admin-row-actions {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .admin-row-actions button {
+            width: auto;
+            min-width: 58px;
+            min-height: 34px;
+            margin: 0;
+            padding: 6px 8px;
+            font-size: 0.78rem;
+        }
+
+        .admin-system-tools-header,
+        .admin-system-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-system-tools-header h2,
+        .admin-system-tools-header p {
+            margin: 0 0 5px;
+        }
+
+        .admin-system-tools-header button,
+        .admin-system-actions button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-system-summary,
+        .admin-system-notice {
+            display: grid;
+            gap: 5px;
+            margin-top: 14px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 14px;
+            color: #123b56;
+            background: #eff6ff;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-system-form,
+        .admin-system-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .admin-system-form .wide {
+            grid-column: 1 / -1;
+        }
+
+        .admin-system-tool-card {
+            display: grid;
+            align-content: start;
+            gap: 10px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .admin-system-tool-card h3,
+        .admin-system-tool-card p {
+            margin: 0;
+        }
+
+        .admin-system-tool-card button {
+            width: 100%;
+            margin: 0;
+        }
+
+        .admin-system-tool-card.danger-zone {
+            border-color: #fecaca;
+            background: #fff7f7;
+        }
+
+        .admin-system-tool-card button.danger {
+            background: #b91c1c;
+        }
+
+        .admin-system-tool-card button.danger:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .admin-restore-preview {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.86rem;
+            background: #ffffff;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-restore-preview p {
+            margin: 5px 0;
+        }
+
+        .admin-system-compact {
+            color: #475569;
+            font-size: 0.84rem;
+            overflow-wrap: anywhere;
+        }
+
+        #admin-document-body td:last-child {
+            display: flex;
+            gap: 6px;
+        }
+
+        #admin-document-body td:last-child button {
+            width: auto;
+            margin: 0;
+            padding: 7px 9px;
+            font-size: 0.8rem;
+        }
+
+        .admin-receipt-table {
+            width: 100%;
+            min-width: 920px;
+            border-collapse: collapse;
+        }
+
+        .admin-receipt-table th,
+        .admin-receipt-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-receipt-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-distribution-history-table {
+            width: 100%;
+            min-width: 1120px;
+            border-collapse: collapse;
+        }
+
+        .admin-distribution-history-table th,
+        .admin-distribution-history-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 8px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-distribution-history-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-student-metrics,
+        .admin-student-import-summary,
+        .admin-room-create-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .admin-student-file-box {
+            border: 2px dashed #9fb7ca;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f5f9fc;
+        }
+
+        .admin-student-file-box input {
+            margin-top: 8px;
+        }
+
+        .admin-student-import-actions,
+        .admin-student-report-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-student-import-actions button,
+        .admin-student-report-actions button {
+            width: auto;
+        }
+
+        .admin-student-import-messages {
+            display: grid;
+            gap: 8px;
+            margin: 12px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .admin-student-import-messages li {
+            border-radius: 9px;
+            padding: 9px 12px;
+            color: #854d0e;
+            background: #fef3c7;
+        }
+
+        .admin-student-import-messages li[data-state="error"] {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .admin-student-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-student-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .admin-student-table th,
+        .admin-student-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-student-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-student-detail {
+            margin-top: 18px;
+            border-top: 1px solid #dbe5ef;
+            padding-top: 16px;
+        }
+
+        .admin-student-detail h3,
+        .admin-student-detail p {
+            margin: 0 0 6px;
+        }
+
+        .admin-room-create-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            [data-admin-section="student-report"],
+            [data-admin-section="student-report"] * {
+                visibility: visible;
+            }
+
+            [data-admin-section="student-report"] {
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                border: 0;
+                padding: 0;
+            }
+
+            .admin-student-report-actions,
+            #admin-student-report-refresh,
+            #admin-student-report-table th:last-child,
+            #admin-student-report-table td:last-child {
+                display: none !important;
+            }
+        }
+
+        .admin-operation-panel {
+            min-width: 0;
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 14px;
+            padding: 18px;
+            background: #ffffff;
+        }
+
+        .admin-operation-panel h2 {
+            margin-top: 0;
+        }
+
+        .admin-operation-table {
+            width: 100%;
+            min-width: 0;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .admin-operation-table th,
+        .admin-operation-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 9px 7px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-operation-table th:nth-child(1),
+        .admin-operation-table td:nth-child(1) {
+            width: 23%;
+        }
+
+        .admin-operation-table th:nth-child(2),
+        .admin-operation-table td:nth-child(2) {
+            width: 21%;
+        }
+
+        .admin-operation-table th:nth-child(3),
+        .admin-operation-table td:nth-child(3) {
+            width: 17%;
+        }
+
+        .admin-operation-table th:nth-child(4),
+        .admin-operation-table td:nth-child(4) {
+            width: 39%;
+        }
+
+        .admin-operation-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-operation-panel .admin-report-table-wrap {
+            overflow-x: hidden;
+        }
+
+        .admin-record-actions {
+            display: grid;
+            grid-template-columns: minmax(54px, 0.7fr) minmax(112px, 1.35fr) minmax(54px, 0.7fr);
+            gap: 5px;
+            min-width: 0;
+        }
+
+        .admin-operation-table button {
+            width: 100%;
+            min-width: 0;
+            min-height: 38px;
+            margin: 0;
+            padding: 6px 5px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .admin-attendance-editor {
+            margin-top: 18px;
+            border-top: 1px solid #dbe5ef;
+            padding-top: 18px;
+        }
+
+        .admin-attendance-editor-header,
+        .admin-attendance-editor-summary,
+        .admin-attendance-editor-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .admin-attendance-editor-header h3 {
+            margin: 0;
+        }
+
+        .admin-attendance-editor-summary {
+            justify-content: flex-start;
+            margin: 12px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #eef6ff;
+        }
+
+        .admin-attendance-editor-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 0.8fr) minmax(220px, 1fr);
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .admin-attendance-editor-identity {
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .admin-attendance-editor-choice {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 10px;
+        }
+
+        .admin-attendance-editor-note {
+            min-width: 0;
+        }
+
+        .admin-attendance-editor-actions {
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
+        .admin-record-detail {
+            margin-top: 18px;
+            border: 1px solid #bfd2e3;
+            border-radius: 16px;
+            padding: 18px;
+            background: #f6f9fc;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .admin-record-detail-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            border-radius: 12px;
+            padding: 16px;
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-record-detail-header h2,
+        .admin-record-detail-header p {
+            margin: 0 0 4px;
+            color: inherit;
+        }
+
+        .admin-record-detail-header button {
+            width: auto;
+            margin: 0;
+            color: #123b56;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-facts,
+        .admin-record-detail-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-record-detail-fact,
+        .admin-record-detail-metric {
+            display: grid;
+            gap: 5px;
+            min-width: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-fact:first-child {
+            grid-column: span 2;
+        }
+
+        .admin-record-detail-fact span,
+        .admin-record-detail-metric span {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .admin-record-detail-fact strong,
+        .admin-record-detail-metric strong {
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-metric strong {
+            color: #1a5276;
+            font-size: 1.08rem;
+        }
+
+        .admin-record-detail-section {
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 14px;
+            padding: 15px;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-section h3 {
+            margin: 0 0 12px;
+        }
+
+        .admin-record-detail-students {
+            display: grid;
+            gap: 8px;
+        }
+
+        .admin-record-detail-student {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) minmax(130px, auto);
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: #fbfdff;
+        }
+
+        .admin-record-detail-number {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 50%;
+            color: #1a5276;
+            font-weight: 800;
+            background: #dff1ff;
+        }
+
+        .admin-record-detail-student div {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .admin-record-detail-student small {
+            color: #64748b;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-status {
+            justify-self: end;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .admin-record-detail-status.present {
+            border-color: #86efac;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .admin-record-detail-status.absent {
+            border-color: #fecaca;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .admin-record-detail-status.unchecked {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        .admin-record-detail-evidence {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .admin-record-detail-evidence-card {
+            min-width: 0;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .admin-record-detail-evidence-card h4 {
+            margin: 0 0 10px;
+        }
+
+        .admin-record-detail-gallery,
+        .admin-record-detail-signatures {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .admin-record-detail-gallery img,
+        .admin-record-detail-signature img {
+            display: block;
+            width: 100%;
+            height: 150px;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+            object-fit: contain;
+            background: #ffffff;
+        }
+
+        .admin-record-detail-signature {
+            display: grid;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .admin-record-detail-signature strong {
+            overflow-wrap: anywhere;
+        }
+
+        .admin-record-detail-empty {
+            margin: 0;
+            border-radius: 10px;
+            padding: 14px;
+            color: #64748b;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        .admin-report-toolbar,
+        .admin-report-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .admin-report-toolbar button,
+        .admin-report-actions button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-report-toolbar button[data-active="false"] {
+            color: #1a5276;
+            background: #e8f1f7;
+        }
+
+        .admin-report-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .admin-report-table-wrap {
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid #dbe5ef;
+            border-radius: 12px;
+        }
+
+        .admin-report-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .admin-report-table th,
+        .admin-report-table td {
+            border-bottom: 1px solid #dbe5ef;
+            padding: 10px 9px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .admin-report-table th:first-child,
+        .admin-report-table td:first-child {
+            text-align: left;
+        }
+
+        .admin-report-table th {
+            color: #ffffff;
+            background: #1a5276;
+        }
+
+        .admin-report-source-status {
+            margin: 12px 0 0;
+            color: #475569;
+            font-size: 0.82rem;
+        }
+
+        .admin-report-source-status[data-state="error"] {
+            border: 1px solid #fecaca;
+            border-radius: 9px;
+            padding: 9px 11px;
+            color: #b91c1c;
+            background: #fff1f2;
+        }
+
+        .admin-report-source-status[data-state="ok"] {
+            color: #166534;
+        }
+
+        .admin-report-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-report-filter-grid label {
+            display: grid;
+            gap: 6px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .admin-report-filter-grid button {
+            align-self: end;
+            margin: 0;
+        }
+
+        .admin-consumption-toolbar {
+            display: flex;
+            align-items: end;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-consumption-toolbar label {
+            min-width: 190px;
+            margin: 0;
+        }
+
+        .admin-consumption-toolbar button {
+            width: auto;
+            margin: 0;
+        }
+
+        .admin-consumption-metrics {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .admin-consumption-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .admin-consumption-card,
+        .admin-distribution-evidence {
+            border: 1px solid #dbe5ef;
+            border-radius: 14px;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .admin-consumption-card h3,
+        .admin-distribution-evidence h3 {
+            margin: 0 0 10px;
+        }
+
+        .admin-consumption-card .admin-report-table {
+            min-width: 640px;
+        }
+
+        .admin-distribution-evidence {
+            margin-top: 16px;
+            background: #f8fbfd;
+        }
+
+        .admin-distribution-evidence-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        .admin-distribution-signature {
+            display: grid;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .admin-distribution-signature canvas {
+            display: block;
+            width: 100%;
+            height: 150px;
+            border: 1px dashed #64748b;
+            border-radius: 10px;
+            background: #ffffff;
+            touch-action: none;
+        }
+
+        .admin-distribution-signature button {
+            width: auto;
+            margin: 0;
+        }
+
         [hidden] {
             display: none !important;
         }
 
-        @media (max-width: 760px) {
+        @media (min-width: 1101px) {
+            body:has(#app-panel:not([hidden]) #admin-shell:not([hidden])) {
+                display: block;
+                padding: 0;
+                background: #eef3f8;
+            }
+
+            body:has(#app-panel:not([hidden]) #admin-shell:not([hidden])) main {
+                width: 100%;
+                max-width: none;
+            }
+
+            #app-panel:has(#admin-shell:not([hidden])) {
+                min-height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                padding: 24px;
+                background: #eef3f8;
+                box-shadow: none;
+            }
+
+            #admin-shell,
+            .admin-layout {
+                width: 100%;
+            }
+
+            .admin-layout {
+                grid-template-columns: 286px minmax(0, 1fr);
+                gap: 24px;
+            }
+
+            .admin-sidebar {
+                display: flex;
+                flex-direction: column;
+                min-height: calc(100vh - 48px);
+                top: 24px;
+            }
+
+            .admin-menu {
+                align-content: start;
+            }
+
+            .admin-sidebar > .admin-room-picker:last-child {
+                margin-top: auto;
+            }
+
+            .admin-operation-table th:nth-child(1),
+            .admin-operation-table td:nth-child(1) {
+                width: 22%;
+            }
+
+            .admin-operation-table th:nth-child(2),
+            .admin-operation-table td:nth-child(2) {
+                width: 20%;
+            }
+
+            .admin-operation-table th:nth-child(3),
+            .admin-operation-table td:nth-child(3) {
+                width: 16%;
+            }
+
+            .admin-operation-table th:nth-child(4),
+            .admin-operation-table td:nth-child(4) {
+                width: 42%;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-sidebar {
+                position: static;
+            }
+
+            .admin-menu {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-room-dashboard {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-dashboard-metrics,
+            .admin-dashboard-status-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-stock-trace-flow {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-receipt-form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-system-form,
+            .admin-system-tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-student-metrics,
+            .admin-student-import-summary,
+            .admin-room-create-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-attendance-editor-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-record-detail-facts,
+            .admin-record-detail-summary,
+            .admin-record-detail-evidence {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .admin-record-detail-fact:first-child {
+                grid-column: auto;
+            }
+
             .attendance-summary {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-report-metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-consumption-metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-consumption-grid,
+            .admin-distribution-evidence-grid {
+                grid-template-columns: 1fr;
             }
 
             .attendance-student-row {
@@ -426,6 +1772,166 @@
                 grid-template-columns: 1fr;
             }
 
+            .admin-report-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-report-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-consumption-toolbar,
+            .admin-consumption-metrics {
+                align-items: stretch;
+                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+
+            .admin-consumption-toolbar label,
+            .admin-consumption-toolbar button {
+                width: 100%;
+            }
+
+            .admin-room-dashboard,
+            .admin-dashboard-metrics,
+            .admin-dashboard-status-grid,
+            .admin-stock-trace-flow,
+            .admin-receipt-summary,
+            .admin-receipt-form-grid,
+            .admin-student-metrics,
+            .admin-student-import-summary,
+            .admin-room-create-grid,
+            .admin-menu {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-receipt-calculation span,
+            .admin-row-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-student-import-actions,
+            .admin-student-report-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-student-import-actions button,
+            .admin-student-report-actions button {
+                width: 100%;
+            }
+
+            .admin-system-dashboard-header,
+            .admin-dashboard-health-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-system-dashboard-header button {
+                width: 100%;
+            }
+
+            .admin-system-tools-header,
+            .admin-system-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .admin-system-tools-header button,
+            .admin-system-actions button {
+                width: 100%;
+            }
+
+            .admin-operation-panel {
+                padding: 14px;
+            }
+
+            .admin-operation-table,
+            .admin-operation-table tbody,
+            .admin-operation-table tr,
+            .admin-operation-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .admin-operation-table thead {
+                display: none;
+            }
+
+            .admin-operation-table tbody {
+                display: grid;
+                gap: 12px;
+            }
+
+            .admin-operation-table tr {
+                overflow: hidden;
+                border: 1px solid #dbe5ef;
+                border-radius: 12px;
+                background: #ffffff;
+            }
+
+            .admin-operation-table td {
+                display: grid;
+                grid-template-columns: minmax(90px, 0.42fr) minmax(0, 1fr);
+                gap: 10px;
+                border-bottom: 1px solid #e8eef4;
+                padding: 10px 12px;
+                text-align: left;
+            }
+
+            .admin-operation-table td::before {
+                content: attr(data-label);
+                color: #64748b;
+                font-size: 0.82rem;
+                font-weight: 700;
+            }
+
+            .admin-operation-table td:last-child {
+                border-bottom: 0;
+            }
+
+            .admin-operation-table td.admin-operation-empty {
+                display: block;
+                text-align: center;
+            }
+
+            .admin-operation-table td.admin-operation-empty::before {
+                content: none;
+            }
+
+            .admin-record-actions {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .admin-operation-table button {
+                white-space: normal;
+            }
+
+            .admin-record-detail-header {
+                display: grid;
+            }
+
+            .admin-record-detail-header button {
+                width: 100%;
+            }
+
+            .admin-record-detail-facts,
+            .admin-record-detail-summary,
+            .admin-record-detail-evidence {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-record-detail-student {
+                grid-template-columns: 38px minmax(0, 1fr);
+            }
+
+            .admin-record-detail-status {
+                grid-column: 2;
+                justify-self: start;
+                white-space: normal;
+            }
+
             .attendance-toolbar button,
             .attendance-actions button,
             .teacher-actions button {
@@ -442,8 +1948,11 @@
     <script defer src="config/app-config.js"></script>
     <script defer src="config/firebase-config.js"></script>
     <script defer src="modules/config/configManager.js"></script>
+    <script defer src="assets/vendor/xlsx.full.min.js"></script>
+    <script defer src="assets/vendor/pdf-lib.min.js"></script>
 
     <script defer src="modules/services/firebaseService.js"></script>
+    <script defer src="modules/services/firebaseAuthService.js"></script>
     <script defer src="modules/repositories/baseRepository.js"></script>
     <script defer src="modules/services/storageService.js"></script>
     <script defer src="modules/storage/queueStorage.js"></script>
@@ -466,7 +1975,9 @@
     <script defer src="modules/login/authService.js"></script>
     <script defer src="modules/login/loginManager.js"></script>
     <script defer src="modules/stock/stockManager.js"></script>
+    <script defer src="modules/report/browserLocalReportAdapter.js"></script>
     <script defer src="modules/report/reportManager.js"></script>
+    <script defer src="modules/report/adminReportView.js"></script>
     <script defer src="modules/room/roomManager.js"></script>
     <script defer src="modules/teacher/teacherManager.js"></script>
     <script defer src="modules/attendance/attendanceManager.js"></script>
@@ -478,6 +1989,12 @@
     <script defer src="modules/core/bootstrap.js"></script>
 </head>
 <body>
+    <div
+    id="offline-read-only-banner"
+    hidden
+>
+    OFFLINE READ-ONLY — ข้อมูลจากไฟล์สำรอง
+</div>
     <main>
         <p id="bootstrap-error" class="error" hidden></p>
 
@@ -511,10 +2028,752 @@
 
         <section id="app-panel" class="panel" hidden>
             <div id="admin-shell">
-                <h1>เข้าสู่ระบบสำเร็จ</h1>
-                <p id="current-user"></p>
-                <p class="subtitle">Sprint 4.2 Teacher Daily Attendance CRUD UI พร้อมสำหรับการตรวจสอบหน้าครูเช็กดื่มนมรายวัน</p>
-                <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+                <div class="admin-layout">
+                    <aside class="admin-sidebar">
+                        <div class="admin-sidebar-header">
+                            <h1>👑 ผู้ดูแลระบบ</h1>
+                            <p id="current-user"></p>
+                        </div>
+                        <div class="admin-room-picker">
+                            <label for="admin-room-select">เลือกห้องเรียน</label>
+                            <select id="admin-room-select"></select>
+                            <button id="admin-room-refresh" class="secondary" type="button">โหลดห้องใหม่</button>
+                            <button id="admin-enter-room" type="button">เปิดเมนูครูห้องนี้</button>
+                        </div>
+                        <nav class="admin-menu" aria-label="เมนูผู้ดูแลระบบ">
+                            <span class="admin-menu-group">หน้าหลัก</span>
+                            <button type="button" data-admin-menu="system-dashboard" data-active="true" aria-pressed="true">🏫 ภาพรวมระบบ</button>
+                            <span class="admin-menu-group">เอกสาร</span>
+                            <button type="button" data-admin-menu="documents" data-active="false" aria-pressed="false">📁 เอกสารที่เกี่ยวข้อง</button>
+                            <span class="admin-menu-group">รับนม</span>
+                            <button type="button" data-admin-menu="receipts" data-active="false" aria-pressed="false">🚚 รับนมจาก อบต.</button>
+                            <button type="button" data-admin-menu="receipt-history" data-active="false" aria-pressed="false">📋 รายการรับนมทั้งหมด</button>
+                            <span class="admin-menu-group">นักเรียน</span>
+                            <button type="button" data-admin-menu="student-import" data-active="false" aria-pressed="false">📤 นำเข้าข้อมูลนักเรียน</button>
+                            <button type="button" data-admin-menu="room-management" data-active="false" aria-pressed="false">🏷️ จัดการห้องเรียน</button>
+                            <button type="button" data-admin-menu="student-report" data-active="false" aria-pressed="false">👥 รายงานนักเรียน</button>
+                            <span class="admin-menu-group">จ่ายนม</span>
+                            <button type="button" data-admin-menu="distribution" data-active="false" aria-pressed="false">🥛 จ่ายนมให้ห้องเรียน</button>
+                            <button type="button" data-admin-menu="distribution-history" data-active="false" aria-pressed="false">📋 รายการจ่ายนมทั้งหมด</button>
+                            <button type="button" data-admin-menu="pending" data-active="false" aria-pressed="false">🧾 นมค้างรายสัปดาห์</button>
+                            <button type="button" data-admin-menu="vacation" data-active="false" aria-pressed="false">🏖️ จ่ายนมช่วงปิดเทอม</button>
+                            <button type="button" data-admin-menu="retroactive" data-active="false" aria-pressed="false">↩️ จ่ายนมย้อนหลัง</button>
+                            <span class="admin-menu-group">รายงาน</span>
+                            <button type="button" data-admin-menu="operational-summary" data-active="false" aria-pressed="false">📊 สรุปบริหารจัดการนม</button>
+                            <button type="button" data-admin-menu="distribution-report" data-active="false" aria-pressed="false">🧾 รายงานการจ่ายนม</button>
+                            <button type="button" data-admin-menu="school-report" data-active="false" aria-pressed="false">📈 รายงานทั้งโรงเรียน</button>
+                            <span class="admin-menu-group">เช็กดื่มนม</span>
+                            <button type="button" data-admin-menu="dashboard" data-active="false" aria-pressed="false">📊 ภาพรวมการดื่มนม</button>
+                            <button type="button" data-admin-menu="attendance" data-active="false" aria-pressed="false">📋 ประวัติการเช็ก</button>
+                            <span class="admin-menu-group">ตั้งค่า</span>
+                            <button type="button" data-admin-menu="system-settings" data-active="false" aria-pressed="false">⚙️ ตั้งค่าระบบ</button>
+                            <button type="button" data-admin-menu="backup-restore" data-active="false" aria-pressed="false">💾 สำรอง/กู้คืน</button>
+                            <button type="button" data-admin-menu="drive-sync" data-active="false" aria-pressed="false">☁️ ซิงก์ Google Drive</button>
+                        </nav>
+                        <div class="admin-room-picker">
+                            <button id="logout-button" class="secondary" type="button">ออกจากระบบ</button>
+                        </div>
+                    </aside>
+
+                    <div class="admin-content">
+                        <header class="admin-room-header">
+                            <div>
+                                <p>ห้องที่เลือก</p>
+                                <h2 id="admin-selected-room">—</h2>
+                                <p id="admin-selected-teacher">—</p>
+                            </div>
+                            <strong>สิทธิ์ดู · แก้ไข · ลบ</strong>
+                        </header>
+                        <p id="admin-room-status" class="status" aria-live="polite"></p>
+                        <p id="admin-room-error" class="error" role="alert" hidden></p>
+                        <p id="admin-student-error" class="error" role="alert" hidden></p>
+
+                        <section data-admin-section="system-dashboard" class="admin-operation-panel">
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>ภาพรวมระบบ <span id="admin-dashboard-school">โรงเรียน</span></h2>
+                                    <p>ปีการศึกษา <span id="admin-dashboard-year">—</span> · ข้อมูลแบบอ่านอย่างเดียว</p>
+                                </div>
+                                <button id="admin-dashboard-refresh" type="button">โหลดภาพรวมใหม่</button>
+                            </div>
+                            <div class="admin-dashboard-metrics">
+                                <article class="metric-card"><p class="metric-label">Main Stock</p><p id="admin-dashboard-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">Room Stock รวม</p><p id="admin-dashboard-room-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นมคงเหลือทั้งระบบ</p><p id="admin-dashboard-system-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-dashboard-rooms" class="metric-value">0 ห้อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียนจริง</p><p id="admin-dashboard-students" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ใช้ไปแล้ว</p><p id="admin-dashboard-used" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <div class="admin-dashboard-health-row">
+                                <strong id="admin-dashboard-health" data-state="ready">กำลังตรวจสอบยอด Room Stock</strong>
+                                <span>เปรียบเทียบยอดจริงกับประวัติการจ่ายและการใช้</span>
+                            </div>
+                            <section class="admin-stock-trace">
+                                <header class="admin-stock-trace-header">
+                                    <h3>เส้นทางการตัดสต็อกตั้งแต่ต้นจนจบ</h3>
+                                </header>
+                                <div class="admin-stock-trace-flow">
+                                    <article class="admin-stock-trace-step"><span>1. รับนมจาก อบต.</span><strong>Main Stock + จำนวนรับ</strong></article>
+                                    <article class="admin-stock-trace-step"><span>2. Admin จ่ายให้ห้อง</span><strong>Main −N · Room +N</strong></article>
+                                    <article class="admin-stock-trace-step"><span>3. ครูเช็กดื่มนม</span><strong>Room − คนที่ดื่ม</strong></article>
+                                    <article class="admin-stock-trace-step"><span>4. ครูจ่ายนมค้าง</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>5. ครูจ่ายย้อนหลัง</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>6. ครูจ่ายปิดเทอม</span><strong>Room − จำนวนกล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>7. ลบรายการ</span><strong>Room + จำนวนที่คืน</strong></article>
+                                    <article class="admin-stock-trace-step"><span>8. รายงาน</span><strong>อ่านอย่างเดียว · Stock ไม่เปลี่ยน</strong></article>
+                                </div>
+                            </section>
+                            <div class="admin-dashboard-status-grid">
+                                <article class="admin-dashboard-status-card"><span>ประวัติครบ</span><strong id="admin-dashboard-ready">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>สต็อกหมด</span><strong id="admin-dashboard-empty">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>ต้องระบุยอดยกมา</span><strong id="admin-dashboard-baseline">0 ห้อง</strong></article>
+                                <article class="admin-dashboard-status-card"><span>สต็อกติดลบ</span><strong id="admin-dashboard-negative">0 ห้อง</strong></article>
+                            </div>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-dashboard-table">
+                                    <thead><tr><th>ห้องเรียน</th><th>นักเรียน</th><th>คงเหลือจริง</th><th>จากประวัติ V2</th><th>ยอดยกมา/รายการขาด</th><th>สถานะ</th><th>เส้นทาง</th></tr></thead>
+                                    <tbody id="admin-dashboard-room-body"></tbody>
+                                </table>
+                            </div>
+                            <section id="admin-stock-trace" class="admin-stock-trace" hidden>
+                                <header class="admin-stock-trace-header">
+                                    <h3>เส้นทางสต็อกห้อง <span id="admin-stock-trace-room">—</span></h3>
+                                    <button id="admin-stock-trace-close" class="secondary" type="button">ปิดเส้นทาง</button>
+                                </header>
+                                <div class="admin-stock-trace-flow">
+                                    <article class="admin-stock-trace-step"><span>1. ยอดยกมา/รายการก่อน V2</span><strong><span id="admin-stock-trace-opening">0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>2. Admin จ่ายเข้าห้อง</span><strong>+<span id="admin-stock-trace-distributed">0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>3. ครูเช็กดื่มนม</span><strong><span id="admin-stock-trace-attendance">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>4. ครูจ่ายนมค้าง</span><strong><span id="admin-stock-trace-pending">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>5. ครูจ่ายย้อนหลัง</span><strong><span id="admin-stock-trace-retroactive">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>6. ครูจ่ายช่วงปิดเทอม</span><strong><span id="admin-stock-trace-vacation">−0</span> กล่อง</strong></article>
+                                    <article class="admin-stock-trace-step"><span>7. Room Stock จริง</span><strong><span id="admin-stock-trace-actual">0</span> กล่อง</strong></article>
+                                </div>
+                                <p id="admin-stock-trace-equation" class="admin-stock-trace-equation"></p>
+                                <p id="admin-stock-trace-warning" class="admin-stock-trace-warning" hidden></p>
+                            </section>
+                            <p id="admin-dashboard-status" class="status" aria-live="polite"></p>
+                            <p id="admin-dashboard-error" class="error" role="alert" hidden></p>
+                        </section>
+
+                        <section data-admin-section="receipts" class="admin-operation-panel" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รับนมจาก อบต.</h2>
+                                    <p>รับเข้า Main Stock เท่านั้น และบันทึกประวัติรับนมพร้อม Ledger</p>
+                                </div>
+                                <button id="admin-receipt-refresh" class="secondary" type="button">โหลดสต็อกใหม่</button>
+                            </div>
+                            <div class="admin-receipt-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-receipt-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนที่จะรับเข้า</p><p id="admin-receipt-preview" class="metric-value">—</p></article>
+                            </div>
+                            <form id="admin-receipt-form">
+                                <div class="admin-receipt-form-grid">
+                                    <div class="admin-receipt-field"><label for="admin-receipt-date">วันที่รับนม *</label><input id="admin-receipt-date" type="date" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-crates">จำนวนหีบที่รับ *</label><input id="admin-receipt-crates" type="number" min="1" step="1" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-extra">กล่องย่อยพิเศษ (นอกจากหีบ)</label><input id="admin-receipt-extra" type="number" min="0" step="1" value="0"></div>
+                                    <div class="admin-receipt-field"><label for="admin-receipt-year">ปีการศึกษา</label><input id="admin-receipt-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
+                                    <input id="admin-receipt-per-crate" type="hidden" value="36">
+                                    <div class="admin-receipt-field full"><label for="admin-receipt-note">หมายเหตุ</label><input id="admin-receipt-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการส่งนม"></div>
+                                </div>
+                                <div class="admin-receipt-calculation" aria-live="polite">
+                                    <span>จำนวนหีบ <strong id="admin-receipt-summary-crates">0 หีบ</strong></span>
+                                    <span>กล่องย่อยในหีบ (×36) <strong id="admin-receipt-summary-contained">0 กล่อง</strong></span>
+                                    <span>กล่องย่อยพิเศษ <strong id="admin-receipt-summary-extra">0 กล่อง</strong></span>
+                                    <span>รวมกล่องย่อยทั้งหมด <strong id="admin-receipt-summary-total">0 กล่อง</strong></span>
+                                </div>
+                                <section class="admin-distribution-evidence" aria-labelledby="admin-receipt-evidence-title">
+                                    <h3 id="admin-receipt-evidence-title">รูปถ่ายและลายเซ็นการรับ–ส่งนม</h3>
+                                    <p>แนบรูปหลักฐานได้สูงสุด 5 รูป (แนะนำ 3–5 รูป) และลงลายเซ็นผู้รับกับผู้ส่งแยกกัน</p>
+                                    <label for="admin-receipt-photos">แนบรูปถ่าย</label>
+                                    <input id="admin-receipt-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                    <p id="admin-receipt-photo-summary" class="admin-system-compact">ยังไม่ได้เลือกรูป</p>
+                                    <div class="admin-distribution-evidence-grid">
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-receipt-receiver-name">ชื่อผู้รับนม</label>
+                                            <input id="admin-receipt-receiver-name" type="text" maxlength="120" placeholder="ชื่อผู้รับนม">
+                                            <canvas id="admin-receipt-receiver-signature" width="640" height="240" aria-label="ลายเซ็นผู้รับนม"></canvas>
+                                            <button id="admin-receipt-receiver-clear" class="secondary" type="button">ล้างลายเซ็นผู้รับ</button>
+                                        </div>
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-receipt-sender-name">ชื่อผู้ส่งนม</label>
+                                            <input id="admin-receipt-sender-name" type="text" maxlength="120" placeholder="ชื่อผู้ส่งนม">
+                                            <canvas id="admin-receipt-sender-signature" width="640" height="240" aria-label="ลายเซ็นผู้ส่งนม"></canvas>
+                                            <button id="admin-receipt-sender-clear" class="secondary" type="button">ล้างลายเซ็นผู้ส่ง</button>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="admin-receipt-actions">
+                                    <button type="submit">บันทึกรับเข้า Main Stock</button>
+                                </div>
+                            </form>
+                            <p id="admin-receipt-status" class="status" aria-live="polite"></p>
+                            <p id="admin-receipt-error" class="error" role="alert" hidden></p>
+                        </section>
+
+                        <section data-admin-section="receipt-history" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div><h2>รายการรับนมทั้งหมด</h2><p>ดู แก้ไข และลบรายการ พร้อมปรับ Main Stock ตามผลต่างและบันทึก Ledger</p></div>
+                                <button id="admin-receipt-history-refresh" class="secondary" type="button">โหลดรายการใหม่</button>
+                            </div>
+                            <div class="admin-student-import-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-receipt-history-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-receipt-history-count" class="metric-value">0 รายการ</p></article>
+                                <article class="metric-card"><p class="metric-label">รับรวม</p><p id="admin-receipt-history-total" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <p id="admin-receipt-history-status" class="status" aria-live="polite"></p>
+                            <p id="admin-receipt-history-error" class="error" role="alert" hidden></p>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-receipt-table">
+                                    <thead><tr><th>#</th><th>วันที่รับ</th><th>ปีการศึกษา</th><th>หีบ/เศษ</th><th>รวม</th><th>หมายเหตุ</th><th>การจัดการ</th></tr></thead>
+                                    <tbody id="admin-receipt-history-body"></tbody>
+                                </table>
+                            </div>
+                            <section id="admin-receipt-detail" class="admin-receipt-detail" hidden>
+                                <div class="admin-system-dashboard-header">
+                                    <h3 id="admin-receipt-detail-title">รายละเอียดรายการรับนม</h3>
+                                    <div class="admin-report-actions">
+                                        <button id="admin-receipt-detail-print" type="button">พิมพ์ A4</button>
+                                        <button id="admin-receipt-detail-close" class="secondary" type="button">ปิด</button>
+                                    </div>
+                                </div>
+                                <form id="admin-receipt-detail-form">
+                                    <div class="admin-receipt-form-grid">
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-date">วันที่รับนม *</label><input id="admin-receipt-detail-date" type="date" required></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-crates">จำนวนหีบ *</label><input id="admin-receipt-detail-crates" type="number" min="1" step="1" required></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-extra">กล่องย่อยพิเศษ</label><input id="admin-receipt-detail-extra" type="number" min="0" step="1"></div>
+                                        <div class="admin-receipt-field"><label for="admin-receipt-detail-year">ปีการศึกษา</label><input id="admin-receipt-detail-year" type="text" maxlength="10"></div>
+                                        <input id="admin-receipt-detail-per-crate" type="hidden" value="36">
+                                        <div class="admin-receipt-field full"><label for="admin-receipt-detail-note">หมายเหตุ</label><input id="admin-receipt-detail-note" type="text" maxlength="300"></div>
+                                    </div>
+                                    <section class="admin-distribution-evidence">
+                                        <label for="admin-receipt-detail-photos">เปลี่ยนรูปหลักฐาน (สูงสุด 5 รูป)</label>
+                                        <input id="admin-receipt-detail-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                        <p id="admin-receipt-detail-photo-summary" class="admin-system-compact">0 รูป</p>
+                                        <div id="admin-receipt-detail-gallery" class="admin-receipt-evidence-gallery"></div>
+                                        <div class="admin-distribution-evidence-grid">
+                                            <div class="admin-distribution-signature">
+                                                <label for="admin-receipt-detail-receiver-name">ชื่อผู้รับนม</label>
+                                                <input id="admin-receipt-detail-receiver-name" type="text" maxlength="120">
+                                                <canvas id="admin-receipt-detail-receiver-signature" width="640" height="240"></canvas>
+                                                <button id="admin-receipt-detail-receiver-clear" class="secondary" type="button">ลงลายเซ็นผู้รับใหม่</button>
+                                            </div>
+                                            <div class="admin-distribution-signature">
+                                                <label for="admin-receipt-detail-sender-name">ชื่อผู้ส่งนม</label>
+                                                <input id="admin-receipt-detail-sender-name" type="text" maxlength="120">
+                                                <canvas id="admin-receipt-detail-sender-signature" width="640" height="240"></canvas>
+                                                <button id="admin-receipt-detail-sender-clear" class="secondary" type="button">ลงลายเซ็นผู้ส่งใหม่</button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <div class="admin-receipt-actions"><button id="admin-receipt-detail-save" type="submit">บันทึกการแก้ไข</button></div>
+                                </form>
+                            </section>
+                        </section>
+
+                        <section data-admin-section="distribution" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>จ่ายนมให้ห้องเรียน</h2>
+                                    <p>ย้ายจาก Main Stock ไป Room Stock ตามสูตร นักเรียน × วัน · มีระบบป้องกันการตัดยอดซ้ำ</p>
+                                </div>
+                                <button id="admin-distribution-refresh" class="secondary" type="button">โหลดสต็อกใหม่</button>
+                            </div>
+                            <div class="admin-receipt-calculation" aria-live="polite">
+                                <span><strong>จำนวนนักเรียน</strong><b id="admin-distribution-students">—</b></span>
+                                <span><strong>จำนวนวัน</strong><b id="admin-distribution-summary-days">—</b></span>
+                                <span><strong>กล่องนมที่ต้องใช้ทั้งหมด</strong><b id="admin-distribution-total">—</b></span>
+                                <span><strong>คิดเป็นหีบ</strong><b id="admin-distribution-package">—</b></span>
+                                <span><strong>นมในสต็อกปัจจุบัน</strong><b id="admin-distribution-stock-before">0 กล่อง</b></span>
+                                <span><strong>นมคงเหลือหลังจ่าย</strong><b id="admin-distribution-main-after">—</b></span>
+                                <span><strong>Room Stock ก่อน → หลัง</strong><b id="admin-distribution-room-after">—</b></span>
+                            </div>
+                            <span id="admin-distribution-main-stock" hidden>0 กล่อง</span>
+                            <form id="admin-distribution-form">
+                                <div class="admin-receipt-form-grid">
+                                    <div class="admin-receipt-field"><label for="admin-distribution-date">วันที่จ่ายนม</label><input id="admin-distribution-date" type="date" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-room">ห้องเรียน</label><select id="admin-distribution-room" required><option value="">-- เลือกห้องเรียน --</option></select></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-student-count">จำนวนนักเรียน</label><input id="admin-distribution-student-count" type="number" value="0" disabled></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-days">จำนวนวัน</label><input id="admin-distribution-days" type="number" min="1" step="1" value="1" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-per-crate">กล่องต่อหีบ</label><input id="admin-distribution-per-crate" type="number" min="1" step="1" value="36" required></div>
+                                    <div class="admin-receipt-field"><label for="admin-distribution-year">ปีการศึกษา</label><input id="admin-distribution-year" type="text" maxlength="10" placeholder="เช่น 2569"></div>
+                                    <div class="admin-receipt-field full"><label for="admin-distribution-note">หมายเหตุ</label><input id="admin-distribution-note" type="text" maxlength="300" placeholder="เลขที่เอกสารหรือรายละเอียดการจ่ายนม"></div>
+                                </div>
+                                <section class="admin-distribution-evidence" aria-labelledby="admin-distribution-evidence-title">
+                                    <h3 id="admin-distribution-evidence-title">รูปถ่ายและลายเซ็นการรับ–ส่งนม</h3>
+                                    <p>แนบรูปหลักฐานได้สูงสุด 5 รูป และลงลายเซ็นผู้รับกับผู้ส่งแยกกัน ข้อมูลจะเก็บพร้อมรายการจ่ายนม</p>
+                                    <label for="admin-distribution-photos">แนบรูปถ่าย (แนะนำ 3–5 รูป)</label>
+                                    <input id="admin-distribution-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                                    <p id="admin-distribution-photo-summary" class="admin-system-compact">ยังไม่ได้เลือกรูป</p>
+                                    <div class="admin-distribution-evidence-grid">
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-distribution-receiver-name">ชื่อครูประจำชั้น/ผู้รับ</label>
+                                            <input id="admin-distribution-receiver-name" type="text" maxlength="120" placeholder="ชื่อผู้รับนม">
+                                            <canvas id="admin-distribution-receiver-signature" width="640" height="240" aria-label="ลายเซ็นครูประจำชั้นผู้รับนม"></canvas>
+                                            <button id="admin-distribution-receiver-clear" class="secondary" type="button">ล้างลายเซ็นผู้รับ</button>
+                                        </div>
+                                        <div class="admin-distribution-signature">
+                                            <label for="admin-distribution-sender-name">ชื่อผู้ส่งมอบ</label>
+                                            <input id="admin-distribution-sender-name" type="text" maxlength="120" value="ผู้ดูแลระบบ">
+                                            <canvas id="admin-distribution-sender-signature" width="640" height="240" aria-label="ลายเซ็นผู้ส่งมอบนม"></canvas>
+                                            <button id="admin-distribution-sender-clear" class="secondary" type="button">ล้างลายเซ็นผู้ส่ง</button>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="admin-receipt-actions"><button type="submit">ยืนยันจ่ายนมให้ห้อง</button></div>
+                            </form>
+                            <p id="admin-distribution-status" class="status" aria-live="polite"></p>
+                            <p id="admin-distribution-error" class="error" role="alert" hidden></p>
+                            <p class="admin-stock-trace-warning">ระยะนี้ใช้ Admin ผู้บันทึกเพียงคนเดียว ระบบจะล็อกคำสั่งและบันทึก Main Stock, Room Stock, รายการจ่าย และ Ledger ในชุดเดียว ห้ามกดซ้ำจากระบบเดิมพร้อมกัน</p>
+                        </section>
+
+                        <section data-admin-section="distribution-history" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รายการจ่ายนมให้ห้องเรียนทั้งหมด</h2>
+                                    <p>โหลดเฉพาะข้อมูลสรุปของแต่ละรายการ ไม่ดึงรูปหรือลายเซ็นก้อนใหญ่</p>
+                                </div>
+                                <button id="admin-distribution-history-refresh" class="secondary" type="button">โหลดประวัติใหม่</button>
+                            </div>
+                            <div class="admin-student-import-summary">
+                                <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-history-main-stock" class="metric-value">0 กล่อง</p></article>
+                                <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-distribution-history-count" class="metric-value">0 รายการ</p></article>
+                                <article class="metric-card"><p class="metric-label">จ่ายรวม</p><p id="admin-distribution-history-total" class="metric-value">0 กล่อง</p></article>
+                            </div>
+                            <p id="admin-distribution-history-status" class="status" aria-live="polite"></p>
+                            <p id="admin-distribution-history-error" class="error" role="alert" hidden></p>
+                            <div class="admin-report-actions">
+                                <button id="admin-distribution-history-print" type="button">พิมพ์ A4 (30 แถว/หน้า)</button>
+                                <button id="admin-distribution-history-export" class="secondary" type="button">ส่งออก CSV</button>
+                            </div>
+                            <div class="admin-dashboard-table-wrap">
+                                <table class="admin-distribution-history-table">
+                                    <thead><tr><th>#</th><th>วันที่</th><th>ห้องเรียน</th><th>นักเรียน</th><th>จำนวนวัน</th><th>ลัง/เศษ</th><th>รวม</th><th>Main Stock</th><th>หมายเหตุ</th></tr></thead>
+                                    <tbody id="admin-distribution-history-body"></tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section id="admin-student-import-panel" data-admin-section="student-import" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>นำเข้าข้อมูลนักเรียน</h2>
+                                    <p>รองรับ .xlsx, .xls และ .csv ด้วยตัวอ่านไฟล์ภายในระบบ · ต้องดูตัวอย่างก่อนยืนยัน</p>
+                                </div>
+                            </div>
+                            <div class="admin-student-file-box">
+                                <label for="admin-student-file">เลือกไฟล์รายชื่อนักเรียน</label>
+                                <input id="admin-student-file" type="file" accept=".xlsx,.xls,.csv">
+                                <p>Excel: หนึ่ง Sheet ต่อหนึ่งห้อง · CSV: ชื่อไฟล์เป็นชื่อห้อง หัวตารางต้องมีเลขที่/รหัสและชื่อ</p>
+                            </div>
+                            <p id="admin-student-import-status" class="status" aria-live="polite"></p>
+                            <section id="admin-student-import-preview" hidden>
+                                <h3>ตัวอย่างก่อนเขียน · <span id="admin-student-import-file-name">ไฟล์ที่เลือก</span></h3>
+                                <div class="admin-student-import-summary">
+                                    <article class="metric-card"><p class="metric-label">ห้องที่ผ่าน</p><p id="admin-student-import-rooms" class="metric-value">0 ห้อง</p></article>
+                                    <article class="metric-card"><p class="metric-label">นักเรียนรวม</p><p id="admin-student-import-total" class="metric-value">0 คน</p></article>
+                                    <article class="metric-card"><p class="metric-label">สถานะ</p><p id="admin-student-import-mode" class="metric-value">—</p></article>
+                                    <article class="metric-card"><p class="metric-label">Stock</p><p class="metric-value">ไม่เปลี่ยน</p></article>
+                                </div>
+                                <ul id="admin-student-import-messages" class="admin-student-import-messages" hidden></ul>
+                                <div class="admin-student-table-wrap">
+                                    <table class="admin-student-table">
+                                        <thead><tr><th>#</th><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>นักเรียน</th><th>การดำเนินการ</th></tr></thead>
+                                        <tbody id="admin-student-import-body"></tbody>
+                                    </table>
+                                </div>
+                                <div class="admin-student-import-actions">
+                                    <button id="admin-student-import-cancel" class="secondary" type="button">ยกเลิก</button>
+                                    <button id="admin-student-import-confirm" type="button" disabled>ยืนยันนำเข้า</button>
+                                </div>
+                            </section>
+                        </section>
+
+                        <section id="admin-room-management" data-admin-section="room-management" class="admin-operation-panel" aria-busy="false" hidden>
+                            <h2>จัดการห้องเรียน</h2>
+                            <p>ห้องใหม่เริ่ม Room Stock = 0 · การแก้ไขรักษา roomId, รายชื่อ และ Room Stock เดิม · การลบจะถูกบล็อกเมื่อมีข้อมูลอ้างอิง</p>
+                            <form id="admin-room-create-form">
+                                <div class="admin-room-create-grid">
+                                    <div><label for="admin-room-create-name">ชื่อห้อง *</label><input id="admin-room-create-name" type="text" required></div>
+                                    <div><label for="admin-room-create-level">ระดับชั้น</label><input id="admin-room-create-level" type="text"></div>
+                                    <div><label for="admin-room-create-teacher">ครูประจำชั้น</label><input id="admin-room-create-teacher" type="text"></div>
+                                    <div><label for="admin-room-create-count">จำนวนนักเรียน *</label><input id="admin-room-create-count" type="number" min="0" step="1" required></div>
+                                </div>
+                                <div class="admin-student-import-actions"><button type="submit">เพิ่มห้องเรียน</button></div>
+                            </form>
+                            <p id="admin-room-management-status" class="status" aria-live="polite"></p>
+                            <div class="admin-student-table-wrap">
+                                <table class="admin-student-table">
+                                    <thead><tr><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>นักเรียน</th><th>จัดการ</th></tr></thead>
+                                    <tbody id="admin-room-management-body"></tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section id="admin-student-report-panel" data-admin-section="student-report" class="admin-operation-panel" aria-busy="false" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div>
+                                    <h2>รายงานนักเรียน</h2>
+                                    <p>ข้อมูลรายห้อง เพศ และรายชื่อจริง · ไม่รวมแถว fallback แบบ student_* ที่ระบบสร้างเพื่อแสดงผล</p>
+                                </div>
+                                <button id="admin-student-report-refresh" class="secondary" type="button">โหลดรายงานใหม่</button>
+                            </div>
+                            <div class="admin-student-metrics">
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-student-report-rooms" class="metric-value">0 ห้อง</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียน</p><p id="admin-student-report-total" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ชาย</p><p id="admin-student-report-male" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">หญิง</p><p id="admin-student-report-female" class="metric-value">0 คน</p></article>
+                                <article class="metric-card"><p class="metric-label">ไม่ระบุ</p><p id="admin-student-report-unknown" class="metric-value">0 คน</p></article>
+                            </div>
+                            <div class="admin-student-table-wrap">
+                                <table id="admin-student-report-table" class="admin-student-table">
+                                    <thead><tr><th>ห้อง</th><th>ระดับ</th><th>ครู</th><th>ชาย</th><th>หญิง</th><th>ไม่ระบุ</th><th>รวม</th><th>รายชื่อ</th></tr></thead>
+                                    <tbody id="admin-student-report-body"></tbody>
+                                </table>
+                            </div>
+                            <section class="admin-student-detail">
+                                <h3 id="admin-student-detail-title">รายชื่อนักเรียน</h3>
+                                <p id="admin-student-detail-meta">—</p>
+                                <div class="admin-student-table-wrap">
+                                    <table class="admin-student-table">
+                                        <thead><tr><th>เลขที่</th><th>รหัสนักเรียน</th><th>ชื่อ-นามสกุล</th><th>เพศ</th><th>เลขประจำตัวประชาชน</th></tr></thead>
+                                        <tbody id="admin-student-detail-body"></tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <div class="admin-student-report-actions">
+                                <button id="admin-student-report-print" type="button">พิมพ์รายงาน A4</button>
+                                <button id="admin-student-report-export" class="secondary" type="button">ส่งออก CSV</button>
+                            </div>
+                        </section>
+
+                        <section data-admin-section="dashboard" class="admin-operation-panel" hidden>
+                            <div class="admin-system-dashboard-header">
+                                <div><h2>📊 ภาพรวมการดื่มนม</h2><p>สถานะการเช็กทุกห้องในวันที่เลือกและอัตราการดื่มนมของเดือน</p></div>
+                                <div class="admin-consumption-toolbar">
+                                    <label for="admin-consumption-date">วันที่<input id="admin-consumption-date" type="date"></label>
+                                    <button id="admin-consumption-refresh" type="button">เช็กข้อมูลวันนี้</button>
+                                </div>
+                            </div>
+                            <div class="admin-consumption-metrics">
+                                <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-consumption-rooms" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">นักเรียนทั้งหมด</p><p id="admin-consumption-students" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">ดื่มนมวันนี้</p><p id="admin-consumption-present" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">ไม่ได้ดื่มวันนี้</p><p id="admin-consumption-absent" class="metric-value">0</p></article>
+                                <article class="metric-card"><p class="metric-label">อัตราดื่มนม (เดือนนี้)</p><p id="admin-consumption-rate" class="metric-value">0%</p></article>
+                            </div>
+                            <div class="admin-consumption-grid">
+                                <section class="admin-consumption-card"><h3>🗓️ การเช็กล่าสุด</h3><div class="admin-report-table-wrap"><table class="admin-report-table"><thead><tr><th>วันที่</th><th>ห้อง</th><th>ครู</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>รายละเอียด</th></tr></thead><tbody id="admin-consumption-latest"></tbody></table></div></section>
+                                <section class="admin-consumption-card"><h3>🏫 สถานะรายห้อง (วันที่เลือก)</h3><div class="admin-report-table-wrap"><table class="admin-report-table"><thead><tr><th>ห้อง</th><th>ครู</th><th>นักเรียน</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>ยังไม่เช็ก</th><th>สถานะ</th></tr></thead><tbody id="admin-consumption-room-status"></tbody></table></div></section>
+                            </div>
+                            <p id="admin-consumption-status" class="status" aria-live="polite"></p>
+                            <span id="admin-room-students" hidden>0</span><span id="admin-room-stock" hidden>0</span><span id="admin-attendance-days" hidden>0</span><span id="admin-room-used" hidden>0</span>
+                        </section>
+
+                        <section data-admin-section="attendance" class="admin-operation-panel" hidden>
+                            <h2>📋 ประวัติการเช็กดื่มนม</h2>
+                            <div class="admin-consumption-toolbar">
+                                <label for="admin-attendance-room-filter">ห้องเรียน<select id="admin-attendance-room-filter"><option value="">ทุกห้อง</option></select></label>
+                                <label for="admin-attendance-month">เดือน<input id="admin-attendance-month" type="month"></label>
+                                <button id="admin-attendance-filter" type="button">โหลดประวัติ</button>
+                            </div>
+                            <p id="admin-attendance-status" class="status" aria-live="polite"></p>
+                            <div class="admin-report-table-wrap">
+                                <table class="admin-report-table"><thead><tr><th>วันที่</th><th>ห้องเรียน</th><th>ครู</th><th>ดื่ม</th><th>ไม่ดื่ม</th><th>ยังไม่เช็ก</th><th>บันทึกล่าสุด</th><th>รายละเอียด</th></tr></thead><tbody id="admin-attendance-body"></tbody></table>
+                            </div>
+                            <section id="admin-attendance-editor" class="admin-attendance-editor" hidden>
+                                <div class="admin-attendance-editor-header">
+                                    <h3>แก้ไขวันที่ <span id="admin-attendance-editor-date">—</span></h3>
+                                    <button id="admin-attendance-editor-close" class="secondary" type="button">ปิดแบบฟอร์ม</button>
+                                </div>
+                                <p>แก้ไขสถานะและหมายเหตุได้ในหน้า Admin หลักฐานรูปและลายเซ็นเดิมจะถูกเก็บไว้</p>
+                                <div class="admin-attendance-editor-summary">
+                                    <strong>ดื่มนม <span id="admin-attendance-editor-present">0</span></strong>
+                                    <strong>ไม่ดื่มนม <span id="admin-attendance-editor-absent">0</span></strong>
+                                    <strong>ยังไม่ตรวจ <span id="admin-attendance-editor-unchecked">0</span></strong>
+                                </div>
+                                <form id="admin-attendance-editor-form">
+                                    <div id="admin-attendance-editor-list" class="admin-attendance-editor-list"></div>
+                                    <div class="admin-attendance-editor-actions">
+                                        <button id="admin-attendance-editor-cancel" class="secondary" type="button">ยกเลิก</button>
+                                        <button type="submit">บันทึกการแก้ไขในหน้า Admin</button>
+                                    </div>
+                                </form>
+                            </section>
+                        </section>
+
+                        <section data-admin-section="pending" class="admin-operation-panel" hidden>
+                            <h2>นมค้างรายสัปดาห์</h2>
+                            <div class="admin-report-table-wrap">
+                                <table class="admin-operation-table"><thead><tr><th>วันที่จ่าย</th><th>สัปดาห์</th><th>จำนวน</th><th>จัดการ</th></tr></thead><tbody id="admin-pending-body" data-admin-record-body></tbody></table>
+                            </div>
+                        </section>
+
+                        <section data-admin-section="retroactive" class="admin-operation-panel" hidden>
+                            <h2>จ่ายนมย้อนหลัง</h2>
+                            <div class="admin-report-table-wrap">
+                                <table class="admin-operation-table"><thead><tr><th>วันที่จ่าย</th><th>ช่วงย้อนหลัง</th><th>จำนวน</th><th>จัดการ</th></tr></thead><tbody id="admin-retroactive-body" data-admin-record-body></tbody></table>
+                            </div>
+                        </section>
+
+                        <section data-admin-section="vacation" class="admin-operation-panel" hidden>
+                            <h2>จ่ายนมช่วงปิดเทอม</h2>
+                            <div class="admin-report-table-wrap">
+                                <table class="admin-operation-table"><thead><tr><th>วันที่จ่าย</th><th>ปีการศึกษา</th><th>จำนวน</th><th>จัดการ</th></tr></thead><tbody id="admin-vacation-body" data-admin-record-body></tbody></table>
+                            </div>
+                        </section>
+
+                        <section id="admin-record-detail" class="admin-record-detail" aria-labelledby="admin-record-detail-title" hidden>
+                            <header class="admin-record-detail-header">
+                                <div>
+                                    <p>ข้อมูลต้นฉบับที่บันทึกไว้</p>
+                                    <h2 id="admin-record-detail-title">รายละเอียดรายการ</h2>
+                                    <p id="admin-record-detail-subtitle">—</p>
+                                </div>
+                                <button id="admin-record-detail-close" type="button">ปิดรายละเอียด</button>
+                            </header>
+                            <div id="admin-record-detail-facts" class="admin-record-detail-facts"></div>
+                            <div id="admin-record-detail-summary" class="admin-record-detail-summary"></div>
+                            <section class="admin-record-detail-section">
+                                <h3 id="admin-record-detail-students-heading">รายชื่อนักเรียนที่บันทึก</h3>
+                                <div id="admin-record-detail-students" class="admin-record-detail-students"></div>
+                            </section>
+                            <section class="admin-record-detail-section">
+                                <h3>หลักฐานที่บันทึก</h3>
+                                <div class="admin-record-detail-evidence">
+                                    <article class="admin-record-detail-evidence-card">
+                                        <h4>รูปถ่าย (<span id="admin-record-detail-photo-count">0 รูป</span>)</h4>
+                                        <div id="admin-record-detail-photos" class="admin-record-detail-gallery"></div>
+                                    </article>
+                                    <article class="admin-record-detail-evidence-card">
+                                        <h4>ลายเซ็น</h4>
+                                        <div id="admin-record-detail-signatures" class="admin-record-detail-signatures"></div>
+                                    </article>
+                                </div>
+                            </section>
+                        </section>
+
+                <section data-admin-section="operational-summary" class="admin-operation-panel" hidden>
+                    <h2>สรุปการบริหารจัดการนม</h2>
+                    <p class="subtitle"><span id="admin-operational-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-operational-year">—</span> · ภาคเรียน <span id="admin-operational-semester">—</span></p>
+                    <p>สรุปการรับเข้า จ่ายให้ห้อง และการใช้นมตามช่วงเวลา · อ่านอย่างเดียว</p>
+                    <div class="admin-report-filter-grid" data-report-controls="admin-operational">
+                        <label>รอบรายงาน
+                            <select id="admin-operational-period">
+                                <option value="day">รายวัน</option>
+                                <option value="week">รายสัปดาห์</option>
+                                <option value="fortnight">รอบ 15 วัน</option>
+                                <option value="month">รายเดือน</option>
+                                <option value="semester">รายภาคเรียน</option>
+                            </select>
+                        </label>
+                        <label>วันที่อ้างอิง<input id="admin-operational-anchor" type="date"></label>
+                        <label data-period-range="admin-operational" hidden>เริ่มภาคเรียน<input id="admin-operational-start" type="date"></label>
+                        <label data-period-range="admin-operational" hidden>สิ้นสุดภาคเรียน<input id="admin-operational-end" type="date"></label>
+                        <label>มุมมอง
+                            <select id="admin-operational-view">
+                                <option value="room">รายห้องเรียน</option>
+                                <option value="grade">รายระดับชั้น</option>
+                                <option value="school">ทั้งโรงเรียน</option>
+                            </select>
+                        </label>
+                        <button id="admin-operational-refresh" type="button">โหลดสรุป</button>
+                    </div>
+                    <p id="admin-operational-period-label" class="admin-report-source-status">—</p>
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">รับนมเข้าในช่วง</p><p id="admin-operational-received" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายให้ห้องในช่วง</p><p id="admin-operational-distributed" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ใช้รวมในช่วง</p><p id="admin-operational-used" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">สุทธิช่วง (จ่าย − ใช้)</p><p id="admin-operational-net" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-operational-main-stock" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Room Stock รวมปัจจุบัน</p><p id="admin-operational-room-stock" class="metric-value">0 กล่อง</p></article>
+                    </div>
+                    <p id="admin-operational-source" class="admin-report-source-status"></p>
+                    <p id="admin-operational-status" class="status" aria-live="polite"></p>
+                    <p id="admin-operational-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead><tr><th>ห้อง/ระดับ</th><th>นักเรียน</th><th>จ่ายให้ห้อง</th><th>ดื่มปกติ</th><th>นมค้าง</th><th>ย้อนหลัง</th><th>ปิดเทอม</th><th>ใช้รวม</th><th>สุทธิช่วง</th></tr></thead>
+                            <tbody id="admin-operational-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-report-actions">
+                        <button id="admin-operational-print" type="button">พิมพ์ A4</button>
+                        <button id="admin-operational-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
+
+                <section data-admin-section="distribution-report" class="admin-operation-panel" hidden>
+                    <h2>รายงานการจ่ายนมให้ห้องเรียน</h2>
+                    <p class="subtitle"><span id="admin-distribution-report-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-distribution-report-year">—</span></p>
+                    <p>รายละเอียดการจ่ายนมตามช่วงเวลา · ไม่แก้ไขประวัติและสต็อก</p>
+                    <div class="admin-report-filter-grid" data-report-controls="admin-distribution-report">
+                        <label>รอบรายงาน
+                            <select id="admin-distribution-report-period">
+                                <option value="day">รายวัน</option>
+                                <option value="week">รายสัปดาห์</option>
+                                <option value="fortnight">รอบ 15 วัน</option>
+                                <option value="month">รายเดือน</option>
+                                <option value="semester">รายภาคเรียน</option>
+                            </select>
+                        </label>
+                        <label>วันที่อ้างอิง<input id="admin-distribution-report-anchor" type="date"></label>
+                        <label data-period-range="admin-distribution-report" hidden>เริ่มภาคเรียน<input id="admin-distribution-report-start" type="date"></label>
+                        <label data-period-range="admin-distribution-report" hidden>สิ้นสุดภาคเรียน<input id="admin-distribution-report-end" type="date"></label>
+                        <button id="admin-distribution-report-refresh" type="button">โหลดรายงาน</button>
+                    </div>
+                    <p id="admin-distribution-report-period-label" class="admin-report-source-status">—</p>
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">จำนวนรายการ</p><p id="admin-distribution-report-count" class="metric-value">0 รายการ</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายรวมในช่วง</p><p id="admin-distribution-report-total" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ห้องที่ได้รับนม</p><p id="admin-distribution-report-rooms" class="metric-value">0 ห้อง</p></article>
+                        <article class="metric-card"><p class="metric-label">Main Stock ปัจจุบัน</p><p id="admin-distribution-report-main-stock" class="metric-value">0 กล่อง</p></article>
+                    </div>
+                    <p id="admin-distribution-report-stock-check" class="admin-report-source-status" aria-live="polite"></p>
+                    <p id="admin-distribution-report-status" class="status" aria-live="polite"></p>
+                    <p id="admin-distribution-report-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead><tr><th>#</th><th>วันที่</th><th>ห้องเรียน</th><th>นักเรียน</th><th>จำนวนวัน</th><th>ลัง/เศษ</th><th>รวม</th><th>Main Stock</th><th>หมายเหตุ</th></tr></thead>
+                            <tbody id="admin-distribution-report-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-report-actions">
+                        <button id="admin-distribution-report-print" type="button">พิมพ์ A4</button>
+                        <button id="admin-distribution-report-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
+
+                <section data-admin-section="documents" class="admin-operation-panel admin-system-tools" hidden>
+                    <div class="admin-system-tools-header">
+                        <div><h2>เอกสารที่เกี่ยวข้อง</h2><p>รองรับ PDF, JPG, JPEG และ PNG · โหลดไฟล์จริงเมื่อกดดาวน์โหลดเท่านั้น</p></div>
+                        <button id="admin-document-refresh" class="secondary" type="button" data-admin-documents-control>โหลดรายการใหม่</button>
+                    </div>
+                    <div class="admin-system-summary"><strong id="admin-document-count">0 รายการ</strong><span>ไฟล์จริงเก็บแยกจากข้อมูลรายการ</span></div>
+                    <form id="admin-document-form" class="admin-system-form">
+                        <label>ชื่อเอกสาร<input id="admin-document-title" type="text" maxlength="200" required data-admin-documents-control></label>
+                        <label>ผู้อัปโหลด<input id="admin-document-uploader" type="text" maxlength="120" data-admin-documents-control></label>
+                        <label class="wide">รายละเอียด<input id="admin-document-description" type="text" maxlength="500" data-admin-documents-control></label>
+                        <label class="wide">ไฟล์เอกสาร (ไม่เกิน 12 MB)<input id="admin-document-file" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required data-admin-documents-control><small>รูป JPG/PNG จะย่อด้านยาวไม่เกิน 1,000 px · PDF จะบีบอัดแบบไม่ลดคุณภาพก่อนอัปโหลด และใช้ต้นฉบับอัตโนมัติหากไฟล์ไม่เล็กลงหรือมีการป้องกัน</small></label>
+                        <p id="admin-document-file-summary" class="admin-system-compact wide" aria-live="polite">ยังไม่ได้เลือกไฟล์</p>
+                        <div class="admin-system-actions wide"><button type="submit" data-admin-documents-control>อัปโหลดเอกสาร</button></div>
+                    </form>
+                    <p id="admin-documents-status" class="status" aria-live="polite"></p>
+                    <p id="admin-documents-error" class="error" role="alert" hidden></p>
+                    <div class="admin-report-table-wrap"><table class="admin-report-table">
+                        <thead><tr><th>ชื่อเอกสาร</th><th>ชื่อไฟล์</th><th>ขนาด</th><th>วันที่</th><th>ผู้อัปโหลด</th><th>จัดการ</th></tr></thead>
+                        <tbody id="admin-document-body"></tbody>
+                    </table></div>
+                </section>
+
+                <section data-admin-section="system-settings" class="admin-operation-panel admin-system-tools" hidden>
+                    <div class="admin-system-tools-header">
+                        <div><h2>ตั้งค่าระบบ</h2><p>แก้เฉพาะค่าทั่วไป รักษาค่าเชื่อมต่อและรหัสเดิมไว้</p></div>
+                        <button id="admin-settings-refresh" class="secondary" type="button" data-admin-settings-control>โหลดค่าใหม่</button>
+                    </div>
+                    <div class="admin-system-notice"><strong>Firebase URL ปัจจุบัน</strong><span id="admin-settings-firebase-url">—</span><small>หน้านี้ไม่แสดงหรือแก้รหัส Firebase</small></div>
+                    <form id="admin-settings-form" class="admin-system-form">
+                        <label class="wide">ชื่อโรงเรียน<input id="admin-settings-school" type="text" maxlength="200" required data-admin-settings-control></label>
+                        <label>ปีการศึกษา<input id="admin-settings-year" type="text" maxlength="20" required data-admin-settings-control></label>
+                        <label>ภาคเรียน<input id="admin-settings-semester" type="text" maxlength="20" data-admin-settings-control></label>
+                        <label>จำนวนกล่องต่อลัง<input id="admin-settings-per-crate" type="number" min="1" max="500" required data-admin-settings-control></label>
+                        <label>แจ้งเตือนเมื่อ Main Stock ต่ำกว่า<input id="admin-settings-warn-level" type="number" min="0" max="10000000" required data-admin-settings-control></label>
+                        <div class="admin-system-actions wide"><button type="submit" data-admin-settings-control>บันทึกการตั้งค่า</button></div>
+                    </form>
+                    <p id="admin-settings-status" class="status" aria-live="polite"></p>
+                    <p id="admin-settings-error" class="error" role="alert" hidden></p>
+                </section>
+
+                <section data-admin-section="backup-restore" class="admin-operation-panel admin-system-tools" hidden>
+                    <h2>สำรองและกู้คืนข้อมูล</h2>
+                    <p>เลือกสำรองข้อมูลหลักแบบเร็วสำหรับใช้งานประจำวัน หรือสำรองครบถ้วนพร้อมรูป เอกสาร และหลักฐานสำหรับการกู้คืนทั้งระบบ</p>
+                    <div class="admin-system-tool-grid">
+                        <article class="admin-system-tool-card">
+                            <h3>1. สำรองข้อมูล</h3>
+                            <p><strong>แบบเร็ว:</strong> ขอบเขตใกล้เคียงไฟล์ระบบเก่า เก็บข้อมูลรับ–จ่ายหลักและรูปที่อยู่ในรายการเหล่านั้น แต่ไม่ดึงประวัติเช็กดื่ม/นมค้าง/ย้อนหลัง/ปิดเทอมและเนื้อไฟล์เอกสาร จึงเล็กและเร็วกว่า แต่ไม่ใช้กู้คืนทั้งระบบ</p>
+                            <button id="admin-backup-download" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลหลักแบบเร็ว</button>
+                            <button id="admin-backup-download-full" class="secondary" type="button" data-admin-backup-control>ดาวน์โหลดครบถ้วนพร้อมรูป/เอกสาร</button>
+                            <p id="admin-backup-summary" class="admin-system-compact">—</p>
+                        </article>
+                        <article class="admin-system-tool-card danger-zone">
+                            <h3>2. ตรวจและกู้คืน</h3>
+                            <label>เลือกไฟล์สำรอง<input id="admin-restore-file" type="file" accept=".json,application/json" data-admin-backup-control></label>
+                            <div id="admin-restore-preview" class="admin-restore-preview" hidden>
+                                <p><strong>วันที่ไฟล์:</strong> <span id="admin-restore-source-date">—</span></p>
+                                <p><strong>ชนิดไฟล์:</strong> <span id="admin-restore-profile">—</span></p>
+                                <p><strong>SHA-256:</strong> <span id="admin-restore-checksum">—</span></p>
+                                <p><strong>ข้อมูลในไฟล์:</strong> <span id="admin-restore-source-summary">—</span></p>
+                                <p><strong>ข้อมูลปัจจุบัน:</strong> <span id="admin-restore-current-summary">—</span></p>
+                            </div>
+                            <button id="admin-restore-safety" class="secondary" type="button" data-admin-backup-control>ดาวน์โหลดข้อมูลปัจจุบันก่อนกู้คืน</button>
+                            <label>พิมพ์ “กู้คืนข้อมูล”<input id="admin-restore-confirm" type="text" autocomplete="off" data-admin-backup-control></label>
+                            <button id="admin-restore-run" class="danger" type="button" disabled data-admin-backup-control>กู้คืนข้อมูลที่ตรวจแล้ว</button>
+                        </article>
+                    </div>
+                    <p id="admin-backup-status" class="status" aria-live="polite"></p>
+                    <p id="admin-backup-error" class="error" role="alert" hidden></p>
+                </section>
+
+                <section data-admin-section="drive-sync" class="admin-operation-panel admin-system-tools" hidden>
+                    <h2>ถ่ายโอนข้อมูลผ่าน Google Drive</h2>
+                    <div class="admin-system-notice"><strong>ไม่เก็บบัญชีหรือรหัสผ่าน Google</strong><span>ระบบใช้ไฟล์สำรอง JSON เป็นตัวกลาง คุณเป็นผู้เลือกอัปโหลด/ดาวน์โหลดใน Google Drive</span></div>
+                    <div class="admin-system-tool-grid">
+                        <article class="admin-system-tool-card"><h3>ส่งออกไป Google Drive</h3><p>ดาวน์โหลดไฟล์พร้อม SHA-256 แล้วเปิด Drive เพื่ออัปโหลด</p><button id="admin-drive-export" type="button" data-admin-drive-control>ดาวน์โหลดไฟล์สำหรับ Drive</button><button id="admin-drive-open" class="secondary" type="button" data-admin-drive-control>เปิด Google Drive</button></article>
+                        <article class="admin-system-tool-card"><h3>นำไฟล์จาก Google Drive มาตรวจ</h3><p>ดาวน์โหลดไฟล์จาก Drive ก่อน แล้วเลือกเพื่อตรวจความสมบูรณ์ ยังไม่กู้คืนอัตโนมัติ</p><label>เลือกไฟล์ JSON<input id="admin-drive-import" type="file" accept=".json,application/json" data-admin-drive-control></label><p id="admin-drive-summary" class="admin-system-compact">—</p></article>
+                    </div>
+                    <p id="admin-drive-status" class="status" aria-live="polite"></p>
+                    <p id="admin-drive-error" class="error" role="alert" hidden></p>
+                </section>
+
+                <section id="admin-report-panel" data-admin-section="school-report" class="admin-report-panel" aria-labelledby="admin-report-title" hidden>
+                    <h2 id="admin-report-title">รายงานการจ่ายและใช้ประโยชน์นม</h2>
+                    <p class="subtitle"><span id="admin-report-school">โรงเรียน</span> · ปีการศึกษา <span id="admin-report-year">—</span></p>
+
+                    <div class="admin-report-toolbar" aria-label="มุมมองรายงาน">
+                        <button type="button" data-admin-report-view="room" data-active="true" aria-pressed="true">รายห้องเรียน</button>
+                        <button type="button" data-admin-report-view="grade" data-active="false" aria-pressed="false">รายระดับชั้น</button>
+                        <button type="button" data-admin-report-view="school" data-active="false" aria-pressed="false">ทั้งโรงเรียน</button>
+                        <button id="admin-report-refresh" class="secondary" type="button">โหลดรายงานใหม่</button>
+                    </div>
+
+                    <div class="admin-report-metrics">
+                        <article class="metric-card"><p class="metric-label">ห้องเรียน</p><p id="admin-report-total-rooms" class="metric-value">0 ห้อง</p></article>
+                        <article class="metric-card"><p class="metric-label">จ่ายให้ห้อง</p><p id="admin-report-total-distributed" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">ใช้แล้ว</p><p id="admin-report-total-used" class="metric-value">0 กล่อง</p></article>
+                        <article class="metric-card"><p class="metric-label">คงเหลือ</p><p id="admin-report-total-remaining" class="metric-value">0 กล่อง</p></article>
+                    </div>
+
+                    <p id="admin-report-source-status" class="admin-report-source-status"></p>
+                    <p id="admin-report-status" class="status" aria-live="polite"></p>
+                    <p id="admin-report-error" class="error" role="alert" hidden></p>
+
+                    <div class="admin-report-table-wrap">
+                        <table class="admin-report-table">
+                            <thead>
+                                <tr>
+                                    <th>ห้อง/ระดับ</th>
+                                    <th>นักเรียน</th>
+                                    <th>จ่ายทั้งหมด</th>
+                                    <th>ดื่มแล้ว</th>
+                                    <th>นมค้าง</th>
+                                    <th>ย้อนหลัง</th>
+                                    <th>ปิดเทอม</th>
+                                    <th>คงเหลือ</th>
+                                    <th>% ใช้ไป</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-report-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="admin-report-actions">
+                        <button id="admin-report-print" type="button">พิมพ์รายงาน A4</button>
+                        <button id="admin-report-export" class="secondary" type="button">ส่งออก CSV</button>
+                    </div>
+                </section>
+                    </div>
+                </div>
             </div>
 
             <section id="teacher-shell" aria-labelledby="teacher-shell-title" aria-busy="false" hidden>
@@ -525,6 +2784,7 @@
                         <p id="teacher-school-name" class="teacher-school"></p>
                     </div>
                     <span id="teacher-connection-state" class="connection-badge" data-state="online">ออนไลน์</span>
+                    <button id="admin-return-button" class="secondary" type="button" hidden>← กลับหน้าผู้ดูแล</button>
                 </header>
 
                 <dl class="teacher-identity-grid">
@@ -574,11 +2834,11 @@
                             <dd id="attendance-total-checked">0</dd>
                         </div>
                         <div class="attendance-summary-card">
-                            <dt>มาเรียน</dt>
+                            <dt>ดื่มนม</dt>
                             <dd id="attendance-total-present">0</dd>
                         </div>
                         <div class="attendance-summary-card">
-                            <dt>ขาดเรียน</dt>
+                            <dt>ไม่ดื่มนม</dt>
                             <dd id="attendance-total-absent">0</dd>
                         </div>
                         <div class="attendance-summary-card">

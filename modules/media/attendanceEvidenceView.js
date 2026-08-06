@@ -175,7 +175,14 @@ class AttendanceEvidenceView {
         await this.render(false);
     }
 
-    async handleAttendanceDeleted() {
+    async handleAttendanceDeleted(event) {
+        const deletedKey = String(
+            event?.detail?.key ||
+            `${event?.detail?.deletedRecord?.clsId || ""}_${event?.detail?.deletedRecord?.date || ""}`
+        );
+        if (deletedKey && this.manager.getState?.().recordKey !== deletedKey) {
+            return;
+        }
         await this.manager.cleanupDeletedRecord();
         const session = this.authService.getSession();
         const date = this.selectedDate();

@@ -82,7 +82,31 @@ assert.ok(readiness.includes("DEFERRED BY PRODUCT OWNER"), "Readiness report mus
 assert.ok(parity.includes("820 x 1180 responsive shell"), "Parity matrix must include responsive shell parity");
 assert.ok(parity.includes("| PASS | Teacher login, Logout, Console, layout |"), "Parity matrix must preserve the responsive PASS result");
 assert.ok(parity.includes("DEFERRED"), "Parity matrix must support deferred validation status");
-assert.ok(sprint.includes("Sprint 4.7 — Shared Media and Signature Workflow"), "Sprint status must identify the active Media and Signature Sprint");
+assert.ok(sprint.includes("Sprint 4.7 — Shared Media and Signature Workflow"), "Sprint status must preserve the Media and Signature foundation");
+assert.ok(
+    sprint.includes("Sprint 4.9 — Student Report, Room Stock, Teacher Settings and Navigation Parity") ||
+        (
+            sprint.includes("## Sprint 4.9 Goal") &&
+            (
+                sprint.includes("Sprint 5.0 — Operational Admin Report Integration") ||
+                sprint.includes("Sprint 5.1 — Large Attendance Payload Resilience") ||
+                sprint.includes("Sprint 5.2 — Admin Inline Attendance Edit") ||
+                sprint.includes("Sprint 5.3 — Admin System and Stock Dashboard") ||
+                sprint.includes("Sprint 5.4 — Milk Receipt and Receipt History") ||
+                sprint.includes("Sprint 5.5 — Student Import, Room Management and Student Report") ||
+                sprint.includes("Sprint 5.6 — Classroom Distribution and Distribution History") ||
+                sprint.includes("Sprint 5.7 — Operational Summaries and Period Reports") ||
+                sprint.includes("Sprint 5.8 — Admin System Tools") ||
+                sprint.includes("Sprint 5.9 — Integration, Security and UAT") ||
+                sprint.includes("Sprint 5.9.1 — Admin Parity Corrections") ||
+                sprint.includes("Sprint 5.9.2 — Receipt, Print and Large Backup Corrections") ||
+                sprint.includes("Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles")
+            )
+        ),
+    "Sprint status must preserve Teacher parity while identifying its approved successor"
+);
+assert.ok(parity.includes("Student report"), "Parity matrix must include the Sprint 4.9 Student Report");
+assert.ok(parity.includes("Complete Teacher navigation"), "Parity matrix must include complete Teacher navigation");
 assert.ok(
     sprint.includes("Sprint 4.6 Vacation Milk Operational UI merged into `develop`") ||
         sprint.includes("Sprint 4.6 Vacation Milk Operational UI fast-forward merged into `develop`"),

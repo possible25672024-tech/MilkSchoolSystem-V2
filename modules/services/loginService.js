@@ -1,67 +1,68 @@
 class LoginService {
-    constructor(repository = window.LoginRepository, options = {}) {
+    constructor(
+        repository = window.LoginRepository,
+        firebaseAuthService = window.FirebaseAuthService,
+        options = {}
+    ) {
         this.repository = repository;
-        this.defaultPassword = "1234";
+        this.firebaseAuthService = firebaseAuthService;
         this.clock = options.clock || (() => Date.now());
         this.cacheTtlMs = Number(options.cacheTtlMs) || 300000;
         this.loginOptionsCache = null;
     }
 
     ensureRepository() {
-        if (!this.repository) {
-            this.repository = window.LoginRepository;
-        }
-
-        if (!this.repository) {
-            throw new Error("LoginRepository is not available.");
-        }
-
+        if (!this.repository) this.repository = window.LoginRepository;
+        if (!this.repository) throw new Error("LoginRepository is not available.");
         return this.repository;
     }
 
-    cloneRoom(room = {}) {
-        const students = Array.isArray(room.students)
-            ? room.students.map(student => ({ ...(student || {}) }))
-            : room.students && typeof room.students === "object"
-                ? Object.fromEntries(
-                    Object.entries(room.students).map(([key, student]) => [key, { ...(student || {}) }])
-                )
-                : room.students;
+    ensureFirebaseAuthService() {
+        if (!this.firebaseAuthService) this.firebaseAuthService = window.FirebaseAuthService;
+        if (!this.firebaseAuthService?.signIn) {
+            throw new Error("Firebase Authentication service is not available.");
+        }
+        return this.firebaseAuthService;
+    }
 
+    normalizeDirectory(raw = {}) {
+        const source = raw && typeof raw === "object" ? raw : {};
+        const entries = Object.entries(source.accounts || source.rooms || {})
+            .filter(([, account]) => account && typeof account === "object")
+            .map(([key, account]) => ({
+                id: String(account.id || key),
+                name: String(account.name || account.label || account.roomName || key),
+                teacher: String(account.teacher || ""),
+                authEmail: String(account.authEmail || account.email || "").trim()
+            }));
         return {
-            ...room,
-            students
+            schoolName: String(source.schoolName || source.school || "โรงเรียน"),
+            accounts: entries,
+            rooms: entries.filter(account => account.id !== "__admin__")
         };
     }
 
-    normalizeRooms(rawRooms) {
-        const entries = Array.isArray(rawRooms)
-            ? rawRooms.map((room, index) => [room?.id || String(index), room])
-            : Object.entries(rawRooms || {});
-
-        return entries
-            .filter(([, room]) => room && typeof room === "object")
-            .map(([key, room]) => ({
-                ...room,
-                id: String(room.id || key),
-                name: String(room.name || room.roomName || room.id || key),
-                teacher: String(room.teacher || room.teacherName || "ครูประจำชั้น")
-            }));
+    isOfflinePreview() {
+        return Boolean(
+            window.APP_CONFIG?.mode === "OFFLINE_READ_ONLY" ||
+            this.repository?.firebaseService?.backupMode === true
+        );
     }
 
     cloneLoginOptions(options = {}) {
+        const accounts = (options.accounts || []).map(account => ({ ...account }));
         return {
-            settings: { ...(options.settings || {}) },
-            rooms: (options.rooms || []).map(room => this.cloneRoom(room))
+            schoolName: String(options.schoolName || "โรงเรียน"),
+            accounts,
+            rooms: accounts.filter(account => account.id !== "__admin__")
         };
     }
 
     isLoginOptionsCacheValid() {
-        if (!this.loginOptionsCache) {
-            return false;
-        }
-
-        return this.clock() - this.loginOptionsCache.loadedAt < this.cacheTtlMs;
+        return Boolean(
+            this.loginOptionsCache &&
+            this.clock() - this.loginOptionsCache.loadedAt < this.cacheTtlMs
+        );
     }
 
     clearLoginOptionsCache() {
@@ -73,27 +74,44 @@ class LoginService {
         if (!forceReload && this.isLoginOptionsCacheValid()) {
             return this.cloneLoginOptions(this.loginOptionsCache.value);
         }
-
-        const context = await this.ensureRepository().loadLoginContext();
-        const value = {
-            settings: context.settings || {},
-            rooms: this.normalizeRooms(context.rooms)
-        };
-
+        const value = this.normalizeDirectory(
+            await this.ensureRepository().loadPublicLoginDirectory()
+        );
+        if (!this.isOfflinePreview() &&
+            !value.accounts.some(account => account.id === "__admin__" && account.authEmail)) {
+            throw new Error("Public login directory does not contain a configured Admin account.");
+        }
         this.loginOptionsCache = {
             loadedAt: this.clock(),
             value: this.cloneLoginOptions(value)
         };
-
         return this.cloneLoginOptions(value);
     }
 
-    buildSession({ selection, room, settings, role, adminOverride = false }) {
-        const schoolName = String(
-            settings.school || settings.schoolName || "โรงเรียน"
-        );
+    normalizeRoom(room = {}, roomId) {
+        const students = Array.isArray(room.students)
+            ? room.students.map(student => ({ ...(student || {}) }))
+            : room.students && typeof room.students === "object"
+                ? Object.fromEntries(Object.entries(room.students).map(([key, student]) => [key, { ...(student || {}) }]))
+                : room.students;
+        return {
+            ...room,
+            id: String(room.id || roomId),
+            name: String(room.name || room.roomName || roomId),
+            teacher: String(room.teacher || room.teacherName || "ครูประจำชั้น"),
+            students
+        };
+    }
 
-        if (role === "admin") {
+    buildSession({ selection, room, settings, profile, auth, adminOverride = false }) {
+        const schoolName = String(settings.school || settings.schoolName || "โรงเรียน");
+        const authFacts = {
+            firebaseUid: auth.uid,
+            authenticatedEmail: auth.email,
+            authorizationSource: "firebase-uid-profile",
+            authenticatedAt: new Date().toISOString()
+        };
+        if (profile.role === "admin" && selection === "__admin__") {
             return {
                 classId: "__admin__",
                 className: "ผู้ดูแลระบบ",
@@ -104,10 +122,9 @@ class LoginService {
                 role: "admin",
                 isAdmin: true,
                 adminOverride: false,
-                authenticatedAt: new Date().toISOString()
+                ...authFacts
             };
         }
-
         return {
             classId: String(selection),
             className: room.name,
@@ -118,64 +135,118 @@ class LoginService {
             role: "teacher",
             isAdmin: false,
             adminOverride,
-            roomSnapshot: this.cloneRoom(room),
-            authenticatedAt: new Date().toISOString()
+            roomSnapshot: room,
+            ...authFacts
         };
     }
 
     async login(selection, password) {
         const normalizedSelection = String(selection || "").trim();
-        const normalizedPassword = String(password || "");
-
         if (!normalizedSelection) {
             return { ok: false, code: "ROLE_REQUIRED", message: "กรุณาเลือกห้องเรียนหรือผู้ดูแลระบบ" };
         }
-
-        if (!normalizedPassword) {
+        if (!String(password || "")) {
             return { ok: false, code: "PASSWORD_REQUIRED", message: "กรุณากรอกรหัสผ่าน" };
         }
 
-        const { settings, rooms } = await this.loadLoginOptions();
-        const adminPassword = String(settings.adminPassword || this.defaultPassword);
-        const teacherPassword = String(settings.teacherPassword || this.defaultPassword);
+        const options = await this.loadLoginOptions();
+        const account = options.accounts.find(item => item.id === normalizedSelection);
+        if (!account) {
+            return { ok: false, code: "ACCOUNT_NOT_FOUND", message: "ไม่พบบัญชีสำหรับรายการที่เลือก" };
+        }
 
-        if (normalizedSelection === "__admin__") {
-            if (normalizedPassword !== adminPassword) {
-                return { ok: false, code: "INVALID_CREDENTIALS", message: "รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง" };
+        const repository = this.ensureRepository();
+        const selectedRoom = normalizedSelection === "__admin__" ? null : normalizedSelection;
+
+        if (this.isOfflinePreview()) {
+            const profile = normalizedSelection === "__admin__"
+                ? { role: "admin", enabled: true }
+                : { role: "teacher", enabled: true, roomId: normalizedSelection };
+            const adminOverride = profile.role === "admin" && Boolean(selectedRoom);
+            const [settings, rawRoom] = await Promise.all([
+                profile.role === "admin"
+                    ? repository.loadSettings()
+                    : Promise.resolve({ school: options.schoolName }),
+                selectedRoom ? repository.loadRoom(selectedRoom) : Promise.resolve(null)
+            ]);
+            if (selectedRoom && !rawRoom) {
+                const error = new Error("ไม่พบห้องเรียนที่เลือกในฐานข้อมูล");
+                error.code = "ROOM_NOT_FOUND";
+                throw error;
             }
-
+            const room = selectedRoom ? this.normalizeRoom(rawRoom, selectedRoom) : null;
+            const auth = {
+                uid: `offline-${normalizedSelection}`,
+                email: account.authEmail || `offline-${normalizedSelection}@local`,
+                refreshToken: "",
+                expiresAt: this.clock() + 3600 * 1000
+            };
             return {
                 ok: true,
                 session: this.buildSession({
                     selection: normalizedSelection,
-                    settings,
-                    role: "admin"
+                    room,
+                    settings: settings || {},
+                    profile,
+                    auth,
+                    adminOverride
                 })
             };
         }
 
-        const room = rooms.find(item => item.id === normalizedSelection);
-        if (!room) {
-            return { ok: false, code: "ROOM_NOT_FOUND", message: "ไม่พบห้องเรียนที่เลือกในฐานข้อมูล" };
+        if (!account?.authEmail) {
+            return { ok: false, code: "ACCOUNT_NOT_FOUND", message: "ไม่พบบัญชีสำหรับรายการที่เลือก" };
         }
-
-        const matchesTeacher = normalizedPassword === teacherPassword;
-        const matchesAdmin = normalizedPassword === adminPassword;
-
-        if (!matchesTeacher && !matchesAdmin) {
-            return { ok: false, code: "INVALID_CREDENTIALS", message: "รหัสผ่านครูประจำชั้นไม่ถูกต้อง" };
+        const authService = this.ensureFirebaseAuthService();
+        try {
+            const auth = await authService.signIn(account.authEmail, String(password));
+            const profile = await repository.loadAuthorizedUser(auth.uid);
+            if (!profile || profile.enabled !== true || !["admin", "teacher"].includes(profile.role)) {
+                const error = new Error("บัญชีนี้ไม่มีสิทธิ์ใช้งานระบบ");
+                error.code = "AUTHORIZATION_PROFILE_DENIED";
+                throw error;
+            }
+            const adminOverride = profile.role === "admin" && Boolean(selectedRoom);
+            if (normalizedSelection === "__admin__" && profile.role !== "admin") {
+                const error = new Error("บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ");
+                error.code = "ADMIN_ROLE_REQUIRED";
+                throw error;
+            }
+            if (selectedRoom && profile.role === "teacher" && String(profile.roomId) !== selectedRoom) {
+                const error = new Error("บัญชีครูไม่ตรงกับห้องเรียนที่เลือก");
+                error.code = "TEACHER_ROOM_MISMATCH";
+                throw error;
+            }
+            const [settings, rawRoom] = await Promise.all([
+                profile.role === "admin"
+                    ? repository.loadSettings()
+                    : Promise.resolve({ school: options.schoolName }),
+                selectedRoom ? repository.loadRoom(selectedRoom) : Promise.resolve(null)
+            ]);
+            if (selectedRoom && !rawRoom) {
+                const error = new Error("ไม่พบห้องเรียนที่เลือกในฐานข้อมูล");
+                error.code = "ROOM_NOT_FOUND";
+                throw error;
+            }
+            const room = selectedRoom ? this.normalizeRoom(rawRoom, selectedRoom) : null;
+            return {
+                ok: true,
+                session: this.buildSession({
+                    selection: normalizedSelection,
+                    room,
+                    settings: settings || {},
+                    profile,
+                    auth,
+                    adminOverride
+                })
+            };
+        } catch (error) {
+            authService.signOut?.();
+            if (["INVALID_PASSWORD", "EMAIL_NOT_FOUND", "INVALID_LOGIN_CREDENTIALS"].includes(error.code)) {
+                return { ok: false, code: "INVALID_CREDENTIALS", message: "รหัสผ่านไม่ถูกต้อง" };
+            }
+            throw error;
         }
-
-        return {
-            ok: true,
-            session: this.buildSession({
-                selection: normalizedSelection,
-                room,
-                settings,
-                role: "teacher",
-                adminOverride: matchesAdmin
-            })
-        };
     }
 }
 

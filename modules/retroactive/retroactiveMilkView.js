@@ -11,6 +11,7 @@ class RetroactiveMilkView {
         this.document = options.document || window.document;
         this.eventTarget = options.eventTarget || window;
         this.confirm = options.confirm || (message => window.confirm(message));
+        this.operationPrintView = options.operationPrintView || window.MilkOperationPrintView;
         this.initialized = false;
         this.bound = false;
         this.activeSession = null;
@@ -89,6 +90,8 @@ class RetroactiveMilkView {
             .retroactive-milk-actions button{width:min(260px,100%)}
             .retroactive-milk-history{display:grid;gap:10px;margin-top:16px}
             .retroactive-milk-history-row{display:grid;grid-template-columns:minmax(190px,1fr) auto;align-items:center;gap:12px;border:1px solid #dbe5ef;border-radius:12px;padding:13px;background:#fff}
+            .retroactive-milk-history-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+            .retroactive-milk-history-actions button{width:auto;margin:0}
             .retroactive-milk-history-title{font-weight:800;color:#1a5276}
             .retroactive-milk-history-meta{margin-top:3px;color:#64748b;font-size:.82rem;overflow-wrap:anywhere}
             .retroactive-milk-history-badge{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:999px;background:#fee2e2;color:#991b1b;font-size:.76rem;font-weight:800}
@@ -286,6 +289,11 @@ class RetroactiveMilkView {
     }
 
     async handleDeleteClick(event) {
+        const printButton = event?.target?.closest?.("button[data-retro-print]");
+        if (printButton) {
+            this.printHistoryRecord(String(printButton.dataset.retroPrint || ""));
+            return;
+        }
         const button = event?.target?.closest?.("button[data-retro-delete]");
         if (!button) {
             return;
@@ -361,9 +369,39 @@ class RetroactiveMilkView {
                     <div class="retroactive-milk-history-meta">ปี ${this.escape(record.academicYear)} · ภาค ${this.escape(record.semester)} · จ่าย ${this.escape(record.date)} · ${Number(record.days) || 0} วัน · ${Number(record.totalBoxes) || 0} กล่อง</div>
                     <span class="retroactive-milk-history-badge">หนี้นม ${Number(record.debtBoxes) || 0} กล่อง</span>
                 </div>
-                <button type="button" data-retro-delete="${this.escape(record.id)}" data-retro-boxes="${Number(record.totalBoxes) || 0}">ลบและคืนสต็อก</button>
+                <span class="retroactive-milk-history-actions">
+                    <button type="button" data-retro-print="${this.escape(record.id)}">🖨️ พิมพ์รายงาน A4</button>
+                    <button type="button" data-retro-delete="${this.escape(record.id)}" data-retro-boxes="${Number(record.totalBoxes) || 0}">ลบและคืนสต็อก</button>
+                </span>
             </article>
         `).join("");
+    }
+
+    printHistoryRecord(recordId) {
+        const record = (this.currentHistory?.records || []).find(
+            item => String(item.id) === String(recordId)
+        );
+        if (!record) {
+            this.renderError(new Error("ไม่พบรายการนมย้อนหลังสำหรับพิมพ์"));
+            return;
+        }
+        try {
+            this.operationPrintView ||= window.MilkOperationPrintView;
+            if (!this.operationPrintView?.print) {
+                throw new Error("ระบบพิมพ์รายงานจ่ายนมยังไม่พร้อมใช้งาน");
+            }
+            const snapshot = this.teacherManager.getSnapshot?.() || {};
+            this.operationPrintView.print({
+                kind: "retroactive",
+                record,
+                session: this.activeSession,
+                settings: snapshot.settings || {},
+                students: snapshot.students || snapshot.room?.students || []
+            });
+            this.setStatus("เปิดหน้าพิมพ์รายงานนมย้อนหลังแล้ว", "success");
+        } catch (error) {
+            this.renderError(error);
+        }
     }
 
     setBusy(busy, message = "") {

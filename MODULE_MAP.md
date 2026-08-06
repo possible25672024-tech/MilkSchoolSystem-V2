@@ -2,7 +2,7 @@
 
 # Module Migration Map
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 ## Protected Legacy Files
 
@@ -32,15 +32,19 @@ Modules:
 - `modules/login/loginManager.js`
 - `modules/login/authService.js`
 - `modules/services/loginService.js`
+- `modules/services/firebaseAuthService.js`
 - `modules/repositories/loginRepository.js`
 
 Completed boundary:
 
-- Admin and Teacher login
-- compatible session storage
-- cached settings and rooms context
+- Firebase Email/Password Admin and Teacher login
+- short-lived ID token and session-scoped refresh token
+- compatible session storage bound to Firebase UID
+- public password-free login directory cache
+- server authorization profile under `accessControl/users/{uid}`
 - authenticated Teacher room snapshot
 - Admin and Teacher role routing
+- no browser comparison of Admin/Teacher operational passwords
 
 ### Firebase Foundation — Completed
 
@@ -49,6 +53,8 @@ Modules:
 - `modules/services/firebaseService.js`
 - `modules/repositories/baseRepository.js`
 - `modules/config/configManager.js`
+- `firebase/database.rules.json`
+- `firebase/database.rules.rollback.json`
 
 Completed boundary:
 
@@ -59,8 +65,11 @@ Completed boundary:
 - ETag reads through `X-Firebase-ETag: true`
 - conditional writes through `If-Match`
 - HTTP 412 conflict exposure
+- dynamic Firebase ID token on every REST request
+- deny-by-default Admin/Teacher room-scoped Rules
+- safe freeze-writes rollback Rules
 
-### Stock — Completed
+### Stock — Sprint 5.6 Distribution Gate Active
 
 Modules:
 
@@ -75,10 +84,87 @@ Completed boundary:
 - rebuild and validation
 - compatible ledger calculations
 - Main Stock and Room Stock separation
+- Admin distribution ETag lock with stale-lock conditional takeover
+- stable operation idempotency and completion markers
+- scalable distribution summary history without media hydration
 
-### Report — Foundation Completed, Operational Adapter Deferred
+### Report and Admin Operations — Sprint 5.9.3 Integration/UAT Gate Active
 
 Modules:
+
+- `modules/report/browserLocalReportAdapter.js`
+- `modules/report/adminReportView.js`
+- `modules/admin/adminRoomService.js`
+- `modules/admin/adminRoomManager.js`
+- `modules/admin/adminRoomView.js`
+- `modules/admin/adminDashboardService.js`
+- `modules/admin/adminDashboardManager.js`
+- `modules/admin/adminDashboardView.js`
+- `modules/admin/adminReceiptService.js`
+- `modules/admin/adminReceiptManager.js`
+- `modules/admin/adminReceiptView.js`
+- `modules/admin/adminDistributionService.js`
+- `modules/admin/adminDistributionManager.js`
+- `modules/admin/adminDistributionView.js`
+- `modules/repositories/operationalReportRepository.js`
+- `modules/admin/adminOperationalReportService.js`
+- `modules/admin/adminOperationalReportManager.js`
+- `modules/admin/adminOperationalReportView.js`
+
+Current boundary:
+
+- actual Thai-keyed room rosters normalized before Admin Attendance rendering
+- no generated `student_*` rows merged into a real room roster
+- read-only whole-system Admin Dashboard
+- actual Main Stock and Room Stock totals
+- per-room actual-versus-history status without rebuild or repair
+- ready, empty, mismatch, and negative stock visibility
+- scalable Report snapshot reuse without historical media hydration
+- per-room stock trace and read-only opening-balance candidate
+- Admin Main Stock receipt and media-free receipt history
+- receipt writes Main Stock, receive record, and `RECEIVE` ledger only
+- classroom distribution transfers Main Stock to one Room Stock only
+- distribution record, `DISTRIBUTE` ledger, and completion marker share one update
+- ETag lock and stable operation id block duplicate Main Stock deductions
+- distribution history uses shallow discovery and media-free summaries
+- day, week, half-month, month, and explicit-semester operational reports
+- receipt, distribution, Attendance, Pending, Retroactive, and Vacation period totals
+- out-of-range detail hydration prevention and media/signature exclusion
+- separate management summary and classroom-distribution report screens
+- landscape A4 and Thai UTF-8 BOM CSV exports
+- read-only per-row `stockBefore - total = stockAfter` diagnostics;
+- visible anomaly warning and expected balance in screen/CSV/A4 output;
+
+- read-only classroom, grade, and whole-school Admin reports;
+- browser-local Pending, Retroactive, and Vacation report normalization;
+- Admin room selector and selected-room operational Dashboard;
+- Attendance, Pending, Retroactive, and Vacation history management;
+- explicit Admin-to-room delegated context with return to the parent Admin
+  session;
+- safe note-only operation edits that do not alter quantities;
+- deletes through accepted Services with Room Stock, audit, and Queue recovery;
+- shallow Attendance key discovery followed by selected-room `/data` reads;
+- room-scoped Pending, Retroactive, and Vacation Admin history reads;
+- compact whole-school report reads containing formula fields only;
+- Firebase array/object normalization before Dashboard totals;
+- no automatic historical photo or signature hydration;
+- protected `index.html` and `teacher.html` unchanged.
+- viewed receipt detail provides a read-only A4 portrait output with evidence;
+- distribution preview shows actual room students, manual days, boxes, crates,
+  and Main Stock before/after before the guarded command;
+- exact-date Attendance edit remains inside the Admin shell;
+- explicit single-record evidence hydration only after the edit action;
+- Service-owned preservation of existing Attendance photos and signature;
+- Attendance save through accepted Room Stock difference, audit, and Queue
+  recovery.
+
+Pending gates:
+
+- complete Sprint 5.2 regression;
+- Admin inline edit browser validation;
+- post-edit evidence-preservation validation.
+
+Existing foundation modules:
 
 - `modules/report/reportManager.js`
 - `modules/services/reportService.js`
@@ -91,17 +177,22 @@ Completed boundary:
 - print and Excel export models
 - injected `extraSources` boundary
 
-Deferred production gap:
+Resolved Sprint 5.0 gap:
 
-- browser-local pending, retroactive, and vacation adapter under cutover decision D-02
+- browser-local Pending, Retroactive, and Vacation report adapter under cutover
+  decision D-02 is implemented; local browser acceptance remains pending.
 
-### Room — Foundation Completed, Operational Import/UI Deferred
+### Room and Student Administration — Sprint 5.5 Automated Gate Passed
 
 Modules:
 
 - `modules/room/roomManager.js`
 - `modules/services/roomService.js`
 - `modules/repositories/roomRepository.js`
+- `modules/admin/studentImportParser.js`
+- `modules/admin/adminStudentService.js`
+- `modules/admin/adminStudentManager.js`
+- `modules/admin/adminStudentView.js`
 
 Completed boundary:
 
@@ -111,11 +202,59 @@ Completed boundary:
 - parsed-sheet import preparation
 - deletion safety
 
-Deferred production gaps:
+Sprint 5.5 boundary:
 
-- XLSX binary parser remains in protected legacy Admin flow under D-03
-- complete-room multi-admin optimistic concurrency remains unresolved
-- operational Admin room UI remains in `index.html`
+- vendored local XLSX/XLS/CSV parsing with header validation
+- complete preview before any write
+- immutable Room ID and Room Stock preservation on repeated import
+- within-room and cross-room student duplicate gates
+- Firebase ETag read and conditional room-collection confirmation
+- explicit stale-preview conflict without automatic overwrite
+- operational Admin V2 import, room management, and student report
+- UTF-8 CSV and browser A4 output
+- no generated `student_*` persistence
+- no Main Stock, Room Stock, Queue, ledger, or milk-history mutation
+- Sprint 5.9 fixes room-management roster navigation so the selected room opens
+  visibly in the student-report section.
+
+### Admin System Tools — Sprint 6.2 PDF Optimization Gate Active
+
+Modules:
+
+- `modules/repositories/adminSystemRepository.js`
+- `modules/admin/adminSystemService.js`
+- `modules/admin/adminSystemManager.js`
+- `modules/admin/adminSystemView.js`
+- `modules/media/documentImageOptimizer.js`
+- `modules/media/documentPdfOptimizer.js`
+- `assets/vendor/pdf-lib.min.js`
+
+Current boundary:
+
+- document metadata and files remain separated and files hydrate on demand;
+- settings writes retain ETag protection and protected configuration values;
+- backup discovers root keys with shallow ETag reads and hydrates large
+  collections recursively after Firebase 413;
+- a second root ETag check rejects mixed-time snapshots;
+- restore preview reads compact counts and restore keeps safety backup, SHA-256,
+  typed confirmation, final confirmation, and root If-Match protection;
+- Google Drive remains an explicit user-owned file transfer;
+- Production restore and Firebase Rules changes remain blocked pending isolated UAT.
+- fast core backup uses an explicit legacy-like allowlist and avoids hydrating
+  Teacher-operation history plus `documentFiles`;
+- full backup retains complete `milkApp` coverage;
+- core files are reference-only and cannot enter whole-root Restore.
+- every new Admin JPG/PNG document uses the bounded shared image pipeline;
+- eligible PDF documents use local lossless structural optimization;
+- compressed PDFs must reopen with the same page count and meet the minimum
+  savings threshold, otherwise the original is retained;
+- digitally signed and encrypted PDFs are never rewritten.
+
+Remaining production gaps:
+
+- Live Server browser acceptance
+- real isolated two-Admin ETag conflict evidence
+- Production cutover approval
 
 ### Teacher Service Foundation — Completed
 
@@ -131,6 +270,7 @@ Completed boundary:
 - Teacher session room snapshot reuse
 - default today's Attendance `/data` read
 - explicit room-history and deferred-data refresh
+- explicit no-Attendance core mode for Admin summary orchestration
 - Teacher dashboard and Room Stock-only command preparation
 - measured desktop payload optimization
 
@@ -153,6 +293,7 @@ Completed boundary:
 - no Main Stock change
 - versioned Room Stock reads
 - conditional Room Stock writes
+- shallow room-history key discovery with bounded `/data` hydration
 - latest-value recalculation after conflicts
 - bounded ETag retry
 - partial-save conversion to Room Stock-only retry
@@ -334,6 +475,7 @@ Modules and artifacts:
 - `modules/reports/attendanceReportBuilder.js`
 - `modules/reports/attendancePrintModel.js`
 - `modules/reports/attendancePrintView.js`
+- `modules/reports/milkOperationPrintView.js`
 - `tests/attendance-history-query-check.mjs`
 - `tests/attendance-report-builder-check.mjs`
 - `tests/attendance-print-model-check.mjs`
@@ -355,6 +497,60 @@ Completed automated boundary:
 - local desktop and `820 x 1180` browser evidence passed
 - Console remained clean and visible report Network methods were GET-only
 - one-sheet A4 preview contained all 16 student rows
+
+### Teacher Student Report, Stock, Settings and Navigation — Sprint 4.9 Active
+
+Modules and artifacts:
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- `tests/teacher-parity-service-check.mjs`
+- `tests/teacher-preference-store-check.mjs`
+- `tests/teacher-parity-manager-check.mjs`
+- `tests/teacher-parity-ui-check.mjs`
+- `tests/sprint-4.9-plan-check.mjs`
+- `tests/run-sprint-4.9-regression.mjs`
+- `docs/SPRINT_4_9_PLAN.md`
+- `docs/TEACHER_PARITY_CUTOVER_GATE.md`
+- `docs/SPRINT_4_9_CUTOVER_REHEARSAL.md`
+- `docs/SPRINT_4_9_BROWSER_ACCEPTANCE_CHECKLIST.md`
+- `docs/ATTENDANCE_REPORT_EVIDENCE_HISTORY_ACTION_GATE.md`
+
+Implemented boundary:
+
+- selected-student authenticated-room Attendance report
+- read-only selected-range timeline, notes, totals, and A4 print
+- read-only monthly paper-roster form for the whole authenticated room, with Monday-Friday columns and manual ✓/✕ marking
+- explicit Print-time hydration of available daily photos and homeroom Teacher signatures for Room A4 and Student A4
+- media-free ordinary History/report loading with metadata-only evidence events
+- History Edit/Delete actions with exact-date Daily Attendance routing
+- History Delete delegation to the accepted Attendance stock-difference, ETag, audit, and Queue recovery path
+- one landscape Room A4 status matrix containing the whole selected range with ✓/✕/—, row totals, and drinking percentages
+- following Room A4 evidence pages grouped at up to five dates per page, with one photo row and homeroom Teacher signature per date
+- inline Student Attendance photo evidence with no forced per-date evidence sheet
+- shared A4 print actions for Pending, Retroactive, and Vacation records
+- one-row, five-photo evidence limit plus receiver signatures and Teacher approval line
+- actual read-only Room Stock and compatible last-updated display
+- allowlisted room-isolated UI preferences only
+- complete 12-item Teacher navigation
+- fixed blue Teacher header plus dark-blue Teacher navigation on the left below the header at desktop widths
+- grouped menu sections, active marker, room/Teacher identity, and identity footer
+- authenticated-room homeroom Teacher-name editing through `TeacherManager -> TeacherService -> RoomRepository`
+- teacher-leaf-only Firebase update; no room-record, student, stock, Attendance, Queue, ledger, or stockLog replacement
+- milk-consumption display wording without changing the compatible Attendance status keys
+- reuse of accepted Attendance, report, Queue, Pending, Retroactive, and Vacation panels
+- no Firebase schema, operational stock, Queue, ledger, stockLog, or media ownership
+
+Remaining gate:
+
+- local desktop and `820 x 1180` browser evidence
+- clean Console and read-only Network evidence
+
+Automated result:
+
+- all 54 discovered regression checks passed
 
 ### Legacy Removal — Blocked
 
@@ -421,7 +617,16 @@ Rebuild
 - Sprint 4.6 — Vacation Milk Operational UI — Completed
 - Sprint 4.7 — Shared Media and Signature Workflow — Completed
 - Sprint 4.8 — Attendance History, Summary and A4 Print UI — Completed, accepted for `develop`
-- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Planned
+- Sprint 4.9 — Student report, Room Stock, settings, navigation parity, and cutover rehearsal — Browser PASS
+- Sprint 5.0 — Browser-local Report adapter and operational Admin report UI — Completed
+- Sprint 5.1 — Scalable Admin Attendance and report reads — Browser PASS
+- Sprint 5.2 — Admin inline exact-date Attendance edit — Automated PASS
+- Sprint 5.3 — Admin overview and stock Dashboard — Automated PASS
+- Sprint 5.4 — Milk receipt and receipt history — Automated PASS
+- Sprint 5.5 — Student import, room management, and student reports — Automated PASS
+- Sprint 5.6 — Classroom distribution and distribution history — Automated PASS
+- Sprint 5.7 — Operational summaries and report-period parity — Active, automated PASS
+- Sprint 5.8 — Documents, settings, backup/restore, and Drive sync — Planned
 - Legacy Removal — Blocked pending production-cutover approval
 
 ## AI Instructions

@@ -165,7 +165,14 @@ Aliases are also supported for legacy adapters:
 - `backdatedMilkRecords`
 - `vacationMilkRecords`
 
-Before the V2 report replaces the legacy UI, the scheduled storage/sync adapter must inject these local collections or migrate them into shared Firebase paths. Until then, the legacy report remains the operational report.
+Sprint 5.0 implements the scheduled separate read-only adapter in
+`modules/report/browserLocalReportAdapter.js`. It reads the three approved
+legacy-local stores, omits media, deduplicates records already represented by
+Firebase, and injects normalized sources through ReportManager.
+
+The implementation passes isolated and full-regression gates. Operational
+replacement remains pending local Browser formula-parity evidence and the wider
+production-cutover decisions.
 
 ## Read-Only Guarantee
 

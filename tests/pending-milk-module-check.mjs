@@ -195,7 +195,7 @@ const context = {
 vm.runInNewContext(serviceCode, context);
 const PendingMilkService = context.window.PendingMilkService.constructor;
 const service = new PendingMilkService(repository, teacherService, sharedStock, {
-    clock: () => new Date("2026-08-05T03:00:00.000Z")
+    clock: () => new Date("2026-08-05T12:00:00.000Z")
 });
 
 const range = service.weekRange("2026-08-05");

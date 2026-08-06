@@ -1,6 +1,393 @@
 # Changelog
 
+## Sprint 6.5 — External UAT and deployment closure gates
+
+- add one-command external Rules/project/incident/regression gate;
+- add read-only forensic audit for room `mqn0z13eyx5b` on `2026-07-28`;
+- add commit-bound Production approval template and verifier;
+- preserve all Production, `main`, tag, Restore, and cutover blocks until
+  external evidence and explicit authorization exist.
+
+## Sprint 6.4 — Firebase Authentication, Security Rules and UAT
+
+- replaced browser password comparison with Firebase Email/Password ID-token
+  authentication, refresh, restore, and sign-out;
+- bound compatible sessions to Firebase UID authorization profiles;
+- removed static database-secret loading and plaintext Admin/Teacher password
+  checks from V2 runtime;
+- changed Teacher collection reads to room-scoped queries;
+- added deny-by-default active Rules and freeze-writes rollback Rules;
+- added official Emulator and real isolated-project allow/deny plus
+  Backup/Restore UAT programs;
+- raised automated regression to 100/100;
+- recorded Emulator artifact download, real test project, Live Browser, data
+  incident, and explicit Production approval as remaining blockers;
+- changed no protected legacy page and performed no deployment or Production
+  request.
+- added Git attributes that preserve byte-exact vendored PDF/XLSX libraries on
+  Windows checkouts and prevent the prior LF-to-CRLF integrity mismatch.
+
+## Sprint 6.3 — UAT, Security and Isolated Restore Readiness
+
+- added a disposable Firebase REST-compatible Backup/Restore rehearsal with
+  SHA-256, root ETag, Restore audit, safety confirmation, and stale-write
+  conflict evidence;
+- added Live HTTP asset, Responsive contract, unique-ID, and local dependency
+  gates without contacting Production;
+- recorded that real Live Browser and real isolated Google Firebase evidence
+  remain pending because those environments are not available here;
+- recorded client-side password/session handling and missing server-enforced
+  Firebase authorization evidence as a critical Production blocker;
+- retained the quarantined room/date incident and blocked Production, `main`,
+  tag, deployment, Restore, and cutover pending explicit acceptance.
+
+## Sprint 6.2 — Safe PDF Upload Optimization
+
+- added browser-side lossless PDF structural compression with local pdf-lib;
+- reopens compressed output and requires the original page count;
+- accepts compressed bytes only when at least 4 KB and 1% smaller;
+- preserves original signed, encrypted, non-beneficial, or failed-validation PDFs;
+- shows PDF page count and original-to-saved byte size before upload;
+- added one acceptance gate and raised regression to 92 checks;
+- kept historical files, protected legacy pages, Stock rules, Backup/Restore,
+  Production, main, tag, and cutover unchanged.
+
+## Sprint 6.1 — Image Upload Optimization and Storage Control
+
+- applied the accepted 1,000 px, JPEG 0.70, 400 KB image pipeline to new
+  Admin JPG/PNG document uploads;
+- displayed source and optimized size before upload;
+- preserved PDF source files during Sprint 6.1;
+- kept all historical images and documents unchanged;
+- added one acceptance gate and raised regression to 91 checks;
+- kept protected legacy pages, Stock rules, Production, main, tag, and cutover
+  unchanged.
+
+## Sprint 6.0 — Production Readiness and Release
+
+- fixed classroom selection so the saved student count remains visible when
+  Main Stock is zero or insufficient;
+- kept the students × manually entered days preview available for total boxes,
+  crate/remainder, Main Stock before/after, and Room Stock before/after;
+- added an exact shortage warning and blocked submission while retaining the
+  guarded Stock Service latest-balance check;
+- started the final release-readiness sprint without authorizing Production
+  Restore, `main`, tag, deployment, cutover, or incident closure.
+
+## Sprint 5.9.3 — Receipt A4, Distribution Summary and Backup Profiles
+
+- added A4 portrait printing to the explicitly viewed receipt detail;
+- exposed students, manually entered days, total boxes, crate remainder, and
+  Main Stock before/after in the classroom distribution preview;
+- added a fast legacy-like core backup that skips Teacher operation history and
+  document file bodies;
+- retained complete evidence backup as a separate explicit action;
+- marked core files reference-only and blocked them from whole-root Restore;
+- added one acceptance gate and raised regression to 88 checks;
+- kept protected legacy pages, Stock ownership, and Production Restore unchanged.
+
+## Sprint 5.9.1 — Admin Parity Corrections
+
+- added up to five processed distribution photos and separate receiver/sender
+  signatures to the guarded classroom distribution record;
+- routed Admin Pending, Retroactive, and Vacation menus to the full selected
+  Teacher-room workflow with an explicit return-to-Admin action;
+- added school-wide drinking metrics, latest checks, per-room daily status, and
+  room/month Attendance history with selected-record detail hydration;
+- changed anomaly output to show the calculated Main Stock result and retain the
+  original stored result separately for audit;
+- fixed Backup root consistency reads by using ETag plus `print=silent` and a
+  separate shallow key request, eliminating Firebase's unsupported mixed mode;
+- added three corrective acceptance gates and raised regression to 84 checks;
+- kept protected legacy pages, historical Stock, and Production Restore unchanged.
+
+## Sprint 5.9 — Integration, Security and UAT
+
+- fixed room-management `ดูรายชื่อ` so the selected roster opens visibly in
+  the student-report section;
+- regrouped all 19 Admin menus into the eight reference sidebar categories;
+- replaced oversized root backup reads with shallow root discovery, recursive
+  chunk hydration, and before/after root ETag consistency checks;
+- kept full-data SHA-256 backup integrity while making restore previews use
+  compact current summaries;
+- added read-only per-distribution Main Stock formula diagnostics and exports;
+- added three Sprint 5.9 gates and raised complete regression to 81 checks;
+- kept Production restore, rule deployment, stock auto-repair, `main`, and
+  protected legacy replacement blocked pending live/isolated UAT.
+
+## Sprint 5.8 — Admin System Tools
+
+- added Admin document metadata listing with on-demand file download;
+- added guarded PDF/JPG/PNG upload and atomic metadata/file deletion;
+- added general settings editing with ETag conflict protection while preserving
+  Firebase connection values;
+- added full `milkApp` JSON backup envelopes with SHA-256 integrity;
+- added preview-only restore inspection, mandatory current backup, typed
+  confirmation, ETag-protected root replacement, and restore audit;
+- added explicit manual Google Drive export/import transfer without storing
+  Google credentials;
+- added four Sprint 5.8 gates and raised complete regression to 78 checks;
+- kept stock formulas and protected legacy files unchanged.
+
+## Sprint 5.7.1 — Report Ordering Correction
+
+- sorted classroom reports by Thai education level from kindergarten upward;
+- added natural room-number ordering within each grade;
+- changed distribution reports to oldest-first saved chronology;
+- added stock-before/stock-after chain fallback for legacy untimed records;
+- added a dedicated ordering gate and raised complete regression to 74 checks;
+- kept all reports read-only and protected stock/legacy files unchanged.
+
+## Sprint 5.7 — Operational Summaries and Period Reports
+
+- added separate Admin management-summary and distribution-report screens;
+- added day, week, half-month, month, and explicit-semester period contracts;
+- summarized receipts, distributions, Attendance, Pending, Retroactive, and
+  Vacation operations by room, grade, and whole school;
+- added scalable shallow key discovery and blocked out-of-range detail reads;
+- excluded photos, media, signatures, and evidence from report hydration;
+- added landscape A4 and Thai UTF-8 BOM CSV exports;
+- added four Sprint 5.7 gates and raised complete regression to 73 checks;
+- kept reports read-only and protected legacy files unchanged.
+
+## Sprint 5.6 — Classroom Distribution and Distribution History
+
+- added Admin V2 classroom distribution using actual roster count × days;
+- added separate distribution and scalable history screens;
+- added ETag/If-Match distribution locking and stable operation idempotency;
+- persisted Main Stock, Room Stock, distribution, `DISTRIBUTE` ledger, and
+  completion marker in one multi-location update;
+- blocked reuse of one operation id for a different distribution;
+- excluded generated `student_*` rows and preserved the quarantined room/date;
+- added two Sprint 5.6 gates and raised complete regression to 69 checks;
+- kept protected legacy files unchanged and left differential edit/delete
+  outside this Sprint.
+
+## Sprint 5.5 — Student Import, Room Management and Student Report
+
+- added a local vendored XLSX/XLS/CSV reader with Thai school-header handling;
+- added complete import preview, header validation, and duplicate-student gates;
+- added ETag-bound confirmation with explicit stale-preview conflict handling;
+- preserved immutable room IDs and Room Stock across repeated imports;
+- added Admin V2 room creation, metadata edit, and dependency-protected delete;
+- added room/gender/student report, A4 print, and UTF-8 CSV export;
+- added three Sprint 5.5 gates and raised complete regression to 67 checks;
+- kept Main Stock, Room Stock, Queue, ledger, milk history, and protected legacy
+  files unchanged.
+
 All notable modular migration changes are recorded here.
+
+## 2026-07-31 — Sprint 5.4 Milk Receipt and Stock Trace
+
+### Added
+
+- Admin `รับนมจาก อบต.` form and media-free receipt history
+- Main Stock receipt preview using crates × per-crate count + extra boxes
+- receipt persistence through the accepted Stock Service `RECEIVE` workflow
+- complete system stock-path explanation and per-room trace
+- read-only opening-balance candidate for legacy-history reconciliation
+- real-data audit report for 83 rooms
+
+### Changed
+
+- the Dashboard no longer labels every pre-V2 opening balance as an ordinary
+  stock mismatch
+- rooms are classified as history-complete, empty, opening-balance required, or
+  negative
+- receipt history uses shallow key discovery and selected summary fields
+
+### Validation
+
+- all 64 discovered regression checks pass
+- receipt increases Main Stock and never changes Room Stock
+- stock trace and opening-balance calculation remain read-only
+- `rebuildAndPersist` remains blocked for the real dataset
+- `index.html` and `teacher.html` remain unchanged
+
+## 2026-07-31 — Sprint 5.3 Admin System and Stock Dashboard
+
+### Added
+
+- read-only Admin `ภาพรวมระบบ` as the default Admin workspace
+- Main Stock, combined Room Stock, total system stock, rooms, students, and
+  used-milk metrics
+- per-room actual-versus-history stock comparison
+- ready, empty, mismatch, and negative Room Stock status groups
+- Admin Dashboard Service, Manager, View, plan, and automated gate
+
+### Fixed
+
+- Thai student roster fields are normalized before Admin history and inline
+  Attendance rendering.
+- generated `student_*` identities are no longer merged with the real roster,
+  preventing a 32-student room from rendering approximately 64 rows.
+- Attendance detail totals are scoped to the actual current roster.
+
+### Validation
+
+- all 63 discovered regression checks pass
+- Dashboard reads Main Stock and Room Stock without write ownership
+- `index.html` and `teacher.html` remain unchanged
+- Live Server desktop, responsive, Network, Console, and real-value comparison
+  remain pending
+
+## 2026-07-30 — Sprint 5.2 Admin Inline Attendance Edit
+
+### Added
+
+- Admin-owned exact-date Attendance editor inside the selected-room workspace
+- explicit one-record evidence hydration after the edit action
+- full saved-record detail pages for Attendance, Pending, Retroactive, and
+  Vacation Admin histories
+- read-only student status, notes, photos, teacher signature, and
+  per-student receiver signature rendering
+- Sprint 5.2 plan, parity roadmap, and automated gate
+
+### Changed
+
+- Attendance `เปิดแก้ไข` no longer changes the active Admin session or opens
+  the Teacher shell.
+- Admin may edit `ดื่มนม`, `ไม่ดื่มนม`, and per-student notes in place.
+- Attendance Service still owns present-count difference, Room Stock ETag,
+  audit, and Queue recovery.
+- Existing photos, signature, academic metadata, and original saved timestamp
+  are preserved by AdminRoomService rather than accepted from the View.
+- Protected quarantine, Main Stock isolation, `index.html`, and `teacher.html`
+  remain unchanged.
+- Recorded Admin parity delivery order for Sprints 5.3–5.8.
+- History `ดู` actions now hydrate only the selected record and render it
+  inside the Admin workspace instead of showing a short browser alert.
+- Full-record reads verify selected-room ownership while room history tables
+  remain summary-only to preserve the Sprint 5.1 Firebase 413 boundary.
+
+### Validation
+
+- Admin room operations and Sprint 5.2 plan checks pass.
+- All 62 discovered regression checks pass.
+- Live Server browser acceptance remains pending.
+
+## 2026-07-30 — Sprint 5.1 Large Attendance Payload Resilience
+
+### Added
+
+- shallow Attendance key discovery and bounded selected-room `/data` hydration
+- Firebase 413 scalable-query regression gate
+- Sprint 5.1 plan and browser acceptance criteria
+
+### Changed
+
+- Admin room loading explicitly defers the media-bearing Attendance collection.
+- Admin Attendance history no longer downloads historical photos or signatures.
+- Pending, Retroactive, and Vacation Admin histories load through room-scoped
+  Repository queries.
+- Whole-school Admin reports no longer compose the full Stock snapshot.
+- Report aggregation reads only required compact fields and excludes photos
+  and signatures.
+- Teacher Dashboard totals normalize both Firebase objects and arrays.
+- Admin operation tables use fitted columns and wrapped action controls so
+  View/Edit/Delete remain inside the content panel.
+- Admin operation rows become labeled cards on narrow screens.
+- The authenticated Admin workspace now uses the full desktop viewport with a
+  fixed-width navigation column and a fluid report column, matching the
+  operational legacy report proportions without changing Login or Teacher
+  layout.
+- Existing View/Edit/Delete, Room Stock rollback, audit, Queue recovery, and
+  Main Stock isolation remain unchanged.
+
+### Validation
+
+- scalable-query, Admin operations, and Performance checks passed.
+- all 60 discovered regression checks passed.
+- product-owner Live Server confirmed selected-room and whole-school data load
+  without the previous 413/reduce failures.
+- responsive table browser retry remains pending.
+
+## 2026-07-30 — Sprint 5.0 Admin Room Operations
+
+### Added
+
+- `modules/admin/adminRoomService.js`
+- `modules/admin/adminRoomManager.js`
+- `modules/admin/adminRoomView.js`
+- Admin room operations isolated gate
+- Admin left menu, room selector, selected-room Dashboard, and four operation
+  history tables
+
+### Changed
+
+- Admin can open the complete Teacher workspace for a selected room through an
+  explicit delegated room context and return to the original Admin session.
+- Attendance rows can be opened for full exact-date editing.
+- Pending, Retroactive, and Vacation rows support safe descriptive-note edits.
+- All four history types expose View and Delete; deletes continue through the
+  accepted Service rollback, audit, ETag, and Queue recovery paths.
+- Repository metadata updates remain room-checked and do not alter quantity,
+  Room Stock, Main Stock, ledger, or stockLog.
+- Protected `index.html` and `teacher.html` remain unchanged.
+
+### Validation
+
+- Admin room operations isolated check passed.
+- All 58 discovered regression checks passed.
+- Product-owner Live Server browser gate remains pending.
+
+## 2026-07-30 — Sprint 4.9 Teacher Student Report and Navigation Parity
+
+### Added
+
+- `modules/services/teacherParityService.js`
+- `modules/storage/teacherPreferenceStore.js`
+- `modules/teacher/teacherParityManager.js`
+- `modules/teacher/teacherParityView.js`
+- Sprint 4.9 Service, Store, Manager, UI, plan, and full-regression gates
+- Sprint 4.9 plan, Teacher parity gate, and non-destructive cutover rehearsal
+- Attendance report-evidence and History-action gate
+- Shared Pending/Retroactive/Vacation A4 print renderer and automated gate
+
+### Changed
+
+- Added authenticated-room one-student selected-range reports with notes, totals, and deterministic A4 print pages.
+- Added explicit Print-time daily photos and homeroom Teacher signatures to Room A4 and Student A4 reports.
+- Added a monthly paper-roster form inside Student Report: whole authenticated-room roster, Monday-Friday date columns, blank ✓/✕ cells, manual totals, and a homeroom Teacher signature line.
+- Changed Room A4 to one landscape date-column matrix for the whole selected range, with daily ✓/✕/— status, row totals, and drinking percentages.
+- Moved Room A4 evidence to the following pages, grouped at up to five dates per page; every date retains one row of at most five photos and its homeroom Teacher signature.
+- Added matching A4 report actions to Pending Milk, Retroactive Milk, and Vacation Milk history using one shared read-only renderer.
+- Added operation-specific student/quantity tables, one-row photo evidence, receiver signatures, and the homeroom Teacher approval line.
+- Kept ordinary History and report loading media-free; evidence reads are limited to dates already selected in the report.
+- Added per-date History `แก้ไข` and `ลบ` actions.
+- History Edit opens and loads the exact selected date in Daily Attendance, including the existing selected-date evidence workflow.
+- History Delete delegates to the accepted Attendance Manager/Service path so present-count restoration, ETag retry, audit retry, and Queue recovery remain unchanged.
+- Added an actual read-only Room Stock and compatible last-updated view.
+- Added safe room-isolated device preferences for default range, compact mode, and remembered navigation.
+- Added all 12 required Teacher navigation items and reused the accepted Sprint 4.1–4.8 operational panels.
+- Reworked the 12-item Teacher menu into a full-height dark-blue left desktop sidebar matching the accepted reference structure.
+- Added grouped menu headings, icons, amber active-item marker, scrollable menu area, system/school header, and Teacher/room footer.
+- Matched the supplied Teacher reference more closely with a fixed blue top header and a left sidebar that begins below the header.
+- Moved authenticated room and Teacher identity into the upper sidebar while retaining the identity footer.
+- Added editable homeroom Teacher information in Settings: room is read-only and the Teacher name writes only the authenticated room's `teacher` leaf.
+- Added validation, session/cache refresh, and metadata-only Teacher-profile events without changing students, Attendance, Queue, Room Stock, Main Stock, ledger, or stockLog.
+- Retained the compact horizontal navigation fallback on narrower screens.
+- Changed user-facing Attendance wording from `มาเรียน` / `ขาดเรียน` to `ดื่มนม` / `ไม่ดื่มนม` across daily controls, summaries, reports, Pending rows, and A4 print.
+- Preserved internal `present` / `absent` values, stock calculations, Queue compatibility, and existing data.
+- Dynamically loaded the Sprint 4.9 boundary from `MilkSchoolApplication`.
+- Kept Firebase schema, stock rules, Queue compatibility, and protected legacy pages unchanged.
+- Kept monthly paper-roster generation read-only; it uses the already-loaded room roster and performs no Attendance, stock, Queue, or Firebase write.
+
+### Validation
+
+- Teacher Parity Service isolated check passed.
+- Teacher Preference Store safety and room-isolation check passed.
+- Teacher Parity Manager and metadata-only event check passed.
+- Teacher navigation, Student Report, and A4 UI check passed.
+- Authenticated-room Teacher-profile Repository, Service, Manager, and UI checks passed.
+- Explicit report-evidence and History Edit/Delete checks passed.
+- All 54 discovered regression checks passed.
+- Local browser gate remains pending.
+
+### Integration Decision
+
+- Draft PR only until full regression and local browser acceptance pass.
+- Does not authorize `main`, Production, legacy replacement, incident closure, backup/restore execution, or physical iPad PASS.
 
 ## 2026-07-30 — Sprint 4.8 Attendance History, Summary and A4 Print UI
 

@@ -53,6 +53,10 @@ class RetroactiveMilkRepository extends BaseRepository {
     deleteRecord(recordId) {
         return this.remove(this.path(`retroMilk/${this.requireRecordId(recordId)}`));
     }
+
+    updateRecord(recordId, changes = {}) {
+        return this.update(this.path(`retroMilk/${this.requireRecordId(recordId)}`), changes);
+    }
 }
 
 window.RetroactiveMilkRepository = new RetroactiveMilkRepository();

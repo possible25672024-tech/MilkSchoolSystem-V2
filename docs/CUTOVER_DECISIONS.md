@@ -42,6 +42,14 @@ Decision:
 
 Owner: future operational Admin/report UI sprint.
 
+Sprint 5.0 update (2026-07-30):
+
+- the separate browser-local adapter and Admin report UI are implemented;
+- type-specific Firebase/local deduplication passes isolated tests;
+- all 57 regression checks pass;
+- D-02 remains a Production blocker until local Browser formula-parity,
+  Console, Network, print, and export evidence pass.
+
 ## D-03 — XLSX Binary Parser
 
 Decision: KEEP LEGACY PARSER / APPROVED FOR DEVELOP / BLOCKS V2-ONLY IMPORT
@@ -59,6 +67,16 @@ Decision:
 - Student import remains PARTIAL until the operational adapter passes representative workbook tests.
 
 Owner: future Room/Admin import sprint.
+
+Sprint 5.5 update (2026-07-31):
+
+- the V2 import adapter now uses a vendored local XLSX reader;
+- `.xlsx`, `.xls`, and `.csv` parsing plus Thai header validation pass
+  representative workbook tests;
+- complete preview is bound to the `milkApp/rooms` ETag;
+- confirmation uses `If-Match` and blocks HTTP 412 without overwrite;
+- D-03 remains a Production blocker only until Live Server and isolated real
+  two-Admin conflict evidence pass.
 
 ## D-04 — Operational Teacher UI
 

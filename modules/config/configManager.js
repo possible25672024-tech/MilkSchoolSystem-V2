@@ -21,9 +21,6 @@ class ConfigManager {
             if (config.databaseURL !== undefined) {
                 localStorage.setItem("firebaseUrl", String(config.databaseURL || ""));
             }
-            if (config.authToken !== undefined) {
-                localStorage.setItem("firebaseKey", String(config.authToken || ""));
-            }
         }
 
         return this.getFirebaseConfig();
@@ -47,41 +44,56 @@ class ConfigManager {
             const parsed = JSON.parse(raw);
             const settings = parsed?.settings || {};
 
-            return {
-                databaseURL: settings.firebaseUrl || "",
-                authToken: settings.firebaseKey || ""
-            };
+            return { databaseURL: settings.firebaseUrl || "" };
         } catch (error) {
             console.warn("ConfigManager: legacy database configuration is invalid.", error);
             return {};
         }
     }
 
+    getLocalFirebaseConfig() {
+        const localConfig = window.firebaseLocalConfig || {};
+        const localApiKey = String(localStorage.getItem("firebaseApiKey") || "").trim();
+
+        if (!localConfig.auth && !localApiKey) {
+            return localConfig;
+        }
+
+        return {
+            ...localConfig,
+            auth: {
+                ...((localConfig.auth || {})),
+                ...(localApiKey ? { apiKey: localApiKey } : {})
+            }
+        };
+    }
+
     getFirebaseConfig() {
         const fileConfig = window.firebaseConfig || {};
         const runtimeConfig = this.runtime.firebase || {};
         const legacyConfig = this.getLegacyDatabaseConfig();
+        const localConfig = this.getLocalFirebaseConfig();
 
         const databaseURL = [
             runtimeConfig.databaseURL,
+            localConfig.databaseURL,
             fileConfig.databaseURL,
             localStorage.getItem("firebaseUrl"),
             legacyConfig.databaseURL
-        ].find(value => String(value || "").trim()) || "";
-
-        const authToken = [
-            runtimeConfig.authToken,
-            fileConfig.authToken,
-            localStorage.getItem("firebaseKey"),
-            legacyConfig.authToken
         ].find(value => String(value || "").trim()) || "";
 
         return {
             ...fileConfig,
             ...legacyConfig,
             ...runtimeConfig,
-            databaseURL: String(databaseURL).trim().replace(/\/+$/, ""),
-            authToken: String(authToken).trim()
+            ...localConfig,
+            auth: {
+                ...((fileConfig.auth || {})),
+                ...((legacyConfig.auth || {})),
+                ...((runtimeConfig.auth || {})),
+                ...((localConfig.auth || {}))
+            },
+            databaseURL: String(databaseURL).trim().replace(/\/+$/, "")
         };
     }
 
@@ -90,7 +102,7 @@ class ConfigManager {
     }
 
     getAuthToken() {
-        return this.getFirebaseConfig().authToken;
+        return "";
     }
 }
 

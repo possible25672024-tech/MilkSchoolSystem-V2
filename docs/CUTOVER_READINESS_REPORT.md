@@ -2,11 +2,22 @@
 
 Date started: 2026-07-28
 
-Last updated: 2026-07-28
+Last updated: 2026-08-01
 
-Branch: `feature/sprint-4.0-cutover-readiness`
+Current readiness branch: `feature/sprint-6.4-firebase-auth-rules-uat`
 
 Overall status: NOT READY FOR PRODUCTION CUTOVER
+
+## Sprint 6.4 Security Update
+
+Firebase Email/Password ID-token authentication, UID authorization profiles,
+room-scoped Teacher queries, deny-by-default active Rules, and freeze-writes
+rollback Rules are now implemented. Automated regression passes 100/100.
+
+This does not authorize deployment. Official Rules Emulator execution, a real
+isolated Firebase project rehearsal, Live Browser evidence, the quarantined
+room/date disposition, and explicit Production approval remain open. No Rules
+or application deployment was performed.
 
 Develop integration status: READY — ALL SPRINT 4.0 BRANCH GATES PASSED
 

@@ -19,6 +19,11 @@ class SyncManager {
         this.started = false;
         this.lastSummary = null;
         this.lastSyncedAt = null;
+        this.readOnlyMode = Boolean(
+            window.APP_CONFIG?.legacyReadOnly === true ||
+            window.APP_CONFIG?.mode === "LEGACY_READ_ONLY" ||
+            window.APP_CONFIG?.mode === "OFFLINE_READ_ONLY"
+        );
         this.handleOnline = this.handleOnline.bind(this);
         this.handleOffline = this.handleOffline.bind(this);
     }
@@ -68,13 +73,13 @@ class SyncManager {
         this.eventTarget.addEventListener?.("online", this.handleOnline);
         this.eventTarget.addEventListener?.("offline", this.handleOffline);
         this.periodicTimer = this.setIntervalFn(() => {
-            if (this.isOnline()) {
+            if (this.isOnline() && !this.readOnlyMode) {
                 this.flushNow("periodic");
             }
         }, this.periodicIntervalMs);
         this.emitQueueCount();
 
-        if (this.isOnline() && this.ensureSyncService().getStatus().count > 0) {
+        if (!this.readOnlyMode && this.isOnline() && this.ensureSyncService().getStatus().count > 0) {
             this.flushNow("startup");
         }
 
@@ -109,6 +114,10 @@ class SyncManager {
     }
 
     queueAttendance(input = {}) {
+        if (this.readOnlyMode) {
+            throw new Error("Queue attendance is disabled in legacy read-only mode.");
+        }
+
         const entry = this.ensureSyncService().queueAttendance(this.getSession(), input);
         this.emitQueueCount();
         if (this.isOnline()) {
@@ -118,6 +127,10 @@ class SyncManager {
     }
 
     queueRoomStockAdjustment(input = {}) {
+        if (this.readOnlyMode) {
+            throw new Error("Queue room stock adjustment is disabled in legacy read-only mode.");
+        }
+
         const entry = this.ensureSyncService().queueRoomStockAdjustment(this.getSession(), input);
         this.emitQueueCount();
         if (this.isOnline()) {
@@ -127,6 +140,24 @@ class SyncManager {
     }
 
     flushNow(reason = "manual") {
+        if (this.readOnlyMode) {
+            const summary = {
+                processed: 0,
+                succeeded: 0,
+                failed: 0,
+                deferred: 0,
+                remaining: this.ensureSyncService().getStatus().count,
+                results: [],
+                nextRetryDelay: 0,
+                mainStockDelta: 0,
+                skipped: "read-only",
+                reason
+            };
+            this.lastSummary = summary;
+            this.emit("milkapp:sync-failed", summary);
+            return Promise.resolve(summary);
+        }
+
         if (!this.isOnline()) {
             const summary = {
                 processed: 0,

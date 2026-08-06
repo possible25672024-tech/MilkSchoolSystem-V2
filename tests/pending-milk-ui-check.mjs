@@ -21,6 +21,9 @@ assert.ok(viewCode.includes("pendingMilkManager.issue"), "Issue commands must de
 assert.ok(viewCode.includes("pendingMilkManager.remove"), "Delete/rollback commands must delegate to PendingMilkManager");
 assert.ok(appCode.includes('import("../pending/pendingMilkView.js")'), "App must dynamically load PendingMilkView");
 assert.ok(appCode.includes("pendingMilkView.initialize"), "App must initialize PendingMilkView");
+assert.ok(viewCode.includes("นักเรียนที่ไม่ดื่มนม"), "Pending list must use milk-consumption wording");
+assert.ok(viewCode.includes("ไม่ดื่มนม · 1 กล่อง"), "Pending rows must identify unconsumed milk");
+assert.ok(!viewCode.includes("ขาดเรียน"), "Pending UI must not display attendance-absence wording");
 
 for (const forbidden of [
     "FirebaseService",

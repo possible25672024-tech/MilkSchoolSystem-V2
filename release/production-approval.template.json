@@ -1,0 +1,35 @@
+{
+  "schema": "MilkSchoolSystemV2ProductionApproval/v1",
+  "releaseCommit": "REPLACE_WITH_FULL_RELEASE_COMMIT_SHA",
+  "firebaseRulesEmulator": {
+    "passed": false,
+    "evidenceFile": "evidence/firebase-rules-emulator.json"
+  },
+  "firebaseTestProject": {
+    "passed": false,
+    "productionProject": false,
+    "projectId": "REPLACE_WITH_ISOLATED_TEST_PROJECT_ID",
+    "backupSha256": "REPLACE_WITH_SHA256",
+    "evidenceFile": "evidence/firebase-test-project.json"
+  },
+  "incident": {
+    "id": "INC-2026-07-28-MQN0Z13EYX5B",
+    "closed": false,
+    "closureEvidenceFile": "evidence/incident-mqn0z13eyx5b-closure.json"
+  },
+  "liveBrowser": {
+    "passed": false,
+    "evidenceFile": "evidence/live-browser-device.json"
+  },
+  "authorization": {
+    "mergeMain": false,
+    "createReleaseTag": false,
+    "deployRules": false,
+    "deployApplication": false,
+    "trafficCutover": false,
+    "postReleaseVerification": false
+  },
+  "approvedBy": "",
+  "approvedAt": "",
+  "rollbackOwner": ""
+}

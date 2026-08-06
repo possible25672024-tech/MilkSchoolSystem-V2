@@ -1,0 +1,606 @@
+class AdminSystemView {
+    constructor(
+        manager = window.AdminSystemManager,
+        authService = window.AuthService,
+        eventTarget = window,
+        options = {}
+    ) {
+        this.manager = manager;
+        this.authService = authService;
+        this.eventTarget = eventTarget;
+        this.window = options.window || window;
+        this.document = options.document || document;
+        this.confirm = options.confirm || (message => window.confirm(message));
+        this.documentImageOptimizer = options.documentImageOptimizer || window.DocumentImageOptimizer;
+        this.documentPdfOptimizer = options.documentPdfOptimizer || window.DocumentPdfOptimizer;
+        this.documents = [];
+        this.preparedDocument = null;
+        this.bound = false;
+    }
+
+    element(id) {
+        return this.document.getElementById(id);
+    }
+
+    initialize() {
+        this.bindEvents();
+    }
+
+    bindEvents() {
+        if (this.bound) return;
+        this.document.querySelector?.('[data-admin-menu="documents"]')
+            ?.addEventListener("click", () => this.loadDocuments());
+        this.document.querySelector?.('[data-admin-menu="system-settings"]')
+            ?.addEventListener("click", () => this.loadSettings());
+        this.document.querySelector?.('[data-admin-menu="backup-restore"]')
+            ?.addEventListener("click", () => this.resetRestoreStatus());
+        this.document.querySelector?.('[data-admin-menu="drive-sync"]')
+            ?.addEventListener("click", () => this.resetDriveStatus());
+        this.element("admin-document-form")?.addEventListener("submit", event => this.saveDocument(event));
+        this.element("admin-document-file")?.addEventListener("change", event => this.prepareSelectedDocument(event));
+        this.element("admin-document-refresh")?.addEventListener("click", () => this.loadDocuments());
+        this.element("admin-settings-form")?.addEventListener("submit", event => this.saveSettings(event));
+        this.element("admin-settings-refresh")?.addEventListener("click", () => this.loadSettings());
+        this.element("admin-backup-download")?.addEventListener("click", () => this.downloadBackup("download"));
+        this.element("admin-backup-download-full")?.addEventListener("click", () => this.downloadBackup("download", "full"));
+        this.element("admin-restore-file")?.addEventListener("change", event => this.inspectRestoreFile(event));
+        this.element("admin-restore-safety")?.addEventListener("click", () => this.downloadBackup("pre-restore"));
+        this.element("admin-restore-confirm")?.addEventListener("input", () => this.updateRestoreButton());
+        this.element("admin-restore-run")?.addEventListener("click", () => this.restore());
+        this.element("admin-drive-export")?.addEventListener("click", () => this.downloadBackup("google-drive"));
+        this.element("admin-drive-open")?.addEventListener("click", () => {
+            this.window.open("https://drive.google.com/drive/my-drive", "_blank", "noopener,noreferrer");
+        });
+        this.element("admin-drive-import")?.addEventListener("change", event => this.inspectDriveFile(event));
+        this.eventTarget.addEventListener?.("milkapp:logout", () => this.reset());
+        this.bound = true;
+    }
+
+    isAdmin() {
+        return this.authService?.getSession?.()?.role === "admin";
+    }
+
+    async loadDocuments() {
+        if (!this.isAdmin()) return null;
+        this.setBusy("documents", true);
+        this.showError("documents", "");
+        this.setStatus("documents", "กำลังโหลดรายการเอกสาร (ยังไม่โหลดไฟล์จริง)...");
+        try {
+            const model = await this.manager.loadDocuments();
+            this.documents = model.documents || [];
+            this.renderDocuments();
+            this.setStatus("documents", `โหลด ${model.total || 0} รายการ · ไฟล์จริงจะโหลดเมื่อกดดาวน์โหลด`);
+            return model;
+        } catch (error) {
+            this.showError("documents", error?.message || "โหลดเอกสารไม่สำเร็จ");
+            return null;
+        } finally {
+            this.setBusy("documents", false);
+        }
+    }
+
+    renderDocuments() {
+        const body = this.element("admin-document-body");
+        if (!body) return;
+        body.replaceChildren(...this.documents.map(documentModel => {
+            const row = this.document.createElement("tr");
+            [
+                documentModel.title,
+                documentModel.fileName || "—",
+                this.documentSizeText(documentModel),
+                this.formatDate(documentModel.uploadedAt),
+                documentModel.uploadedBy || "—"
+            ].forEach(value => {
+                const cell = this.document.createElement("td");
+                cell.textContent = String(value);
+                row.appendChild(cell);
+            });
+            const actions = this.document.createElement("td");
+            const download = this.document.createElement("button");
+            download.type = "button";
+            download.textContent = "ดาวน์โหลด";
+            download.addEventListener("click", () => this.downloadDocument(documentModel));
+            const remove = this.document.createElement("button");
+            remove.type = "button";
+            remove.className = "secondary";
+            remove.textContent = "ลบ";
+            remove.addEventListener("click", () => this.deleteDocument(documentModel));
+            actions.append(download, remove);
+            row.appendChild(actions);
+            return row;
+        }));
+        if (!this.documents.length) {
+            const row = this.document.createElement("tr");
+            const cell = this.document.createElement("td");
+            cell.colSpan = 6;
+            cell.textContent = "ยังไม่มีเอกสาร";
+            row.appendChild(cell);
+            body.appendChild(row);
+        }
+        this.setText("admin-document-count", `${this.documents.length} รายการ`);
+    }
+
+    async saveDocument(event) {
+        event?.preventDefault?.();
+        const file = this.element("admin-document-file")?.files?.[0];
+        if (!file) {
+            this.showError("documents", "กรุณาเลือกไฟล์ PDF, JPG, JPEG หรือ PNG");
+            return;
+        }
+        this.setBusy("documents", true);
+        this.showError("documents", "");
+        this.setStatus("documents", "กำลังอ่านและอัปโหลดเอกสาร...");
+        try {
+            const prepared = await this.prepareDocument(file);
+            const fileData = prepared.fileData || await this.readFile(file);
+            await this.manager.saveDocument({
+                title: this.element("admin-document-title")?.value,
+                description: this.element("admin-document-description")?.value,
+                uploadedBy: this.element("admin-document-uploader")?.value,
+                fileName: prepared.fileName,
+                contentType: prepared.contentType,
+                fileSize: prepared.fileSize,
+                fileData,
+                optimized: prepared.optimized,
+                imageWidth: prepared.imageWidth,
+                imageHeight: prepared.imageHeight,
+                originalFileName: prepared.originalFileName,
+                originalFileType: prepared.originalFileType,
+                originalFileSize: prepared.originalFileSize,
+                optimizationType: prepared.optimizationType,
+                optimizationReason: prepared.optimizationReason,
+                pageCount: prepared.pageCount
+            });
+            this.element("admin-document-form")?.reset?.();
+            this.preparedDocument = null;
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
+            await this.loadDocuments();
+            this.setStatus("documents", this.savedDocumentStatus(prepared));
+        } catch (error) {
+            this.showError("documents", error?.message || "บันทึกเอกสารไม่สำเร็จ");
+        } finally {
+            this.setBusy("documents", false);
+        }
+    }
+
+    fileIdentity(file = {}) {
+        return [file.name, file.type, Number(file.size) || 0, Number(file.lastModified) || 0].join("|");
+    }
+
+    async prepareSelectedDocument(event) {
+        const file = event?.target?.files?.[0];
+        this.preparedDocument = null;
+        if (!file) {
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
+            return null;
+        }
+        this.setBusy("documents", true);
+        this.showError("documents", "");
+        this.setText("admin-document-file-summary", /^image\//i.test(file.type)
+            ? "กำลังย่อและตรวจรูปภาพ..."
+            : "กำลังบีบอัดและตรวจความสมบูรณ์ของ PDF...");
+        try {
+            const prepared = await this.prepareDocument(file, { force: true });
+            this.renderPreparedDocument(prepared);
+            return prepared;
+        } catch (error) {
+            if (event?.target) event.target.value = "";
+            this.preparedDocument = null;
+            this.setText("admin-document-file-summary", "ยังไม่ได้เลือกไฟล์");
+            this.showError("documents", error?.message || "เตรียมไฟล์เอกสารไม่สำเร็จ");
+            return null;
+        } finally {
+            this.setBusy("documents", false);
+        }
+    }
+
+    async prepareDocument(file, options = {}) {
+        const identity = this.fileIdentity(file);
+        if (!options.force && this.preparedDocument?.identity === identity) {
+            return this.preparedDocument;
+        }
+
+        if (/^image\/(?:jpeg|png)$/i.test(String(file?.type || ""))) {
+            if (!this.documentImageOptimizer?.process) {
+                throw new Error("ระบบย่อรูปเอกสารยังไม่พร้อมใช้งาน");
+            }
+            const optimized = await this.documentImageOptimizer.process(file);
+            this.preparedDocument = { ...optimized, identity };
+            return this.preparedDocument;
+        }
+
+        if (/^application\/pdf$/i.test(String(file?.type || "")) || /\.pdf$/i.test(String(file?.name || ""))) {
+            if (!this.documentPdfOptimizer?.process) {
+                throw new Error("ระบบบีบอัด PDF ยังไม่พร้อมใช้งาน");
+            }
+            const optimized = await this.documentPdfOptimizer.process(file);
+            this.preparedDocument = { ...optimized, identity };
+            return this.preparedDocument;
+        }
+
+        this.preparedDocument = {
+            identity,
+            fileName: String(file.name || ""),
+            contentType: String(file.type || "application/pdf"),
+            fileSize: Number(file.size) || 0,
+            fileData: null,
+            optimized: false,
+            optimizationType: "original",
+            optimizationReason: "unsupported",
+            pageCount: 0,
+            imageWidth: 0,
+            imageHeight: 0,
+            originalFileName: String(file.name || ""),
+            originalFileType: String(file.type || "application/pdf"),
+            originalFileSize: Number(file.size) || 0
+        };
+        return this.preparedDocument;
+    }
+
+    renderPreparedDocument(prepared = {}) {
+        if (prepared.optimizationType === "pdf-lossless" && prepared.optimized) {
+            const percent = prepared.originalFileSize > 0
+                ? Math.max(0, Math.round((1 - prepared.fileSize / prepared.originalFileSize) * 100))
+                : 0;
+            this.setText(
+                "admin-document-file-summary",
+                `บีบอัด PDF แบบไม่ลดคุณภาพ ${prepared.pageCount || 0} หน้า · ${this.formatBytes(prepared.originalFileSize)} → ${this.formatBytes(prepared.fileSize)} (ลด ${percent}%)`
+            );
+            return;
+        }
+        if (prepared.optimizationType === "image-lossy" && prepared.optimized) {
+            const percent = prepared.originalFileSize > 0
+                ? Math.max(0, Math.round((1 - prepared.fileSize / prepared.originalFileSize) * 100))
+                : 0;
+            this.setText(
+                "admin-document-file-summary",
+                `ย่อแล้ว ${prepared.imageWidth} × ${prepared.imageHeight} px · ${this.formatBytes(prepared.originalFileSize)} → ${this.formatBytes(prepared.fileSize)} (ลด ${percent}%)`
+            );
+            return;
+        }
+        const reason = prepared.optimizationReason === "digital-signature"
+            ? "มีลายเซ็นดิจิทัล จึงเก็บต้นฉบับเพื่อไม่ให้ลายเซ็นเสีย"
+            : prepared.optimizationReason === "encrypted"
+                ? "มีการเข้ารหัส จึงเก็บต้นฉบับ"
+                : prepared.optimizationReason === "compression-failed"
+                    ? "ไม่สามารถบีบอัดอย่างปลอดภัย จึงใช้ต้นฉบับ"
+                    : "บีบอัดแล้วไม่เล็กลง จึงใช้ต้นฉบับ";
+        this.setText("admin-document-file-summary", `PDF ต้นฉบับ · ${this.formatBytes(prepared.fileSize)} · ${reason}`);
+    }
+
+    savedDocumentStatus(prepared = {}) {
+        if (prepared.optimizationType === "pdf-lossless" && prepared.optimized) {
+            return `บันทึก PDF สำเร็จ · บีบอัดจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`;
+        }
+        if (prepared.optimizationType === "image-lossy" && prepared.optimized) {
+            return `บันทึกเอกสารสำเร็จ · ย่อรูปจาก ${this.formatBytes(prepared.originalFileSize)} เหลือ ${this.formatBytes(prepared.fileSize)}`;
+        }
+        return "บันทึกเอกสารและไฟล์ PDF ต้นฉบับขึ้น Cloud สำเร็จ";
+    }
+
+    documentSizeText(documentModel = {}) {
+        const current = this.formatBytes(documentModel.fileSize);
+        if (!documentModel.optimized || !documentModel.originalFileSize) return current;
+        const action = documentModel.optimizationType === "pdf-lossless" ? "บีบอัดจาก" : "ย่อจาก";
+        return `${current} (${action} ${this.formatBytes(documentModel.originalFileSize)})`;
+    }
+
+    async downloadDocument(documentModel) {
+        this.showError("documents", "");
+        this.setStatus("documents", `กำลังโหลด ${documentModel.fileName || documentModel.title}...`);
+        try {
+            const fileData = await this.manager.loadDocumentContent(documentModel.id);
+            const anchor = this.document.createElement("a");
+            anchor.href = fileData;
+            anchor.download = documentModel.fileName || `${documentModel.title}.pdf`;
+            anchor.click();
+            this.setStatus("documents", "ดาวน์โหลดเอกสารสำเร็จ");
+        } catch (error) {
+            this.showError("documents", error?.message || "ดาวน์โหลดเอกสารไม่สำเร็จ");
+        }
+    }
+
+    async deleteDocument(documentModel) {
+        if (!this.confirm(`ยืนยันลบเอกสาร “${documentModel.title}” ทั้งชื่อและไฟล์จริงจาก Cloud?`)) return;
+        try {
+            await this.manager.deleteDocument(documentModel.id);
+            await this.loadDocuments();
+            this.setStatus("documents", "ลบเอกสารสำเร็จ");
+        } catch (error) {
+            this.showError("documents", error?.message || "ลบเอกสารไม่สำเร็จ");
+        }
+    }
+
+    async loadSettings() {
+        if (!this.isAdmin()) return null;
+        this.setBusy("settings", true);
+        this.showError("settings", "");
+        try {
+            const model = await this.manager.loadSettings();
+            Object.entries(model.settings || {}).forEach(([key, value]) => {
+                const element = this.element(`admin-settings-${key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}`);
+                if (element) element.value = value;
+            });
+            this.setText("admin-settings-firebase-url", window.ConfigManager?.getDatabaseURL?.() || "ไม่ได้ตั้งค่า");
+            this.setStatus("settings", "โหลดค่าปัจจุบันแล้ว · รหัส Firebase ไม่แสดงบนหน้าจอ");
+            return model;
+        } catch (error) {
+            this.showError("settings", error?.message || "โหลดการตั้งค่าไม่สำเร็จ");
+            return null;
+        } finally {
+            this.setBusy("settings", false);
+        }
+    }
+
+    settingsInput() {
+        return {
+            school: this.element("admin-settings-school")?.value,
+            year: this.element("admin-settings-year")?.value,
+            semester: this.element("admin-settings-semester")?.value,
+            perCrate: this.element("admin-settings-per-crate")?.value,
+            warnLevel: this.element("admin-settings-warn-level")?.value
+        };
+    }
+
+    async saveSettings(event) {
+        event?.preventDefault?.();
+        if (!this.confirm("ยืนยันบันทึกการตั้งค่าทั่วไป? การตั้งค่านี้ไม่เปลี่ยน Firebase URL หรือรหัสเชื่อมต่อ")) return;
+        this.setBusy("settings", true);
+        this.showError("settings", "");
+        try {
+            await this.manager.saveSettings(this.settingsInput());
+            this.setStatus("settings", "บันทึกการตั้งค่าสำเร็จ");
+        } catch (error) {
+            this.showError("settings", error?.message || "บันทึกการตั้งค่าไม่สำเร็จ");
+        } finally {
+            this.setBusy("settings", false);
+        }
+    }
+
+    async downloadBackup(purpose, requestedProfile = "") {
+        const prefix = purpose === "google-drive" ? "drive" : "backup";
+        const profile = purpose === "pre-restore"
+            ? "full"
+            : requestedProfile || (purpose === "download" ? "core" : "full");
+        this.setBusy(prefix, true);
+        this.showError(prefix, "");
+        this.setStatus(prefix, profile === "core"
+            ? "กำลังอ่านข้อมูลหลักแบบเร็ว (ไม่ดึงประวัติครูและเนื้อไฟล์เอกสารก้อนใหญ่)..."
+            : "กำลังอ่านข้อมูลทั้งหมดรวมรูป/เอกสารและคำนวณ SHA-256...");
+        try {
+            const backup = await this.manager.createBackup(purpose, profile);
+            const date = String(backup.envelope.createdAt).slice(0, 10);
+            const name = `milk-v2-${profile}-backup-${date}.json`;
+            this.downloadJson(backup.envelope, name);
+            this.renderBackupSummary(backup.summary, prefix);
+            this.setStatus(prefix, `ดาวน์โหลด ${name} สำเร็จ · SHA-256 ${backup.envelope.integrity.checksum.slice(0, 12)}…`);
+            this.updateRestoreButton();
+            return backup;
+        } catch (error) {
+            this.showError(prefix, error?.message || "สร้างข้อมูลสำรองไม่สำเร็จ");
+            return null;
+        } finally {
+            this.setBusy(prefix, false);
+            if (prefix === "backup") this.updateRestoreButton();
+        }
+    }
+
+    async inspectRestoreFile(event) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        this.setBusy("backup", true);
+        this.showError("backup", "");
+        this.setStatus("backup", "กำลังตรวจรูปแบบและ SHA-256...");
+        try {
+            const envelope = JSON.parse(await file.text());
+            const preview = await this.manager.inspectBackup(envelope);
+            this.renderRestorePreview(preview);
+            this.setStatus("backup", "ไฟล์สำรองสมบูรณ์ · ยังไม่มีการเขียนข้อมูล");
+        } catch (error) {
+            this.element("admin-restore-preview")?.setAttribute("hidden", "");
+            this.showError("backup", error?.message || "ตรวจไฟล์สำรองไม่สำเร็จ");
+        } finally {
+            this.setBusy("backup", false);
+            this.updateRestoreButton();
+        }
+    }
+
+    async inspectDriveFile(event) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        this.setBusy("drive", true);
+        this.showError("drive", "");
+        try {
+            const preview = await this.manager.inspectBackup(JSON.parse(await file.text()));
+            this.renderRestorePreview(preview);
+            this.renderBackupSummary(preview.summary, "drive");
+            this.setStatus("drive", "ตรวจไฟล์จาก Google Drive แล้ว · ให้ไปแท็บสำรอง/กู้คืนหากต้องการกู้คืนจริง");
+            const restoreInput = this.element("admin-restore-file");
+            if (restoreInput) restoreInput.value = "";
+        } catch (error) {
+            this.showError("drive", error?.message || "ไฟล์จาก Google Drive ไม่ถูกต้อง");
+        } finally {
+            this.setBusy("drive", false);
+            this.updateRestoreButton();
+        }
+    }
+
+    renderRestorePreview(preview) {
+        const area = this.element("admin-restore-preview");
+        if (!area) return;
+        area.hidden = false;
+        this.setText("admin-restore-source-date", preview.envelope.createdAt || "—");
+        this.setText("admin-restore-checksum", preview.checksum);
+        this.setText("admin-restore-source-summary", this.summaryText(preview.summary));
+        this.setText("admin-restore-current-summary", this.summaryText(preview.currentSummary));
+        const full = preview.envelope?.profile !== "core"
+            && preview.envelope?.restoreScope !== "reference-only";
+        this.setText("admin-restore-profile", full
+            ? "ครบถ้วนพร้อมรูป/เอกสาร — ใช้กู้คืนได้"
+            : "ข้อมูลหลักแบบเร็ว — ตรวจสอบได้ แต่ไม่อนุญาตให้เขียนทับฐานทั้งก้อน");
+    }
+
+    renderBackupSummary(summary, prefix) {
+        this.setText(`admin-${prefix}-summary`, this.summaryText(summary));
+    }
+
+    summaryText(summary = {}) {
+        return `Main ${summary.mainStock || 0} · ห้อง ${summary.rooms || 0} · รับ ${summary.receipts || 0} · จ่าย ${summary.distributions || 0} · เช็กดื่ม ${summary.attendance || 0} · เอกสาร ${summary.documents || 0}`;
+    }
+
+    updateRestoreButton() {
+        const button = this.element("admin-restore-run");
+        if (!button) return;
+        button.disabled = !this.manager.restorePreview
+            || !this.manager.safetyBackupReady
+            || this.manager.restorePreview?.envelope?.profile === "core"
+            || this.manager.restorePreview?.envelope?.restoreScope === "reference-only"
+            || this.element("admin-restore-confirm")?.value !== "กู้คืนข้อมูล";
+    }
+
+    async restore() {
+        if (!this.confirm("ยืนยันขั้นสุดท้าย: แทนที่ข้อมูล milkApp ทั้งหมดด้วยไฟล์ที่ตรวจแล้ว?")) return;
+        this.setBusy("backup", true);
+        this.showError("backup", "");
+        let completed = false;
+        try {
+            const result = await this.manager.restore(this.element("admin-restore-confirm")?.value);
+            this.setStatus("backup", `กู้คืนสำเร็จ · ${result.restoreId} · กรุณาโหลดหน้าใหม่ก่อนทำรายการต่อ`);
+            completed = true;
+        } catch (error) {
+            this.showError("backup", error?.message || "กู้คืนข้อมูลไม่สำเร็จ");
+        } finally {
+            this.setBusy("backup", false);
+            if (completed) {
+                this.manager.restorePreview = null;
+                this.manager.safetyBackupReady = false;
+                const confirmInput = this.element("admin-restore-confirm");
+                if (confirmInput) confirmInput.value = "";
+            }
+            this.updateRestoreButton();
+        }
+    }
+
+    readFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error("อ่านไฟล์ไม่สำเร็จ"));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    downloadJson(value, filename) {
+        const blob = new Blob(this.jsonChunks(value), { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const anchor = this.document.createElement("a");
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    *jsonTokens(value) {
+        if (value === null || typeof value !== "object") {
+            yield JSON.stringify(value);
+            return;
+        }
+        if (Array.isArray(value)) {
+            yield "[";
+            for (let index = 0; index < value.length; index += 1) {
+                if (index) yield ",";
+                yield* this.jsonTokens(value[index] === undefined ? null : value[index]);
+            }
+            yield "]";
+            return;
+        }
+        yield "{";
+        let first = true;
+        for (const key of Object.keys(value)) {
+            if (value[key] === undefined || typeof value[key] === "function") continue;
+            if (!first) yield ",";
+            first = false;
+            yield JSON.stringify(key);
+            yield ":";
+            yield* this.jsonTokens(value[key]);
+        }
+        yield "}";
+    }
+
+    jsonChunks(value, targetBytes = 512 * 1024) {
+        const chunks = [];
+        let buffer = "";
+        for (const token of this.jsonTokens(value)) {
+            if (buffer && buffer.length + token.length > targetBytes) {
+                chunks.push(buffer);
+                buffer = "";
+            }
+            if (token.length > targetBytes) {
+                if (buffer) {
+                    chunks.push(buffer);
+                    buffer = "";
+                }
+                chunks.push(token);
+            } else {
+                buffer += token;
+            }
+        }
+        if (buffer) chunks.push(buffer);
+        return chunks;
+    }
+
+    formatBytes(bytes) {
+        const value = Number(bytes) || 0;
+        if (value < 1024) return `${value} B`;
+        if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+        return `${(value / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    formatDate(value) {
+        if (!value) return "—";
+        try { return new Date(value).toLocaleString("th-TH"); } catch (error) { return value; }
+    }
+
+    setText(id, value) {
+        const element = this.element(id);
+        if (element) element.textContent = String(value ?? "");
+    }
+
+    setStatus(prefix, message) {
+        this.setText(`admin-${prefix}-status`, message);
+    }
+
+    showError(prefix, message) {
+        const element = this.element(`admin-${prefix}-error`);
+        if (!element) return;
+        element.textContent = String(message || "");
+        element.hidden = !message;
+    }
+
+    setBusy(prefix, busy) {
+        this.document.querySelectorAll?.(`[data-admin-${prefix}-control]`)?.forEach(element => {
+            element.disabled = Boolean(busy);
+        });
+    }
+
+    resetRestoreStatus() {
+        this.setStatus("backup", "เลือกดาวน์โหลดข้อมูลสำรอง หรือเลือกไฟล์เพื่อตรวจสอบก่อนกู้คืน");
+        this.updateRestoreButton();
+    }
+
+    resetDriveStatus() {
+        this.setStatus("drive", "ระบบใช้ไฟล์ JSON เป็นตัวกลาง ไม่เก็บรหัสผ่าน Google");
+    }
+
+    reset() {
+        this.manager?.clear?.();
+        this.documents = [];
+        this.element("admin-document-body")?.replaceChildren?.();
+        ["documents", "settings", "backup", "drive"].forEach(prefix => {
+            this.setStatus(prefix, "");
+            this.showError(prefix, "");
+        });
+    }
+}
+
+window.AdminSystemView = new AdminSystemView();

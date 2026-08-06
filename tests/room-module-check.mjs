@@ -10,6 +10,7 @@ const read = relativePath => fs.readFileSync(path.join(root, relativePath), "utf
 const clone = value => structuredClone(value);
 
 const indexCode = read("index-v2.html");
+const baseRepositoryCode = read("modules/repositories/baseRepository.js");
 const repositoryCode = read("modules/repositories/roomRepository.js");
 const serviceCode = read("modules/services/roomService.js");
 const managerCode = read("modules/room/roomManager.js");
@@ -58,6 +59,56 @@ assert.ok(!repositoryCode.includes("document."), "RoomRepository must not contai
 assert.ok(!repositoryCode.includes("localStorage"), "RoomRepository must not own local storage");
 assert.ok(!repositoryCode.includes("sessionStorage"), "RoomRepository must not own sessions");
 assert.ok(!repositoryCode.includes(".reduce("), "RoomRepository must not contain business aggregation calculations");
+assert.ok(
+    repositoryCode.includes("updateRoomTeacher"),
+    "RoomRepository must expose a scoped teacher-name update"
+);
+assert.ok(
+    repositoryCode.includes("rooms/${storageKey}/teacher"),
+    "Teacher-name updates must target only the matched room teacher leaf"
+);
+
+const teacherLeafWrites = [];
+const repositoryFirebase = {
+    async get(pathName) {
+        assert.equal(pathName, "milkApp/rooms");
+        return {
+            firebaseKey: {
+                id: "room-authenticated",
+                name: "อ.3-6",
+                teacher: "ครูเดิม",
+                students: [{ id: "student-1" }],
+                stock: 40
+            }
+        };
+    },
+    async set(pathName, value) {
+        teacherLeafWrites.push({ pathName, value });
+        return value;
+    }
+};
+const repositoryContext = {
+    window: {
+        FirebaseService: repositoryFirebase,
+        StockRepository: null
+    },
+    Promise,
+    String,
+    Object,
+    Array,
+    Error,
+    console
+};
+vm.runInNewContext(baseRepositoryCode, repositoryContext);
+vm.runInNewContext(repositoryCode, repositoryContext);
+const RoomRepository = repositoryContext.window.RoomRepository.constructor;
+const scopedRepository = new RoomRepository(repositoryFirebase, null);
+await scopedRepository.updateRoomTeacher("room-authenticated", "ครูชื่อใหม่");
+assert.deepEqual(
+    teacherLeafWrites,
+    [{ pathName: "milkApp/rooms/firebaseKey/teacher", value: "ครูชื่อใหม่" }],
+    "Teacher profile must write only the matched Firebase room teacher leaf"
+);
 
 assert.ok(!serviceCode.includes("document."), "RoomService must not contain DOM logic");
 assert.ok(!serviceCode.includes("localStorage"), "RoomService must not own local storage");
@@ -121,11 +172,22 @@ const createId = () => `generated-room-${++generatedId}`;
 
 const normalizationService = new RoomService(null, { idFactory: createId });
 const normalizedObjectRooms = normalizationService.normalizeCollection({
-    alpha: { name: " อ.1-1 ", teacher: " ครู ก ", count: 5, stock: 3 }
+    alpha: {
+        name: " อ.1-1 ",
+        teacher: " ครู ก ",
+        count: 5,
+        stock: 3,
+        students: {
+            s1: { "รหัสประจำตัว": "001", "ชื่อ": "เด็กหนึ่ง" },
+            s2: { "รหัสประจำตัว": "002", "ชื่อ": "เด็กสอง" }
+        }
+    }
 });
 assert.equal(normalizedObjectRooms[0].id, "alpha", "Object-keyed Firebase rooms must retain their key as the room id");
 assert.equal(normalizedObjectRooms[0].name, "อ.1-1", "Room names must be trimmed");
 assert.equal(normalizedObjectRooms[0].stock, 3, "Room normalization must preserve Room Stock");
+assert.equal(normalizedObjectRooms[0].students.length, 2, "Object-keyed student rosters must remain available");
+assert.equal(normalizedObjectRooms[0].count, 2, "Actual object-keyed roster size must drive the room count");
 
 const createRepository = new MockRoomRepository([
     { id: "r1", name: "อ.3-1", level: "อ.3", teacher: "ครูเดิม", count: 2, students: [], stock: 7 }

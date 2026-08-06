@@ -17,6 +17,12 @@ window.APP_CONFIG = {
 
     autoBackup: true,
 
-    cacheEnabled: true
+    cacheEnabled: true,
+
+    mode: "OFFLINE_READ_ONLY",
+
+    legacyReadOnly: false,
+
+    offlineBackupURL: "milk_backup_2026-07-31.json"
 
 };

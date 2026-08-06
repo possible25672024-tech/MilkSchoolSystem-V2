@@ -44,6 +44,14 @@ assert.ok(
     "AttendanceView must load before App"
 );
 assert.ok(appCode.includes("attendanceView.initialize"), "App must initialize AttendanceView after TeacherView");
+for (const milkLabel of ["ดื่มนม", "ไม่ดื่มนม", "ข้อมูลการดื่มนม"]) {
+    assert.ok(viewCode.includes(milkLabel), `Attendance UI must include ${milkLabel}`);
+}
+assert.ok(indexCode.includes("<dt>ดื่มนม</dt>"), "Daily summary must label consumed milk");
+assert.ok(indexCode.includes("<dt>ไม่ดื่มนม</dt>"), "Daily summary must label unconsumed milk");
+for (const legacyLabel of ["มาเรียน", "ขาดเรียน", "ข้อมูลการมาเรียน"]) {
+    assert.ok(!viewCode.includes(legacyLabel), `Attendance UI must not display ${legacyLabel}`);
+}
 
 assert.ok(!viewCode.includes("FirebaseService"), "AttendanceView must not access Firebase directly");
 assert.ok(!viewCode.includes("Repository"), "AttendanceView must not access repositories directly");
@@ -358,6 +366,15 @@ eventTarget.dispatch("milkapp:attendance-stock-queued", {
     attendanceSaved: true
 });
 assert.ok(document.getElementById("attendance-status").textContent.includes("รอซิงก์"), "Partial save must show persistent queue feedback");
+
+eventTarget.dispatch("milkapp:attendance-history-edit-requested", {
+    roomId: "r1",
+    date: "2026-07-27"
+});
+await Promise.resolve();
+await Promise.resolve();
+assert.equal(document.getElementById("attendance-date").value, "2026-07-27");
+assert.equal(loadDate, "2026-07-27", "History Edit must load the exact selected Attendance date");
 
 const stateBeforeLogout = view.getState();
 assert.equal(stateBeforeLogout.active, true, "Teacher Attendance View must report active state");

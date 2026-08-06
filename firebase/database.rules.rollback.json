@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "milkApp": {
+      ".read": "auth != null && root.child('milkApp/accessControl/users').child(auth.uid).child('enabled').val() == true && root.child('milkApp/accessControl/users').child(auth.uid).child('role').val() == 'admin'",
+      ".write": false,
+      "public": {
+        "loginDirectory": { ".read": true, ".write": false },
+        "appSettings": { ".read": true, ".write": false }
+      },
+      "accessControl": {
+        "users": {
+          "$uid": {
+            ".read": "auth != null && auth.uid == $uid && data.child('enabled').val() == true",
+            ".write": false
+          }
+        }
+      }
+    }
+  }
+}

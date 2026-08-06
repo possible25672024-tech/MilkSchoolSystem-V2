@@ -11,7 +11,17 @@ class MilkSchoolApplication {
         pendingEvidenceView = window.PendingEvidenceView,
         retroactiveEvidenceView = window.RetroactiveEvidenceView,
         vacationEvidenceView = window.VacationEvidenceView,
-        attendancePrintView = window.AttendancePrintView
+        attendancePrintView = window.AttendancePrintView,
+        teacherParityView = window.TeacherParityView,
+        adminReportView = window.AdminReportView,
+        adminRoomView = window.AdminRoomView,
+        adminDashboardView = window.AdminDashboardView,
+        adminReceiptView = window.AdminReceiptView,
+        adminStudentView = window.AdminStudentView,
+        adminDistributionView = window.AdminDistributionView,
+        adminOperationalReportView = window.AdminOperationalReportView,
+        adminSystemView = window.AdminSystemView,
+        adminConsumptionView = window.AdminConsumptionView
     ) {
         this.loginManager = loginManager;
         this.teacherView = teacherView;
@@ -25,6 +35,16 @@ class MilkSchoolApplication {
         this.retroactiveEvidenceView = retroactiveEvidenceView;
         this.vacationEvidenceView = vacationEvidenceView;
         this.attendancePrintView = attendancePrintView;
+        this.teacherParityView = teacherParityView;
+        this.adminReportView = adminReportView;
+        this.adminRoomView = adminRoomView;
+        this.adminDashboardView = adminDashboardView;
+        this.adminReceiptView = adminReceiptView;
+        this.adminStudentView = adminStudentView;
+        this.adminDistributionView = adminDistributionView;
+        this.adminOperationalReportView = adminOperationalReportView;
+        this.adminSystemView = adminSystemView;
+        this.adminConsumptionView = adminConsumptionView;
         this.attendanceEvidenceAdapter = window.AttendanceEvidenceAdapter;
         this.pendingEvidenceAdapter = window.PendingEvidenceAdapter;
         this.retroactiveEvidenceAdapter = window.RetroactiveEvidenceAdapter;
@@ -137,6 +157,7 @@ class MilkSchoolApplication {
         if (!window.PendingMilkRepository) await import("../repositories/pendingMilkRepository.js");
         if (!window.PendingMilkService) await import("../services/pendingMilkService.js");
         if (!window.PendingMilkManager) await import("../pending/pendingMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.pendingMilkView) {
             await import("../pending/pendingMilkView.js");
             this.pendingMilkView = window.PendingMilkView;
@@ -148,6 +169,7 @@ class MilkSchoolApplication {
         if (!window.RetroactiveMilkRepository) await import("../repositories/retroactiveMilkRepository.js");
         if (!window.RetroactiveMilkService) await import("../services/retroactiveMilkService.js");
         if (!window.RetroactiveMilkManager) await import("../retroactive/retroactiveMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.retroactiveMilkView) {
             await import("../retroactive/retroactiveMilkView.js");
             this.retroactiveMilkView = window.RetroactiveMilkView;
@@ -159,6 +181,7 @@ class MilkSchoolApplication {
         if (!window.VacationMilkRepository) await import("../repositories/vacationMilkRepository.js");
         if (!window.VacationMilkService) await import("../services/vacationMilkService.js");
         if (!window.VacationMilkManager) await import("../vacation/vacationMilkManager.js");
+        if (!window.MilkOperationPrintView) await import("../reports/milkOperationPrintView.js");
         if (!this.vacationMilkView) {
             await import("../vacation/vacationMilkView.js");
             this.vacationMilkView = window.VacationMilkView;
@@ -178,11 +201,142 @@ class MilkSchoolApplication {
         return this.attendancePrintView;
     }
 
+    async ensureTeacherParityView() {
+        if (!window.TeacherParityService) await import("../services/teacherParityService.js");
+        if (!window.TeacherPreferenceStore) await import("../storage/teacherPreferenceStore.js");
+        if (!window.TeacherParityManager) await import("../teacher/teacherParityManager.js");
+        if (!this.teacherParityView) {
+            await import("../teacher/teacherParityView.js");
+            this.teacherParityView = window.TeacherParityView;
+        }
+        return this.teacherParityView;
+    }
+
+    async ensureAdminReportView() {
+        if (!window.BrowserLocalReportAdapter) {
+            await import("../report/browserLocalReportAdapter.js");
+        }
+        if (!this.adminReportView) {
+            await import("../report/adminReportView.js");
+            this.adminReportView = window.AdminReportView;
+        }
+        return this.adminReportView;
+    }
+
+    async ensureAdminRoomView() {
+        if (!window.AdminRoomService) await import("../admin/adminRoomService.js");
+        if (!window.AdminRoomManager) await import("../admin/adminRoomManager.js");
+        if (!this.adminRoomView) {
+            await import("../admin/adminRoomView.js");
+            this.adminRoomView = window.AdminRoomView;
+        }
+        return this.adminRoomView;
+    }
+
+    async ensureAdminDashboardView() {
+        if (!window.AdminDashboardService) await import("../admin/adminDashboardService.js");
+        if (!window.AdminDashboardManager) await import("../admin/adminDashboardManager.js");
+        if (!this.adminDashboardView) {
+            await import("../admin/adminDashboardView.js");
+            this.adminDashboardView = window.AdminDashboardView;
+        }
+        return this.adminDashboardView;
+    }
+
+    async ensureAdminReceiptView() {
+        if (!window.AdminReceiptService) await import("../admin/adminReceiptService.js");
+        if (!window.AdminReceiptManager) await import("../admin/adminReceiptManager.js");
+        if (!this.adminReceiptView) {
+            await import("../admin/adminReceiptView.js");
+            this.adminReceiptView = window.AdminReceiptView;
+        }
+        return this.adminReceiptView;
+    }
+
+    async ensureAdminStudentView() {
+        if (!window.StudentImportParser) await import("../admin/studentImportParser.js");
+        if (!window.AdminStudentService) await import("../admin/adminStudentService.js");
+        if (!window.AdminStudentManager) await import("../admin/adminStudentManager.js");
+        if (!this.adminStudentView) {
+            await import("../admin/adminStudentView.js");
+            this.adminStudentView = window.AdminStudentView;
+        }
+        return this.adminStudentView;
+    }
+
+    async ensureAdminDistributionView() {
+        if (!window.AdminDistributionService) await import("../admin/adminDistributionService.js");
+        if (!window.AdminDistributionManager) await import("../admin/adminDistributionManager.js");
+        if (!this.adminDistributionView) {
+            await import("../admin/adminDistributionView.js");
+            this.adminDistributionView = window.AdminDistributionView;
+        }
+        return this.adminDistributionView;
+    }
+
+    async ensureAdminOperationalReportView() {
+        if (!window.OperationalReportRepository) {
+            await import("../repositories/operationalReportRepository.js");
+        }
+        if (!window.AdminOperationalReportService) {
+            await import("../admin/adminOperationalReportService.js");
+        }
+        if (!window.AdminOperationalReportManager) {
+            await import("../admin/adminOperationalReportManager.js");
+        }
+        if (!this.adminOperationalReportView) {
+            await import("../admin/adminOperationalReportView.js");
+            this.adminOperationalReportView = window.AdminOperationalReportView;
+        }
+        return this.adminOperationalReportView;
+    }
+
+    async ensureAdminSystemView() {
+        if (!window.MediaPolicy) await import("../media/mediaPolicy.js");
+        if (!window.MediaProcessor) await import("../media/mediaProcessor.js");
+        if (!window.DocumentImageOptimizer) {
+            await import("../media/documentImageOptimizer.js");
+        }
+        if (!window.DocumentPdfOptimizer) {
+            await import("../media/documentPdfOptimizer.js");
+        }
+        if (!window.AdminSystemRepository) {
+            await import("../repositories/adminSystemRepository.js");
+        }
+        if (!window.AdminSystemService) {
+            await import("../admin/adminSystemService.js");
+        }
+        if (!window.AdminSystemManager) {
+            await import("../admin/adminSystemManager.js");
+        }
+        if (!this.adminSystemView) {
+            await import("../admin/adminSystemView.js");
+            this.adminSystemView = window.AdminSystemView;
+        }
+        return this.adminSystemView;
+    }
+
+    async ensureAdminConsumptionView() {
+        if (!window.AdminConsumptionService) {
+            await import("../admin/adminConsumptionService.js");
+        }
+        if (!window.AdminConsumptionManager) {
+            await import("../admin/adminConsumptionManager.js");
+        }
+        if (!this.adminConsumptionView) {
+            await import("../admin/adminConsumptionView.js");
+            this.adminConsumptionView = window.AdminConsumptionView;
+        }
+        return this.adminConsumptionView;
+    }
+
     async start() {
         if (this.started) return;
         if (!this.loginManager) throw new Error("LoginManager is not available.");
 
         await this.loginManager.initialize();
+        const adminReportView = await this.ensureAdminReportView();
+        if (adminReportView?.initialize) adminReportView.initialize();
         if (this.teacherView?.initialize) await this.teacherView.initialize();
 
         const attendanceEvidenceView = await this.ensureAttendanceEvidenceView();
@@ -214,6 +368,26 @@ class MilkSchoolApplication {
         const vacationEvidenceView = await this.ensureVacationEvidenceView();
         if (vacationEvidenceView?.initialize) await vacationEvidenceView.initialize();
         vacationMilkView?.handlePreviewChange?.();
+
+        const teacherParityView = await this.ensureTeacherParityView();
+        if (teacherParityView?.initialize) await teacherParityView.initialize();
+
+        const adminRoomView = await this.ensureAdminRoomView();
+        if (adminRoomView?.initialize) adminRoomView.initialize();
+        const adminDashboardView = await this.ensureAdminDashboardView();
+        if (adminDashboardView?.initialize) adminDashboardView.initialize();
+        const adminReceiptView = await this.ensureAdminReceiptView();
+        if (adminReceiptView?.initialize) adminReceiptView.initialize();
+        const adminStudentView = await this.ensureAdminStudentView();
+        if (adminStudentView?.initialize) adminStudentView.initialize();
+        const adminDistributionView = await this.ensureAdminDistributionView();
+        if (adminDistributionView?.initialize) adminDistributionView.initialize();
+        const adminOperationalReportView = await this.ensureAdminOperationalReportView();
+        if (adminOperationalReportView?.initialize) adminOperationalReportView.initialize();
+        const adminSystemView = await this.ensureAdminSystemView();
+        if (adminSystemView?.initialize) adminSystemView.initialize();
+        const adminConsumptionView = await this.ensureAdminConsumptionView();
+        if (adminConsumptionView?.initialize) adminConsumptionView.initialize();
 
         this.started = true;
         console.log("MilkSchoolSystem V2 Started");

@@ -89,6 +89,25 @@ class ReportService {
         return this.toNumber(firstParts[2]) - this.toNumber(secondParts[2]);
     }
 
+    roomSequence(roomName = "") {
+        const match = String(roomName).trim().match(/^[ปอมพ]\.?\s*\d+\s*[-/]?\s*(\d+)/);
+        return match ? this.toNumber(match[1], Number.MAX_SAFE_INTEGER) : Number.MAX_SAFE_INTEGER;
+    }
+
+    compareRooms(first = {}, second = {}) {
+        const gradeOrder = this.compareGrade(
+            first.grade || this.getRoomGrade(first.room || first),
+            second.grade || this.getRoomGrade(second.room || second)
+        );
+        if (gradeOrder !== 0) return gradeOrder;
+
+        const firstName = String(first.roomName || first.name || first.room?.name || "");
+        const secondName = String(second.roomName || second.name || second.room?.name || "");
+        const sequenceOrder = this.roomSequence(firstName) - this.roomSequence(secondName);
+        if (sequenceOrder !== 0) return sequenceOrder;
+        return firstName.localeCompare(secondName, "th", { numeric: true, sensitivity: "base" });
+    }
+
     resolveRoomId(record = {}, key = "") {
         const explicit = record.roomId || record.classId || record.clsId;
         if (explicit !== undefined && explicit !== null && String(explicit).trim()) {
@@ -220,7 +239,7 @@ class ReportService {
                     usedPercent: this.usedPercent(distTotal, remaining)
                 };
             })
-            .sort((first, second) => first.roomName.localeCompare(second.roomName, "th"));
+            .sort((first, second) => this.compareRooms(first, second));
     }
 
     groupByGrade(summary = []) {
@@ -325,6 +344,11 @@ class ReportService {
             settings,
             schoolName: String(settings.school || settings.schoolName || "โรงเรียน"),
             academicYear: String(settings.year || settings.academicYear || ""),
+            sourceDiagnostics: snapshot.reportLocalDiagnostics || {
+                missing: [],
+                invalid: [],
+                counts: { pending: 0, retro: 0, vacation: 0 }
+            },
             roomSummary,
             gradeSummary,
             schoolTotal,
@@ -334,8 +358,12 @@ class ReportService {
     }
 
     async generate(view = "room", extraSources = {}) {
-        const snapshot = await this.ensureRepository().loadReportSnapshot();
+        const snapshot = await this.loadSnapshot();
         return this.buildReport({ ...snapshot, ...extraSources }, view);
+    }
+
+    loadSnapshot() {
+        return this.ensureRepository().loadReportSnapshot();
     }
 
     buildExportRows(report) {

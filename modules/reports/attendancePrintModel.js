@@ -154,10 +154,10 @@ class AttendancePrintModel {
             { key: "id", label: "รหัสนักเรียน" },
             { key: "name", label: "ชื่อ-นามสกุล" },
             { key: "gender", label: "เพศ" },
-            { key: "present", label: "มา" },
-            { key: "absent", label: "ขาด" },
+            { key: "present", label: "ดื่มนม" },
+            { key: "absent", label: "ไม่ดื่มนม" },
             { key: "unchecked", label: "ยังไม่ตรวจ" },
-            { key: "attendanceRate", label: "อัตรามาเรียน (%)" },
+            { key: "attendanceRate", label: "อัตราดื่มนม (%)" },
             { key: "notesCount", label: "หมายเหตุ" }
         ];
     }

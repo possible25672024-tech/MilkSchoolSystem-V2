@@ -1,8 +1,8 @@
 # MilkSchoolSystem-V2
 # AI Development Context
 
-Version: 3.2
-Last Updated: 2026-07-30
+Version: 4.0
+Last Updated: 2026-08-01
 
 ---
 
@@ -34,7 +34,167 @@ Teacher shell and operational Attendance, Queue, Pending, Retroactive, Vacation,
 
 ↓
 
-Sprint 4.8 history, summary, and A4 models merged into `develop`; report UI browser and A4 gates accepted on the follow-up feature branch
+Sprint 4.8 merged into `develop`; Sprint 4.9 Teacher parity passed; Sprint 5.0 Admin room operations passed; Sprint 5.1 scalable Admin reads passed browser validation; Sprint 5.2 inline Admin Attendance edit passed automated gates; Sprint 5.3 Admin system and stock Dashboard passed automated gates; Sprint 5.4 receipt and stock trace passed automated gates; Sprint 5.5 student and room management passed automated gates; Sprint 5.6 classroom distribution passed automated gates; Sprint 5.7 period reports passed automated gates; Sprint 5.7.1 report ordering is active
+
+Current Sprint 6.5 boundary:
+
+- external UAT and approval controls are repeatable and fail closed;
+- official Emulator requires Java 21+ and its external artifact;
+- real-project UAT requires an explicitly confirmed isolated Firebase project;
+- incident `INC-2026-07-28-MQN0Z13EYX5B` has a read-only Backup audit but
+  remains open without authoritative evidence and signed disposition;
+- Production approval is bound to the exact commit and separately names every
+  release action;
+- automated regression passes 101/101;
+- blocker 3 Live Browser/device evidence remains mandatory;
+- no Production, Rules, `main`, tag, Restore, repair, or cutover is authorized;
+- final status: **NOT READY FOR DEPLOYMENT**.
+
+Preserved Sprint 6.4 boundary:
+
+- Firebase Email/Password REST authentication owns sign-in and short-lived ID
+  token refresh;
+- compatible browser sessions are bound to the current Firebase UID;
+- authorization profiles distinguish Admin from a Teacher's exact room;
+- legacy Admin/Teacher password comparison and static database-secret loading
+  are removed from V2;
+- Teacher collection reads use room-scoped queries compatible with Rules;
+- active deny-by-default Rules and freeze-writes rollback Rules are included;
+- automated regression passes 100/100;
+- official Emulator, real isolated Firebase project, and Live Browser UAT remain
+  external blockers and are not represented as PASS;
+- no Production, Rules deployment, `main`, tag, Restore, or cutover action is
+  authorized;
+- protected legacy files, Stock ownership, data quarantine, and rollback remain
+  intact;
+- final status: **NOT READY FOR DEPLOYMENT**.
+
+Preserved Sprint 6.3 boundary:
+
+- Live HTTP and Responsive source gates pass;
+- local Firebase-compatible Backup/Restore and stale ETag rejection pass;
+- the local rehearsal contacted no Production host;
+- automated regression passed 95/95;
+- real Browser and Google Firebase evidence remained blocked.
+
+Preserved Sprint 6.2 boundary:
+
+- eligible new PDFs use lossless structural optimization before Cloud upload;
+- output must reopen with the same page count and save at least 4 KB and 1%;
+- digital signatures, encryption, non-beneficial compression, and validation
+  failures preserve the source PDF automatically;
+- source-file limit remains 12 MB and the screen shows original/saved size;
+- local `pdf-lib` avoids a CDN runtime dependency;
+- automated regression passes 92/92; Live Browser UAT remains pending;
+- two release Sprints remain: Sprint 6.3 isolated/live UAT and Sprint 6.4
+  approved Release Candidate/cutover;
+- protected legacy files, Stock ownership, and Production blocks remain intact.
+
+Preserved Sprint 6.1 boundary:
+
+- every new V2 operational photo upload uses the shared 1,000 px, JPEG 0.70,
+  maximum 400 KB image pipeline;
+- Admin JPG/PNG documents now use the same bounded pipeline and show before and
+  after byte sizes;
+- Admin PDF documents were original uploads up to 12 MB before Sprint 6.2;
+- historical images and documents are never rewritten automatically;
+- automated regression passes 91/91; interactive live/isolated UAT remains
+  required before release approval;
+- protected legacy files, Stock ownership, and Production blocks remain intact.
+
+Preserved Sprint 6.0 boundary:
+
+- selected classroom students remain visible when Main Stock is insufficient;
+- manual days calculate total boxes, crate remainder, Main and Room projections;
+- insufficient stock blocks save without hiding the calculation;
+- automated regression passes 90/90;
+- live browser and isolated Firebase UAT remain pending.
+
+Preserved Sprint 5.9.3 boundary:
+
+- viewed receipt detail prints as A4 with its evidence and signatures;
+- distribution preview exposes the six requested calculation facts before save;
+- fast core backup avoids Teacher history and document-file hydration;
+- full backup remains the only profile accepted for guarded whole-root Restore;
+- automated regression passes 88/88;
+- live browser and isolated Firebase UAT remain pending.
+
+Preserved Sprint 5.9 boundary:
+
+- selected room roster navigation is visible and deterministic;
+- Admin navigation is grouped in reference order without removing a section;
+- complete backup uses shallow root discovery and chunked 413 fallback;
+- root ETag is verified before and after full backup hydration;
+- restore preview uses compact summary reads and guarded restore remains intact;
+- distribution formula anomalies are reported read-only and never auto-fixed;
+- automated regression passes 81/81;
+- live browser and isolated Firebase UAT remain pending.
+
+Preserved Sprint 5.7.1 boundary:
+
+- classroom reports sort from `อ.2` upward with natural room numbers;
+- distribution reports follow oldest-to-newest saved chronology;
+- untimed legacy records follow their `stockBefore → stockAfter` chain;
+- report calculations, Stock values, and Firebase read-only ownership are unchanged.
+
+Current Sprint 5.7 boundary:
+
+- day, week, half-month, month, and explicit-semester report periods;
+- read-only management summary and classroom-distribution detail report;
+- receipts, distributions, Attendance, Pending, Retroactive, and Vacation totals;
+- shallow key discovery with out-of-range detail hydration blocked;
+- no report media/signature hydration and no Firebase write ownership;
+- A4 landscape and UTF-8 BOM CSV output.
+
+Preserved Sprint 5.6 boundary:
+
+- calculate distribution from the actual non-fallback roster × days;
+- transfer exactly one quantity from Main Stock to the selected Room Stock;
+- persist distribution, `DISTRIBUTE` ledger, and completion marker atomically;
+- acquire an ETag/If-Match lock before reading current balances;
+- reuse a completed operation result without deducting Main Stock twice;
+- load distribution history through shallow keys and summary fields only;
+- keep the real-data quarantine and protected legacy files unchanged;
+- keep one Admin writer until isolated browser concurrency evidence passes.
+
+Current Sprint 5.5 boundary:
+
+- parse `.xlsx`, `.xls`, and `.csv` with the vendored local XLSX reader;
+- require complete preview before one ETag-guarded room-collection write;
+- preserve existing `roomId`, students outside imported rooms, and Room Stock;
+- block within-room and cross-room strong-id duplicates;
+- never persist generated `student_*` fallback rows;
+- provide Admin V2 room management and read-only student report/CSV/A4;
+- do not write Main Stock, Room Stock, ledger, Queue, or milk-operation history.
+
+Current Sprint 5.4 boundary:
+
+- receive milk into Main Stock only through the accepted Stock Service;
+- persist receipt and `RECEIVE` ledger with the stock update;
+- load receipt history through shallow, media-free summaries;
+- show the complete stock path and per-room opening-balance candidate;
+- do not auto-repair 54 legacy-history differences or three negative rooms;
+- do not run stock rebuild on the real 83-room dataset;
+- preserve protected legacy files and block Production cutover.
+
+Current Sprint 5.3 boundary:
+
+- show actual Main Stock, Room Stock, rooms, students, and stock health without writes;
+- compare actual Room Stock with report-history expectations without repair;
+- normalize actual Thai-keyed student rosters and exclude generated duplicate rows;
+- preserve scalable Attendance/report reads and media-on-demand behavior;
+- keep `index.html`, `teacher.html`, schema, Queue, ledger, and stock mutations out
+  of scope.
+
+Current Sprint 5.2 boundary:
+
+- Attendance edit must not change the active Admin session to Teacher;
+- edit one explicit date inside the selected-room Admin panel;
+- history `ดู` must render the complete selected saved record inside Admin;
+- full details load lazily one record at a time and must match the selected room;
+- preserve existing photos and signature through the Service boundary;
+- reuse Attendance Room Stock difference, ETag, audit, and Queue recovery;
+- record Admin legacy-menu parity as Sprints 5.3–5.8.
 
 Production cutover remains blocked.
 
@@ -72,7 +232,9 @@ Production gap: browser-local adapter remains deferred.
 - parsed-sheet import boundary
 - deletion safety
 
-Production gaps: XLSX binary parsing remains legacy; complete-room multi-admin concurrency remains unresolved.
+Sprint 5.5 resolves the modular XLSX/XLS/CSV parser and adds ETag protection for
+preview-to-confirm imports. Live Server and isolated real two-Admin evidence
+remain required before Production cutover.
 
 ### Sprint 3.6 — Teacher Service Foundation
 
@@ -225,6 +387,29 @@ Current result:
 - one-sheet A4 preview contained all 16 student rows
 - no approval for `main` or production cutover
 
+### Sprint 4.9 — Student Report, Room Stock, Settings and Navigation Parity
+
+Active branch:
+
+`feature/sprint-4.9-teacher-parity-cutover`
+
+Implemented boundary:
+
+- authenticated-room one-student selected-range report
+- per-date status and notes with deterministic A4 pages
+- actual read-only authenticated-room Room Stock
+- safe device-local display preferences under `milkapp_teacher_preferences_v1`
+- complete 12-item Teacher navigation reusing accepted Sprint 4.1–4.8 panels
+- reference-style dark-blue left desktop sidebar with grouped menus, active highlight, Teacher footer, and compact narrow-screen fallback
+- fixed blue Teacher header above the content and a dark-blue sidebar that begins below it
+- editable authenticated-room homeroom Teacher name with a teacher-leaf-only Repository write
+- `ดื่มนม` / `ไม่ดื่มนม` display wording while persisted `present` / `absent` values stay unchanged
+- metadata-only events and no direct Firebase, Queue, stock, or media ownership
+- Teacher profile events contain room ID only; report, stock, Queue, and media boundaries remain unchanged
+- isolated Service, Store, Manager, and UI gates passed
+- all 53 discovered regression checks passed
+- local browser evidence pending
+
 ---
 
 Deferred Real-Data Incident
@@ -249,11 +434,20 @@ Do not use the quarantined room/date for further writes or trusted report eviden
 
 Active Gate
 
-Sprint 4.8 is accepted for `develop` integration.
+Sprint 5.2 — inline Admin Attendance edit.
 
-Next:
+Required local evidence:
 
-Sprint 4.9 covers student report, remaining Room Stock view, Teacher settings, final Teacher navigation parity, and cutover rehearsal.
+- Admin remains visible after `ประวัติดื่มนม` → `เปิดแก้ไข`;
+- exact-date rows and notes load correctly;
+- save updates only the selected room/date;
+- Room Stock changes only by the present-count difference;
+- existing photos and signature remain in the report;
+- `ดู` renders students, saved statuses/periods, notes, photos, and signatures
+  inside Admin for Attendance, Pending, Retroactive, and Vacation;
+- full-record Firebase reads occur only after clicking one explicit history row;
+- desktop and Chrome Responsive layout stays inside the viewport;
+- clean Console and scoped Firebase traffic.
 
 ---
 

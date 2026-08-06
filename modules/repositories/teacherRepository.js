@@ -9,19 +9,25 @@ class TeacherRepository extends BaseRepository {
     }
 
     loadSettings() {
-        return this.get(this.path("settings"));
+        return this.get(this.path("public/appSettings"));
     }
 
-    loadRooms() {
-        return this.get(this.path("rooms"));
+    loadRoom(roomId) {
+        return this.get(this.path(`rooms/${String(roomId || "")}`));
     }
 
     loadRoomStock(roomId) {
         return this.get(this.path(`roomStock/${String(roomId || "")}`));
     }
 
-    loadDistributions() {
-        return this.get(this.path("distributes"));
+    loadRoomCollection(child, roomId) {
+        const normalizedRoomId = String(roomId || "").trim();
+        if (!normalizedRoomId) return Promise.resolve({});
+        return this.get(this.path(child), { orderBy: "roomId", equalTo: normalizedRoomId });
+    }
+
+    loadDistributions(roomId) {
+        return this.loadRoomCollection("distributes", roomId);
     }
 
     loadAttendanceForRoom(roomId) {
@@ -61,20 +67,20 @@ class TeacherRepository extends BaseRepository {
         };
     }
 
-    loadAbsentMilk() {
-        return this.get(this.path("absentMilk"));
+    loadAbsentMilk(roomId) {
+        return this.loadRoomCollection("absentMilk", roomId);
     }
 
-    loadRetroMilk() {
-        return this.get(this.path("retroMilk"));
+    loadRetroMilk(roomId) {
+        return this.loadRoomCollection("retroMilk", roomId);
     }
 
-    loadVacationMilk() {
-        return this.get(this.path("vacationMilk"));
+    loadVacationMilk(roomId) {
+        return this.loadRoomCollection("vacationMilk", roomId);
     }
 
-    loadStockTransactions() {
-        return this.get(this.path("stockTransactions"));
+    loadStockTransactions(roomId) {
+        return this.loadRoomCollection("stockTransactions", roomId);
     }
 
     loadUpdatedAt() {
@@ -83,15 +89,17 @@ class TeacherRepository extends BaseRepository {
 
     async loadTeacherCoreSnapshot(roomId, options = {}) {
         const attendanceDate = String(options?.attendanceDate || "").trim();
-        const attendancePromise = attendanceDate
-            ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
-            : this.loadAttendanceForRoom(roomId);
+        const attendancePromise = options?.attendanceMode === "none"
+            ? Promise.resolve({})
+            : attendanceDate
+                ? this.loadAttendanceSummaryForDate(roomId, attendanceDate)
+                : this.loadAttendanceForRoom(roomId);
         const roomSnapshot = options?.roomSnapshot && typeof options.roomSnapshot === "object"
             ? options.roomSnapshot
             : null;
         const roomsPromise = roomSnapshot
             ? Promise.resolve([roomSnapshot])
-            : this.loadRooms();
+            : this.loadRoom(roomId).then(room => room ? [room] : []);
 
         const [settings, rooms, roomStock, attendance, updatedAt] = await Promise.all([
             this.loadSettings(),
@@ -107,21 +115,23 @@ class TeacherRepository extends BaseRepository {
             roomStock,
             attendance: attendance || {},
             updatedAt: updatedAt || {},
-            attendanceScope: attendanceDate
-                ? { mode: "date-summary", date: attendanceDate }
-                : { mode: "room-history", date: null },
+            attendanceScope: options?.attendanceMode === "none"
+                ? { mode: "deferred", date: null }
+                : attendanceDate
+                    ? { mode: "date-summary", date: attendanceDate }
+                    : { mode: "room-history", date: null },
             roomSource: roomSnapshot ? "session" : "firebase-fallback",
             extrasLoaded: false
         };
     }
 
-    async loadTeacherExtraSnapshot() {
+    async loadTeacherExtraSnapshot(roomId) {
         const [distributes, absentMilk, retroMilk, vacationMilk, stockTransactions] = await Promise.all([
-            this.loadDistributions(),
-            this.loadAbsentMilk(),
-            this.loadRetroMilk(),
-            this.loadVacationMilk(),
-            this.loadStockTransactions()
+            this.loadDistributions(roomId),
+            this.loadAbsentMilk(roomId),
+            this.loadRetroMilk(roomId),
+            this.loadVacationMilk(roomId),
+            this.loadStockTransactions(roomId)
         ]);
 
         return {
@@ -151,7 +161,7 @@ class TeacherRepository extends BaseRepository {
 
         const [core, extras] = await Promise.all([
             this.loadTeacherCoreSnapshot(roomId, options),
-            this.loadTeacherExtraSnapshot()
+            this.loadTeacherExtraSnapshot(roomId)
         ]);
 
         return {

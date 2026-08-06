@@ -28,12 +28,19 @@ class RoomService {
 
     normalizeRoom(input = {}, existingRoom = null) {
         const existing = existingRoom && typeof existingRoom === "object" ? existingRoom : {};
-        const hasStudents = Array.isArray(input.students);
+        const hasStudents = Array.isArray(input.students) || (
+            input.students &&
+            typeof input.students === "object"
+        );
+        const inputStudents = Array.isArray(input.students)
+            ? input.students
+            : Object.values(input.students || {});
+        const existingStudents = Array.isArray(existing.students)
+            ? existing.students
+            : Object.values(existing.students || {});
         const students = hasStudents
-            ? input.students.map(student => this.normalizeStudent(student)).filter(Boolean)
-            : Array.isArray(existing.students)
-                ? existing.students.map(student => this.normalizeStudent(student)).filter(Boolean)
-                : [];
+            ? inputStudents.map(student => this.normalizeStudent(student)).filter(Boolean)
+            : existingStudents.map(student => this.normalizeStudent(student)).filter(Boolean);
 
         const requestedCount = input.count !== undefined ? Number(input.count) : Number(existing.count);
         const hasValidRequestedCount = Number.isInteger(requestedCount) && requestedCount >= 0;
@@ -161,13 +168,35 @@ class RoomService {
         for (const field of preferredFields) {
             const value = this.comparableText(student[field]);
             if (value) {
-                return `${field}:${value}`;
+                return `student-id:${value}`;
             }
         }
 
         const firstName = this.comparableText(student["ชื่อ"] ?? student.firstName ?? student.name);
         const lastName = this.comparableText(student["นามสกุล"] ?? student.lastName ?? student.surname);
         return firstName || lastName ? `name:${firstName}|${lastName}` : "";
+    }
+
+    strongStudentIdentity(student = {}) {
+        const fields = [
+            "id",
+            "studentId",
+            "รหัส",
+            "รหัสประจำตัว",
+            "รหัสนักเรียน",
+            "เลขประจำตัว 13 หลัก",
+            "เลขประจำตัวประชาชน",
+            "citizenId"
+        ];
+
+        for (const field of fields) {
+            const value = this.comparableText(student[field]);
+            if (value && !/^student_\d+$/i.test(value)) {
+                return `student-id:${value}`;
+            }
+        }
+
+        return "";
     }
 
     async loadRooms() {
@@ -234,6 +263,7 @@ class RoomService {
         const errors = [];
         const warnings = [];
         const sheetNames = new Set();
+        const importedStudentOwners = new Map();
         let importedStudents = 0;
 
         (Array.isArray(sheets) ? sheets : []).forEach((sheet, sheetIndex) => {
@@ -264,6 +294,38 @@ class RoomService {
                     code: "IMPORT_STUDENT_DUPLICATE",
                     message: "The imported room contains duplicate students.",
                     duplicates: duplicateStudents
+                });
+                return;
+            }
+
+            const crossRoomDuplicates = [];
+            students.forEach((student, studentIndex) => {
+                const identity = this.strongStudentIdentity(student);
+                if (!identity) {
+                    return;
+                }
+
+                const previous = importedStudentOwners.get(identity);
+                if (previous && previous.roomName !== roomName) {
+                    crossRoomDuplicates.push({
+                        identity,
+                        studentIndex,
+                        firstRoomName: previous.roomName,
+                        duplicateRoomName: roomName
+                    });
+                    return;
+                }
+
+                importedStudentOwners.set(identity, { roomName, studentIndex });
+            });
+
+            if (crossRoomDuplicates.length) {
+                errors.push({
+                    sheetIndex,
+                    roomName,
+                    code: "IMPORT_STUDENT_CROSS_ROOM_DUPLICATE",
+                    message: "The same student id appears in more than one imported room.",
+                    duplicates: crossRoomDuplicates
                 });
                 return;
             }
@@ -321,6 +383,56 @@ class RoomService {
 
         await repository.saveRooms(preview.rooms);
         return { ok: true, ...preview };
+    }
+
+    async prepareImportSnapshot(sheets = []) {
+        const repository = this.ensureRepository();
+        if (!repository.loadRoomsWithEtag) {
+            throw new Error("RoomRepository ETag reads are not available.");
+        }
+
+        const snapshot = await repository.loadRoomsWithEtag();
+        const baseRooms = this.normalizeCollection(snapshot?.value);
+        const preview = this.prepareImport(sheets, baseRooms);
+
+        return {
+            ...preview,
+            etag: String(snapshot?.etag || ""),
+            baseRooms,
+            sheets: Array.isArray(sheets) ? sheets : []
+        };
+    }
+
+    async confirmImportSnapshot(snapshot = {}) {
+        const repository = this.ensureRepository();
+        if (!repository.replaceRoomsIfMatch) {
+            throw new Error("RoomRepository conditional writes are not available.");
+        }
+
+        const expectedEtag = String(snapshot?.etag || "").trim();
+        if (!expectedEtag) {
+            return { ok: false, code: "ROOM_IMPORT_ETAG_REQUIRED" };
+        }
+
+        const preview = this.prepareImport(snapshot.sheets, snapshot.baseRooms);
+        if (!preview.valid) {
+            return { ok: false, code: "ROOM_IMPORT_INVALID", ...preview };
+        }
+
+        const write = await repository.replaceRoomsIfMatch(preview.rooms, expectedEtag);
+        if (write?.status === "conflict") {
+            return {
+                ok: false,
+                code: "ROOM_IMPORT_CONFLICT",
+                message: "Room data changed after the preview. Reload the file and review the preview again."
+            };
+        }
+
+        return {
+            ok: true,
+            ...preview,
+            etag: String(write?.etag || "")
+        };
     }
 
     buildDeletionReport(roomId, context = {}) {
