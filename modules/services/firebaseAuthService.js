@@ -18,8 +18,15 @@ class FirebaseAuthService {
     }
 
     isConfigured() {
-        return this.config.mode === "firebase-email-password" && Boolean(this.config.apiKey);
+    const appConfig = window.ConfigManager?.getAppConfig?.() || {};
+    const appMode = String(appConfig.mode || "").trim().toUpperCase();
+
+    if (appMode === "OFFLINE_READ_ONLY") {
+        return false;
     }
+
+    return this.config.mode === "firebase-email-password" && Boolean(this.config.apiKey);
+}
 
     requireConfigured() {
         if (!this.isConfigured()) {

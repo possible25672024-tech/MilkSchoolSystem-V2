@@ -26,7 +26,8 @@ class LoginService {
     }
 
     normalizeDirectory(raw = {}) {
-        const entries = Object.entries(raw.accounts || raw.rooms || {})
+        const source = raw && typeof raw === "object" ? raw : {};
+        const entries = Object.entries(source.accounts || source.rooms || {})
             .filter(([, account]) => account && typeof account === "object")
             .map(([key, account]) => ({
                 id: String(account.id || key),
@@ -35,10 +36,17 @@ class LoginService {
                 authEmail: String(account.authEmail || account.email || "").trim()
             }));
         return {
-            schoolName: String(raw.schoolName || raw.school || "โรงเรียน"),
+            schoolName: String(source.schoolName || source.school || "โรงเรียน"),
             accounts: entries,
             rooms: entries.filter(account => account.id !== "__admin__")
         };
+    }
+
+    isOfflinePreview() {
+        return Boolean(
+            window.APP_CONFIG?.mode === "OFFLINE_READ_ONLY" ||
+            this.repository?.firebaseService?.backupMode === true
+        );
     }
 
     cloneLoginOptions(options = {}) {
@@ -69,7 +77,8 @@ class LoginService {
         const value = this.normalizeDirectory(
             await this.ensureRepository().loadPublicLoginDirectory()
         );
-        if (!value.accounts.some(account => account.id === "__admin__" && account.authEmail)) {
+        if (!this.isOfflinePreview() &&
+            !value.accounts.some(account => account.id === "__admin__" && account.authEmail)) {
             throw new Error("Public login directory does not contain a configured Admin account.");
         }
         this.loginOptionsCache = {
@@ -139,22 +148,64 @@ class LoginService {
         if (!String(password || "")) {
             return { ok: false, code: "PASSWORD_REQUIRED", message: "กรุณากรอกรหัสผ่าน" };
         }
+
         const options = await this.loadLoginOptions();
         const account = options.accounts.find(item => item.id === normalizedSelection);
+        if (!account) {
+            return { ok: false, code: "ACCOUNT_NOT_FOUND", message: "ไม่พบบัญชีสำหรับรายการที่เลือก" };
+        }
+
+        const repository = this.ensureRepository();
+        const selectedRoom = normalizedSelection === "__admin__" ? null : normalizedSelection;
+
+        if (this.isOfflinePreview()) {
+            const profile = normalizedSelection === "__admin__"
+                ? { role: "admin", enabled: true }
+                : { role: "teacher", enabled: true, roomId: normalizedSelection };
+            const adminOverride = profile.role === "admin" && Boolean(selectedRoom);
+            const [settings, rawRoom] = await Promise.all([
+                profile.role === "admin"
+                    ? repository.loadSettings()
+                    : Promise.resolve({ school: options.schoolName }),
+                selectedRoom ? repository.loadRoom(selectedRoom) : Promise.resolve(null)
+            ]);
+            if (selectedRoom && !rawRoom) {
+                const error = new Error("ไม่พบห้องเรียนที่เลือกในฐานข้อมูล");
+                error.code = "ROOM_NOT_FOUND";
+                throw error;
+            }
+            const room = selectedRoom ? this.normalizeRoom(rawRoom, selectedRoom) : null;
+            const auth = {
+                uid: `offline-${normalizedSelection}`,
+                email: account.authEmail || `offline-${normalizedSelection}@local`,
+                refreshToken: "",
+                expiresAt: this.clock() + 3600 * 1000
+            };
+            return {
+                ok: true,
+                session: this.buildSession({
+                    selection: normalizedSelection,
+                    room,
+                    settings: settings || {},
+                    profile,
+                    auth,
+                    adminOverride
+                })
+            };
+        }
+
         if (!account?.authEmail) {
             return { ok: false, code: "ACCOUNT_NOT_FOUND", message: "ไม่พบบัญชีสำหรับรายการที่เลือก" };
         }
         const authService = this.ensureFirebaseAuthService();
         try {
             const auth = await authService.signIn(account.authEmail, String(password));
-            const repository = this.ensureRepository();
             const profile = await repository.loadAuthorizedUser(auth.uid);
             if (!profile || profile.enabled !== true || !["admin", "teacher"].includes(profile.role)) {
                 const error = new Error("บัญชีนี้ไม่มีสิทธิ์ใช้งานระบบ");
                 error.code = "AUTHORIZATION_PROFILE_DENIED";
                 throw error;
             }
-            const selectedRoom = normalizedSelection === "__admin__" ? null : normalizedSelection;
             const adminOverride = profile.role === "admin" && Boolean(selectedRoom);
             if (normalizedSelection === "__admin__" && profile.role !== "admin") {
                 const error = new Error("บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ");

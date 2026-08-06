@@ -21,3 +21,9 @@ evidence/
 firebase/test-seed.generated.json
 /docs/uid.txt
 /database-debug.log
+
+# Local Firebase config and API key for legacy read-only mode
+config/firebase-local.js
+# local database backup files
+milk-v2-backup-*.json
+milk_backup_*.json.json

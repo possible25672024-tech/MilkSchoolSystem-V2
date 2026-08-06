@@ -51,13 +51,32 @@ class ConfigManager {
         }
     }
 
+    getLocalFirebaseConfig() {
+        const localConfig = window.firebaseLocalConfig || {};
+        const localApiKey = String(localStorage.getItem("firebaseApiKey") || "").trim();
+
+        if (!localConfig.auth && !localApiKey) {
+            return localConfig;
+        }
+
+        return {
+            ...localConfig,
+            auth: {
+                ...((localConfig.auth || {})),
+                ...(localApiKey ? { apiKey: localApiKey } : {})
+            }
+        };
+    }
+
     getFirebaseConfig() {
         const fileConfig = window.firebaseConfig || {};
         const runtimeConfig = this.runtime.firebase || {};
         const legacyConfig = this.getLegacyDatabaseConfig();
+        const localConfig = this.getLocalFirebaseConfig();
 
         const databaseURL = [
             runtimeConfig.databaseURL,
+            localConfig.databaseURL,
             fileConfig.databaseURL,
             localStorage.getItem("firebaseUrl"),
             legacyConfig.databaseURL
@@ -67,6 +86,13 @@ class ConfigManager {
             ...fileConfig,
             ...legacyConfig,
             ...runtimeConfig,
+            ...localConfig,
+            auth: {
+                ...((fileConfig.auth || {})),
+                ...((legacyConfig.auth || {})),
+                ...((runtimeConfig.auth || {})),
+                ...((localConfig.auth || {}))
+            },
             databaseURL: String(databaseURL).trim().replace(/\/+$/, "")
         };
     }

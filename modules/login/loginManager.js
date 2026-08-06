@@ -67,7 +67,7 @@ class LoginManager {
 
             this.setStatus(`เชื่อมต่อแล้ว พบ ${rooms.length} ห้องเรียน`);
         } catch (error) {
-            console.error("LoginManager: cannot load login options.", error);
+            console.debug("LoginManager: login options could not load.", error);
             this.showError(
                 error.message === "Firebase Realtime Database URL is not configured."
                     ? "ยังไม่ได้ตั้งค่า Firebase Realtime Database URL"

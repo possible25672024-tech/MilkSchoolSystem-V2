@@ -525,12 +525,33 @@ class AdminOperationalReportService {
             "หมายเหตุ": record.note
         }));
     }
-
-    buildExportModel(report, kind = "summary") {
-        const rows = kind === "distribution"
+        buildExportModel(report, kind = "summary") {
+        let rows = kind === "distribution"
             ? this.distributionExportRows(report)
             : this.summaryExportRows(report);
-        const label = kind === "distribution" ? "รายงานการจ่ายนม" : "สรุปบริหารจัดการนม";
+
+        if (kind === "distribution" && rows.length === 0) {
+            rows = [{
+                "ลำดับ": "",
+                "วันที่": "",
+                "ห้องเรียน": "",
+                "นักเรียน": "",
+                "จำนวนวัน": "",
+                "ลัง": "",
+                "กล่องเศษ": "",
+                "รวมกล่อง": "",
+                "Main Stock ก่อน": "",
+                "Main Stock หลัง (คำนวณ)": "",
+                "Main Stock หลัง (บันทึกเดิม)": "",
+                "ตรวจยอด": "",
+                "หมายเหตุ": ""
+            }];
+        }
+
+        const label = kind === "distribution"
+            ? "รายงานการจ่ายนม"
+            : "สรุปบริหารจัดการนม";
+
         return {
             filename: `${label}-${report.period.startDate}-ถึง-${report.period.endDate}.csv`,
             rows
@@ -539,7 +560,9 @@ class AdminOperationalReportService {
 
     buildPrintModel(report, kind = "summary") {
         return {
-            title: kind === "distribution" ? "รายงานการจ่ายนมให้ห้องเรียน" : "สรุปการบริหารจัดการนมโรงเรียน",
+            title: kind === "distribution"
+                ? "รายงานการจ่ายนมให้ห้องเรียน"
+                : "สรุปการบริหารจัดการนมโรงเรียน",
             schoolName: report.schoolName,
             academicYear: report.academicYear,
             periodLabel: `${report.period.label} ${report.period.startDate} ถึง ${report.period.endDate}`,

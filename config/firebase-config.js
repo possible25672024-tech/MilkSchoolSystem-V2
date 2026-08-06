@@ -17,3 +17,20 @@ window.firebaseConfig = Object.freeze({
         refreshSkewSeconds: 120
     })
 });
+
+window.loadFirebaseLocalConfig = async function () {
+    try {
+        const response = await fetch("config/firebase-local.js", { cache: "no-store" });
+        if (!response.ok) {
+            return;
+        }
+
+        const scriptText = await response.text();
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.textContent = scriptText;
+        document.head.appendChild(script);
+    } catch (error) {
+        console.warn("Firebase local config loader failed.", error);
+    }
+};
